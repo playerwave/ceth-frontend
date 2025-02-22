@@ -187,4 +187,4 @@ export default function enrolled_list_admin() {
   );
 };
 
-export default enrolled_list_admin;
+export default ListActivityAdmin;
