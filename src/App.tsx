@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 //import pages
 import Main from "./pages/Admin/main_admin";
 import ManageActivityAdmin from "./pages/Admin/activity-admin/manage_activity_admin";
+import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity_info_admin"
 import Crud_Test from "./pages/Test/crud_test";
 
 function App() {
@@ -27,7 +28,7 @@ function App() {
             path="/manage-activity-admin"
             element={
               <Navbar>
-                <ManageActivityAdmin />
+                <ActivityInfoAdmin />
               </Navbar>
             }
           ></Route>
