@@ -29,8 +29,8 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   };
 
   return (
-    <thead>
-      <tr className="bg-[#1E3A8A] text-white rounded">
+    <thead className="bg-[#1E3A8A] text-white text-center rounded-t-lg">
+      <tr className="rounded-lg">
         {[
           { key: "name", label: "ชื่อบริษัท/วิทยากร", sortable: true },
           { key: "type", label: "ประเภท", sortable: true },

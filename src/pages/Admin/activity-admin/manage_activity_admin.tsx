@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaList, FaCalendar } from "react-icons/fa";
 import SearchBar from "../../../components/search_bar";
 import Table from "../../../components/table";
-import { faPlus } from "@fortawesome/free-solid-svg-icons"; // ✅ นำเข้าไอคอน
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ListActivityAdmin: React.FC = () => {
@@ -74,38 +74,43 @@ const ListActivityAdmin: React.FC = () => {
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-5">
       <h1 className="text-center text-2xl font-bold mb-4">จัดการกิจกรรม</h1>
-      {/* แถบค้น */}
+
+      {/* ✅ แถบค้นหา */}
       <div className="w-full">
         <SearchBar />
       </div>
-      {/* ปุ่มเพิ่ม */}
-      <div className="flex justify-end">
-        <button className="bg-[#1E3A8A] text-white px-4 py-2 rounded flex items-center gap-2 transition">
-          เพิ่ม <FontAwesomeIcon icon={faPlus} />
-        </button>
-      </div>
 
-      {/* ✅ แท็บ "ลิสต์" และ "ปฏิทิน" */}
-      <div className="flex border-b mb-4">
-        <button
-          className={`px-4 py-2 text-lg font-semibold ${
-            activeTab === "list"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("list")}
-        >
-          <FaList className="inline mr-2" /> ลิสต์
-        </button>
-        <button
-          className={`px-4 py-2 text-lg font-semibold ${
-            activeTab === "calendar"
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-500"
-          }`}
-          onClick={() => setActiveTab("calendar")}
-        >
-          <FaCalendar className="inline mr-2" /> ปฏิทิน
+      {/* ✅ แท็บ "ลิสต์" และ "ปฏิทิน" + ปุ่มเพิ่ม */}
+      <div className="flex justify-between items-center ">
+        {/* 🔹 แท็บลิสต์ และ ปฏิทิน (อยู่ซ้าย) */}
+        <div className="flex space-x-4">
+          <button
+            className={`px-4 py-2 text-lg font-semibold relative ${
+              activeTab === "list"
+                ? "text-blue-600 border-b-4 border-blue-600 -mb-1"
+                : "text-gray-500"
+            }`}
+            onClick={() => setActiveTab("list")}
+          >
+            <FaList className="inline mr-2" /> ลิสต์
+          </button>
+
+          <button
+            className={`px-4 py-2 text-lg font-semibold relative ${
+              activeTab === "calendar"
+                ? "text-blue-600 border-b-4 border-blue-600 -mb-1"
+                : "text-gray-500"
+            }`}
+            onClick={() => setActiveTab("calendar")}
+          >
+            <FaCalendar className="inline mr-2" /> ปฏิทิน
+          </button>
+        </div>
+
+        {/* 🔹 ปุ่มเพิ่ม (อยู่ขวาสุด) */}
+        <button className="bg-[#1E3A8A] text-white px-6 py-2 rounded flex items-center justify-center gap-2 transition mb-4 w-35">
+          <span className="text-base">เพิ่ม</span>
+          <FontAwesomeIcon icon={faPlus} className="text-lg" />
         </button>
       </div>
 
