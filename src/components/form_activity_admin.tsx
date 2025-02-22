@@ -1,0 +1,390 @@
+import React, { useState } from "react";
+
+interface FormData {
+  activityName: string;
+  companyOrSpeaker: string;
+  description: string;
+  category: string;
+  roomFloor: string;
+  roomNumber: string;
+  status: string;
+  seats: string;
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
+  foodOptions: string[];
+  selectedFoods: string[];
+  evaluationType: string;
+  file: File | null;
+}
+
+const FormActivityAdmin: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
+    activityName: "",
+    companyOrSpeaker: "",
+    description: "",
+    category: "Soft Skill",
+    roomFloor: "",
+    roomNumber: "",
+    status: "Private",
+    seats: "0",
+    startDate: "",
+    startTime: "",
+    endDate: "",
+    endTime: "",
+    foodOptions: ["เมนู 1", "เมนู 2"],
+    selectedFoods: [], // อาหารที่เลือก
+    evaluationType: "แบบประเมิน 1",
+    file: null,
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+
+    if (name === "seats") {
+      // อนุญาตให้เป็นช่องว่าง (""), ถ้าไม่ใช่ช่องว่างให้ตรวจสอบค่าเป็นตัวเลข
+      if (value === "" || /^[0-9\b]+$/.test(value)) {
+        setFormData(prev => ({ ...prev, seats: value })); // เก็บค่าเป็น string
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // แปลงค่า seats เป็น number ก่อนใช้งาน
+    const numericSeats = formData.seats === "" ? 0 : parseInt(formData.seats, 10);
+
+    console.log("Form Submitted", { ...formData, seats: numericSeats });
+  };
+
+  const addFoodOption = () => {
+    setFormData(prev => ({
+      ...prev,
+      foodOptions: [...prev.foodOptions, `เมนู ${prev.foodOptions.length + 1}`]
+    }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFormData(prev => ({ ...prev, file: e.target.files![0] }));
+    }
+  };
+
+  // ฟังก์ชันแก้ไขเมนูอาหาร
+  const updateFoodOption = (index: number, newValue: string) => {
+    const updatedFoodOptions = [...formData.foodOptions];
+    updatedFoodOptions[index] = newValue;
+    setFormData(prev => ({ ...prev, foodOptions: updatedFoodOptions }));
+  };
+
+  // ฟังก์ชันลบเมนูอาหาร
+  const removeFoodOption = (index: number) => {
+    const updatedFoodOptions = formData.foodOptions.filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, foodOptions: updatedFoodOptions }));
+  };
+
+  // ฟังก์ชันเลือก/ยกเลิกการเลือกเมนูอาหาร
+  const toggleFoodSelection = (food: string) => {
+    setFormData(prev => ({
+      ...prev,
+      selectedFoods: prev.selectedFoods.includes(food)
+        ? prev.selectedFoods.filter(item => item !== food) // เอาออกถ้าถูกเลือกแล้ว
+        : [...prev.selectedFoods, food], // เพิ่มเข้าไปถ้ายังไม่ได้เลือก
+    }));
+  };
+
+  return (
+    <>
+
+
+      <div className="w-350 mx-auto ml-2xl mt-5 bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
+
+
+        <h1 className="text-4xl font-bold mb-11">สร้างกิจกรรมสหกิจ</h1>
+
+
+        <form onSubmit={handleSubmit} className="space-y-4 ">
+
+          {/* scrollbar */}
+          <div className="overflow-y-auto max-h-[800px] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200 pr-4">
+            {/* ช่องกรอกชื่อกิจกรรม */}
+            <div>
+              <label className="block font-semibold w-50">ชื่อกิจกรรม *</label><input
+                type="text"
+                name="activityName"
+                value={formData.activityName}
+                onChange={handleChange}
+                className="w-2xl p-2 border rounded mb-4 "
+                placeholder="ชื่อกิจกรรม"
+                required
+              />
+            </div>
+
+
+
+            <div className="flex space-x-6">
+              {/* ช่องกรอกชื่อบริษัท/วิทยากร */}
+              <div className="w-1/2">
+                <label className="block font-semibold">ชื่อบริษัท/วิทยากร *</label>
+                <input
+                  type="text"
+                  name="companyOrSpeaker"
+                  value={formData.companyOrSpeaker}
+                  onChange={handleChange}
+                  className="w-2xl p-2 border rounded mb-4"
+                  placeholder="ชื่อบริษัท หรือ วิทยากร ที่มาอบรม"
+                  required
+                />
+              </div>
+
+              {/* ช่องกรอกวันและเวลาการดำเนินการกิจกรรม */}
+              <div className="w-1/2">
+                <label className="block font-semibold">วันและเวลาการดำเนินการกิจกรรม *</label>
+                <div className="flex space-x-2">
+
+                  {/* กรอกวันเริ่้ม */}
+                  <div className="w-1/2">
+                    <div className="flex space-x-2">
+                      <input
+                        type="date"
+                        name="startDate"
+                        value={formData.startDate}
+                        onChange={handleChange}
+                        className="w-1/2 p-2 border rounded"
+                        required
+                      />
+
+                      {/* กรอกเวลาเริ่ม */}
+                      <input
+                        type="time"
+                        name="startTime"
+                        value={formData.startTime}
+                        onChange={handleChange}
+                        className="w-1/2 p-2 border rounded"
+                        required
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500  mt-1">Start</p>
+                  </div>
+
+                  <span className="self-center font-semibold">-</span>
+
+                  {/* กรอกวันจบ */}
+                  <div className="w-1/2">
+                    <div className="flex space-x-2">
+                      <input
+                        type="date"
+                        name="endDate"
+                        value={formData.endDate}
+                        onChange={handleChange}
+                        className="w-1/2 p-2 border rounded"
+                        required
+                      />
+                      {/* กรอกเวลาจบ */}
+                      <input
+                        type="time"
+                        name="endTime"
+                        value={formData.endTime}
+                        onChange={handleChange}
+                        className="w-1/2 p-2 border rounded"
+                        required
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500  mt-1">End</p>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            {/* ช่องกรอกคำอธิบาย */}
+            <div>
+              <label className="block font-semibold w-50">คำอธิบายกิจกรรม</label>
+              <textarea
+
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                className="w-2xl p-2 border rounded mb-4 h-42 "
+                placeholder="รายละเอียดกิจกรรม หรือ คำอธิบาย"
+                required
+
+              ></textarea>
+            </div>
+
+            {/* ช่องกรอกระเภท */}
+            <div>
+              <label className="block font-semibold w-50">ประเภท *</label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-2xl p-2 border rounded mb-4 "
+              >
+                <option value="Soft Skill">ชั่วโมงเตรียมความพร้อม (Soft Skill)</option>
+                <option value="Technical">ชั่วโมงทักษะทางวิชาการ (Technical)</option>
+                <option value="other">อื่นๆ </option>
+              </select>
+            </div>
+
+            {/* ช่องกรอกห้องที่ใช้อบรม */}
+            <div>
+              <label className="block font-semibold ">ห้องที่ใช้อบรม</label>
+
+              <div className="flex space-x-2  " >
+                <input
+                  type="text"
+                  name="roomFloor"
+                  value={formData.roomFloor}
+                  onChange={handleChange}
+                  className="w-30 p-2 border rounded mb-4 "
+                  placeholder="ชั้นที่"
+                />
+                <input
+                  type="text"
+                  name="roomNumber"
+                  value={formData.roomNumber}
+                  onChange={handleChange}
+                  className="ml-2 w-134 p-2 border rounded mb-4 "
+                  placeholder="หมายเลขห้อง"
+                />
+              </div>
+            </div>
+
+            <div className="flex space-x-4">
+
+              {/* ช่องกรอกสถานะ*/}
+              <div className="w-1/6">
+                <label className="block font-semibold w-50">สถานะ *</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="Private">Private</option>
+                  <option value="Public">Public</option>
+                </select>
+              </div>
+              {/* ช่องกรอกจำนวนที่นั่ง*/}
+              <div className="w-109">
+                <label className="block font-semibold ">จำนวนที่นั่ง *</label>
+                <input
+                  type="number"
+                  name="seats"
+                  value={formData.seats}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                  min="1"
+                />
+              </div>
+            </div>
+
+
+            {/* ช่องเลือกอาหาร */}
+            <div className="w-2xl  mt-5 bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
+
+              <label className="block font-semibold mb-2">อาหาร *</label>
+              {formData.foodOptions.map((menu, index) => (
+                <div key={index} className="flex items-center space-x-2 mb-2">
+
+                  <input
+                    type="checkbox"
+                    checked={formData.selectedFoods.includes(menu)}
+                    onChange={() => toggleFoodSelection(menu)}
+                    className="w-5 h-5"
+                  />
+                  {/* อินพุตที่แก้ไขได้ */}
+                  <input
+                    type="text"
+                    value={menu}
+                    onChange={(e) => updateFoodOption(index, e.target.value)}
+                    className="w-full p-2 border rounded"
+                  />
+                  {/* ปุ่มกากบาทลบเมนู */}
+                  <button
+                    type="button"
+                    onClick={() => removeFoodOption(index)}
+                    className="bg-red-500 text-white px-2 py-1 rounded"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addFoodOption}
+                className="bg-blue-600 text-white px-4 py-2 rounded mt-2"
+              >
+                เพิ่มอาหาร
+              </button>
+
+            </div>
+
+
+
+            {/* แบบประเมิน */}
+            <div className="mt-4">
+              <label className="block font-semibold">แบบประเมิน *</label>
+              <select
+                name="evaluationType"
+                value={formData.evaluationType}
+                onChange={handleChange}
+                className="w-2xl p-2 border rounded mb-4 "
+              >
+                <option value="แบบประเมิน 1">แบบประเมิน 1</option>
+                <option value="แบบประเมิน 2">แบบประเมิน 2</option>
+                <option value="แบบประเมิน 3">แบบประเมิน 3</option>
+              </select>
+            </div>
+
+
+
+            {/* อัปโหลดไฟล์ */}
+            <div>
+              <label className=" font-semibold">แนบไฟล์ :</label>
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="w-146 p-2 border rounded ml-4 "
+              />
+            </div>
+
+            {/* แสดงภาพที่อัปโหลด (ถ้าเป็นรูป) */}
+            {formData.file && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-500">ไฟล์ที่อัปโหลด: {formData.file.name}</p>
+                {formData.file.type.startsWith("image/") && (
+                  <img
+                    src={URL.createObjectURL(formData.file)}
+                    alt="อัปโหลดภาพกิจกรรม"
+                    className="mt-2 w-100 h-100 object-cover border rounded-lg shadow"
+                  />
+                )}
+              </div>
+            )}
+
+            {/* ปุ่ม ยกเลิก & สร้าง */}
+            <div className="flex justify-end space-x-4">
+              <button type="button" className="bg-red-600 text-white px-6 py-2 rounded">
+                ยกเลิก
+              </button>
+              <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded">
+                สร้าง
+              </button>
+            </div>
+
+
+          </div>
+
+        </form>
+      </div>
+    </>
+  );
+};
+
+export default FormActivityAdmin; 
