@@ -1,5 +1,7 @@
-const manage_activity_admin = () => {
-  return <div>manage_activity_admin</div>;
+import FormActivityAdmin from "../../../components/form_activity_admin";
+
+const ManageActivityAdmin = () => {
+  return <><FormActivityAdmin /></>;
 };
 
-export default manage_activity_admin;
+export default ManageActivityAdmin;
