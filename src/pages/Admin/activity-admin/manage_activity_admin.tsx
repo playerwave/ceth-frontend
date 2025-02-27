@@ -3,6 +3,7 @@ import { ImagePlus } from "lucide-react";
 
 //import components
 import Button from "../../../components/Button";
+import Searchbar from "../../../components/Searchbar";
 
 interface FormData {
   activityName: string;
@@ -111,7 +112,7 @@ const ManageActivityAdmin: React.FC = () => {
   return (
     <>
       <div className="justify-items-center">
-        <div className="w-320 h-380 mx-auto ml-2xl mt-5 bg-white p-6 border border-gray-200 rounded-lg shadow-sm min-h-screen ">
+        <div className="w-320 h-385 mx-auto ml-2xl mt-5 bg-white p-6 border border-gray-200 rounded-lg shadow-sm min-h-screen ">
           <h1 className="text-4xl font-bold mb-11">สร้างกิจกรรมสหกิจ</h1>
           <form onSubmit={handleSubmit} className="space-y-4 ">
             {/* scrollbar */}
