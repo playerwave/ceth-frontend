@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { ImagePlus } from "lucide-react";
 
+//import components
+import Button from "../../../components/Button";
+
 interface FormData {
   activityName: string;
   companyOrSpeaker: string;
@@ -382,18 +385,10 @@ const ManageActivityAdmin: React.FC = () => {
 
               {/* ปุ่ม ยกเลิก & สร้าง */}
               <div className="flex justify-end space-x-4 mt-5">
-                <button
-                  type="button"
-                  className="bg-red-600 text-white px-6 py-2 rounded"
-                >
-                  ยกเลิก
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#1E3A8A] text-white px-6 py-2 rounded"
-                >
+                <Button color="red">ยกเลิก</Button>
+                <Button color="blue" width="100px">
                   สร้าง
-                </button>
+                </Button>
               </div>
             </div>
           </form>
