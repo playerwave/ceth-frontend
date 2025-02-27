@@ -6,7 +6,7 @@ import Navbar from "./components/Navbar";
 
 //import pages
 import Main from "./pages/Admin/main_admin";
-import ManageActivityAdmin from "./pages/Admin/activity-admin/manage_activity_admin";
+import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
 import Crud_Test from "./pages/Test/crud_test";
 
 function App() {
@@ -24,10 +24,10 @@ function App() {
             }
           />
           <Route
-            path="/manage-activity-admin"
+            path="/List-activity-admin"
             element={
               <Navbar>
-                <ManageActivityAdmin />
+                <ListActivityAdmin />
               </Navbar>
             }
           ></Route>

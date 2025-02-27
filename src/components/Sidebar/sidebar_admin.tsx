@@ -13,7 +13,7 @@ const sidebar_admin = () => {
             หน้าหลัก
           </button>
         </Link>
-        <Link to="/manage-activity-admin">
+        <Link to="/list-activity-admin">
           <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
             กิจกรรมสหกิจ
           </button>
