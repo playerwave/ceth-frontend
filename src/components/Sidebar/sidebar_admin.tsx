@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Home,
   BookA,
@@ -15,7 +15,15 @@ import {
 } from "lucide-react";
 
 const SidebarAdmin = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // ✅ โหลดค่า `isCollapsed` จาก LocalStorage ถ้ามี
+  const [isCollapsed, setIsCollapsed] = useState(
+    () => localStorage.getItem("sidebarCollapsed") === "true"
+  );
+
+  // ✅ เมื่อ `isCollapsed` เปลี่ยน, อัปเดตค่าใน LocalStorage
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
+  }, [isCollapsed]);
 
   const handleNotInThisSprint = () => {
     alert("Use Case นี้จะถูกพัฒนาใน Sprint อื่นๆ ขออภัยในความไม่สะดวก");
@@ -51,61 +59,61 @@ const SidebarAdmin = () => {
       <div className="flex flex-col space-y-1">
         <SidebarItem
           to="/"
-          icon={<Home size={20} />}
+          icon={<Home size={24} />}
           text="หน้าหลัก"
           collapsed={isCollapsed}
         />
         <SidebarItem
           to="/manage-activity-admin"
-          icon={<BookA size={20} />}
+          icon={<BookA size={24} />}
           text="กิจกรรมสหกิจ"
           collapsed={isCollapsed}
         />
         <SidebarItem
           to="/history"
-          icon={<History size={20} />}
+          icon={<History size={24} />}
           text="ประวัติกิจกรรม (ห้าม click)"
           onClick={handleNotInThisSprint}
           collapsed={isCollapsed}
         />
         <SidebarItem
           to="/evaluation"
-          icon={<ClipboardList size={20} />}
+          icon={<ClipboardList size={24} />}
           text="แบบประเมิน (ห้าม click)"
           onClick={handleNotInThisSprint}
           collapsed={isCollapsed}
         />
         <SidebarItem
           to="/students"
-          icon={<Users size={20} />}
+          icon={<Users size={24} />}
           text="รายชื่อนิสิต (ห้าม click)"
           onClick={handleNotInThisSprint}
           collapsed={isCollapsed}
         />
         <SidebarItem
           to="/certificates"
-          icon={<BadgeCheck size={20} />}
+          icon={<BadgeCheck size={24} />}
           text="จัดการเกียรติบัตร (ห้าม click)"
           onClick={handleNotInThisSprint}
           collapsed={isCollapsed}
         />
         <SidebarItem
           to="/settings"
-          icon={<Settings size={20} />}
+          icon={<Settings size={24} />}
           text="ตั้งค่า (ห้าม click)"
           onClick={handleNotInThisSprint}
           collapsed={isCollapsed}
         />
         <SidebarItem
           to="/logout"
-          icon={<LogOut size={20} />}
+          icon={<LogOut size={24} />}
           text="ออกจากระบบ (ห้าม click)"
           onClick={handleNotInThisSprint}
           collapsed={isCollapsed}
         />
         <SidebarItem
           to="/crud-test"
-          icon={<FileText size={20} />}
+          icon={<FileText size={24} />}
           text="CRUD Example"
           collapsed={isCollapsed}
         />
@@ -126,15 +134,17 @@ const SidebarItem = ({ to, icon, text, onClick, collapsed }) => {
         isActive
           ? "bg-blue-100 text-blue-600 border-l-4 border-blue-500 shadow-md"
           : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-      }`}
+      } ${collapsed ? "justify-center" : ""}`}
     >
       {/* ไอคอน */}
       <span className="flex-shrink-0">{icon}</span>
 
-      {/* ข้อความ (มีการซ่อนเมื่อ collapsed) */}
+      {/* ข้อความ (ซ่อนเมื่อ collapsed) */}
       <span
-        className={`absolute left-12 transition-all duration-300 overflow-hidden whitespace-nowrap ${
-          collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+        className={`transition-all duration-300 whitespace-nowrap ${
+          collapsed
+            ? "opacity-0 w-0 overflow-hidden"
+            : "opacity-100 w-auto ml-3"
         }`}
       >
         {text}

@@ -1,6 +1,8 @@
 import { useUserStore } from "../../stores/Test/store_test";
 import { useState, useEffect } from "react";
 
+import Loading from "../../components/Loading";
+
 const crud_test = () => {
   const {
     fetchUsers,
@@ -54,7 +56,9 @@ const crud_test = () => {
 
   return (
     <div>
-      {/* Create & Edit */}
+      {/* แสดง Loading เต็มจอ แต่ Sidebar ยังคงอยู่ */}
+      {isLoading && <Loading />}
+
       <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6">
         <h1 className="text-xl font-semibold mb-4">
           {editingUser ? "Edit User" : "Create User"}
@@ -97,39 +101,6 @@ const crud_test = () => {
           </button>
         </form>
       </div>
-
-      {/* Read */}
-      <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6 mt-6">
-        <h2 className="text-lg font-semibold mb-4">User List</h2>
-        {users.length === 0 ? (
-          <p>No users created yet.</p>
-        ) : (
-          <ul>
-            {users.map((user) => (
-              <li key={user.id} className="mb-2 flex justify-between">
-                <span>
-                  {user.id} {user.firstName} {user.lastName}, Age: {user.age}
-                </span>
-                <button
-                  className="text-blue-500 hover:underline"
-                  onClick={() => handleEdit(user)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="text-red-500 hover:underline"
-                  onClick={() => handleDelete(user.id)}
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {isLoading && <p>Loading users...</p>}
-      {error && <p>Error: {error}</p>}
     </div>
   );
 };
