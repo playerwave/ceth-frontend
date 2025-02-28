@@ -26,13 +26,13 @@ function App() {
             }
           />
           <Route
-            path="/manage-activity-admin"
-            element={
-              <Navbar>
-                <ActivityInfoAdmin />
-              </Navbar>
-            }
-          ></Route>
+          path="/activity-info-admin/:id"
+          element={
+            <Navbar>
+              <ActivityInfoAdmin />
+            </Navbar>
+          }
+        />
           <Route
           path="/enrolled_list_admin"
           element={
