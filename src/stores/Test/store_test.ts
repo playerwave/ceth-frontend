@@ -1,100 +1,81 @@
 import { create } from "zustand";
 import axiosInstance from "../../libs/axios";
+import { AxiosError } from "axios";
 
-interface User {
+// ✅ อินเทอร์เฟซสำหรับข้อมูลที่มาจาก API
+interface ApiActivity {
+  id: number;
+  activity_company_lecturer: string;
+  activity_name: string;
+  activity_type: string;
+  activity_date: string;
+  activity_seat: number;
+  activity_status: string[];
+}
+
+// ✅ อินเทอร์เฟซที่ React ใช้งาน
+interface Activity {
   id: string;
-  firstName: string;
-  lastName: string;
-  age: number;
+  name: string;
+  dis: string;
+  type: "Hard Skill" | "Soft Skill";
+  date: string;
+  time: string;
+  slots: string;
+  status: "Public" | "Private";
 }
 
-//comment
-interface UserState {
-  users: User[];
-  error: string | null;
-  isLoading: boolean;
-  message: string | null;
-  fetchUsers: () => Promise<User[]>;
+// ✅ State สำหรับจัดการ Activities เท่านั้น
+interface AppState {
+  activities: Activity[];
+  activityError: string | null;
+  activityLoading: boolean;
+  fetchActivities: () => Promise<void>;
 }
 
-export const useUserStore = create<UserState>((set) => ({
-  users: [],
-  error: null,
-  isLoading: false,
-  message: null,
+// ✅ ฟังก์ชันแปลงข้อมูลจาก API เป็นรูปแบบที่ React ใช้งานได้
+const mapActivityData = (apiData: ApiActivity): Activity => ({
+  id: apiData.id.toString(),
+  name: apiData.activity_company_lecturer || "ไม่ระบุชื่อ",
+  dis: apiData.activity_name || "ไม่ระบุชื่อ",
+  type: apiData.activity_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
+  date: apiData.activity_date ? apiData.activity_date.split(" ")[0] : "ไม่ระบุ",
+  time: apiData.activity_date ? apiData.activity_date.split(" ")[1] : "ไม่ระบุ",
+  slots: `${apiData.activity_seat} ที่นั่ง`,
+  status: apiData.activity_status.includes("public") ? "Public" : "Private",
+});
 
-  fetchUsers: async () => {
-    set(() => ({ isLoading: true, error: null }));
+// ✅ ใช้ Zustand เพื่อสร้าง Store สำหรับ Activities เท่านั้น
+export const useAppStore = create<AppState>((set) => ({
+  // ✅ ค่าเริ่มต้นของ Activities
+  activities: [],
+  activityError: null,
+  activityLoading: false,
+
+  // ✅ ฟังก์ชันดึงข้อมูล Activities
+  fetchActivities: async () => {
+    set({ activityLoading: true, activityError: null });
 
     try {
-      const { data } = await axiosInstance.get<User[]>(`/user/users`);
+      const { data } = await axiosInstance.get<ApiActivity[]>("/api/activitys");
 
-      // Log ค่า data ทั้งหมดเพื่อดูว่าโครงสร้างมันเป็นอย่างไร
-      console.log("Data fetched from API:", data);
+      console.log("✅ API Response:", data); // 🔍 ตรวจสอบค่าจริงที่ API ส่งมา
 
-      // ตรวจสอบว่า data เป็น array และมีข้อมูล
-      if (Array.isArray(data)) {
-        if (data.length === 0) {
-          set(() => ({ users: [], isLoading: false }));
-          console.log("No users found");
-          return [];
-        } else {
-          set(() => ({ users: data, isLoading: false }));
-          console.log("Users fetched:", data);
-          return data;
-        }
+      if (Array.isArray(data) && data.length > 0) {
+        const mappedActivities = data.map(mapActivityData);
+        set({ activities: mappedActivities, activityLoading: false });
+        console.log("✅ อัปเดต activities:", mappedActivities);
       } else {
-        set(() => ({ users: [], isLoading: false }));
-        console.log("Invalid response format, data is not an array:", data);
-        return [];
+        console.warn("⚠️ API ส่งข้อมูลว่างเปล่า:", data);
+        set({ activities: [], activityLoading: false });
       }
-    } catch (error: any) {
-      set(() => ({
-        error: error.response?.data?.message || "Error fetching Users",
-        isLoading: false,
-      }));
-      console.log("Error fetching users:", error);
-      return [];
-    }
-  },
-  createUser: async (user) => {
-    set(() => ({ isLoading: true, error: null }));
-    try {
-      await axiosInstance.post(`/user/create-user`, user);
-      set((state) => ({ users: [...state.users, user], isLoading: false }));
-    } catch (error: any) {
-      set(() => ({
-        error: error.response?.data?.message || "Error creating User",
-        isLoading: false,
-      }));
-    }
-  },
-  updateUser: async (user) => {
-    set(() => ({ isLoading: true, error: null }));
-    try {
-      await axiosInstance.put(`/user/update-user/${user.id}`, user);
-      set((state) => ({
-        users: state.users.map((u) => (u.id === user.id ? user : u)),
-        isLoading: false,
-      }));
-    } catch (error: any) {
-      set(() => ({
-        error: error.response?.data?.message || "Error updating User",
-        isLoading: false,
-      }));
-    }
-  },
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      const errorMessage =
+        err.response?.data?.message ?? "Error fetching activities";
+      set({ activityError: errorMessage, activityLoading: false });
 
-  deleteUser: async (id) => {
-    set(() => ({ isLoading: true, error: null }));
-    try {
-      await axiosInstance.delete(`/user/delete-user/${id}`);
-      set((state) => ({ users: [...state.users, user], isLoading: false }));
-    } catch (error: any) {
-      set(() => ({
-        error: error.response?.data?.message || "Error deleting User",
-        isLoading: false,
-      }));
+      console.error("❌ Error fetching activities:", err);
     }
   },
 }));

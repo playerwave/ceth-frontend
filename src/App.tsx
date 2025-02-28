@@ -7,7 +7,7 @@ import Navbar from "./components/Navbar";
 //import pages
 import Main from "./pages/Admin/main_admin";
 import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
-import Crud_Test from "./pages/Test/crud_test";
+// import Crud_Test from "./pages/Test/crud_test";
 
 function App() {
   return (
@@ -31,14 +31,14 @@ function App() {
               </Navbar>
             }
           ></Route>
-          <Route
+          {/* <Route
             path="/crud-test"
             element={
               <Navbar>
                 <Crud_Test />
               </Navbar>
             }
-          ></Route>
+          ></Route> */}
         </Routes>
 
         {/* Student Routes */}
