@@ -8,7 +8,6 @@ interface User {
   age: number;
 }
 
-//comment
 interface UserState {
   users: User[];
   error: string | null;
