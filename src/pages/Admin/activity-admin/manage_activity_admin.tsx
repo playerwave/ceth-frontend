@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { ImagePlus } from "lucide-react";
-
-//import components
+import { useActivityStore } from "../../../stores/Test/manage_activity_store"; // ✅ นำเข้า Zustand Store
 import Button from "../../../components/Button";
-import Searchbar from "../../../components/Searchbar";
-
 interface FormData {
   activityName: string;
   companyOrSpeaker: string;
@@ -25,15 +22,16 @@ interface FormData {
 }
 
 const ManageActivityAdmin: React.FC = () => {
+  const { createActivity } = useActivityStore(); //
   const [formData, setFormData] = useState<FormData>({
-    activityName: "",
-    companyOrSpeaker: "",
-    description: "",
+    activityName: "a",
+    companyOrSpeaker: "a",
+    description: "aaa",
     category: "Soft Skill",
-    roomFloor: "",
-    roomNumber: "",
+    roomFloor: "1",
+    roomNumber: "2",
     status: "Private",
-    seats: "0",
+    seats: "50",
     startDate: "",
     startTime: "",
     endDate: "",
@@ -61,15 +59,46 @@ const ManageActivityAdmin: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // แปลงค่า seats เป็น number ก่อนใช้งาน
-    const numericSeats =
-      formData.seats === "" ? 0 : parseInt(formData.seats, 10);
-
-    console.log("Form Submitted", { ...formData, seats: numericSeats });
+  
+    const numericSeats = formData.seats === "" ? 0 : parseInt(formData.seats, 10);
+  
+    // ✅ รวม วันที่ + เวลา
+    const startDateTime = `${formData.startDate} ${formData.startTime}`;
+    const endDateTime = `${formData.endDate} ${formData.endTime}`;
+  
+    // ✅ แปลงค่า formData ให้อยู่ในรูปแบบของ `Activity`
+    const activityData = {
+      ac_id: Date.now(),
+      ac_name: formData.activityName,
+      ac_company_lecturer: formData.companyOrSpeaker,
+      ac_description: formData.description,
+      ac_type: formData.category,
+      ac_room_floor: formData.roomFloor,
+      ac_room: formData.roomNumber,
+      ac_status: [formData.status],
+      ac_seat: numericSeats,
+      ac_food: formData.selectedFoods.reduce((acc, food, index) => {
+        acc[`menu${index + 1}`] = food;
+        return acc;
+      }, {} as Record<string, string>),
+      ac_start_time: startDateTime,
+      ac_end_time: endDateTime,
+      ac_evaluation: formData.evaluationType,
+      ac_create_date: new Date().toISOString(),
+      ac_end_enrolled_date: new Date().toISOString(),
+      ac_registrant_count: 0,
+      ac_state: "active",
+      activity_image_url: formData.file ? URL.createObjectURL(formData.file) : "",
+    };
+  
+  
+    await createActivity(activityData);
+    console.log("✅ Activity Created:", activityData);
   };
+  
 
   const addFoodOption = () => {
     setFormData((prev) => ({
