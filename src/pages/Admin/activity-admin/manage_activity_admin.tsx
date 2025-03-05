@@ -79,28 +79,29 @@ const ManageActivityAdmin: React.FC = () => {
       ac_company_lecturer: formData.companyOrSpeaker,
       ac_description: formData.description,
       ac_type: formData.category,
-      ac_room_floor: formData.roomFloor || "",
-      ac_room: formData.roomNumber,
-      ac_status: [formData.status], // ✅ แปลงเป็น Array
-      ac_seat: numericSeats,
-      ac_food: formattedFood,
+      ac_room: formData.roomNumber || "Unknown", // ✅ ใส่ค่าเริ่มต้น
+      ac_seat: numericSeats || 0, // ✅ ถ้าไม่มีให้ใช้ 0
+      ac_food: formattedFood || {}, // ✅ ถ้าไม่มีให้เป็นอ็อบเจกต์ว่าง
+      ac_status: [formData.status], // ✅ แปลงเป็น Array // ✅ ถ้าไม่มีให้เป็น "Public"
+      ac_start_register: new Date().toISOString(), // ✅ แก้ไขให้เป็นรูปแบบ Date
       ac_start_time: startDateTime,
       ac_end_time: endDateTime,
-      ac_evaluation: formData.evaluationType,
-      ac_create_date: new Date().toISOString(),
-      ac_end_enrolled_date: new Date().toISOString(),
-      ac_start_register: new Date().toISOString(), // ✅ เพิ่มตรงนี้
-      ac_end_register: new Date().toISOString(), // ✅ เพิ่มตรงนี้
+      ac_image_url: formData.file ? URL.createObjectURL(formData.file) : "https://example.com/default-image.jpg",
+      ac_room_floor: "",
+      ac_evaluation: "",
+      ac_create_date: "",
+      ac_end_enrolled_date: "",
+      ac_end_register: "",
       ac_registrant_count: 0,
-      ac_state: "active",
-      ac_image_url: formData.file ? URL.createObjectURL(formData.file) : "",
-
+      ac_state: ""
     };
+    
   
     console.log("✅ Sending Activity Data:", activityData);
   
     await createActivity(activityData);
   };
+  
   
   
   
