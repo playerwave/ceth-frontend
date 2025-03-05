@@ -35,7 +35,21 @@ const TableHeader: React.FC<TableHeaderProps> = ({
             className={`p-2 ${col.sortable ? "cursor-pointer" : ""}`}
             onClick={() => col.sortable && handleSort(col.key)}
           >
-            {col.label} {col.sortable && getSortIcon(col.key)}
+            {col.key === "type" ? (
+              // 🔹 กรณีพิเศษ: คอลัมน์ "ประเภท" แสดงช่องสี
+              <div className="flex items-center justify-center">
+                <span>{col.label}</span>
+                <span className="w-5 h-5 bg-[#F5DEB3] border-2 border-black ml-2"></span>{" "}
+                {/* สีเหลืองอ่อน */}
+                <span className="w-5 h-5 bg-[#D3C3F7] border-2 border-black ml-2"></span>{" "}
+                {/* สีม่วงอ่อน */}
+              </div>
+            ) : (
+              // 🔹 คอลัมน์ปกติ
+              <span>
+                {col.label} {col.sortable && getSortIcon(col.key)}
+              </span>
+            )}
           </th>
         ))}
       </tr>

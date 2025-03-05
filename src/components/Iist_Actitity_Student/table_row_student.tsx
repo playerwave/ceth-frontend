@@ -1,4 +1,6 @@
 import { Activity } from "./table_student"; // ✅ เปลี่ยน path ตามที่ถูกต้อง
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 
 interface TableRowProps {
   act?: Activity; // ✅ ป้องกัน `undefined`
@@ -41,7 +43,10 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
         }).format(new Date(act.start_time))}
       </td>
 
-      <td className="p-2">{act.seat}</td>
+      <td className="p-2">
+        <span className="mr-3">{act.seat}</span>
+        <FontAwesomeIcon icon={faUser} className="text-2xl text-black" />
+      </td>
     </tr>
   );
 };
