@@ -13,7 +13,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
     { key: "name", label: "ชื่อวิทยากร/ชื่อบริษัท", sortable: true },
     { key: "description", label: "ชื่อกิจกรรม", sortable: false }, // ❌ ปิดการ Sort
     { key: "type", label: "ประเภท", sortable: false },
-    { key: "start_time", label: "วันที่จัดกิจกรรม", sortable: true },
+    { key: "start_time", label: "วันที่", sortable: true },
     { key: "seat", label: "ที่นั่ง", sortable: true },
     { key: "status", label: "สถานะ", sortable: false }, // ❌ ปิดการ Sort
   ];
