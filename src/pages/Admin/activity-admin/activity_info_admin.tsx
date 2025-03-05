@@ -1,13 +1,12 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useActivityStore } from "../../../stores/activity_store";
-import BackBotton from "../../../components/botton/back_botton";
 import { Clock, MapPin, Play, User } from "lucide-react";
 
 export default function ActivityInfoAdmin() {
   const { id } = useParams<{ id: string }>(); // ✅ useParams รับค่า id จาก URL
   const navigate = useNavigate();
-  const { activity, isLoading, error, fetchActivity} = useActivityStore();
+  const { activity, isLoading, error, fetchActivity } = useActivityStore();
 
   const finalActivityId = id ? Number(id) : null;
 
@@ -32,7 +31,7 @@ export default function ActivityInfoAdmin() {
         <h1 className="text-[35px] font-semibold font-sans">{activity.ac_name}</h1>
         <div 
           className="flex items-center text-[25px] gap-[4px] cursor-pointer" 
-          onClick={() => navigate('/enrolled_list_admin')}
+          onClick={() => navigate(`/enrolled_list_admin/${activity.ac_id}`)}
         >
           {activity.ac_registerant_count}/{activity.ac_seat} <User size={40} />
         </div>
@@ -90,7 +89,10 @@ export default function ActivityInfoAdmin() {
 
         {/* ปุ่มต่าง ๆ */}
         <div className="flex justify-end gap-3">
-          <BackBotton />
+          <button onClick={() => window.history.back()}
+            className="flex items-center justify-center gap-2 w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none">
+            ← กลับ
+          </button>
           <button className="flex items-center justify-center w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none">
             QR Code
           </button>

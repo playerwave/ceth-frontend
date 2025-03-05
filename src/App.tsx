@@ -34,7 +34,7 @@ function App() {
           }
         />
           <Route
-          path="/enrolled_list_admin"
+          path="/enrolled_list_admin/:id"
           element={
             <Navbar>
               <EnrolledListAdmin />
