@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ImagePlus } from "lucide-react";
 import { useActivityStore } from "../../../stores/Test/manage_activity_store"; // ✅ นำเข้า Zustand Store
 import Button from "../../../components/Button";
+import { Activity } from "../../../stores/Test/manage_activity_store"
 interface FormData {
   activityName: string;
   companyOrSpeaker: string;
@@ -61,43 +62,47 @@ const ManageActivityAdmin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
   
     const numericSeats = formData.seats === "" ? 0 : parseInt(formData.seats, 10);
   
-    // ✅ รวม วันที่ + เวลา
-    const startDateTime = `${formData.startDate} ${formData.startTime}`;
-    const endDateTime = `${formData.endDate} ${formData.endTime}`;
+    const startDateTime = `${formData.startDate}T${formData.startTime}:00Z`;
+    const endDateTime = `${formData.endDate}T${formData.endTime}:00Z`;
   
-    // ✅ แปลงค่า formData ให้อยู่ในรูปแบบของ `Activity`
-    const activityData = {
+    const formattedFood: Record<string, string> = {};
+    formData.selectedFoods.forEach((food, index) => {
+      formattedFood[`menu${index + 1}`] = food;
+    });
+  
+    const activityData: Activity = {
       ac_id: Date.now(),
       ac_name: formData.activityName,
       ac_company_lecturer: formData.companyOrSpeaker,
       ac_description: formData.description,
       ac_type: formData.category,
-      ac_room_floor: formData.roomFloor,
+      ac_room_floor: formData.roomFloor || "",
       ac_room: formData.roomNumber,
-      ac_status: [formData.status],
+      ac_status: [formData.status], // ✅ แปลงเป็น Array
       ac_seat: numericSeats,
-      ac_food: formData.selectedFoods.reduce((acc, food, index) => {
-        acc[`menu${index + 1}`] = food;
-        return acc;
-      }, {} as Record<string, string>),
+      ac_food: formattedFood,
       ac_start_time: startDateTime,
       ac_end_time: endDateTime,
       ac_evaluation: formData.evaluationType,
       ac_create_date: new Date().toISOString(),
       ac_end_enrolled_date: new Date().toISOString(),
+      ac_start_register: new Date().toISOString(), // ✅ เพิ่มตรงนี้
+      ac_end_register: new Date().toISOString(), // ✅ เพิ่มตรงนี้
       ac_registrant_count: 0,
       ac_state: "active",
-      activity_image_url: formData.file ? URL.createObjectURL(formData.file) : "",
+      ac_image_url: formData.file ? URL.createObjectURL(formData.file) : "",
+
     };
   
+    console.log("✅ Sending Activity Data:", activityData);
   
     await createActivity(activityData);
-    console.log("✅ Activity Created:", activityData);
   };
+  
+  
   
 
   const addFoodOption = () => {
