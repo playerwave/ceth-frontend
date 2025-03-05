@@ -10,11 +10,11 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   sortConfig,
 }) => {
   const columns: { key: keyof Activity; label: string; sortable: boolean }[] = [
-    { key: "name", label: "ชื่อกิจกรรม", sortable: true },
-    { key: "dis", label: "รายละเอียด", sortable: false }, // ❌ ปิดการ Sort
+    { key: "name", label: "ชื่อวิทยากร/ชื่อบริษัท", sortable: true },
+    { key: "description", label: "ชื่อกิจกรรม", sortable: false }, // ❌ ปิดการ Sort
     { key: "type", label: "ประเภท", sortable: true },
-    { key: "date", label: "วันที่", sortable: true },
-    { key: "slots", label: "ที่นั่ง", sortable: true },
+    { key: "start_time", label: "วันที่", sortable: true },
+    { key: "seat", label: "ที่นั่ง", sortable: true },
     { key: "status", label: "สถานะ", sortable: false }, // ❌ ปิดการ Sort
   ];
 

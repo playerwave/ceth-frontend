@@ -20,7 +20,7 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
   return (
     <tr className="border-t text-center cursor-pointer hover:bg-gray-200 transition">
       <td className="p-2">{act.name}</td>
-      <td className="p-2">{act.dis}</td>
+      <td className="p-2">{act.description}</td>
       <td className="p-2">
         <span
           className="px-2 py-1 rounded"
@@ -37,10 +37,17 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
           {act.type}
         </span>
       </td>
-      <td className="p-2">
-        {act.date} - {act.time}
+      <td>
+        {new Intl.DateTimeFormat("th-TH", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          // hour: "2-digit",
+          // minute: "2-digit",
+        }).format(new Date(act.start_time))}
       </td>
-      <td className="p-2">{act.slots}</td>
+
+      <td className="p-2">{act.seat}</td>
       <td className="p-2">
         <span
           className="px-2 py-1 rounded font-medium"
