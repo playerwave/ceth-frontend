@@ -1,10 +1,12 @@
 import { Activity } from "../components/table"; // ✅ เปลี่ยน path ตามที่ถูกต้อง
+import { useAppStore } from "../stores/Test/store_test";
 
 interface TableRowProps {
   act?: Activity; // ✅ ป้องกัน `undefined`
 }
 
 const TableRow: React.FC<TableRowProps> = ({ act }) => {
+  const { updateActivityStatus } = useAppStore();
   console.log("📊 TableRow รับข้อมูล:", act);
 
   if (!act) {
@@ -49,7 +51,8 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
 
       <td className="p-2">{act.seat}</td>
       <td className="p-2">
-        <span
+        <button
+          onClick={() => updateActivityStatus(act.id, act.status)}
           className="px-2 py-1 rounded font-medium"
           style={{
             backgroundColor: act.status === "Public" ? "#D4EDDA" : "#F8D7DA",
@@ -59,7 +62,7 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
           }}
         >
           {act.status}
-        </span>
+        </button>
       </td>
     </tr>
   );
