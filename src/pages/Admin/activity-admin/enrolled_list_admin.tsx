@@ -1,7 +1,7 @@
 import { User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Checkbox, FormControlLabel } from "@mui/material";
-import { useActivityStore } from "../../../stores/activity_store";
+import { useActivityStore } from "../../../stores/Admin/activity_store";
 import { useParams } from "react-router-dom";
 
 export default function enrolled_list_admin() {

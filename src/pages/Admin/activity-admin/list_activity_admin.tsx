@@ -4,7 +4,7 @@ import SearchBar from "../../../components/search_bar";
 import Table from "../../../components/Admin/ActivityTable/table";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useAppStore } from "../../../stores/Test/store_test";
+import { useActivityStore } from "../../../stores/Admin/activity_store";
 import { useNavigate } from "react-router-dom";
 
 const ManageActivityAdmin: React.FC = () => {
@@ -16,7 +16,7 @@ const ManageActivityAdmin: React.FC = () => {
     searchActivities,
     activityLoading,
     activityError,
-  } = useAppStore();
+  } = useActivityStore();
 
   const [activeTab, setActiveTab] = useState<"list" | "calendar">("list");
 

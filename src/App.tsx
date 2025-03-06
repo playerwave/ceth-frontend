@@ -36,7 +36,7 @@ function App() {
             }
           ></Route>
           <Route
-            path="/activity-info-admin/:id"
+            path="/activity-info-admin"
             element={
               <Navbar>
                 <ActivityInfoAdmin />
