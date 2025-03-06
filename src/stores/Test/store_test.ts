@@ -50,6 +50,7 @@ interface ActivityState {
     currentStatus: "Public" | "Private"
   ) => Promise<void>;
 }
+// test comment
 
 // ✅ ฟังก์ชันแปลงข้อมูลจาก API เป็นรูปแบบที่ React ใช้งานได้
 const mapActivityData = (apiData: ApiActivity): Activity => ({

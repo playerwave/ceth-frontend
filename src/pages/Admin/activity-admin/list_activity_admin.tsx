@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaList, FaCalendar } from "react-icons/fa";
 import SearchBar from "../../../components/search_bar";
-import Table from "../../../components/table";
+import Table from "../../../components/Admin/ActivityTable/table";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useAppStore } from "../../../stores/Test/store_test";

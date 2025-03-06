@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .topBar {
   background-color: #1E3A8A;
   height: 15%;
@@ -6,6 +7,13 @@
   align-items: center; /* จัดให้อยู่กลางแนวตั้ง */
   justify-content: space-between; /* แบ่งพื้นที่ระหว่างซ้าย-ขวา */
 
+=======
+/* #root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+>>>>>>> admin_activity_info
 }
 
 .left-text {
@@ -17,6 +25,7 @@
   width: 50%;
 }
 
+<<<<<<< HEAD
 .right-text {
   text-align: right; /* ให้ข้อความชิดขวา */
   color: white;
@@ -25,3 +34,27 @@
   padding-right: 1%;
   padding-top: 0%
 }
+=======
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+} */
+>>>>>>> admin_activity_info
