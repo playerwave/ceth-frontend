@@ -1,6 +1,5 @@
 import { useUserStore } from "../../stores/Test/store_test";
 import { useState, useEffect } from "react";
-
 import Loading from "../../components/Loading";
 
 const crud_test = () => {
@@ -104,5 +103,3 @@ const crud_test = () => {
     </div>
   );
 };
-
-export default crud_test;

@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { ImagePlus } from "lucide-react";
 import { useActivityStore } from "../../../stores/Test/manage_activity_store"; // ✅ นำเข้า Zustand Store
 import Button from "../../../components/Button";
-import { Activity } from "../../../stores/Test/manage_activity_store"
+import { Activity } from "../../../stores/Test/manage_activity_store";
+import { useNavigate } from "react-router-dom";
+
 interface FormData {
   activityName: string;
   companyOrSpeaker: string;
@@ -22,7 +24,7 @@ interface FormData {
   file: File | null;
 }
 
-const ManageActivityAdmin: React.FC = () => {
+const CreateActivityAdmin: React.FC = () => {
   const { createActivity } = useActivityStore(); //
   const [formData, setFormData] = useState<FormData>({
     activityName: "a",
@@ -43,6 +45,8 @@ const ManageActivityAdmin: React.FC = () => {
     file: null,
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -62,19 +66,19 @@ const ManageActivityAdmin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    const numericSeats = formData.seats === "" ? 0 : parseInt(formData.seats, 10);
-  
+
+    const numericSeats =
+      formData.seats === "" ? 0 : parseInt(formData.seats, 10);
+
     const startDateTime = `${formData.startDate}T${formData.startTime}:00Z`;
     const endDateTime = `${formData.endDate}T${formData.endTime}:00Z`;
-  
+
     const formattedFood: Record<string, string> = {};
     formData.selectedFoods.forEach((food, index) => {
       formattedFood[`menu${index + 1}`] = food;
     });
-  
+
     const activityData: Activity = {
-      ac_id: Date.now(),
       ac_name: formData.activityName,
       ac_company_lecturer: formData.companyOrSpeaker,
       ac_description: formData.description,
@@ -86,25 +90,22 @@ const ManageActivityAdmin: React.FC = () => {
       ac_start_register: new Date().toISOString(), // ✅ แก้ไขให้เป็นรูปแบบ Date
       ac_start_time: startDateTime,
       ac_end_time: endDateTime,
-      ac_image_url: formData.file ? URL.createObjectURL(formData.file) : "https://example.com/default-image.jpg",
+      ac_image_url: formData.file
+        ? URL.createObjectURL(formData.file)
+        : "https://example.com/default-image.jpg",
       ac_room_floor: "",
       ac_evaluation: "",
       ac_create_date: "",
       ac_end_enrolled_date: "",
       ac_end_register: "",
       ac_registrant_count: 0,
-      ac_state: ""
+      ac_state: "",
     };
-    
-  
+
     console.log("✅ Sending Activity Data:", activityData);
-  
+
     await createActivity(activityData);
   };
-  
-  
-  
-  
 
   const addFoodOption = () => {
     setFormData((prev) => ({
@@ -201,7 +202,6 @@ const ManageActivityAdmin: React.FC = () => {
                             value={formData.startDate}
                             onChange={handleChange}
                             className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                            required
                           />
 
                           {/* กรอกเวลาเริ่ม */}
@@ -211,7 +211,6 @@ const ManageActivityAdmin: React.FC = () => {
                             value={formData.startTime}
                             onChange={handleChange}
                             className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                            required
                           />
                         </div>
                         <p className="text-xs text-gray-500  mt-1">Start</p>
@@ -228,7 +227,6 @@ const ManageActivityAdmin: React.FC = () => {
                             value={formData.endDate}
                             onChange={handleChange}
                             className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                            required
                           />
                           {/* กรอกเวลาจบ */}
                           <input
@@ -237,7 +235,6 @@ const ManageActivityAdmin: React.FC = () => {
                             value={formData.endTime}
                             onChange={handleChange}
                             className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                            required
                           />
                         </div>
                         <p className="text-xs text-gray-500  mt-1">End</p>
@@ -421,8 +418,17 @@ const ManageActivityAdmin: React.FC = () => {
 
               {/* ปุ่ม ยกเลิก & สร้าง */}
               <div className="flex justify-end space-x-4 mt-5">
-                <Button color="red">ยกเลิก</Button>
-                <Button color="blue" width="100px">
+                {/* ปุ่มยกเลิกที่ไม่ทำให้ฟอร์ม Submit */}
+                <Button
+                  type="button"
+                  color="red"
+                  onClick={() => navigate("/list-activity-admin")}
+                >
+                  ยกเลิก
+                </Button>
+
+                {/* ปุ่มสร้างที่ทำให้ฟอร์ม Submit */}
+                <Button type="submit" color="blue" width="100px">
                   สร้าง
                 </Button>
               </div>
@@ -434,4 +440,4 @@ const ManageActivityAdmin: React.FC = () => {
   );
 };
 
-export default ManageActivityAdmin;
+export default CreateActivityAdmin;
