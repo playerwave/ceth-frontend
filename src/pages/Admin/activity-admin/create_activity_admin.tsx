@@ -1,172 +1,319 @@
 import React, { useState } from "react";
 import { ImagePlus } from "lucide-react";
-import { useActivityStore } from "../../../stores/Test/manage_activity_store"; // ✅ นำเข้า Zustand Store
+import { useActivityStore } from "../../../stores/Admin/activity_store"; // ✅ นำเข้า Zustand Store
 import Button from "../../../components/Button";
-import { Activity } from "../../../stores/Test/manage_activity_store";
+import { Activity } from "../../../stores/Admin/activity_store";
 import { useNavigate } from "react-router-dom";
+import { Cloudinary } from "@cloudinary/url-gen";
+import { auto } from "@cloudinary/url-gen/actions/resize";
+import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
+import { AdvancedImage } from "@cloudinary/react";
 
 interface FormData {
-  activityName: string;
-  companyOrSpeaker: string;
-  description: string;
-  category: string;
-  roomFloor: string;
-  roomNumber: string;
-  status: string;
-  seats: string;
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
-  foodOptions: string[];
-  selectedFoods: string[];
-  evaluationType: string;
-  file: File | null;
+  ac_name: string;
+  assesment_id?: number | null;
+  ac_company_lecturer: string;
+  ac_description: string;
+  ac_type: string;
+  ac_room?: string | null;
+  ac_seat?: string | null;
+  ac_food?: string[] | null;
+  ac_status: string;
+  ac_location_type: string;
+  ac_state: string;
+  ac_start_register: string | null;
+  ac_end_register: string | null;
+  ac_create_date?: string;
+  ac_last_update?: string;
+  ac_registered_count?: number;
+  ac_attended_count?: number;
+  ac_not_attended_count?: number;
+  ac_start_time?: string | null;
+  ac_end_time?: string | null;
+  ac_image_data?: File | null;
+  ac_normal_register?: string | null;
 }
 
 const CreateActivityAdmin: React.FC = () => {
   const { createActivity } = useActivityStore(); //
   const [formData, setFormData] = useState<FormData>({
-    activityName: "a",
-    companyOrSpeaker: "a",
-    description: "aaa",
-    category: "Soft Skill",
-    roomFloor: "1",
-    roomNumber: "2",
-    status: "Private",
-    seats: "50",
-    startDate: "",
-    startTime: "",
-    endDate: "",
-    endTime: "",
-    foodOptions: ["เมนู 1", "เมนู 2"],
-    selectedFoods: [], // อาหารที่เลือก
-    evaluationType: "แบบประเมิน 1",
-    file: null,
+    ac_name: "",
+    assesment_id: null,
+    ac_company_lecturer: "",
+    ac_description: "",
+    ac_type: "",
+    ac_room: "",
+    ac_seat: "",
+    ac_food: [],
+    ac_status: "",
+    ac_location_type: "",
+    ac_state: "",
+    ac_start_register: "",
+    ac_end_register: "",
+    ac_create_date: "",
+    ac_last_update: "",
+    ac_registered_count: 0,
+    ac_attended_count: 0,
+    ac_not_attended_count: 0,
+    ac_start_time: "",
+    ac_end_time: "",
+    ac_image_data: null,
+    ac_normal_register: "",
   });
 
+  const IfBuildingRoom: Record<string, string[]> = {
+    "3": ["301", "302", "303"],
+    "4": ["401", "402", "403", "404"],
+    "5": ["501", "502", "503"],
+    "6": ["601", "602"],
+    "7": ["701", "702", "703", "704"],
+    "8": ["801", "802"],
+    "9": ["901", "902", "903"],
+    "10": ["1001", "1002"],
+    "11": ["1101", "1102", "1103"],
+  };
+
   const navigate = useNavigate();
+
+  const [selectedFloor, setSelectedFloor] = useState<string>("");
+  const [selectedRoom, setSelectedRoom] = useState<string>("");
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const [endRegisterDate, setEndRegisterDate] = useState("");
+  const [endRegisterTime, setEndRegisterTime] = useState("");
+
+  const [normalRegisterDate, setNormalRegisterDate] = useState("");
+  const [normalRegisterTime, setNormalRegisterTime] = useState("");
+
+  const handleFloorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const floor = e.target.value;
+    setSelectedFloor(floor);
+    setSelectedRoom(""); // รีเซ็ตห้องเมื่อเปลี่ยนชั้น
+    setFormData((prev) => ({ ...prev, ac_room: "" })); // รีเซ็ตค่า ac_room
+  };
+
+  const handleRoomChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const room = e.target.value;
+    setSelectedRoom(room);
+    setFormData((prev) => ({ ...prev, ac_room: room })); // อัปเดต ac_room
+  };
+
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
 
-    if (name === "seats") {
-      // อนุญาตให้เป็นช่องว่าง (""), ถ้าไม่ใช่ช่องว่างให้ตรวจสอบค่าเป็นตัวเลข
-      if (value === "" || /^[0-9\b]+$/.test(value)) {
-        setFormData((prev) => ({ ...prev, seats: value })); // เก็บค่าเป็น string
-      }
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "number" ? (value ? parseInt(value, 10) : "") : value,
+    }));
+
+    // ตรวจจับค่าของ input ที่เป็นวันที่หรือเวลา และอัปเดต state ให้ถูกต้อง
+    switch (name) {
+      case "ac_start_register":
+        setStartDate(value);
+        break;
+      case "ac_end_register_date":
+        setEndRegisterDate(value);
+        break;
+      case "ac_end_register_time":
+        setEndRegisterTime(value);
+        break;
+      case "ac_normal_register_date":
+        setNormalRegisterDate(value);
+        break;
+      case "ac_normal_register_time":
+        setNormalRegisterTime(value);
+        break;
+      case "ac_start_date":
+        setStartDate(value);
+        break;
+      case "ac_start_time":
+        setStartTime(value);
+        break;
+      case "ac_end_date":
+        setEndDate(value);
+        break;
+      case "ac_end_time":
+        setEndTime(value);
+        break;
+      case "ac_normal_register":
+        setNormalRegisterDate(value);
+        break;
+      default:
+        break;
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const numericSeats =
-      formData.seats === "" ? 0 : parseInt(formData.seats, 10);
+    const numericSeats = formData.ac_seat ? parseInt(formData.ac_seat, 10) : 0;
 
-    const startDateTime = `${formData.startDate}T${formData.startTime}:00Z`;
-    const endDateTime = `${formData.endDate}T${formData.endTime}:00Z`;
+    // ✅ แปลงค่า string เป็น Date (Backend คาดหวังเป็น Date)
+    const endRegisterDateTime = new Date(
+      `${endRegisterDate}T${endRegisterTime}:00Z`
+    );
+    const startDateTime = new Date(`${startDate}T${startTime}:00Z`);
+    const endDateTime = new Date(`${endDate}T${endTime}:00Z`);
+    const normalRegister = new Date(
+      `${normalRegisterDate}T${normalRegisterTime}:00Z`
+    );
 
-    const formattedFood: Record<string, string> = {};
-    formData.selectedFoods.forEach((food, index) => {
-      formattedFood[`menu${index + 1}`] = food;
-    });
+    // ✅ ใช้ let แทน const และตรวจสอบสถานะ
+    let startregister: Date | undefined;
+    if (formData.ac_status === "Public") {
+      startregister = new Date(); // ตั้งค่าเป็นวันที่ปัจจุบัน
+    } else {
+      startregister = undefined; // ถ้าไม่ใช่ Public ให้เป็น undefined
+    }
 
     const activityData: Activity = {
-      ac_name: formData.activityName,
-      ac_company_lecturer: formData.companyOrSpeaker,
-      ac_description: formData.description,
-      ac_type: formData.category,
-      ac_room: formData.roomNumber || "Unknown", // ✅ ใส่ค่าเริ่มต้น
-      ac_seat: numericSeats || 0, // ✅ ถ้าไม่มีให้ใช้ 0
-      ac_food: formattedFood || {}, // ✅ ถ้าไม่มีให้เป็นอ็อบเจกต์ว่าง
-      ac_status: [formData.status], // ✅ แปลงเป็น Array // ✅ ถ้าไม่มีให้เป็น "Public"
-      ac_start_register: new Date().toISOString(), // ✅ แก้ไขให้เป็นรูปแบบ Date
-      ac_start_time: startDateTime,
-      ac_end_time: endDateTime,
-      ac_image_url: formData.file
-        ? URL.createObjectURL(formData.file)
-        : "https://example.com/default-image.jpg",
-      ac_room_floor: "",
-      ac_evaluation: "",
-      ac_create_date: "",
-      ac_end_enrolled_date: "",
-      ac_end_register: "",
-      ac_registrant_count: 0,
-      ac_state: "",
+      ac_name: formData.ac_name,
+      assessment_id: 1,
+      ac_company_lecturer: formData.ac_company_lecturer,
+      ac_description: formData.ac_description,
+      ac_type: formData.ac_type,
+      ac_room: formData.ac_room || "Unknown",
+      ac_seat: !isNaN(numericSeats) ? numericSeats : 0,
+      ac_food: formData.ac_food || [],
+      ac_status: formData.ac_status || "Private",
+      ac_location_type: formData.ac_location_type,
+      ac_state: "Not Start",
+      ac_start_register: startregister, // ✅ ใช้ค่าจาก if-check
+      ac_end_register: endRegisterDateTime, // ✅ ส่งเป็น Date
+      ac_create_date: new Date(),
+      ac_last_update: new Date(),
+      ac_registered_count: formData.ac_registered_count,
+      ac_attended_count: formData.ac_attended_count,
+      ac_not_attended_count: formData.ac_not_attended_count,
+      ac_start_time: startDateTime, // ✅ ส่งเป็น Date
+      ac_end_time: endDateTime, // ✅ ส่งเป็น Date
+      ac_image_data: formData.ac_image_data || "", // ✅ ส่ง Base64 ไปที่ Backend
+      ac_normal_register: normalRegister, // ✅ ส่งเป็น Date
     };
 
     console.log("✅ Sending Activity Data:", activityData);
-
     await createActivity(activityData);
   };
 
   const addFoodOption = () => {
     setFormData((prev) => ({
       ...prev,
-      foodOptions: [...prev.foodOptions, `เมนู ${prev.foodOptions.length + 1}`],
+      ac_food: [
+        ...(prev.ac_food ?? []),
+        `เมนู ${prev.ac_food?.length ?? 0 + 1}`,
+      ],
     }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFormData((prev) => ({ ...prev, file: e.target.files![0] }));
-    }
   };
 
   // ฟังก์ชันแก้ไขเมนูอาหาร
   const updateFoodOption = (index: number, newValue: string) => {
-    const updatedFoodOptions = [...formData.foodOptions];
+    const updatedFoodOptions = [...(formData.ac_food ?? [])];
     updatedFoodOptions[index] = newValue;
-    setFormData((prev) => ({ ...prev, foodOptions: updatedFoodOptions }));
+    setFormData((prev) => ({ ...prev, ac_food: updatedFoodOptions }));
   };
 
   // ฟังก์ชันลบเมนูอาหาร
   const removeFoodOption = (index: number) => {
-    const updatedFoodOptions = formData.foodOptions.filter(
-      (_, i) => i !== index
-    );
-    setFormData((prev) => ({ ...prev, foodOptions: updatedFoodOptions }));
+    const updatedFoodOptions = formData.ac_food?.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, ac_food: updatedFoodOptions }));
   };
 
-  // ฟังก์ชันเลือก/ยกเลิกการเลือกเมนูอาหาร
-  const toggleFoodSelection = (food: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      selectedFoods: prev.selectedFoods.includes(food)
-        ? prev.selectedFoods.filter((item) => item !== food) // เอาออกถ้าถูกเลือกแล้ว
-        : [...prev.selectedFoods, food], // เพิ่มเข้าไปถ้ายังไม่ได้เลือก
-    }));
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+
+      // ✅ ตรวจสอบว่าเป็นไฟล์รูปภาพ
+      if (!file.type.startsWith("image/")) {
+        alert("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!");
+        return;
+      }
+
+      // ✅ ตรวจสอบขนาดไฟล์ (ต้องไม่เกิน 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("ไฟล์ขนาดใหญ่เกินไป (ต้องไม่เกิน 5MB)");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        // ✅ ตัด "data:image/png;base64," ออกจาก Base64
+        const base64String = reader.result?.toString().split(",")[1];
+
+        setFormData((prev) => ({
+          ...prev,
+          ac_image_data: base64String, // ✅ บันทึก Base64 ลง state
+        }));
+
+        setPreviewImage(URL.createObjectURL(file)); // ✅ แสดงตัวอย่างรูป
+      };
+    }
   };
 
   return (
     <>
       <div className="justify-items-center">
-        <div className="w-320 h-385 mx-auto ml-2xl mt-5 bg-white p-6 border border-gray-200 rounded-lg shadow-sm min-h-screen ">
+        <div className="w-320 h-410 mx-auto ml-2xl mt-5 bg-white p-6 border border-gray-200 rounded-lg shadow-sm min-h-screen ">
           <h1 className="text-4xl font-bold mb-11">สร้างกิจกรรมสหกิจ</h1>
           <form onSubmit={handleSubmit} className="space-y-4 ">
             {/* scrollbar */}
             <div className="max-h-[800px] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200 pr-4">
-              {/* ช่องกรอกชื่อกิจกรรม */}
-              <div>
-                <label className="block font-semibold w-50">
-                  ชื่อกิจกรรม *
-                </label>
-                <input
-                  type="text"
-                  name="activityName"
-                  value={formData.activityName}
-                  onChange={handleChange}
-                  className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
-                  placeholder="ชื่อกิจกรรม"
-                  required
-                />
+              <div className="flex space-x-6">
+                {/* ช่องกรอกชื่อกิจกรรม */}
+                <div>
+                  <label className="block font-semibold w-50">
+                    ชื่อกิจกรรม *
+                  </label>
+                  <input
+                    type="text"
+                    name="ac_name"
+                    value={formData.ac_name}
+                    onChange={handleChange}
+                    className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
+                    placeholder="ชื่อกิจกรรม"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-1 gap-2 w-full">
+                  <div>
+                    <label className="block font-semibold">
+                      วันและเวลาปิดการลงทะเบียน *
+                    </label>
+                    <div className="flex space-x-2 w-full">
+                      {/* กรอกวันและเวลาการปิดลงทะเบียน */}
+                      <div className="w-1/2">
+                        <div className="flex space-x-2">
+                          <input
+                            name="ac_end_register_date"
+                            type="date"
+                            value={endRegisterDate}
+                            onChange={handleChange}
+                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
+                          />
+
+                          {/* กรอกเวลาปิดรับลงทะเบียน */}
+                          <input
+                            type="time"
+                            name="ac_end_register_time"
+                            value={endRegisterTime}
+                            onChange={handleChange}
+                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="flex space-x-6">
@@ -177,8 +324,8 @@ const CreateActivityAdmin: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    name="companyOrSpeaker"
-                    value={formData.companyOrSpeaker}
+                    name="ac_company_lecturer"
+                    value={formData.ac_company_lecturer}
                     onChange={handleChange}
                     className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
                     placeholder="ชื่อบริษัท หรือ วิทยากร ที่มาอบรม"
@@ -186,7 +333,55 @@ const CreateActivityAdmin: React.FC = () => {
                   />
                 </div>
 
-                {/* ช่องกรอกวันและเวลาการดำเนินการกิจกรรม */}
+                {/* ช่องกรอกวันและเวลาที่ให้นิสิตที่มีสถานะ normal ลงทะเบียน */}
+                <div className="grid grid-cols-1 gap-2 w-full">
+                  <div>
+                    <label className="block font-semibold">
+                      วันและเวลาที่ให้นิสิตที่มีสถานะ normal ลงทะเบียน *
+                    </label>
+                    <div className="flex space-x-2 w-full">
+                      {/* กรอกวันเริ่มให้นิสิตที่มีสถานะ normal ลงทะเบียน */}
+                      <div className="w-1/2">
+                        <div className="flex space-x-2">
+                          <input
+                            type="date"
+                            name="ac_normal_register_date"
+                            value={normalRegisterDate}
+                            onChange={handleChange}
+                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
+                          />
+
+                          {/* กรอกเวลาให้นิสิตสถานะ normal ลงทะเบียน */}
+                          <input
+                            type="time"
+                            name="ac_normal_register_time"
+                            value={normalRegisterTime}
+                            onChange={handleChange}
+                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ช่องกรอกคำอธิบาย */}
+              <div className="flex space-x-6">
+                <div>
+                  <label className="block font-semibold w-50">
+                    คำอธิบายกิจกรรม
+                  </label>
+                  <textarea
+                    name="ac_description"
+                    value={formData.ac_description}
+                    onChange={handleChange}
+                    className="w-140 p-2 border rounded mb-4 h-42 border-[#9D9D9D]"
+                    placeholder="รายละเอียดกิจกรรม หรือ คำอธิบาย"
+                    required
+                  />
+                </div>
+
                 <div className="grid grid-cols-1 gap-2 w-full">
                   <div>
                     <label className="block font-semibold">
@@ -198,8 +393,8 @@ const CreateActivityAdmin: React.FC = () => {
                         <div className="flex space-x-2">
                           <input
                             type="date"
-                            name="startDate"
-                            value={formData.startDate}
+                            name="ac_start_date"
+                            value={startDate}
                             onChange={handleChange}
                             className="w-1/2 p-2 border rounded border-[#9D9D9D]"
                           />
@@ -207,10 +402,10 @@ const CreateActivityAdmin: React.FC = () => {
                           {/* กรอกเวลาเริ่ม */}
                           <input
                             type="time"
-                            name="startTime"
-                            value={formData.startTime}
+                            name="ac_start_time"
+                            value={startTime}
                             onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
+                            className="w-100 p-2 border rounded border-[#9D9D9D]"
                           />
                         </div>
                         <p className="text-xs text-gray-500  mt-1">Start</p>
@@ -223,16 +418,16 @@ const CreateActivityAdmin: React.FC = () => {
                         <div className="flex space-x-2">
                           <input
                             type="date"
-                            name="endDate"
-                            value={formData.endDate}
+                            name="ac_end_date"
+                            value={endDate}
                             onChange={handleChange}
                             className="w-1/2 p-2 border rounded border-[#9D9D9D]"
                           />
                           {/* กรอกเวลาจบ */}
                           <input
                             type="time"
-                            name="endTime"
-                            value={formData.endTime}
+                            name="ac_end_time"
+                            value={endTime}
                             onChange={handleChange}
                             className="w-1/2 p-2 border rounded border-[#9D9D9D]"
                           />
@@ -240,65 +435,83 @@ const CreateActivityAdmin: React.FC = () => {
                         <p className="text-xs text-gray-500  mt-1">End</p>
                       </div>
                     </div>
+                    <div>
+                      <label className="block font-semibold w-50">
+                        ประเภทสถานที่จัดกิจกรรม *
+                      </label>
+                      <select
+                        name="ac_location_type"
+                        value={formData.ac_location_type}
+                        onChange={handleChange}
+                        className="w-1/2 p-2 border rounded mb-4 border-[#9D9D9D]"
+                      >
+                        <option value="Online">Online</option>
+                        <option value="Offline">Offline</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* ช่องกรอกคำอธิบาย */}
-              <div>
-                <label className="block font-semibold w-50">
-                  คำอธิบายกิจกรรม
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="w-140 p-2 border rounded mb-4 h-42 border-[#9D9D9D]"
-                  placeholder="รายละเอียดกิจกรรม หรือ คำอธิบาย"
-                  required
-                ></textarea>
-              </div>
-
               {/* ช่องกรอกระเภท */}
-              <div>
-                <label className="block font-semibold w-50">ประเภท *</label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
-                >
-                  <option value="Soft Skill">
-                    ชั่วโมงเตรียมความพร้อม (Soft Skill)
-                  </option>
-                  <option value="Technical">
-                    ชั่วโมงทักษะทางวิชาการ (Technical)
-                  </option>
-                  <option value="other">อื่นๆ </option>
-                </select>
+              <div className="flex space-x-6">
+                <div>
+                  <label className="block font-semibold w-50">ประเภท *</label>
+                  <select
+                    name="ac_type"
+                    value={formData.ac_type}
+                    onChange={handleChange}
+                    className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
+                  >
+                    <option value="SoftSkill">
+                      ชั่วโมงเตรียมความพร้อม (Soft Skill)
+                    </option>
+                    <option value="HardSkill">
+                      ชั่วโมงทักษะทางวิชาการ (Hard Skill)
+                    </option>
+                    <option value="other">อื่นๆ </option>
+                  </select>
+                </div>
               </div>
 
               {/* ช่องกรอกห้องที่ใช้อบรม */}
-              <div>
-                <label className="block font-semibold ">ห้องที่ใช้อบรม</label>
+              <div className="flex space-x-4">
+                {/* เลือกชั้น */}
+                <div className="w-1/6">
+                  <label className="block font-semibold">เลือกชั้น</label>
+                  <select
+                    value={selectedFloor}
+                    onChange={handleFloorChange}
+                    className="w-full p-2 border rounded border-[#9D9D9D]"
+                  >
+                    <option value="">เลือกชั้น</option>
+                    {Object.keys(IfBuildingRoom).map((floor) => (
+                      <option key={floor} value={floor}>
+                        {floor}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <div className="flex space-x-2  ">
-                  <input
-                    type="text"
-                    name="roomFloor"
-                    value={formData.roomFloor}
-                    onChange={handleChange}
-                    className="w-30 p-2 border rounded mb-4 border-[#9D9D9D]"
-                    placeholder="ชั้นที่"
-                  />
-                  <input
-                    type="text"
-                    name="roomNumber"
-                    value={formData.roomNumber}
-                    onChange={handleChange}
-                    className="ml-2 w-106 p-2 border rounded mb-4 border-[#9D9D9D]"
-                    placeholder="หมายเลขห้อง"
-                  />
+                {/* เลือกห้อง */}
+                <div className="w-85.5">
+                  <label className="block font-semibold">เลือกห้อง</label>
+                  <select
+                    value={selectedRoom}
+                    onChange={handleRoomChange}
+                    className={`w-full p-2 border rounded border-[#9D9D9D] ${
+                      !selectedFloor ? " cursor-not-allowed" : ""
+                    }`}
+                    disabled={!selectedFloor} // ปิดการใช้งานถ้ายังไม่ได้เลือกชั้น
+                  >
+                    <option value="">เลือกห้อง</option>
+                    {selectedFloor &&
+                      IfBuildingRoom[selectedFloor]?.map((room) => (
+                        <option key={room} value={room}>
+                          {room}
+                        </option>
+                      ))}
+                  </select>
                 </div>
               </div>
 
@@ -307,8 +520,8 @@ const CreateActivityAdmin: React.FC = () => {
                 <div className="w-1/6">
                   <label className="block font-semibold w-50">สถานะ *</label>
                   <select
-                    name="status"
-                    value={formData.status}
+                    name="ac_status"
+                    value={formData.ac_status}
                     onChange={handleChange}
                     className="w-full p-2 border rounded border-[#9D9D9D]"
                   >
@@ -321,8 +534,8 @@ const CreateActivityAdmin: React.FC = () => {
                   <label className="block font-semibold ">จำนวนที่นั่ง *</label>
                   <input
                     type="number"
-                    name="seats"
-                    value={formData.seats}
+                    name="ac_seat"
+                    value={formData.ac_seat ?? ""}
                     onChange={handleChange}
                     className="w-full p-2 border rounded border-[#9D9D9D]"
                     min="1"
@@ -333,14 +546,8 @@ const CreateActivityAdmin: React.FC = () => {
               {/* ช่องเลือกอาหาร */}
               <div className="w-140  mt-5 bg-white p-6 border border-[#9D9D9D] rounded-lg shadow-sm">
                 <label className="block font-semibold mb-2">อาหาร *</label>
-                {formData.foodOptions.map((menu, index) => (
+                {formData.ac_food?.map((menu, index) => (
                   <div key={index} className="flex items-center space-x-2 mb-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.selectedFoods.includes(menu)}
-                      onChange={() => toggleFoodSelection(menu)}
-                      className="w-5 h-5"
-                    />
                     {/* อินพุตที่แก้ไขได้ */}
                     <input
                       type="text"
@@ -372,7 +579,7 @@ const CreateActivityAdmin: React.FC = () => {
                 <label className="block font-semibold">แบบประเมิน *</label>
                 <select
                   name="evaluationType"
-                  value={formData.evaluationType}
+                  value={formData.as_id ?? ""}
                   onChange={handleChange}
                   className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
                 >
@@ -393,31 +600,28 @@ const CreateActivityAdmin: React.FC = () => {
               </div>
 
               {/* แสดงภาพที่อัปโหลด (ถ้าเป็นรูป) */}
-              {formData.file && (
+              {previewImage ? (
                 <div className="mt-4">
                   <p className="text-sm text-gray-500">
-                    ไฟล์ที่อัปโหลด: {formData.file.name}
+                    ตัวอย่างรูปที่อัปโหลด:
                   </p>
-                  {formData.file.type.startsWith("image/") && (
-                    <img
-                      src={URL.createObjectURL(formData.file)}
-                      alt="อัปโหลดภาพกิจกรรม"
-                      className="mt-2 w-100 h-100 object-cover border rounded-lg shadow"
-                    />
-                  )}
+                  <img
+                    src={previewImage}
+                    alt="อัปโหลดภาพกิจกรรม"
+                    className="mt-2 w-200 h-100 object-cover border rounded-lg shadow"
+                  />
+                </div>
+              ) : (
+                <div className="w-200 h-100 mt-5 max-w-3xl bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center cursor-default transition pointer-events-none">
+                  <div className="text-center text-black-400">
+                    <ImagePlus size={48} className="mx-auto" />
+                    <p className="text-sm mt-2">อัปโหลดรูปภาพ</p>
+                  </div>
                 </div>
               )}
 
-              {/* แสดงภาพ */}
-              <div className="w-full h-80 mt-5 max-w-3xl h-64 bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center cursor-default transition pointer-events-none">
-                <div className="text-center text-black-400">
-                  <ImagePlus size={48} className="mx-auto" />
-                  <p className="text-sm mt-2">คลิกเพื่ออัปโหลดรูปภาพ</p>
-                </div>
-              </div>
-
               {/* ปุ่ม ยกเลิก & สร้าง */}
-              <div className="flex justify-end space-x-4 mt-5">
+              <div className="flex justify-end space-x-4 mt-10">
                 {/* ปุ่มยกเลิกที่ไม่ทำให้ฟอร์ม Submit */}
                 <Button
                   type="button"

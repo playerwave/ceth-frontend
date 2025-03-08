@@ -58,7 +58,10 @@ interface ActivityState {
   enrolledStudents: EnrolledStudent[];
   fetchActivities: () => Promise<void>;
   searchActivities: (query: string) => Promise<void>;
-  updateActivityStatus: (id: string, currentStatus: "Public" | "Private") => Promise<void>;
+  updateActivityStatus: (
+    id: string,
+    currentStatus: "Public" | "Private"
+  ) => Promise<void>;
   fetchActivity: (id: number) => Promise<void>;
   fetchEnrolledStudents: (id: number) => Promise<void>;
   createActivity: (activity: ApiActivity) => Promise<void>;
@@ -88,7 +91,9 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     set({ activityLoading: true, activityError: null });
 
     try {
-      const { data } = await axiosInstance.get<ApiActivity[]>("/activity/get-activities");
+      const { data } = await axiosInstance.get<ApiActivity[]>(
+        "/activity/get-activities"
+      );
       if (Array.isArray(data) && data.length > 0) {
         set({ activities: data.map(mapActivityData), activityLoading: false });
       } else {
@@ -97,7 +102,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       set({
-        activityError: err.response?.data?.message ?? "Error fetching activities",
+        activityError:
+          err.response?.data?.message ?? "Error fetching activities",
         activityLoading: false,
       });
     }
@@ -121,7 +127,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       set({
-        activityError: err.response?.data?.message ?? "Error searching activities",
+        activityError:
+          err.response?.data?.message ?? "Error searching activities",
         activityLoading: false,
       });
     }
@@ -153,11 +160,14 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     set({ activityLoading: true, activityError: null, activity: null });
 
     try {
-      const { data } = await axiosInstance.get<ApiActivity>(`/activity/get-activity/${id}`);
+      const { data } = await axiosInstance.get<ApiActivity>(
+        `/activity/get-activity/${id}`
+      );
       set({ activity: mapActivityData(data), activityLoading: false });
     } catch (error: any) {
       set({
-        activityError: error.response?.data?.message || "Error fetching activity",
+        activityError:
+          error.response?.data?.message || "Error fetching activity",
         activityLoading: false,
         activity: null,
       });
@@ -181,7 +191,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       set({ enrolledStudents: data?.users || [], activityLoading: false });
     } catch (error: any) {
       set({
-        activityError: error.response?.data?.message || "Error fetching enrolled students",
+        activityError:
+          error.response?.data?.message || "Error fetching enrolled students",
         activityLoading: false,
         enrolledStudents: [],
       });
@@ -189,29 +200,21 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   },
 
   // ✅ ฟังก์ชันสร้างกิจกรรมใหม่
-  createActivity: async (activity) => {
+  createActivity: async (activity: ApiActivity): Promise<void> => {
     set(() => ({ activityLoading: true, activityError: null }));
-
     try {
-      await axiosInstance.post("/api/activity/create-activity", activity);
-
+      await axiosInstance.post("/activity/create-activity", activity);
       set((state) => ({
         activities: [...state.activities, mapActivityData(activity)],
         activityLoading: false,
         activityError: null,
       }));
     } catch (error: unknown) {
-      if (axiosInstance.isAxiosError(error)) {
-        console.error("❌ Error creating activity:", error.response?.data);
-        set(() => ({
-          activityError: error.response?.data?.message || "Error creating Activity",
-          activityLoading: false,
-        }));
-      } else {
-        console.error("❌ Unknown error:", error);
-        set(() => ({ activityError: "An unknown error occurred", activityLoading: false }));
-      }
+      console.error("❌ Unknown error:", error);
+      set(() => ({
+        activityError: "An unknown error occurred",
+        activityLoading: false,
+      }));
     }
   },
 }));
-
