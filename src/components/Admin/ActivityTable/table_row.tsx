@@ -25,7 +25,6 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
   const handleSelectActivity = (id: string) => {
     navigate("/activity-info-admin", { state: { id } }); // ✅ ส่ง `id` ไปเป็น state
   };
-  
 
   return (
     <tr
@@ -49,7 +48,13 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
           {act.type}
         </span>
       </td>
-      <td className="p-2">{act.description}</td>
+      <td className="p-2">
+        {act.description
+          ? act.description.split(" ").slice(0, 10).join(" ") +
+            (act.description.split(" ").length > 30 ? "..." : "")
+          : ""}
+      </td>
+
       <td>
         {new Intl.DateTimeFormat("th-TH", {
           year: "numeric",
