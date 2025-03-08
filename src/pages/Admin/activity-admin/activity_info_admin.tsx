@@ -32,8 +32,8 @@ export default function ActivityInfoAdmin() {
   if (!activity) return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="mt-4 p-6 w-[1090px] h-auto border border-[#ddd] rounded-lg shadow-md bg-white mx-auto">
+    <div className="justify-items-center">
+      <div className="w-320 h-215 mx-auto ml-2xl mt-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <div className="flex justify-between items-center">
           <h1 className="text-[35px] font-semibold font-sans">
             {activity.name}
@@ -47,11 +47,11 @@ export default function ActivityInfoAdmin() {
         </div>
 
         {/* ภาพกิจกรรม */}
-        <div className="flex justify-center w-full h-[300px] bg-white border border-black rounded-lg mt-4">
+        <div className="flex justify-center w-full h-130 bg-white border border-black rounded-lg mt-4">
           <img
             src={activity.image_data} // ✅ ใช้ image_data ที่แปลงจาก Buffer เป็น Base64 แล้ว
             alt="Activity"
-            className="w-[40%] h-full object-cover"
+            className="w-full h-full object-cover rounded-lg"
             onError={(e) => (e.currentTarget.src = "/img/default.png")} // ✅ ใช้ default image เมื่อโหลดไม่สำเร็จ
           />
         </div>
@@ -73,20 +73,20 @@ export default function ActivityInfoAdmin() {
 
         <p className="mt-2 text-[14px] font-sans">{activity.description}</p>
 
-        {/* รายละเอียดอื่น ๆ */}
+        {/*เลือก อาหาร*/}
         <div className="mt-4">
           <p className="font-semibold font-[Sarabun]">อาหาร</p>
-          <select className="w-[40%] p-2 border border-[#ccc] rounded mt-1">
-            {Array.isArray(activity.ac_food) && activity.ac_food.length > 0 ? (
-              activity.ac_food.map((food, index) => (
+          {Array.isArray(activity.food) && activity.food.length > 0 ? (
+            <select className="w-[40%] p-2 border border-[#ccc] rounded mt-1">
+              {activity.food.map((food, index) => (
                 <option key={index} className="font-[Sarabun]">
                   {food}
                 </option>
-              ))
-            ) : (
-              <option disabled>ไม่มีข้อมูล</option>
-            )}
-          </select>
+              ))}
+            </select>
+          ) : (
+            <p className="text-gray-500 mt-1">ไม่มีอาหารสำหรับกิจกรรมนี้</p>
+          )}
         </div>
 
         {/* เวลา + สถานะ + ปุ่มต่าง ๆ */}

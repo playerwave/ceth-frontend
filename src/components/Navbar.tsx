@@ -25,11 +25,18 @@ const Navbar = ({ children }) => {
           isCollapsed ? "w-[80px]" : "w-[280px]"
         } h-[calc(100vh-56px)] z-50 transition-all duration-300`}
       >
-        <Sidebar isCollapsed={isCollapsed} toggleSidebar={() => setIsCollapsed(!isCollapsed)} />
+        <Sidebar
+          isCollapsed={isCollapsed}
+          toggleSidebar={() => setIsCollapsed(!isCollapsed)}
+        />
       </div>
 
       {/* Content (เว้นที่ให้ Sidebar) */}
-      <div className={`ml-[${isCollapsed ? "80px" : "280px"}] mt-[56px] w-full p-4`}>
+      <div
+        className={`ml-[${
+          isCollapsed ? "80px" : "280px"
+        }] mt-[35px] w-full p-4`}
+      >
         {children}
       </div>
     </div>
@@ -37,4 +44,3 @@ const Navbar = ({ children }) => {
 };
 
 export default Navbar;
-
