@@ -311,6 +311,9 @@ const CreateActivityAdmin: React.FC = () => {
   const convertToDate = (value: string | null | undefined) =>
     value && value.trim() !== "" ? new Date(value) : undefined;
 
+  const convertToDate = (value: string | null | undefined) =>
+    value && value.trim() !== "" ? new Date(value) : undefined;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -772,6 +775,20 @@ const CreateActivityAdmin: React.FC = () => {
                         </div>
                         <p className="text-xs text-gray-500  mt-1">End</p>
                       </div>
+                    </div>
+                    <div>
+                      <label className="block font-semibold w-50">
+                        ประเภทสถานที่จัดกิจกรรม *
+                      </label>
+                      <select
+                        name="ac_location_type"
+                        value={formData.ac_location_type}
+                        onChange={handleChange}
+                        className="w-1/2 p-2 border rounded mb-4 border-[#9D9D9D]"
+                      >
+                        <option value="Online">Online</option>
+                        <option value="Offline">Offline</option>
+                      </select>
                     </div>
                   </div>
                   <div className="w-77.5 mb-2">

@@ -356,7 +356,6 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   createActivity: async (activity: ApiActivity): Promise<void> => {
     set(() => ({ activityLoading: true, activityError: null }));
-
     try {
       console.log("log in createActivity Store: ", activity);
 
