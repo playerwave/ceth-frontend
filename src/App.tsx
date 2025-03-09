@@ -14,9 +14,13 @@ import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled_list_admin"
 import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 // import Crud_Test from "./pages/Test/crud_test";
 
+//import toast
+import { Toaster } from "sonner";
+
 function App() {
   return (
     <>
+      <Toaster position="bottom-right" richColors />
       <div>
         {/* Admin Routes */}
         <Routes>

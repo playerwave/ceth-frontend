@@ -7,6 +7,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useActivityStore } from "../../../stores/Admin/activity_store";
 import { useNavigate } from "react-router-dom";
 
+//import component
+import Loading from "../../../components/Loading";
+
 const ManageActivityAdmin: React.FC = () => {
   const navigate = useNavigate();
   const {
@@ -20,15 +23,11 @@ const ManageActivityAdmin: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<"list" | "calendar">("list");
 
-  // ✅ เรียก API เพื่อโหลดกิจกรรมครั้งแรก
+  // ✅ โหลดกิจกรรมครั้งแรก
   useEffect(() => {
-    console.log("📡 กำลังเรียก fetchActivities...");
     fetchActivities();
   }, [fetchActivities]);
 
-  console.log("✅ ข้อมูลกิจกรรมที่ได้รับจาก Store:", activities);
-
-  // ✅ ใช้ค่าจากการค้นหาก่อน ถ้าไม่มีให้ใช้ activities ปกติ
   const displayedActivities = searchResults ?? activities;
   const activitiesSuccess = displayedActivities.filter(
     (a) => a.status === "Public"
@@ -41,12 +40,9 @@ const ManageActivityAdmin: React.FC = () => {
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-5">
       <h1 className="text-center text-2xl font-bold mb-4">จัดการกิจกรรม</h1>
 
-      {/* ✅ SearchBar ใช้งานฟังก์ชัน searchActivities */}
       <SearchBar onSearch={searchActivities} />
 
-      {/* ✅ แท็บ ลิสต์ / ปฏิทิน */}
       <div className="flex justify-between items-center mb-4 mt-5">
-        {/* 🔹 กลุ่มปุ่ม ลิสต์ & ปฏิทิน */}
         <div className="flex space-x-4">
           <button
             className={`px-4 py-2 text-lg font-semibold ${
@@ -70,7 +66,6 @@ const ManageActivityAdmin: React.FC = () => {
           </button>
         </div>
 
-        {/* 🔹 ปุ่มเพิ่ม (อยู่ขวาสุด) */}
         <button
           className="bg-[#1E3A8A] text-white px-4 py-2 rounded flex items-center gap-2 transition hover:bg-blue-700"
           onClick={() => navigate("/create-activity-admin")}
@@ -79,27 +74,23 @@ const ManageActivityAdmin: React.FC = () => {
         </button>
       </div>
 
-      {/* ✅ แสดงผลลัพธ์ตามการค้นหา */}
-      {activeTab === "list" ? (
+      {/* ✅ แสดง Loading อยู่กลางจอ และขึ้นเฉพาะ Navbar + Sidebar */}
+      {activityLoading ? (
+        <div className="fixed inset-0 flex justify-center items-center bg-white z-40">
+          <Loading />
+        </div>
+      ) : activityError ? (
+        <p className="text-center text-red-500 p-4">
+          ❌ เกิดข้อผิดพลาด: {activityError}
+        </p>
+      ) : displayedActivities.length === 0 ? (
+        <p className="text-center text-gray-500 p-4">
+          📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
+        </p>
+      ) : activeTab === "list" ? (
         <>
-          {activityLoading ? (
-            <p className="text-center text-gray-500 p-4">
-              ⏳ กำลังโหลดข้อมูล...
-            </p>
-          ) : activityError ? (
-            <p className="text-center text-red-500 p-4">
-              ❌ เกิดข้อผิดพลาด: {activityError}
-            </p>
-          ) : displayedActivities.length === 0 ? (
-            <p className="text-center text-gray-500 p-4">
-              📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
-            </p>
-          ) : (
-            <>
-              <Table title="กิจกรรมสหกิจ" data={activitiesSuccess} />
-              <Table title="กิจกรรมสหกิจที่ร่าง" data={activitiesOngoing} />
-            </>
-          )}
+          <Table title="กิจกรรมสหกิจ" data={activitiesSuccess} />
+          <Table title="กิจกรรมสหกิจที่ร่าง" data={activitiesOngoing} />
         </>
       ) : (
         <div className="text-center text-gray-500 p-6">
