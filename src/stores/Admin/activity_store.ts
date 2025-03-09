@@ -15,6 +15,7 @@ interface ApiActivity {
   ac_seat: number;
   ac_food?: string[];
   ac_status: string;
+  ac_location_type: string;
   ac_start_register?: Date;
   ac_end_register?: Date;
   ac_create_date?: Date;
@@ -40,6 +41,7 @@ interface Activity {
   seat: string;
   food: string[];
   status: string;
+  location_type: "Online" | "Offline";
   start_register: Date | null;
   end_register: Date | null;
   create_date: Date | null;
@@ -101,19 +103,26 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   seat: `${apiData.ac_seat}`,
   food: Array.isArray(apiData.ac_food) ? apiData.ac_food : [],
   status: apiData.ac_status.toLowerCase() === "public" ? "Public" : "Private",
-  start_register: apiData.ac_start_register || null,
-  end_register: apiData.ac_end_register || null,
-  create_date: apiData.ac_create_date || null,
-  last_update: apiData.ac_last_update || null,
+  location_type: apiData.ac_location_type === "Online" ? "Online" : "Offline",
+
+  // ✅ แปลง `string` เป็น `Date`
+  start_register: apiData.ac_start_register
+    ? new Date(apiData.ac_start_register)
+    : null,
+  end_register: apiData.ac_end_register
+    ? new Date(apiData.ac_end_register)
+    : null,
+  create_date: apiData.ac_create_date ? new Date(apiData.ac_create_date) : null,
+  last_update: apiData.ac_last_update ? new Date(apiData.ac_last_update) : null,
+  start_time: apiData.ac_start_time ? new Date(apiData.ac_start_time) : null,
+  end_time: apiData.ac_end_time ? new Date(apiData.ac_end_time) : null,
+
   registered_count: apiData.ac_registered_count ?? 0,
   attended_count: apiData.ac_attended_count ?? 0,
   not_attended_count: apiData.ac_not_attended_count ?? 0,
-  start_time: apiData.ac_start_time || null,
-  end_time: apiData.ac_end_time || null,
 
   // ✅ ใช้ Base64 หรือ Default รูปภาพ
   image_data: apiData.ac_image_data || "/img/default.png",
-
   state: apiData.ac_state || "ไม่ระบุ",
   normal_register: apiData.ac_normal_register
     ? new Date(apiData.ac_normal_register)
@@ -214,16 +223,66 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  fetchActivity: async (id) => {
+  updateActivity: async (activity: Activity): Promise<void> => {
+    set({ activityLoading: true, activityError: null });
+
+    try {
+      console.log("📡 Sending update request for activity:", activity);
+
+      // ✅ ตรวจสอบให้แน่ใจว่า `image_data` มีค่าที่ถูกต้อง
+      const imageData = activity.image_data?.startsWith("data:image")
+        ? activity.image_data // ถ้ามี "data:image" อยู่แล้วใช้เลย
+        : `data:image/png;base64,${activity.image_data}`; // ถ้าไม่มีให้เติม prefix
+
+      const updatedData = {
+        ...activity,
+        ac_seat: parseInt(activity.seat, 10),
+        ac_start_register: activity.start_register?.toISOString() || null,
+        ac_end_register: activity.end_register?.toISOString() || null,
+        ac_create_date: activity.create_date?.toISOString() || null,
+        ac_last_update: new Date().toISOString(),
+        ac_start_time: activity.start_time?.toISOString() || null,
+        ac_end_time: activity.end_time?.toISOString() || null,
+        ac_image_data: imageData, // ✅ ส่ง Base64 เต็มรูปแบบไปยัง Backend
+      };
+
+      console.log("📸 Image Data Before Send:", updatedData.ac_image_data);
+
+      await axiosInstance.put(
+        `/activity/update-activity/${activity.id}`,
+        updatedData
+      );
+
+      console.log("✅ Activity updated successfully!");
+
+      // ✅ โหลดข้อมูลใหม่หลังจากอัปเดต
+      await get().fetchActivity(activity.id);
+      set({ activityLoading: false });
+    } catch (error: any) {
+      console.error("❌ Error updating activity:", error);
+
+      set({
+        activityError:
+          error.response?.data?.message || "Error updating activity",
+        activityLoading: false,
+      });
+    }
+  },
+
+  fetchActivity: async (id: number | string): Promise<Activity | null> => {
     const numericId = Number(id);
     if (!numericId || isNaN(numericId)) {
       set({ activityError: "Invalid Activity ID", activityLoading: false });
-      return;
+      return null;
     }
 
     set({ activityLoading: true, activityError: null });
 
     try {
+      console.log(
+        `📡 Fetching activity from API: /activity/get-activity/${numericId}`
+      );
+
       const { data } = await axiosInstance.get<ApiActivity>(
         `/activity/get-activity/${numericId}`
       );
@@ -251,6 +310,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
       return mappedActivity; // ✅ คืนค่า Activity
     } catch (error: any) {
+      console.error("❌ Error fetching activity:", error);
+
       set({
         activityError:
           error.response?.data?.message || "Error fetching activity",
@@ -258,6 +319,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
           error.response?.data?.message || "Error fetching activity",
         activityLoading: false,
       });
+
+      return null;
     }
   },
 

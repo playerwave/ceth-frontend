@@ -24,11 +24,6 @@ export default function ActivityInfoAdmin() {
 
   const { activity, isLoading, error, fetchActivity } = useActivityStore();
 
-  const finalActivityId = id ? Number(id) : null;
-  const navigate = useNavigate();
-
-  const { activity, isLoading, error, fetchActivity } = useActivityStore();
-
   const fetchActivityData = useCallback(() => {
     if (finalActivityId !== null && !isNaN(finalActivityId)) {
       console.log("📡 Fetching Activity with ID:", finalActivityId);
@@ -64,7 +59,7 @@ export default function ActivityInfoAdmin() {
 
   return (
     <div className="justify-items-center">
-      <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
+      <div className="w-320 h-215 mx-auto ml-2xl mt-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <div className="flex justify-between items-center">
           <h1 className="text-[35px] font-semibold font-sans">
             {activity.name}
@@ -216,12 +211,11 @@ export default function ActivityInfoAdmin() {
           <div className="flex justify-end gap-3">
             <Button color="blue" onClick={() => window.history.back()}>
               ← กลับ
-            </Button>
-            <Button color="blue">QR Code</Button>
-            <Button
-              color="blue"
-              onClick={() => handleToUpdateActivity(activity.id)}
-            >
+            </button>
+            <button className="flex items-center justify-center w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none">
+              QR Code
+            </button>
+            <button className="flex items-center justify-center w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none">
               แก้ไข
             </Button>
           </div>
