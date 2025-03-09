@@ -11,6 +11,7 @@ import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin"
 import CreateActivityAdmin from "./pages/Admin/activity-admin/create_activity_admin";
 import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity_info_admin";
 import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled_list_admin";
+import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 // import Crud_Test from "./pages/Test/crud_test";
 
 function App() {
@@ -48,6 +49,14 @@ function App() {
             element={
               <Navbar>
                 <CreateActivityAdmin />
+              </Navbar>
+            }
+          />
+          <Route
+            path="/update-activity-admin"
+            element={
+              <Navbar>
+                <UpdateActivityAdmin />
               </Navbar>
             }
           />

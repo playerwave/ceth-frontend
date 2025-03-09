@@ -4,7 +4,6 @@ import { useActivityStore } from "../../../stores/Admin/activity_store"; // ✅ 
 import Button from "../../../components/Button";
 import { Activity } from "../../../stores/Admin/activity_store";
 import { useNavigate } from "react-router-dom";
-import { Cloudinary } from "@cloudinary/url-gen";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
 import { AdvancedImage } from "@cloudinary/react";
@@ -204,8 +203,6 @@ const CreateActivityAdmin: React.FC = () => {
     console.log("✅ Sending Activity Data:", activityData);
     await createActivity(activityData);
   };
-
-  const [cardHigh, setCardHigh] = useState(410);
 
   const addFoodOption = () => {
     setFormData((prev) => ({

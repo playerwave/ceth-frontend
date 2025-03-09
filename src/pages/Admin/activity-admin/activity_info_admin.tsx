@@ -16,6 +16,7 @@ export default function ActivityInfoAdmin() {
   const location = useLocation();
   const id = location.state?.id || paramId; // ✅ ใช้ state หรือ param ถ้ามี
   const finalActivityId = id ? Number(id) : null;
+  const navigate = useNavigate();
 
   const { activity, isLoading, error, fetchActivity } = useActivityStore();
 
@@ -48,9 +49,13 @@ export default function ActivityInfoAdmin() {
     return `${hours}:${minutes} ${ampm}`;
   };
 
+  const handleToUpdateActivity = (id: string) => {
+    navigate("/update-activity-admin", { state: { id } }); // ✅ ส่ง `id` ไปเป็น state
+  };
+
   return (
     <div className="justify-items-center">
-      <div className="w-320 h-215 mx-auto ml-2xl mt-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
+      <div className="w-320 h-230 mx-auto ml-2xl mt-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <div className="flex justify-between items-center">
           <h1 className="text-[35px] font-semibold font-sans">
             {activity.name}
@@ -163,7 +168,10 @@ export default function ActivityInfoAdmin() {
             <button className="flex items-center justify-center w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none">
               QR Code
             </button>
-            <button className="flex items-center justify-center w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none">
+            <button
+              className="flex items-center justify-center w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none"
+              onClick={() => handleToUpdateActivity(activity.id)}
+            >
               แก้ไข
             </button>
           </div>
