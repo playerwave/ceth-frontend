@@ -7,8 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
 import { AdvancedImage } from "@cloudinary/react";
+import ConfirmDialog from "../../../components/ConfirmDialog";
+import { toast } from "sonner";
 
 interface FormData {
+  ac_id: number | null;
   ac_name: string;
   assesment_id?: number | null;
   ac_company_lecturer: string;
@@ -36,6 +39,7 @@ interface FormData {
 const CreateActivityAdmin: React.FC = () => {
   const { createActivity } = useActivityStore(); //
   const [formData, setFormData] = useState<FormData>({
+    ac_id: null,
     ac_name: "",
     assesment_id: null,
     ac_company_lecturer: "",
@@ -204,6 +208,14 @@ const CreateActivityAdmin: React.FC = () => {
 
     console.log("✅ Sending Activity Data:", activityData);
     await createActivity(activityData);
+
+    try {
+      await createActivity(activityData);
+      toast.success("Created Success !"); // ✅ แสดง Toast เมื่ออัปเดตเสร็จ
+    } catch (error) {
+      console.error("❌ Error creating activity:", error);
+      toast.error("Create failed!"); // ✅ แสดง Toast ถ้าอัปเดตไม่สำเร็จ
+    }
   };
 
   const addFoodOption = () => {
@@ -261,6 +273,8 @@ const CreateActivityAdmin: React.FC = () => {
     }
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     if (formData.ac_type === "Hard Skill") {
       setFormData((prev) => ({ ...prev, ac_type: "HardSkill" }));
@@ -278,6 +292,16 @@ const CreateActivityAdmin: React.FC = () => {
     }
   }, [formData.ac_status]);
 
+  const [msg, setMsg] = useState("ร่าง");
+
+  useEffect(() => {
+    if (formData.ac_status == "Public") {
+      setMsg("สร้าง");
+    } else {
+      setMsg("ร่าง");
+    }
+  }, [formData.ac_status]);
+
   return (
     <>
       <div className="justify-items-center">
@@ -285,6 +309,7 @@ const CreateActivityAdmin: React.FC = () => {
           className={`w-320 mx-auto ml-2xl mt-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm h-435  flex flex-col`}
         >
           <h1 className="text-4xl font-bold mb-11">สร้างกิจกรรมสหกิจ</h1>
+          <h1>{isModalOpen.toString()}</h1>
           <form
             onSubmit={handleSubmit}
             className="space-y-4 flex flex-col flex-grow"
@@ -657,6 +682,21 @@ const CreateActivityAdmin: React.FC = () => {
                 </div>
               )}
 
+              <ConfirmDialog
+                isOpen={isModalOpen}
+                title="สร้างกิจกรรม"
+                message="คุณแน่ใจว่าจะสร้างกิจกรรมที่เป็น Public
+            (นิสิตทุกคนในระบบจะเห็นกิจกรรมนี้)"
+                onCancel={() => setIsModalOpen(false)}
+                type="submit" // ✅ ทำให้เป็นปุ่ม submit
+                onConfirm={() => {
+                  navigate("/list-activity-admin"); // ✅ เปลี่ยนหน้าเมื่อกดยืนยัน
+                  setTimeout(() => {
+                    window.location.reload(); // ✅ Refresh หน้าเว็บ
+                  }, 500);
+                }}
+              />
+
               {/* ปุ่ม ยกเลิก & สร้าง */}
               <div className="mt-10 flex justify-end items-center space-x-4 px-6 ">
                 {/* ปุ่มยกเลิก */}
@@ -669,8 +709,14 @@ const CreateActivityAdmin: React.FC = () => {
                 </Button>
 
                 {/* ปุ่มสร้าง */}
-                <Button type="submit" color="blue" width="100px">
-                  สร้าง
+                <Button
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    console.log("clicked");
+                  }}
+                  color="blue"
+                >
+                  {msg}
                 </Button>
               </div>
             </div>
