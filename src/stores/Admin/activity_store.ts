@@ -226,47 +226,49 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   updateActivity: async (activity: Activity): Promise<void> => {
     set({ activityLoading: true, activityError: null });
 
-    try {
-      console.log("📡 Sending update request for activity:", activity);
+    setTimeout(async () => {
+      try {
+        console.log("📡 Sending update request for activity:", activity);
 
-      // ✅ ตรวจสอบให้แน่ใจว่า `image_data` มีค่าที่ถูกต้อง
-      const imageData = activity.image_data?.startsWith("data:image")
-        ? activity.image_data // ถ้ามี "data:image" อยู่แล้วใช้เลย
-        : `data:image/png;base64,${activity.image_data}`; // ถ้าไม่มีให้เติม prefix
+        // ✅ ตรวจสอบให้แน่ใจว่า image_data มีค่าที่ถูกต้อง
+        const imageData = activity.image_data?.startsWith("data:image")
+          ? activity.image_data
+          : `data:image/png;base64,${activity.image_data}`;
 
-      const updatedData = {
-        ...activity,
-        ac_seat: parseInt(activity.seat, 10),
-        ac_start_register: activity.start_register?.toISOString() || null,
-        ac_end_register: activity.end_register?.toISOString() || null,
-        ac_create_date: activity.create_date?.toISOString() || null,
-        ac_last_update: new Date().toISOString(),
-        ac_start_time: activity.start_time?.toISOString() || null,
-        ac_end_time: activity.end_time?.toISOString() || null,
-        ac_image_data: imageData, // ✅ ส่ง Base64 เต็มรูปแบบไปยัง Backend
-      };
+        const updatedData = {
+          ...activity,
+          ac_seat: parseInt(activity.seat, 10),
+          ac_start_register: activity.start_register?.toISOString() || null,
+          ac_end_register: activity.end_register?.toISOString() || null,
+          ac_create_date: activity.create_date?.toISOString() || null,
+          ac_last_update: new Date().toISOString(),
+          ac_start_time: activity.start_time?.toISOString() || null,
+          ac_end_time: activity.end_time?.toISOString() || null,
+          ac_image_data: imageData,
+        };
 
-      console.log("📸 Image Data Before Send:", updatedData.ac_image_data);
+        console.log("📸 Image Data Before Send:", updatedData.ac_image_data);
 
-      await axiosInstance.put(
-        `/activity/update-activity/${activity.id}`,
-        updatedData
-      );
+        await axiosInstance.put(
+          `/activity/update-activity/${activity.id}`,
+          updatedData
+        );
 
-      console.log("✅ Activity updated successfully!");
+        console.log("✅ Activity updated successfully!");
 
-      // ✅ โหลดข้อมูลใหม่หลังจากอัปเดต
-      await get().fetchActivity(activity.id);
-      set({ activityLoading: false });
-    } catch (error: any) {
-      console.error("❌ Error updating activity:", error);
+        // ✅ โหลดข้อมูลใหม่หลังจากอัปเดต
+        await get().fetchActivity(activity.id);
+        set({ activityLoading: false });
+      } catch (error: any) {
+        console.error("❌ Error updating activity:", error);
 
-      set({
-        activityError:
-          error.response?.data?.message || "Error updating activity",
-        activityLoading: false,
-      });
-    }
+        set({
+          activityError:
+            error.response?.data?.message || "Error updating activity",
+          activityLoading: false,
+        });
+      }
+    }, 2000); // ⏳ Delay 2 วินาที
   },
 
   fetchActivity: async (id: number | string): Promise<Activity | null> => {
