@@ -5,6 +5,7 @@ import TableRow from "./table_row";
 export type Activity = {
   id: string;
   name: string;
+  company_lecturer: string;
   description: string;
   type: "Hard Skill" | "Soft Skill";
   start_time: Date;

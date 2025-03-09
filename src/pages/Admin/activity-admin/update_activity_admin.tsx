@@ -839,7 +839,8 @@ const UpdateActivityAdmin: React.FC = () => {
                 isOpen={isModalOpen}
                 title="ยกเลิกการแก้ไขกิจกรรม"
                 message="คุณแน่ใจว่าจะยกเลิกการแก้ไข
-                กิจกรรมในครั้งนี้ ?"
+                กิจกรรมในครั้งนี้ ?
+            (การแก้ไขในครั้งนี้จะไม่ถูกบันทึก)"
                 onCancel={() => setIsModalOpen(false)}
                 onConfirm={() => {
                   navigate("/list-activity-admin"); // ✅ เปลี่ยนหน้าเมื่อกดยืนยัน

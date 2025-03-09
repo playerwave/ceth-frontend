@@ -31,7 +31,7 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
       className="border-t text-center cursor-pointer hover:bg-gray-200 transition"
       onClick={() => handleSelectActivity(act.id)} // ✅ คลิกแล้วเปลี่ยนหน้า
     >
-      <td className="p-2">{act.name}</td>
+      <td className="p-2">{act.company_lecturer}</td>
       <td className="p-2">
         <span
           className="px-2 py-1 rounded"
@@ -49,9 +49,9 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
         </span>
       </td>
       <td className="p-2">
-        {act.description
-          ? act.description.split(" ").slice(0, 10).join(" ") +
-            (act.description.split(" ").length > 30 ? "..." : "")
+        {act.name
+          ? act.name.split(" ").slice(0, 10).join(" ") +
+            (act.name.split(" ").length > 30 ? "..." : "")
           : ""}
       </td>
 
