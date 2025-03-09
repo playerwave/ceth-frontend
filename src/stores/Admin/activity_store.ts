@@ -343,23 +343,21 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   createActivity: async (activity: ApiActivity): Promise<void> => {
     set(() => ({ activityLoading: true, activityError: null }));
 
-    setTimeout(async () => {
-      try {
-        console.log("log in createActivity Store: ", activity);
+    try {
+      console.log("log in createActivity Store: ", activity);
 
-        await axiosInstance.post("/activity/create-activity", activity);
-        set((state) => ({
-          activities: [...state.activities, mapActivityData(activity)],
-          activityLoading: false,
-          activityError: null,
-        }));
-      } catch (error: unknown) {
-        console.error("❌ Unknown error:", error);
-        set(() => ({
-          activityError: "An unknown error occurred",
-          activityLoading: false,
-        }));
-      }
-    }, 2000); // ⏳ Delay 2 วินาที
+      await axiosInstance.post("/activity/create-activity", activity);
+      set((state) => ({
+        activities: [...state.activities, mapActivityData(activity)],
+        activityLoading: false,
+        activityError: null,
+      }));
+    } catch (error: unknown) {
+      console.error("❌ Unknown error:", error);
+      set(() => ({
+        activityError: "An unknown error occurred",
+        activityLoading: false,
+      }));
+    }
   },
 }));
