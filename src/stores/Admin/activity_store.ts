@@ -2,6 +2,7 @@ import { create } from "zustand";
 import axiosInstance from "../../libs/axios";
 import { AxiosError } from "axios";
 import { toast, Toaster } from "sonner";
+import { act } from "react";
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลที่มาจาก API
 interface ApiActivity {
@@ -26,6 +27,7 @@ interface ApiActivity {
   ac_end_time?: Date;
   ac_image_data?: string;
   ac_state: string;
+  ac_normal_register: string;
 }
 
 // ✅ อินเทอร์เฟซที่ React ใช้งาน
@@ -51,6 +53,7 @@ interface Activity {
   end_time: Date | null;
   image_data: string;
   state: string;
+  normal_register: Date | null;
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -88,7 +91,7 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   name: apiData.ac_name || "ไม่ระบุชื่อ",
   company_lecturer: apiData.ac_company_lecturer || "ไม่ระบุวิทยากร",
   description: apiData.ac_description || "ไม่ระบุรายละเอียด",
-  type: apiData.ac_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
+  type: apiData.ac_type === "HardSkill" ? "HardSkill" : "SoftSkill",
   room: apiData.ac_room || "ไม่ระบุห้อง",
   seat: `${apiData.ac_seat}`,
   food: Array.isArray(apiData.ac_food) ? apiData.ac_food : [],
@@ -114,6 +117,9 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   // ✅ ใช้ Base64 หรือ Default รูปภาพ
   image_data: apiData.ac_image_data || "/img/default.png",
   state: apiData.ac_state || "ไม่ระบุ",
+  normal_register: apiData.ac_normal_register
+    ? new Date(apiData.ac_normal_register)
+    : null,
 });
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
@@ -210,49 +216,57 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   updateActivity: async (activity: Activity): Promise<void> => {
     set({ activityLoading: true, activityError: null });
 
-    setTimeout(async () => {
-      try {
-        console.log("📡 Sending update request for activity:", activity);
+    try {
+      console.log("📡 Sending update request for activity:", activity);
 
-        // ✅ ตรวจสอบให้แน่ใจว่า image_data มีค่าที่ถูกต้อง
-        const imageData = activity.image_data?.startsWith("data:image")
-          ? activity.image_data
-          : `data:image/png;base64,${activity.image_data}`;
+      // ✅ ตรวจสอบให้แน่ใจว่า `image_data` มีค่าที่ถูกต้อง
+      const imageData = activity.image_data?.startsWith("data:image")
+        ? activity.image_data // ถ้ามี "data:image" อยู่แล้วใช้เลย
+        : `data:image/png;base64,${activity.image_data}`; // ถ้าไม่มีให้เติม prefix
 
-        const updatedData = {
-          ...activity,
-          ac_seat: parseInt(activity.seat, 10),
-          ac_start_register: activity.start_register?.toISOString() || null,
-          ac_end_register: activity.end_register?.toISOString() || null,
-          ac_create_date: activity.create_date?.toISOString() || null,
-          ac_last_update: new Date().toISOString(),
-          ac_start_time: activity.start_time?.toISOString() || null,
-          ac_end_time: activity.end_time?.toISOString() || null,
-          ac_image_data: imageData,
-        };
+      const updatedData = {
+        ...activity,
+        ac_name: activity.name,
+        ac_company_lecturer: activity.company_lecturer,
+        ac_description: activity.description,
+        ac_type: activity.type,
+        ac_room: activity.room,
+        ac_seat: parseInt(activity.seat, 10),
+        ac_food: activity.food,
+        ac_status: activity.status,
+        ac_location_type: activity.location_type,
+        ac_state: activity.state,
+        ac_start_register: activity.start_register?.toISOString() || null,
+        ac_end_register: activity.end_register?.toISOString() || null,
+        ac_create_date: activity.create_date?.toISOString() || null,
+        ac_last_update: new Date().toISOString(),
+        ac_start_time: activity.start_time?.toISOString() || null,
+        ac_end_time: activity.end_time?.toISOString() || null,
+        ac_image_data: imageData, // ✅ ส่ง Base64 เต็มรูปแบบไปยัง Backend
+        ac_normal_register: activity.normal_register?.toISOString() || null,
+      };
 
-        console.log("📸 Image Data Before Send:", updatedData.ac_image_data);
+      console.log("📸 Image Data Before Send:", updatedData.ac_image_data);
 
-        await axiosInstance.put(
-          `/activity/update-activity/${activity.id}`,
-          updatedData
-        );
+      await axiosInstance.put(
+        `/activity/update-activity/${activity.id}`,
+        updatedData
+      );
 
-        console.log("✅ Activity updated successfully!");
+      console.log("✅ Activity updated successfully!");
 
-        // ✅ โหลดข้อมูลใหม่หลังจากอัปเดต
-        await get().fetchActivity(activity.id);
-        set({ activityLoading: false });
-      } catch (error: any) {
-        console.error("❌ Error updating activity:", error);
+      // ✅ โหลดข้อมูลใหม่หลังจากอัปเดต
+      await get().fetchActivity(activity.id);
+      set({ activityLoading: false });
+    } catch (error: any) {
+      console.error("❌ Error updating activity:", error);
 
-        set({
-          activityError:
-            error.response?.data?.message || "Error updating activity",
-          activityLoading: false,
-        });
-      }
-    }, 2000); // ⏳ Delay 2 วินาที
+      set({
+        activityError:
+          error.response?.data?.message || "Error updating activity",
+        activityLoading: false,
+      });
+    }
   },
 
   fetchActivity: async (id: number | string): Promise<Activity | null> => {
@@ -331,6 +345,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
     setTimeout(async () => {
       try {
+        console.log("log in createActivity Store: ", activity);
+
         await axiosInstance.post("/activity/create-activity", activity);
         set((state) => ({
           activities: [...state.activities, mapActivityData(activity)],
