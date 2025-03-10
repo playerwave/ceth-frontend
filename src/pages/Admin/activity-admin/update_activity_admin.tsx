@@ -305,6 +305,9 @@ const UpdateActivityAdmin: React.FC = () => {
     try {
       await updateActivity(updatedActivity);
       toast.success("Updated Success !"); // ✅ แสดง Toast เมื่ออัปเดตเสร็จ
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       console.error("❌ Error updating activity:", error);
       toast.error("Update failed!"); // ✅ แสดง Toast ถ้าอัปเดตไม่สำเร็จ
