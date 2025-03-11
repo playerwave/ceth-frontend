@@ -1,6 +1,6 @@
 import { Activity } from "./table";
 import { useNavigate } from "react-router-dom";
-import { useAppStore } from "../../../stores/Test/store_test";
+import { useActivityStore } from "../../../stores/Admin/activity_store";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 
@@ -10,7 +10,7 @@ interface TableRowProps {
 
 const TableRow: React.FC<TableRowProps> = ({ act }) => {
   const navigate = useNavigate();
-  const { updateActivityStatus } = useAppStore();
+  const { updateActivityStatus } = useActivityStore();
 
   if (!act) {
     return (

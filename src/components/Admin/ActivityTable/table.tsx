@@ -7,7 +7,7 @@ export type Activity = {
   name: string;
   company_lecturer: string;
   description: string;
-  type: "Hard Skill" | "Soft Skill";
+  type: "HardSkill" | "SoftSkill";
   start_time: Date;
   seat: string;
   status: "Public" | "Private";
