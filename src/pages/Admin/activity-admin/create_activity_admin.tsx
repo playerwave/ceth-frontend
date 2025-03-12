@@ -1,14 +1,19 @@
+//react hook
 import React, { useState, useEffect } from "react";
-import { ImagePlus } from "lucide-react";
-import { useActivityStore } from "../../../stores/Admin/activity_store"; // ✅ นำเข้า Zustand Store
-import Button from "../../../components/Button";
-import { Activity } from "../../../stores/Admin/activity_store";
 import { useNavigate } from "react-router-dom";
-import { auto } from "@cloudinary/url-gen/actions/resize";
-import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
-import { AdvancedImage } from "@cloudinary/react";
+
+//import icon
+import { ImagePlus } from "lucide-react";
+
+//import store
+import { useActivityStore } from "../../../stores/Admin/activity_store"; // ✅ นำเข้า Zustand Store
+import { Activity } from "../../../stores/Admin/activity_store";
+
+//import component
+import Button from "../../../components/Button";
 import ConfirmDialog from "../../../components/ConfirmDialog";
 import { toast } from "sonner";
+import { Input } from "../../../components/ui/input";
 
 interface FormData {
   ac_id: number | null;
@@ -313,6 +318,13 @@ const CreateActivityAdmin: React.FC = () => {
         >
           <h1 className="text-4xl font-bold mb-11">สร้างกิจกรรมสหกิจ</h1>
           <h1>{isModalOpen.toString()}</h1>
+          <Input
+            type="text"
+            name="ac_name"
+            value={formData.ac_name}
+            placeholder="ชื่อกิจกรรม"
+            onChange={handleChange}
+          />
           <form
             onSubmit={handleSubmit}
             className="space-y-4 flex flex-col flex-grow"
