@@ -112,7 +112,7 @@ const SidebarAdmin = () => {
           collapsed={isCollapsed}
         />
         <SidebarItem
-          to="/crud-test"
+          to="/test_create"
           icon={<FileText size={24} />}
           text="CRUD Example"
           collapsed={isCollapsed}

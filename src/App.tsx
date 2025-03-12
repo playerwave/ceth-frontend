@@ -7,6 +7,8 @@ import Navbar from "./components/Navbar";
 //import pages
 import Main from "./pages/Admin/main_admin";
 import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
+import TestCreate from "./pages/Test/test_create";
+
 // import Crud_Test from "./pages/Test/crud_test";
 import CreateActivityAdmin from "./pages/Admin/activity-admin/create_activity_admin";
 import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity_info_admin";
@@ -69,6 +71,14 @@ function App() {
             element={
               <Navbar>
                 <EnrolledListAdmin />
+              </Navbar>
+            }
+          />
+          <Route
+            path="/test_create"
+            element={
+              <Navbar>
+                <TestCreate />
               </Navbar>
             }
           />

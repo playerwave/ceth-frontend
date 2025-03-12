@@ -9,6 +9,14 @@ import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
 import { AdvancedImage } from "@cloudinary/react";
 import ConfirmDialog from "../../../components/ConfirmDialog";
 import { toast } from "sonner";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import dayjs, { Dayjs } from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { TextField, IconButton, Paper, Box, Typography } from "@mui/material";
+import { Delete, Add } from "@mui/icons-material";
 
 interface FormData {
   ac_id: number | null;
@@ -48,8 +56,8 @@ const CreateActivityAdmin: React.FC = () => {
     ac_room: "",
     ac_seat: "",
     ac_food: [],
-    ac_status: "",
-    ac_location_type: "",
+    ac_status: "Private",
+    ac_location_type: "Onsite",
     ac_state: "",
     ac_start_register: "",
     ac_end_register: "",
@@ -92,6 +100,10 @@ const CreateActivityAdmin: React.FC = () => {
   const [normalRegisterDate, setNormalRegisterDate] = useState("");
   const [normalRegisterTime, setNormalRegisterTime] = useState("");
 
+  const [value, setValue] = React.useState<Dayjs | null>(
+    dayjs("2022-04-17T15:30")
+  );
+
   const handleFloorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const floor = e.target.value;
     setSelectedFloor(floor);
@@ -116,44 +128,39 @@ const CreateActivityAdmin: React.FC = () => {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "number" ? (value ? parseInt(value, 10) : "") : value,
+      [name]: type === "number" ? (value ? parseInt(value, 10) : "") : value, // ✅ แก้ให้รองรับทุก type
     }));
 
     // ตรวจจับค่าของ input ที่เป็นวันที่หรือเวลา และอัปเดต state ให้ถูกต้อง
     switch (name) {
+      case "ac_status": // ✅ เพิ่มเคสสำหรับ ac_status
+        console.log("Status changed to:", value);
+        break;
       case "ac_start_register":
         setStartDate(value);
         break;
-      case "ac_end_register_date":
+      case "ac_end_register":
         setEndRegisterDate(value);
-        break;
-      case "ac_end_register_time":
-        setEndRegisterTime(value);
-        break;
-      case "ac_normal_register_date":
-        setNormalRegisterDate(value);
-        break;
-      case "ac_normal_register_time":
-        setNormalRegisterTime(value);
-        break;
-      case "ac_start_date":
-        setStartDate(value);
-        break;
-      case "ac_start_time":
-        setStartTime(value);
-        break;
-      case "ac_end_date":
-        setEndDate(value);
-        break;
-      case "ac_end_time":
-        setEndTime(value);
         break;
       case "ac_normal_register":
         setNormalRegisterDate(value);
         break;
+      case "ac_start_time":
+        setStartTime(value);
+        break;
+      case "ac_end_time":
+        setEndTime(value);
+        break;
       default:
         break;
     }
+  };
+
+  const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: newValue ? newValue.format("YYYY-MM-DDTHH:mm:ss") : null, // ✅ บันทึกเป็น Local Time
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -307,118 +314,176 @@ const CreateActivityAdmin: React.FC = () => {
 
   return (
     <>
-      <div className="justify-items-center">
+      <Box className="justify-items-center">
         <div
-          className={`w-320 mx-auto ml-2xl mt-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm h-435  flex flex-col`}
+          className={`w-320 mx-auto ml-2xl mt-5 mb-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm min-h-screen flex flex-col`}
         >
           <h1 className="text-4xl font-bold mb-11">สร้างกิจกรรมสหกิจ</h1>
-          <h1>{isModalOpen.toString()}</h1>
+          <p>end_register : {formData.ac_end_register}</p>
+          <p>normal_register : {formData.ac_normal_register}</p>
+          <p>{formData.ac_status}</p>
           <form
             onSubmit={handleSubmit}
             className="space-y-4 flex flex-col flex-grow"
           >
             {/* scrollbar */}
-            <div className="max-h-[800px] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200 pr-4">
-              <div className="flex space-x-6">
+            <div className="flex-grow">
+              <div className="flex space-x-6 items-center">
                 {/* ช่องกรอกชื่อกิจกรรม */}
                 <div>
                   <label className="block font-semibold w-50">
                     ชื่อกิจกรรม *
                   </label>
-                  <input
-                    type="text"
+                  <TextField
+                    id="ac_name"
                     name="ac_name"
-                    value={formData.ac_name}
-                    onChange={handleChange}
-                    className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
                     placeholder="ชื่อกิจกรรม"
-                    required
+                    value={formData.ac_name}
+                    className="w-140"
+                    onChange={handleChange}
+                    error={
+                      formData.ac_status !== "Private" &&
+                      formData.ac_company_lecturer.length > 0 &&
+                      formData.ac_company_lecturer.length < 4
+                    }
+                    helperText={
+                      formData.ac_status !== "Private" &&
+                      formData.ac_company_lecturer.length > 0 &&
+                      formData.ac_company_lecturer.length < 4
+                        ? "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร"
+                        : ""
+                    }
+                    sx={{ height: "56px" }} // กำหนดความสูงให้ TextField
                   />
                 </div>
-                <div className="grid grid-cols-1 gap-2 w-full">
-                  <div>
-                    <label className="block font-semibold">
-                      วันและเวลาปิดการลงทะเบียน *
-                    </label>
-                    <div className="flex space-x-2 w-full">
-                      {/* กรอกวันและเวลาการปิดลงทะเบียน */}
-                      <div className="w-1/2">
-                        <div className="flex space-x-2">
-                          <input
-                            name="ac_end_register_date"
-                            type="date"
-                            value={endRegisterDate}
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
 
-                          {/* กรอกเวลาปิดรับลงทะเบียน */}
-                          <input
-                            type="time"
-                            name="ac_end_register_time"
-                            value={endRegisterTime}
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                {/* ช่องกรอกวันและเวลาปิดการลงทะเบียน */}
+                <div className="flex flex-col">
+                  <label className="block font-semibold">
+                    วันและเวลาปิดการลงทะเบียน *
+                  </label>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateTimePicker
+                      className="w-77.5"
+                      value={
+                        formData.ac_end_register
+                          ? dayjs(formData.ac_end_register)
+                          : null
+                      }
+                      onChange={(newValue) =>
+                        handleDateTimeChange("ac_end_register", newValue)
+                      }
+                      slotProps={{
+                        textField: {
+                          sx: { height: "56px" },
+                          error: !!(
+                            formData.ac_status !== "Private" &&
+                            formData.ac_end_register &&
+                            formData.ac_normal_register &&
+                            formData.ac_start_time &&
+                            (dayjs(formData.ac_end_register).isBefore(
+                              dayjs()
+                            ) ||
+                              dayjs(formData.ac_end_register).isAfter(
+                                dayjs(formData.ac_start_time)
+                              ) ||
+                              dayjs(formData.ac_end_register).isAfter(
+                                dayjs(formData.ac_normal_register)
+                              ))
+                          ),
+                          helperText:
+                            formData.ac_status !== "Private" &&
+                            formData.ac_end_register &&
+                            formData.ac_start_time &&
+                            (dayjs(formData.ac_end_register).isBefore(
+                              dayjs()
+                            ) ||
+                              dayjs(formData.ac_end_register).isAfter(
+                                dayjs(formData.ac_start_time)
+                              ) ||
+                              dayjs(formData.ac_end_register).isAfter(
+                                dayjs(formData.ac_normal_register)
+                              ))
+                              ? "วันที่ปิดลงทะเบียนต้องอยู่ก่อนวันเริ่มกิจกรรมและต้องไม่น้อยกว่าวันปัจจุบัน"
+                              : undefined,
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
                 </div>
               </div>
 
-              <div className="flex space-x-6">
-                {/* ช่องกรอกชื่อบริษัท/วิทยากร */}
-                <div className="w-1/2">
-                  <label className="block font-semibold ">
+              <div className="flex space-x-6 items-center mt-5">
+                {/* ช่องกรอกชื่อบริษัท/ชื่อวิทยากร */}
+                <div>
+                  <label className="block font-semibold w-50">
                     ชื่อบริษัท/วิทยากร *
                   </label>
-                  <input
-                    type="text"
-                    name="ac_company_lecturer"
-                    value={formData.ac_company_lecturer}
-                    onChange={handleChange}
-                    className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
+                  <TextField
+                    id="ac_name"
+                    name="ac_name"
                     placeholder="ชื่อบริษัท หรือ วิทยากร ที่มาอบรม"
-                    required
+                    value={formData.ac_name}
+                    className="w-140"
+                    onChange={handleChange}
+                    error={
+                      formData.ac_status !== "Private" &&
+                      formData.ac_company_lecturer.length > 0 &&
+                      formData.ac_company_lecturer.length < 4
+                    }
+                    helperText={
+                      formData.ac_status !== "Private" &&
+                      formData.ac_company_lecturer.length > 0 &&
+                      formData.ac_company_lecturer.length < 4
+                        ? "ต้องมีอย่างน้อย 4 ตัวอักษร"
+                        : ""
+                    }
+                    sx={{ height: "56px" }} // กำหนดความสูงให้ TextField
                   />
                 </div>
 
-                {/* ช่องกรอกวันและเวลาที่ให้นิสิตที่มีสถานะ normal ลงทะเบียน */}
-                <div className="grid grid-cols-1 gap-2 w-full">
-                  <div>
-                    <label className="block font-semibold">
-                      วันและเวลาที่ให้นิสิตที่มีสถานะ normal ลงทะเบียน *
-                    </label>
-                    <div className="flex space-x-2 w-full">
-                      {/* กรอกวันเริ่มให้นิสิตที่มีสถานะ normal ลงทะเบียน */}
-                      <div className="w-1/2">
-                        <div className="flex space-x-2">
-                          <input
-                            type="date"
-                            name="ac_normal_register_date"
-                            value={normalRegisterDate}
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
-
-                          {/* กรอกเวลาให้นิสิตสถานะ normal ลงทะเบียน */}
-                          <input
-                            type="time"
-                            name="ac_normal_register_time"
-                            value={normalRegisterTime}
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                {/* ช่องกรอกวันและเวลาปิดการลงทะเบียน */}
+                <div className="flex flex-col">
+                  <label className="block font-semibold">
+                    วันและเวลาเปิดให้นิสิตสถานะ normal ลงทะเบียน *
+                  </label>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateTimePicker
+                      className="w-77.5"
+                      value={
+                        formData.ac_normal_register
+                          ? dayjs(formData.ac_normal_register)
+                          : null
+                      } // ✅ แปลงค่า
+                      onChange={(newValue) =>
+                        handleDateTimeChange("ac_normal_register", newValue)
+                      }
+                      slotProps={{
+                        textField: { sx: { height: "56px" } },
+                      }}
+                      error={
+                        formData.ac_status !== "Private" &&
+                        ((formData.ac_normal_register ?? "") >
+                          (formData.ac_start_time ?? "") ||
+                          (formData.ac_normal_register ?? "") >
+                            (formData.ac_start_time ?? ""))
+                      }
+                      helperText={
+                        (formData.ac_status !== "Private" &&
+                          (formData.ac_end_register ?? "") >
+                            (formData.ac_normal_register ?? "")) ||
+                        (formData.ac_end_register ?? "") >
+                          (formData.ac_start_time ?? "")
+                          ? "วันที่ปิดให้ลงทะเบียนกิจกรรมต้องมาก่อน วันที่เปิดให้นิสิตสถานะ normal และ วันที่ดำเนินการกิจกรรม"
+                          : ""
+                      }
+                    />
+                  </LocalizationProvider>
                 </div>
               </div>
 
               {/* ช่องกรอกคำอธิบาย */}
-              <div className="flex space-x-6">
+              <div className="flex space-x-6 mt-5">
                 <div>
                   <label className="block font-semibold w-50">
                     คำอธิบายกิจกรรม
@@ -441,23 +506,16 @@ const CreateActivityAdmin: React.FC = () => {
                     <div className="flex space-x-2 w-full">
                       {/* กรอกวันเริ่้ม */}
                       <div className="w-1/2">
-                        <div className="flex space-x-2">
-                          <input
-                            type="date"
-                            name="ac_start_date"
-                            value={startDate}
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
-
-                          {/* กรอกเวลาเริ่ม */}
-                          <input
-                            type="time"
-                            name="ac_start_time"
-                            value={startTime}
-                            onChange={handleChange}
-                            className="w-100 p-2 border rounded border-[#9D9D9D]"
-                          />
+                        <div className="flex flex-col">
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
+                              value={value}
+                              onChange={(newValue) => setValue(newValue)}
+                              slotProps={{
+                                textField: { sx: { height: "56px" } }, // กำหนดความสูงให้ DateTimePicker
+                              }}
+                            />
+                          </LocalizationProvider>
                         </div>
                         <p className="text-xs text-gray-500  mt-1">Start</p>
                       </div>
@@ -466,178 +524,219 @@ const CreateActivityAdmin: React.FC = () => {
 
                       {/* กรอกวันจบ */}
                       <div className="w-1/2">
-                        <div className="flex space-x-2">
-                          <input
-                            type="date"
-                            name="ac_end_date"
-                            value={endDate}
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
-                          {/* กรอกเวลาจบ */}
-                          <input
-                            type="time"
-                            name="ac_end_time"
-                            value={endTime}
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
+                        <div className="flex flex-col">
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
+                              value={value}
+                              onChange={(newValue) => setValue(newValue)}
+                              slotProps={{
+                                textField: { sx: { height: "56px" } }, // กำหนดความสูงให้ DateTimePicker
+                              }}
+                            />
+                          </LocalizationProvider>
                         </div>
                         <p className="text-xs text-gray-500  mt-1">End</p>
                       </div>
-                    </div>
-                    <div>
-                      <label className="block font-semibold w-50">
-                        ประเภทสถานที่จัดกิจกรรม *
-                      </label>
-                      <select
-                        name="ac_location_type"
-                        value={formData.ac_location_type}
-                        onChange={handleChange}
-                        className="w-1/2 p-2 border rounded mb-4 border-[#9D9D9D]"
-                      >
-                        <option value="Online">Online</option>
-                        <option value="Offline">Offline</option>
-                      </select>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* ช่องกรอกระเภท */}
-              <div className="flex space-x-6">
+              <div className="flex space-x-6 items-center">
                 <div>
                   <label className="block font-semibold w-50">ประเภท *</label>
-                  <select
+                  <Select
+                    labelId="ac_type"
                     name="ac_type"
-                    value={formData.ac_type || "SoftSkill"} // ✅ กำหนดค่าเริ่มต้นเพื่อป้องกัน undefined
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        ac_type: e.target.value,
-                      }))
-                    }
-                    className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
+                    value={formData.ac_type}
+                    onChange={handleChange}
+                    className=" rounded w-140"
+                    sx={{
+                      height: "56px", // ลดความสูงของ Select
+                      "& .MuiSelect-select": {
+                        padding: "8px", // ลด padding ด้านใน
+                      },
+                    }}
                   >
-                    <option value="SoftSkill">
+                    <MenuItem value="SoftSkill">
                       ชั่วโมงเตรียมความพร้อม (Soft Skill)
-                    </option>
-                    <option value="HardSkill">
-                      ชั่วโมงทักษะทางวิชาการ (Hard Skill)
-                    </option>
-                    <option value="other">อื่นๆ</option>
-                  </select>
+                    </MenuItem>
+                    <MenuItem value="HardSkill">
+                      ชั้่วโมงทักษะทางวิชาการ (Hard Skill)
+                    </MenuItem>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block font-semibold w-50">
+                    ประเภทสถานที่จัดกิจกรรม *
+                  </label>
+                  <Select
+                    labelId="ac_location_type-label"
+                    name="ac_location_type"
+                    value={formData.ac_location_type}
+                    onChange={handleChange}
+                    className="rounded w-76"
+                    sx={{
+                      height: "56px", // ลดความสูงของ Select
+                      "& .MuiSelect-select": {
+                        padding: "8px", // ลด padding ด้านใน
+                      },
+                    }}
+                  >
+                    <MenuItem value="Online">Online</MenuItem>
+                    <MenuItem value="Onsite">Onsite</MenuItem>
+                    <MenuItem value="Course">Course</MenuItem>
+                  </Select>
                 </div>
               </div>
 
               {/* ช่องกรอกห้องที่ใช้อบรม */}
-              <div className="flex space-x-4">
+              <div className="flex space-x-4 mt-5">
                 {/* เลือกชั้น */}
                 <div className="w-1/6">
                   <label className="block font-semibold">เลือกชั้น</label>
-                  <select
+                  <Select
+                    labelId="floor-select-label"
                     value={selectedFloor}
                     onChange={handleFloorChange}
-                    className="w-full p-2 border rounded border-[#9D9D9D]"
+                    className="rounded p-2 w-full"
+                    sx={{
+                      height: "56px", // ลดความสูงของ Select
+                      "& .MuiSelect-select": {
+                        padding: "8px", // ลด padding ด้านใน
+                      },
+                    }}
                   >
-                    <option value="">เลือกชั้น</option>
+                    <MenuItem value="">เลือกชั้น</MenuItem>
                     {Object.keys(IfBuildingRoom).map((floor) => (
-                      <option key={floor} value={floor}>
+                      <MenuItem key={floor} value={floor}>
                         {floor}
-                      </option>
+                      </MenuItem>
                     ))}
-                  </select>
+                  </Select>
                 </div>
 
                 {/* เลือกห้อง */}
                 <div className="w-85.5">
                   <label className="block font-semibold">เลือกห้อง</label>
-                  <select
+                  <Select
+                    labelId="room-select-label"
                     value={selectedRoom}
                     onChange={handleRoomChange}
-                    className={`w-full p-2 border rounded border-[#9D9D9D] ${
-                      !selectedFloor ? " cursor-not-allowed" : ""
+                    className={`rounded p-2 w-full ${
+                      !selectedFloor ? "cursor-not-allowed" : ""
                     }`}
-                    disabled={!selectedFloor} // ปิดการใช้งานถ้ายังไม่ได้เลือกชั้น
+                    sx={{
+                      height: "56px", // ลดความสูงของ Select
+                      "& .MuiSelect-select": {
+                        padding: "8px", // ลด padding ด้านใน
+                      },
+                    }}
                   >
-                    <option value="">เลือกห้อง</option>
+                    <MenuItem value="">เลือกห้อง</MenuItem>
                     {selectedFloor &&
                       IfBuildingRoom[selectedFloor]?.map((room) => (
-                        <option key={room} value={room}>
+                        <MenuItem key={room} value={room}>
                           {room}
-                        </option>
+                        </MenuItem>
                       ))}
-                  </select>
+                  </Select>
                 </div>
               </div>
 
-              <div className="flex space-x-4">
+              <div className="flex space-x-4 mt-5">
                 {/* ช่องกรอกสถานะ*/}
                 <div className="w-1/6">
                   <label className="block font-semibold w-50">สถานะ *</label>
-                  <select
-                    name="ac_status"
+                  <Select
+                    labelId="ac_status" // ✅ ใช้ labelId ให้ตรงกับ name
+                    name="ac_status" // ✅ เปลี่ยนให้ตรงกับ key ใน formData
                     value={formData.ac_status}
                     onChange={handleChange}
-                    className="w-full p-2 border rounded border-[#9D9D9D]"
+                    className="rounded w-50"
+                    sx={{
+                      height: "56px",
+                      "& .MuiSelect-select": {
+                        padding: "8px",
+                      },
+                    }}
                   >
-                    <option value="Private">Private</option>
-                    <option value="Public">Public</option>
-                  </select>
+                    <MenuItem value="Private">Private</MenuItem>
+                    <MenuItem value="Public">Public</MenuItem>
+                  </Select>
                 </div>
                 {/* ช่องกรอกจำนวนที่นั่ง*/}
                 <div className="w-85.5">
                   <label className="block font-semibold ">จำนวนที่นั่ง *</label>
-                  <input
-                    type="number"
-                    name="ac_seat"
-                    value={formData.ac_seat ?? ""}
+                  <TextField
+                    id="ac_name"
+                    name="ac_name"
+                    placeholder="ชื่อกิจกรรม"
+                    value={formData.ac_name}
+                    className="w-full"
                     onChange={handleChange}
-                    className="w-full p-2 border rounded border-[#9D9D9D]"
-                    min="1"
+                    error={
+                      formData.ac_status !== "Private" &&
+                      formData.ac_company_lecturer.length > 0 &&
+                      formData.ac_company_lecturer.length < 4
+                    }
+                    helperText={
+                      formData.ac_status !== "Private" &&
+                      formData.ac_company_lecturer.length > 0 &&
+                      formData.ac_company_lecturer.length < 4
+                        ? "ต้องมีอย่างน้อย 4 ตัวอักษร"
+                        : ""
+                    }
+                    sx={{ height: "56px" }} // กำหนดความสูงให้ TextField
                   />
                 </div>
               </div>
 
               {/* ช่องเลือกอาหาร */}
-              <div className="w-140 mt-5 bg-white p-6 border border-[#9D9D9D] rounded-lg shadow-sm">
+              <Paper className="w-140 mt-5 p-6 bg-white border border-gray-300 rounded-lg shadow-sm">
                 {/* หัวข้อ */}
-                <label className="block font-semibold mb-2">อาหาร *</label>
+                <Typography variant="h6" className="font-semibold mb-2">
+                  อาหาร *
+                </Typography>
 
-                {/* ส่วนรายการเมนู มี Scrollbar */}
-                <div className="max-h-30 overflow-y-auto pr-2 space-y-2">
+                {/* ส่วนรายการเมนู ไม่มี Scrollbar */}
+                <Box className="pr-2 space-y-2 flex flex-col">
                   {formData.ac_food?.map((menu, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <input
-                        type="text"
+                    <Box key={index} className="flex items-center space-x-2">
+                      <TextField
+                        fullWidth
                         value={menu}
                         onChange={(e) =>
                           updateFoodOption(index, e.target.value)
                         }
-                        className="w-full p-2 border rounded border-[#9D9D9D]"
+                        variant="outlined"
+                        size="small"
+                        className="border-gray-400 rounded"
                       />
-                      <button
-                        type="button"
+                      <IconButton
                         onClick={() => removeFoodOption(index)}
-                        className="bg-red-500 text-white px-2 py-1 rounded"
+                        color="error"
                       >
-                        X
-                      </button>
-                    </div>
+                        <Delete />
+                      </IconButton>
+                    </Box>
                   ))}
-                </div>
+                </Box>
 
                 {/* ปุ่มเพิ่มเมนู (อยู่นอก Scrollbar) */}
-                <div className="flex justify-end mt-2">
-                  <button
-                    type="button"
+                <Box className="flex justify-end mt-2">
+                  <Button
                     onClick={addFoodOption}
-                    className="bg-[#1E3A8A] text-white px-4 py-2 rounded mt-4"
+                    variant="contained"
+                    color="blue"
+                    startIcon={<Add />}
+                    className="mt-4 text-white"
                   >
                     เพิ่มอาหาร
-                  </button>
-                </div>
-              </div>
+                  </Button>
+                </Box>
+              </Paper>
 
               {/* แบบประเมิน */}
               <div className="mt-4 border-[#9D9D9D]">
@@ -696,7 +795,7 @@ const CreateActivityAdmin: React.FC = () => {
               />
 
               {/* ปุ่ม ยกเลิก & สร้าง */}
-              <div className="mt-10 flex justify-end items-center space-x-4 px-6 ">
+              <div className="mt-auto flex justify-end items-center space-x-4 px-6">
                 {/* ปุ่มยกเลิก */}
                 <Button
                   type="button"
@@ -720,7 +819,7 @@ const CreateActivityAdmin: React.FC = () => {
             </div>
           </form>
         </div>
-      </div>
+      </Box>
     </>
   );
 };
