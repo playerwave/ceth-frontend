@@ -6,12 +6,21 @@ import Navbar from "./components/Navbar";
 
 //import pages
 import Main from "./pages/Admin/main_admin";
-import ManageActivityAdmin from "./pages/Admin/activity-admin/manage_activity_admin";
-import Crud_Test from "./pages/Test/crud_test";
+import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
+// import Crud_Test from "./pages/Test/crud_test";
+import CreateActivityAdmin from "./pages/Admin/activity-admin/create_activity_admin";
+import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity_info_admin";
+import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled_list_admin";
+import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
+// import Crud_Test from "./pages/Test/crud_test";
+
+//import toast
+import { Toaster } from "sonner";
 
 function App() {
   return (
     <>
+      <Toaster position="bottom-right" richColors />
       <div>
         {/* Admin Routes */}
         <Routes>
@@ -24,21 +33,45 @@ function App() {
             }
           />
           <Route
-            path="/manage-activity-admin"
+            path="/list-activity-admin"
             element={
               <Navbar>
-                <ManageActivityAdmin />
+                <ListActivityAdmin />
               </Navbar>
             }
           ></Route>
           <Route
-            path="/crud-test"
+            path="/activity-info-admin"
             element={
               <Navbar>
-                <Crud_Test />
+                <ActivityInfoAdmin />
               </Navbar>
             }
-          ></Route>
+          />
+          <Route
+            path="/create-activity-admin"
+            element={
+              <Navbar>
+                <CreateActivityAdmin />
+              </Navbar>
+            }
+          />
+          <Route
+            path="/update-activity-admin"
+            element={
+              <Navbar>
+                <UpdateActivityAdmin />
+              </Navbar>
+            }
+          />
+          <Route
+            path="/enrolled_list_admin/:id"
+            element={
+              <Navbar>
+                <EnrolledListAdmin />
+              </Navbar>
+            }
+          />
         </Routes>
 
         {/* Student Routes */}

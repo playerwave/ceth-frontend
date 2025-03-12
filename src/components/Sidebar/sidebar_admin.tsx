@@ -64,7 +64,7 @@ const SidebarAdmin = () => {
           collapsed={isCollapsed}
         />
         <SidebarItem
-          to="/manage-activity-admin"
+          to="/list-activity-admin"
           icon={<BookA size={24} />}
           text="กิจกรรมสหกิจ"
           collapsed={isCollapsed}
