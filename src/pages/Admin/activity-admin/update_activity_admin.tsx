@@ -2354,21 +2354,8 @@ const UpdateActivityAdmin: React.FC = () => {
                 <div className="mt-4 w-200 h-125 border-gray-300">
                   <p className="text-sm text-gray-500">ตัวอย่างรูปภาพ:</p>
                   <img
-<<<<<<< HEAD
                     src={previewImage || formData.ac_image_url}
                     alt="รูปภาพกิจกรรม"
-=======
-                    src={
-                      previewImage ||
-                      (typeof formData.ac_image_data === "string" &&
-                      formData.ac_image_data.startsWith("data:image")
-                        ? formData.ac_image_data
-                        : formData.ac_image_data instanceof File
-                        ? URL.createObjectURL(formData.ac_image_data) // ✅ ใช้ URL.createObjectURL() สำหรับไฟล์
-                        : null) // ถ้าไม่ใช่ String หรือ File ให้เป็น null
-                    }
-                    alt="อัปโหลดภาพกิจกรรม"
->>>>>>> 09f7fd0 (can create, update, delete with validateDTO)
                     className="w-200 h-125 mt-2 object-cover border rounded-lg shadow"
                   />
                 </div>
