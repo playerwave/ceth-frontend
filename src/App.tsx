@@ -8,7 +8,7 @@ import Navbar from "./components/Navbar";
 import Main from "./pages/Admin/main_admin";
 import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
 // import Crud_Test from "./pages/Test/crud_test";
-import ManageActivityStudent from "./pages/Student/activity-student/activity_studen";
+import ManageActivityStudent from "./pages/Student/activity-student/activity_info_student";
 
 function App() {
   return (
