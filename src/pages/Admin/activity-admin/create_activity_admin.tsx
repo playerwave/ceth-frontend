@@ -343,13 +343,13 @@ const CreateActivityAdmin: React.FC = () => {
                     onChange={handleChange}
                     error={
                       formData.ac_status !== "Private" &&
-                      formData.ac_company_lecturer.length > 0 &&
-                      formData.ac_company_lecturer.length < 4
+                      formData.ac_name.length > 0 &&
+                      formData.ac_name.length < 4
                     }
                     helperText={
                       formData.ac_status !== "Private" &&
-                      formData.ac_company_lecturer.length > 0 &&
-                      formData.ac_company_lecturer.length < 4
+                      formData.ac_name.length > 0 &&
+                      formData.ac_name.length < 4
                         ? "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร"
                         : ""
                     }
