@@ -43,6 +43,10 @@ interface FormData {
   ac_end_time?: string | null;
   ac_image_data?: File | null;
   ac_normal_register?: string | null;
+  ac_start_assesment?: string | null; // ⏳ เวลาทำแบบประเมิน (แก้ไข)
+  ac_end_assesment?: string | null; // ⏳ เวลาสิ้นสุดการทำแบบประเมิน (แก้ไข)
+  ac_recieve_hours?: number;// ⏳ จำนวน)
+
 }
 
 const CreateActivityAdmin: React.FC = () => {
@@ -71,6 +75,9 @@ const CreateActivityAdmin: React.FC = () => {
     ac_end_time: "",
     ac_image_data: null,
     ac_normal_register: "",
+    ac_start_assesment: "", // ⏳ เวลาทำแบบประเมิน (แก้ไข)
+    ac_end_assesment: "", // ⏳ เวลาสิ้นสุดการทำแบบประเมิน (แก้ไข)
+    ac_recieve_hours: 0, // ⏳ จำนวน)
   });
 
   const IfBuildingRoom: Record<string, string[]> = {
@@ -100,6 +107,12 @@ const CreateActivityAdmin: React.FC = () => {
 
   const [normalRegisterDate, setNormalRegisterDate] = useState("");
   const [normalRegisterTime, setNormalRegisterTime] = useState("");
+
+  const [startAssesmentDate, setStartAssesmentDate] = useState("");
+  const [startAssesmentTime, setStartAssesmentTime] = useState("");
+  const [endAssesmentDate, setEndAssesmentDate] = useState("");
+  const [endAssesmentTime, setEndAssesmentTime] = useState("");
+
 
   const [value, setValue] = React.useState<Dayjs | null>(
     dayjs("2022-04-17T15:30")
@@ -152,17 +165,25 @@ const CreateActivityAdmin: React.FC = () => {
       case "ac_end_time":
         setEndTime(value);
         break;
+
+      case "ac_recieve_hours": // ✅ เพิ่มการรองรับจำนวนชั่วโมง
+        setFormData((prev) => ({
+          ...prev,
+          ac_recieve_hours: value ? parseInt(value, 10) : 0,
+        }));
+        break;
       default:
         break;
+
     }
   };
-
   const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: newValue ? newValue.format("YYYY-MM-DDTHH:mm:ss") : null, // ✅ บันทึกเป็น Local Time
+      [name]: newValue ? newValue.format("YYYY-MM-DDTHH:mm:ss") : null, // ✅ บันทึกเป็นรูปแบบเดียวกันกับตัวอื่น
     }));
   };
+
 
 
 
@@ -188,24 +209,18 @@ const CreateActivityAdmin: React.FC = () => {
     const numericSeats = formData.ac_seat ? parseInt(formData.ac_seat, 10) : 0;
 
     // ✅ แปลงค่า string เป็น Date (Backend คาดหวังเป็น Date)
-    const endRegisterDateTime = new Date(
-      `${endRegisterDate}T${endRegisterTime}:00Z`
-    );
+    const endRegisterDateTime = new Date(`${endRegisterDate}T${endRegisterTime}:00Z`);
     const startDateTime = new Date(`${startDate}T${startTime}:00Z`);
     const endDateTime = new Date(`${endDate}T${endTime}:00Z`);
-    const normalRegister = new Date(
-      `${normalRegisterDate}T${normalRegisterTime}:00Z`
-    );
+    const normalRegister = new Date(`${normalRegisterDate}T${normalRegisterTime}:00Z`);
 
-    // ✅ ใช้ let แทน const และตรวจสอบสถานะ
+    // ✅ ตรวจสอบสถานะ Public เพื่อตั้งค่า startregister
     let startregister: Date | undefined;
     if (formData.ac_status === "Public") {
       startregister = new Date(); // ตั้งค่าเป็นวันที่ปัจจุบัน
     } else {
       startregister = undefined; // ถ้าไม่ใช่ Public ให้เป็น undefined
     }
-
-    console.log("startDateTime: ", startDateTime);
 
     const activityData: Activity = {
       ac_name: formData.ac_name,
@@ -214,26 +229,35 @@ const CreateActivityAdmin: React.FC = () => {
       ac_description: formData.ac_description,
       ac_type: formData.ac_type,
       ac_room: formData.ac_room || "Unknown",
-      ac_seat: !isNaN(numericSeats) ? numericSeats : 0,
+      ac_seat: numericSeats,
       ac_food: formData.ac_food || [],
       ac_status: formData.ac_status || "Private",
       ac_location_type: formData.ac_location_type || "Offline",
       ac_state: "Not Start",
-      ac_start_register: startregister, // ✅ ใช้ค่าจาก if-check
-      ac_end_register: endRegisterDateTime, // ✅ ส่งเป็น Date
+      ac_start_register: startregister,
+      ac_end_register: endRegisterDateTime,
       ac_create_date: new Date(),
       ac_last_update: new Date(),
       ac_registered_count: formData.ac_registered_count,
       ac_attended_count: formData.ac_attended_count,
       ac_not_attended_count: formData.ac_not_attended_count,
-      ac_start_time: startDateTime, // ✅ ส่งเป็น Date
-      ac_end_time: endDateTime, // ✅ ส่งเป็น Date
-      ac_image_data: formData.ac_image_data || "", // ✅ ส่ง Base64 ไปที่ Backend
-      ac_normal_register: normalRegister, // ✅ ส่งเป็น Date
+      ac_start_time: startDateTime,
+      ac_end_time: endDateTime,
+      ac_image_data: formData.ac_image_data || "",
+      ac_normal_register: normalRegister,
+
+      // ✅ เพิ่มการแปลงค่าสำหรับ ac_start_assesment และ ac_end_assesment
+      ac_start_assesment: formData.ac_start_assesment ? new Date(formData.ac_start_assesment) : null,
+      ac_end_assesment: formData.ac_end_assesment ? new Date(formData.ac_end_assesment) : null,
+
+      // ✅ ป้องกันค่าที่อาจเป็น undefined หรือ null
+      ac_recieve_hours: typeof formData.ac_recieve_hours === "number"
+        ? formData.ac_recieve_hours
+        : 0,
     };
 
-    console.log("✅ Sending Activity Data:", activityData);
-    await createActivity(activityData);
+    // ✅ Log ข้อมูลที่ถูกส่งไป Backend
+    console.log("✅ Sending Activity Data:", JSON.stringify(activityData, null, 2));
 
     try {
       await createActivity(activityData);
@@ -243,9 +267,11 @@ const CreateActivityAdmin: React.FC = () => {
       navigate("/list-activity-admin", { state: { reload: true } });
     } catch (error) {
       console.error("❌ Error creating activity:", error);
-      toast.error("Create failed!"); // ✅ แสดง Toast ถ้าอัปเดตไม่สำเร็จ
+      toast.error("Create failed!");
     }
   };
+
+
 
   const addFoodOption = () => {
     setFormData((prev) => ({
@@ -448,8 +474,8 @@ const CreateActivityAdmin: React.FC = () => {
                             dayjs(formData.ac_normal_register).isAfter(dayjs(formData.ac_end_register))
                           ),
                           helperText:
-                          formData.ac_status !== "Private" &&
-                            formData.ac_normal_register &&
+                            formData.ac_status !== "Private" &&
+                              formData.ac_normal_register &&
                               formData.ac_end_register &&
                               dayjs(formData.ac_normal_register).isAfter(dayjs(formData.ac_end_register))
                               ? "กรุณาใส่วันที่ใหม่ วันและเวลาเปิดให้นิสิตต้องอยู่หลังวันปิดการลงทะเบียน"
@@ -506,8 +532,8 @@ const CreateActivityAdmin: React.FC = () => {
                                   )
                                   ,
                                   helperText:
-                                  formData.ac_status !== "Private" &&
-                                    formData.ac_start_time &&
+                                    formData.ac_status !== "Private" &&
+                                      formData.ac_start_time &&
                                       (formData.ac_end_register || formData.ac_normal_register)
                                       ? formData.ac_end_register && dayjs(formData.ac_start_time).isBefore(dayjs(formData.ac_end_register))
                                         ? "❌ วันและเวลาการดำเนินกิจกรรมต้องมากกว่าวันที่ปิดลงทะเบียน" // 🔴 กรณีที่ 1
@@ -548,17 +574,17 @@ const CreateActivityAdmin: React.FC = () => {
                                     )
                                   )
                                   ,
-                                  helperText: 
-                                  formData.ac_status !== "Private" && formData.ac_end_time
-                                    ? formData.ac_start_time && dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_start_time))
-                                      ? "❌ เวลาต้องมากกว่าช่วงเริ่มต้น" // 🔴 เงื่อนไขที่ 1
-                                      : formData.ac_normal_register && dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_normal_register))
-                                        ? "❌ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาที่เปิดให้ลงทะเบียนนิสิต" // 🔴 เงื่อนไขที่ 2
-                                        : formData.ac_end_register && dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_end_register))
-                                          ? "❌ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาปิดการลงทะเบียน" // 🔴 เงื่อนไขที่ 3
-                                          : ""
-                                    : ""
-                                ,
+                                  helperText:
+                                    formData.ac_status !== "Private" && formData.ac_end_time
+                                      ? formData.ac_start_time && dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_start_time))
+                                        ? "❌ เวลาต้องมากกว่าช่วงเริ่มต้น" // 🔴 เงื่อนไขที่ 1
+                                        : formData.ac_normal_register && dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_normal_register))
+                                          ? "❌ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาที่เปิดให้ลงทะเบียนนิสิต" // 🔴 เงื่อนไขที่ 2
+                                          : formData.ac_end_register && dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_end_register))
+                                            ? "❌ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาปิดการลงทะเบียน" // 🔴 เงื่อนไขที่ 3
+                                            : ""
+                                      : ""
+                                  ,
                                 },
                               }}
                             />
@@ -612,6 +638,24 @@ const CreateActivityAdmin: React.FC = () => {
                     <MenuItem value="Onsite">Onsite</MenuItem>
                     <MenuItem value="Course">Course</MenuItem>
                   </Select>
+                </div>
+
+
+                {/* ช่องกรอกจำนวนชั่วโมงที่ได้รับ (เฉพาะ Course) */}
+                <div className="flex flex-col">
+                  <label className="block font-semibold">จำนวนชั่วโมงที่ได้รับ *</label>
+                  <TextField
+                    id="ac_recieve_hours"
+                    name="ac_recieve_hours"
+                    type="number"
+                    placeholder="ใส่จำนวนชั่วโมงที่ได้รับ"
+                    value={formData.ac_recieve_hours}
+                    onChange={handleChange}
+                    className="w-77.5"
+                    disabled={formData.ac_location_type !== "Course"} // ✅ ปิดการใช้งานถ้าไม่ใช่ Course
+                    error={formData.ac_location_type === "Course" && !formData.ac_recieve_hours} // ✅ แสดง error ถ้ายังไม่ได้ใส่
+                    sx={{ height: "56px" }}
+                  />
                 </div>
               </div>
 
@@ -760,22 +804,85 @@ const CreateActivityAdmin: React.FC = () => {
                 )}
               </Paper>
 
-              {/* แบบประเมิน */}
-              <div className="mt-4 border-[#9D9D9D]">
-                <label className="block font-semibold">แบบประเมิน *</label>
-                <select
-                  name="evaluationType"
-                  value={formData.as_id ?? ""}
-                  onChange={handleChange}
-                  className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
-                >
-                  <option value="แบบประเมิน 1">แบบประเมิน 1</option>
-                  <option value="แบบประเมิน 2">แบบประเมิน 2</option>
-                  <option value="แบบประเมิน 3">แบบประเมิน 3</option>
-                </select>
-              </div>
+              <div className="flex space-x-6 mt-5 items-center">
+  {/* แบบประเมิน */}
+  <div className="flex flex-col w-140">
+    <label className="block font-semibold">แบบประเมิน *</label>
+    <select
+      name="evaluationType"
+      value={formData.as_id ?? ""}
+      onChange={handleChange}
+      className="w-full p-2 border border-gray-300 rounded"
+      style={{ height: "56px" }} // ✅ กำหนดความสูงให้ตรงกัน
+    >
+      <option value="แบบประเมิน 1">แบบประเมิน 1</option>
+      <option value="แบบประเมิน 2">แบบประเมิน 2</option>
+      <option value="แบบประเมิน 3">แบบประเมิน 3</option>
+    </select>
+  </div>
+
+  {/* ช่องกรอกวันและเวลาทำแบบประเมินกิจกรรม */}
+  <div className="flex flex-col">
+    <label className="block font-semibold">วันและเวลาทำแบบประเมิน *</label>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DateTimePicker
+        className="w-77.5"
+        value={formData.ac_start_assesment ? dayjs(formData.ac_start_assesment) : null}
+        onChange={(newValue) => handleDateTimeChange("ac_start_assesment", newValue)}
+        slotProps={{
+          textField: {
+            sx: { height: "56px" },
+            error: formData.ac_status === "Public" && !!(
+              formData.ac_start_assesment &&
+              ((formData.ac_end_assesment && dayjs(formData.ac_start_assesment).isAfter(dayjs(formData.ac_end_assesment))) ||
+               (formData.ac_start_time && dayjs(formData.ac_start_assesment).isBefore(dayjs(formData.ac_start_time))))
+            ),
+            helperText: formData.ac_status === "Public" ? (
+              formData.ac_start_assesment && formData.ac_end_assesment && dayjs(formData.ac_start_assesment).isAfter(dayjs(formData.ac_end_assesment))
+                ? "❌ เวลาทำแบบประเมินต้องอยู่ก่อนเวลาปิดแบบประเมิน"
+                : formData.ac_start_assesment && formData.ac_start_time && dayjs(formData.ac_start_assesment).isBefore(dayjs(formData.ac_start_time))
+                ? "❌ เวลาทำแบบประเมินต้องอยู่หลังเวลาที่กิจกรรมเริ่มต้น"
+                : ""
+            ) : ""
+          }
+        }}
+      />
+    </LocalizationProvider>
+  </div>
+
+  {/* ช่องกรอกวันและเวลาปิดแบบประเมิน */}
+  <div className="flex flex-col">
+    <label className="block font-semibold">วันและเวลาปิดแบบประเมิน *</label>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DateTimePicker
+        className="w-77.5"
+        value={formData.ac_end_assesment ? dayjs(formData.ac_end_assesment) : null}
+        onChange={(newValue) => handleDateTimeChange("ac_end_assesment", newValue)}
+        slotProps={{
+          textField: {
+            sx: { height: "56px" },
+            error: formData.ac_status === "Public" && !!(
+              formData.ac_end_assesment &&
+              ((formData.ac_start_assesment && dayjs(formData.ac_end_assesment).isBefore(dayjs(formData.ac_start_assesment))) ||
+               (formData.ac_end_time && dayjs(formData.ac_end_assesment).isAfter(dayjs(formData.ac_end_time))))
+            ),
+            helperText: formData.ac_status === "Public" ? (
+              formData.ac_end_assesment && formData.ac_start_assesment && dayjs(formData.ac_end_assesment).isBefore(dayjs(formData.ac_start_assesment))
+                ? "❌ เวลาปิดแบบประเมินต้องอยู่หลังเวลาทำแบบประเมิน"
+                : formData.ac_end_assesment && formData.ac_end_time && dayjs(formData.ac_end_assesment).isAfter(dayjs(formData.ac_end_time))
+                ? "❌ เวลาปิดแบบประเมินต้องอยู่ก่อนเวลาสิ้นสุดกิจกรรม"
+                : ""
+            ) : ""
+          }
+        }}
+      />
+    </LocalizationProvider>
+  </div>
+</div>
+
 
               {/* อัปโหลดไฟล์ */}
+              <br />
               <div>
                 <label className=" font-semibold">แนบไฟล์ :</label>
                 <input
@@ -839,6 +946,10 @@ const CreateActivityAdmin: React.FC = () => {
                 </Button>
               </div>
             </div>
+
+
+
+
           </form>
         </div>
       </Box>
