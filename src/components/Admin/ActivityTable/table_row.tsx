@@ -56,11 +56,13 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
       </td>
 
       <td>
-        {new Intl.DateTimeFormat("th-TH", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }).format(new Date(act.start_time))}
+        {act.start_time
+          ? new Intl.DateTimeFormat("th-TH", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }).format(new Date(act.start_time))
+          : "ยังไม่ระบุ"}
       </td>
       <td className="p-2">
         <span className="mr-3">{act.seat}</span>

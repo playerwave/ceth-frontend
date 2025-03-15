@@ -25,9 +25,12 @@ interface ApiActivity {
   ac_not_attended_count?: number;
   ac_start_time?: Date;
   ac_end_time?: Date;
-  ac_image_data?: string;
+  ac_image_url?: string;
   ac_state: string;
   ac_normal_register: string;
+  ac_recieve_hours?: number;
+  ac_start_assessment?: Date;
+  ac_end_assessment?: Date;
 }
 
 // ✅ อินเทอร์เฟซที่ React ใช้งาน
@@ -51,9 +54,12 @@ interface Activity {
   not_attended_count: number;
   start_time: Date | null;
   end_time: Date | null;
-  image_data: string;
+  image_url: string;
   state: string;
   normal_register: Date | null;
+  recieve_hours: number;
+  start_assessment: Date | null;
+  end_assessment: Date | null;
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -91,7 +97,7 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   name: apiData.ac_name || "ไม่ระบุชื่อ",
   company_lecturer: apiData.ac_company_lecturer || "ไม่ระบุวิทยากร",
   description: apiData.ac_description || "ไม่ระบุรายละเอียด",
-  type: apiData.ac_type === "HardSkill" ? "HardSkill" : "SoftSkill",
+  type: apiData.ac_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
   room: apiData.ac_room || "ไม่ระบุห้อง",
   seat: `${apiData.ac_seat}`,
   food: Array.isArray(apiData.ac_food) ? apiData.ac_food : [],
@@ -115,10 +121,17 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   not_attended_count: apiData.ac_not_attended_count ?? 0,
 
   // ✅ ใช้ Base64 หรือ Default รูปภาพ
-  image_data: apiData.ac_image_data || "/img/default.png",
+  image_url: apiData.ac_image_url || "/img/default.png",
   state: apiData.ac_state || "ไม่ระบุ",
   normal_register: apiData.ac_normal_register
     ? new Date(apiData.ac_normal_register)
+    : null,
+  recieve_hours: apiData.ac_recieve_hours || 0,
+  start_assessment: apiData.ac_start_assessment
+    ? new Date(apiData.ac_start_assessment)
+    : null,
+  end_assessment: apiData.ac_end_assessment
+    ? new Date(apiData.ac_end_assessment)
     : null,
 });
 
@@ -130,39 +143,46 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activity: null,
   enrolledStudents: [],
 
-  fetchActivities: async (page: number = 1, limit: number = 10) => {
+  fetchActivities: async () => {
     set({ activityLoading: true, activityError: null });
 
     try {
-      console.log(
-        `🚀 Fetching data from API... (Page: ${page}, Limit: ${limit})`
-      ); // ✅ Log
+      const response = await axiosInstance.get("/activity/get-activities");
+      console.log("✅ API Response:", response.data); // ตรวจสอบข้อมูลที่ได้จาก API
 
-      const { data } = await axiosInstance.get<{
-        activities: ApiActivity[];
-        total: number;
-        totalPages: number;
-        page: number;
-        limit: number;
-      }>(`/activity/get-activities?page=${page}&limit=${limit}`);
+      // ✅ แปลงโครงสร้างข้อมูลให้ตรงกับ React
+      const formattedActivities = response.data.map((a: ApiActivity) => ({
+        id: a.ac_id,
+        name: a.ac_name,
+        company_lecturer: a.ac_company_lecturer,
+        description: a.ac_description,
+        type: a.ac_type,
+        room: a.ac_room,
+        seat: a.ac_seat,
+        food: a.ac_food || [],
+        status: a.ac_status, // ✅ ตรงกับที่ใช้ใน UI
+        location_type: a.ac_location_type,
+        start_register: a.ac_start_register || null,
+        end_register: a.ac_end_register || null,
+        create_date: a.ac_create_date || null,
+        last_update: a.ac_last_update || null,
+        registered_count: a.ac_registered_count,
+        attended_count: a.ac_attended_count || 0,
+        not_attended_count: a.ac_not_attended_count || 0,
+        start_time: a.ac_start_time || null,
+        end_time: a.ac_end_time || null,
+        image_url: a.ac_image_url || "", // ✅ ใช้ชื่อให้ตรงกับ UI
+        state: a.ac_state,
+        normal_register: a.ac_normal_register,
+        recieve_hours: a.ac_recieve_hours || 0,
+        start_assessment: a.ac_start_assessment || null,
+        end_assessment: a.ac_end_assessment || null,
+      }));
 
-      console.log("✅ API Response:", data); // ✅ Log ค่า data ที่ได้
-
-      if (Array.isArray(data.activities) && data.activities.length > 0) {
-        const mappedActivities = data.activities.map(mapActivityData);
-        set({ activities: mappedActivities, activityLoading: false });
-        console.log("✅ อัปเดต activities:", mappedActivities);
-      } else {
-        console.warn("⚠️ API ส่งข้อมูลว่างเปล่า:", data);
-        set({ activities: [], activityLoading: false });
-      }
+      set({ activities: formattedActivities, activityLoading: false });
     } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      const errorMessage =
-        err.response?.data?.message ?? "Error fetching activities";
-      set({ activityError: errorMessage, activityLoading: false });
-
-      console.error("❌ Error fetching activities:", err);
+      console.error("❌ Error fetching activities:", error);
+      set({ activityError: "ไม่สามารถโหลดกิจกรรมได้", activityLoading: false });
     }
   },
 
@@ -225,13 +245,13 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       // ✅ ตรวจสอบ `image_data` และแปลงเป็น Base64 ถ้าจำเป็น
       let imageData: string | null = null;
 
-      if (activity.image_data instanceof File) {
+      if (activity.image_url instanceof File) {
         console.log("📸 Detected File, converting to Base64...");
-        imageData = await convertFileToBase64(activity.image_data);
-      } else if (typeof activity.image_data === "string") {
-        imageData = activity.image_data.startsWith("data:image")
-          ? activity.image_data // ถ้ามี "data:image" อยู่แล้วใช้เลย
-          : `data:image/png;base64,${activity.image_data}`; // ถ้าไม่มีให้เติม prefix
+        imageData = await convertFileToBase64(activity.image_url);
+      } else if (typeof activity.image_url === "string") {
+        imageData = activity.image_url.startsWith("data:image")
+          ? activity.image_url // ถ้ามี "data:image" อยู่แล้วใช้เลย
+          : `data:image/png;base64,${activity.image_url}`; // ถ้าไม่มีให้เติม prefix
       }
 
       const updatedData = {
@@ -252,11 +272,14 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         ac_last_update: new Date().toISOString(),
         ac_start_time: activity.start_time?.toISOString() || null,
         ac_end_time: activity.end_time?.toISOString() || null,
-        ac_image_data: imageData, // ✅ ส่ง Base64 เต็มรูปแบบไปยัง Backend
+        ac_image_url: imageData, // ✅ ส่ง Base64 เต็มรูปแบบไปยัง Backend
         ac_normal_register: activity.normal_register?.toISOString() || null,
+        ac_recieve_hours: activity.recieve_hours,
+        ac_start_assessment: activity.start_assessment,
+        ac_end_assessment: activity.end_assessment,
       };
 
-      console.log("📸 Image Data Before Send:", updatedData.ac_image_data);
+      console.log("📸 Image Data Before Send:", updatedData.ac_image_url);
 
       await axiosInstance.put(
         `/activity/update-activity/${activity.id}`,
@@ -349,7 +372,6 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  // ✅ ฟังก์ชันสร้างกิจกรรมใหม่
   createActivity: async (activity: ApiActivity): Promise<void> => {
     set(() => ({ activityLoading: true, activityError: null }));
 

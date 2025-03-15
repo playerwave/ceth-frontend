@@ -71,10 +71,10 @@ export default function ActivityInfoAdmin() {
         {/* ภาพกิจกรรม */}
         <div className="flex justify-center w-full h-130 bg-white border border-black rounded-lg mt-4">
           <img
-            src={activity.image_data} // ✅ ใช้ image_data ที่แปลงจาก Buffer เป็น Base64 แล้ว
+            src={activity.image_url || "/img/default.png"} // ✅ ใช้รูป Cloudinary หรือ default
             alt="Activity"
             className="w-full h-full object-cover rounded-lg"
-            onError={(e) => (e.currentTarget.src = "/img/default.png")} // ✅ ใช้ default image เมื่อโหลดไม่สำเร็จ
+            onError={(e) => (e.currentTarget.src = "/img/default.png")} // ✅ ใช้ default image ถ้าโหลดไม่สำเร็จ
           />
         </div>
 
