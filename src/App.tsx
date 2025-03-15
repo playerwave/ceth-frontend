@@ -9,6 +9,7 @@ import Main from "./pages/Admin/main_admin";
 import ManageActivityAdmin from "./pages/Admin/activity-admin/manage_activity_admin";
 import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity_info_admin"
 import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled_list_admin"
+import ActivityInfoStudent from "./pages/student/activity-student/activity_info_student";
 import Crud_Test from "./pages/Test/crud_test";
 
 function App() {
@@ -38,6 +39,14 @@ function App() {
           element={
             <Navbar>
               <EnrolledListAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/activity-info-student"
+          element={
+            <Navbar>
+              <ActivityInfoStudent />
             </Navbar>
           }
         />
