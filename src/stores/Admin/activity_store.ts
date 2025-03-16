@@ -31,6 +31,14 @@ interface ApiActivity {
   ac_recieve_hours?: number;
   ac_start_assessment?: Date;
   ac_end_assessment?: Date;
+  assessment?: {
+    as_id: number;
+    as_name: string;
+    as_type: string;
+    as_description: string;
+    as_create_date: string;
+    as_last_update?: string;
+  } | null;
 }
 
 // ✅ อินเทอร์เฟซที่ React ใช้งาน
@@ -60,6 +68,15 @@ interface Activity {
   recieve_hours: number;
   start_assessment: Date | null;
   end_assessment: Date | null;
+  assessment_id: number | null;
+  assessment?: {
+    as_id: number;
+    as_name: string;
+    as_type: string;
+    as_description: string;
+    as_create_date: string;
+    as_last_update?: string;
+  } | null;
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -132,6 +149,18 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
     : null,
   end_assessment: apiData.ac_end_assessment
     ? new Date(apiData.ac_end_assessment)
+    : null,
+
+  assessment: apiData.assessment
+    ? {
+        // ✅ เพิ่ม assessment object
+        as_id: apiData.assessment.as_id,
+        as_name: apiData.assessment.as_name,
+        as_type: apiData.assessment.as_type,
+        as_description: apiData.assessment.as_description,
+        as_create_date: apiData.assessment.as_create_date,
+        as_last_update: apiData.assessment.as_last_update,
+      }
     : null,
 });
 

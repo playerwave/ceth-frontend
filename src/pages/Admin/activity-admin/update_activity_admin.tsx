@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { ImagePlus } from "lucide-react";
 import { useActivityStore } from "../../../stores/Admin/activity_store"; // ✅ นำเข้า Zustand Store
+import { useAssessmentStore } from "../../../stores/Admin/assessment_store";
 import Button from "../../../components/Button";
 import { Activity } from "../../../stores/Admin/activity_store";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
 import { AdvancedImage } from "@cloudinary/react";
-import { toast } from "sonner";
 import ConfirmDialog from "../../../components/ConfirmDialog";
+import { toast } from "sonner";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import dayjs, { Dayjs } from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { TextField, IconButton, Paper, Box, Typography } from "@mui/material";
+import { Delete, Add } from "@mui/icons-material";
+import { SelectChangeEvent } from "@mui/material"; // ✅ นำเข้า SelectChangeEvent
 
 interface FormData {
+  ac_id: number | null;
   ac_name: string;
-  assesment_id?: number;
+  assessment_id?: number | null;
   ac_company_lecturer: string;
   ac_description: string;
   ac_type: string;
@@ -31,27 +42,35 @@ interface FormData {
   ac_not_attended_count?: number;
   ac_start_time?: string | null;
   ac_end_time?: string | null;
-  ac_image_data?: File | null;
+  ac_image_url?: File | null;
   ac_normal_register?: string | null;
+  ac_recieve_hours?: number | null;
+  ac_start_assessment?: string | null;
+  ac_end_assessment?: string | null;
+  assessment?: {
+    as_id: number;
+    as_name: string;
+    as_type: string;
+    as_description: string;
+    as_create_date: string;
+    as_last_update?: string;
+  } | null;
 }
 
 const UpdateActivityAdmin: React.FC = () => {
-  const { id: paramId } = useParams();
-  const location = useLocation();
-  const id = location.state?.id || paramId; // ✅ ใช้ state หรือ param ถ้ามี
-  const finalActivityId = id ? Number(id) : null;
   const { updateActivity, fetchActivity } = useActivityStore(); //
   const [formData, setFormData] = useState<FormData>({
+    ac_id: null,
     ac_name: "",
-    assesment_id: null,
+    assessment_id: null,
     ac_company_lecturer: "",
     ac_description: "",
     ac_type: "",
     ac_room: "",
     ac_seat: "",
     ac_food: [],
-    ac_status: "",
-    ac_location_type: "",
+    ac_status: "Private",
+    ac_location_type: "Onsite",
     ac_state: "",
     ac_start_register: "",
     ac_end_register: "",
@@ -62,255 +81,312 @@ const UpdateActivityAdmin: React.FC = () => {
     ac_not_attended_count: 0,
     ac_start_time: "",
     ac_end_time: "",
-    ac_image_data: null,
+    ac_image_url: null,
     ac_normal_register: "",
+    ac_start_assessment: "",
+    ac_end_assessment: "",
   });
 
-  const IfBuildingRoom: Record<string, string[]> = {
-    "3": ["301", "302", "303"],
-    "4": ["401", "402", "403", "404"],
-    "5": ["501", "502", "503"],
-    "6": ["601", "602"],
-    "7": ["701", "702", "703", "704"],
-    "8": ["801", "802"],
-    "9": ["901", "902", "903"],
-    "10": ["1001", "1002"],
-    "11": ["1101", "1102", "1103"],
+  const IfBuildingRoom: Record<string, { name: string; capacity: number }[]> = {
+    "3": [
+      { name: "IF-3M210", capacity: 210 }, // ห้องบรรยาย
+      { name: "IF-3C01", capacity: 55 }, // ห้องปฏิบัติการ
+      { name: "IF-3C02", capacity: 55 },
+      { name: "IF-3C03", capacity: 55 },
+      { name: "IF-3C04", capacity: 55 },
+    ],
+    "4": [
+      { name: "IF-4M210", capacity: 210 }, // ห้องบรรยาย
+      { name: "IF-4C01", capacity: 55 }, // ห้องปฏิบัติการ
+      { name: "IF-4C02", capacity: 55 },
+      { name: "IF-4C03", capacity: 55 },
+      { name: "IF-4C04", capacity: 55 },
+    ],
+    "5": [
+      { name: "IF-5M210", capacity: 210 }, // ห้องบรรยาย
+    ],
+    "11": [
+      { name: "IF-11M280", capacity: 280 }, // ห้องบรรยาย
+    ],
   };
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const { id: paramId } = useParams();
+  const { assessments, fetchAssessments } = useAssessmentStore();
+  const id = location.state?.id || paramId;
+  const finalActivityId = id ? Number(id) : null;
 
   const [selectedFloor, setSelectedFloor] = useState<string>("");
   const [selectedRoom, setSelectedRoom] = useState<string>("");
+  const [seatCapacity, setSeatCapacity] = useState<number | string>(""); // ✅ เก็บจำนวนที่นั่งของห้องที่เลือก
 
-  const handleRoomChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const room = e.target.value;
+  const [value, setValue] = React.useState<Dayjs | null>(
+    dayjs("2022-04-17T15:30")
+  );
 
-    setSelectedRoom(room); // ✅ อัปเดตค่าห้องที่เลือก
-    setFormData((prev) => ({
-      ...prev,
-      ac_room: room, // ✅ อัปเดตค่า ac_room ใน formData
-    }));
+  const handleFloorChange = (event: SelectChangeEvent) => {
+    setSelectedFloor(event.target.value);
+    setSelectedRoom(""); // ✅ รีเซ็ตห้องเมื่อเปลี่ยนชั้น
+    setSeatCapacity(""); // ✅ รีเซ็ตที่นั่งเมื่อเปลี่ยนชั้น
   };
 
-  const handleFloorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const floor = e.target.value;
+  const handleRoomChange = (event: SelectChangeEvent) => {
+    setSelectedRoom(event.target.value);
 
-    setSelectedFloor(floor);
-    setSelectedRoom(""); // ✅ รีเซ็ตค่าห้องเมื่อเปลี่ยนชั้น
+    // ✅ ค้นหา `capacity` ของห้องที่เลือก
+    const selectedRoomObj = IfBuildingRoom[selectedFloor]?.find(
+      (room) => room.name === event.target.value
+    );
+
+    const newSeatCapacity = selectedRoomObj ? selectedRoomObj.capacity : "";
+
+    setSeatCapacity(newSeatCapacity); // ✅ อัปเดตจำนวนที่นั่ง
 
     setFormData((prev) => ({
       ...prev,
-      ac_room: "", // ✅ รีเซ็ตค่า ac_room
+      ac_room: event.target.value, // ✅ บันทึกห้องที่เลือก
+      ac_seat: newSeatCapacity, // ✅ บันทึกจำนวนที่นั่ง
     }));
   };
-
-  useEffect(() => {
-    if (formData.ac_room) {
-      const floor = formData.ac_room.charAt(0); // ✅ ดึงตัวเลขตัวแรกเป็นชั้น
-      setSelectedFloor(floor);
-      setSelectedRoom(formData.ac_room);
-    }
-  }, [formData.ac_room]); // ✅ ใช้ useEffect เมื่อ ac_room เปลี่ยน
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      | HTMLInputElement
+      | HTMLTextAreaElement
+      | HTMLSelectElement
+      | SelectChangeEvent
     >
   ) => {
     const { name, value, type } = e.target;
 
-    setFormData((prev) => {
-      // ✅ ดึงค่าเดิมของ `ac_end_register` ถ้ามี หรือใช้วันที่ปัจจุบัน
-      let currentDateTime = prev.ac_end_register
-        ? new Date(prev.ac_end_register)
-        : new Date();
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        type === "number" ? (value ? parseInt(value, 10) || 0 : 0) : value, // ✅ ป้องกัน null และ undefined
+    }));
 
-      // ✅ ป้องกันการเปลี่ยน Time Zone โดยบังคับใช้ Local Time
-      const localDateTime = new Date(
-        currentDateTime.getFullYear(),
-        currentDateTime.getMonth(),
-        currentDateTime.getDate(),
-        currentDateTime.getHours(),
-        currentDateTime.getMinutes()
-      );
-
-      if (name === "ac_end_register_date" && value) {
-        // ✅ เมื่อเปลี่ยนวันที่ ให้ใช้เวลาเดิม
-        const [hours, minutes] = [
-          localDateTime.getHours(),
-          localDateTime.getMinutes(),
-        ];
-        const newDateTime = new Date(value); // ใช้วันที่ที่เลือก
-        newDateTime.setHours(hours, minutes, 0, 0); // ✅ คงค่าเวลาเดิม
-
-        return { ...prev, ac_end_register: newDateTime.toISOString() };
-      }
-
-      if (name === "ac_end_register_time" && value) {
-        // ✅ เมื่อเปลี่ยนเวลา ให้ใช้วันที่เดิม
-        const [hours, minutes] = value.split(":").map(Number);
-        localDateTime.setHours(hours, minutes, 0, 0); // ✅ อัปเดตเฉพาะเวลา
-
-        return { ...prev, ac_end_register: localDateTime.toISOString() };
-      }
-
-      if (name === "ac_normal_register_date" && value) {
-        // ✅ เมื่อเปลี่ยนวันที่ ให้ใช้เวลาเดิม
-        const [hours, minutes] = [
-          localDateTime.getHours(),
-          localDateTime.getMinutes(),
-        ];
-        const newDateTime = new Date(value); // ใช้วันที่ที่เลือก
-        newDateTime.setHours(hours, minutes, 0, 0); // ✅ คงค่าเวลาเดิม
-
-        return { ...prev, ac_normal_register: newDateTime.toISOString() };
-      }
-
-      if (name === "ac_normal_register_time" && value) {
-        // ✅ เมื่อเปลี่ยนเวลา ให้ใช้วันที่เดิม
-        const [hours, minutes] = value.split(":").map(Number);
-        localDateTime.setHours(hours, minutes, 0, 0); // ✅ อัปเดตเฉพาะเวลา
-
-        return { ...prev, ac_normal_register: localDateTime.toISOString() };
-      }
-
-      return {
-        ...prev,
-        [name]: type === "number" ? (value ? parseInt(value, 10) : "") : value,
-      };
-    });
+    switch (name) {
+      case "ac_status":
+        console.log("Status changed to:", value);
+        break;
+      default:
+        break;
+    }
   };
 
-  useEffect(() => {
-    if (!formData.ac_status) {
-      setFormData((prev) => ({
-        ...prev,
-        ac_status: "Private", // ✅ ตั้งค่าเริ่มต้นเป็น "Private"
-      }));
+  const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: newValue ? newValue.format("YYYY-MM-DDTHH:mm:ss") : null, // ✅ บันทึกเป็น Local Time
+    }));
+  };
+
+  // ✅ ปรับให้ handleChange รองรับ SelectChangeEvent
+  const handleChangeSelect = (e: SelectChangeEvent) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // ✅ รีเซ็ตค่าชั้นและห้องถ้าเปลี่ยนจาก "Onsite" เป็นประเภทอื่น
+    if (name === "ac_location_type" && value !== "Onsite") {
+      setSelectedFloor("");
+      setSelectedRoom("");
+      setSeatCapacity("");
     }
-  }, [formData.ac_status]);
+  };
 
-  useEffect(() => {
-    const loadActivity = async () => {
-      if (!finalActivityId) {
-        console.error("❌ No valid activity ID!");
-        return;
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // ✅ ฟังก์ชันตรวจสอบข้อผิดพลาดในฟอร์ม
+  const validateForm = () => {
+    let newErrors: Record<string, string> = {};
+
+    if (!formData.ac_name || formData.ac_name.length < 4) {
+      newErrors.ac_name = "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร";
+    }
+    if (
+      !formData.ac_company_lecturer ||
+      formData.ac_company_lecturer.length < 4
+    ) {
+      newErrors.ac_company_lecturer = "ต้องมีอย่างน้อย 4 ตัวอักษร";
+    }
+    if (!formData.ac_type) {
+      newErrors.ac_type = "กรุณาเลือกประเภท";
+    }
+    if (!formData.ac_status) {
+      newErrors.ac_status = "กรุณาเลือกสถานะ";
+    }
+    if (!formData.ac_start_time) {
+      newErrors.ac_start_time = "กรุณาเลือกวันและเวลาเริ่มกิจกรรม";
+    }
+    if (!formData.ac_end_time) {
+      newErrors.ac_end_time = "กรุณาเลือกวันและเวลาสิ้นสุดกิจกรรม";
+    }
+    if (
+      formData.ac_start_time &&
+      formData.ac_end_time &&
+      dayjs(formData.ac_start_time).isAfter(dayjs(formData.ac_end_time))
+    ) {
+      newErrors.ac_end_time = "วันสิ้นสุดกิจกรรมต้องมากกว่าวันเริ่มกิจกรรม";
+    }
+    if (
+      formData.ac_normal_register &&
+      formData.ac_end_register &&
+      dayjs(formData.ac_normal_register).isAfter(
+        dayjs(formData.ac_end_register)
+      )
+    ) {
+      newErrors.ac_normal_register =
+        "วันเปิดลงทะเบียนต้องอยู่ก่อนวันปิดลงทะเบียน";
+    }
+    if (
+      formData.ac_status === "Public" &&
+      formData.ac_location_type === "Course" &&
+      (!formData.ac_recieve_hours || Number(formData.ac_recieve_hours) <= 0)
+    ) {
+      newErrors.ac_recieve_hours =
+        "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0";
+    }
+    if (
+      formData.ac_start_assessment &&
+      formData.ac_start_time &&
+      dayjs(formData.ac_start_assessment).isBefore(
+        dayjs(formData.ac_start_time)
+      )
+    ) {
+      newErrors.ac_start_assessment =
+        "❌ วันและเวลาเปิดให้ทำแบบประเมินต้องมากกว่าหรือเท่ากับวันที่เริ่มดำเนินกิจกรรม";
+    }
+    if (
+      formData.ac_end_assessment &&
+      formData.ac_start_assessment &&
+      dayjs(formData.ac_end_assessment).isBefore(
+        dayjs(formData.ac_start_assessment)
+      )
+    ) {
+      newErrors.ac_end_assessment =
+        "❌ วันที่ หรือ เวลาสิ้นสุดการทำแบบประเมินต้องอยู่หลังวันที่เริ่มทำแบบประเมิน";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // ✅ คืนค่า true ถ้าไม่มี error
+  };
+
+  const uploadImageToCloudinary = async (file: File) => {
+    if (!file || !file.type.startsWith("image/")) {
+      throw new Error("Invalid file type. Please upload an image.");
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "ceth-project"); // ✅ ตรวจสอบค่าตรงนี้
+
+    const response = await fetch(
+      "https://api.cloudinary.com/v1_1/dn5vhwoue/image/upload",
+      {
+        method: "POST",
+        body: formData,
       }
-      console.log("📌 Fetching activity with ID:", finalActivityId);
+    );
 
-      try {
-        const activityData: Activity | null = await fetchActivity(
-          finalActivityId
-        );
-        console.log("📌 Received activity data:", activityData);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Cloudinary upload failed: ${errorText}`);
+    }
 
-        if (!activityData) {
-          console.error("❌ No activity data found!");
-          return;
-        }
+    const data = await response.json();
+    console.log("Upload image success!", data.secure_url);
+    return data.secure_url;
+  };
 
-        console.log("✅ Fetched activity:", activityData);
-
-        setFormData((prev) => ({
-          ...prev,
-          ac_name: activityData.name || "",
-          ac_company_lecturer: activityData.company_lecturer || "",
-          ac_description: activityData.description || "",
-          ac_type: activityData.type || "",
-          ac_room: activityData.room || "",
-          ac_seat: activityData.seat.toString() || "",
-          ac_food: activityData.food || [],
-          ac_status: activityData.status || "",
-          ac_location_type: activityData.location_type,
-          ac_state: activityData.state || "",
-          ac_start_register: activityData.start_register
-            ? activityData.start_register.toISOString().split("T")[0]
-            : "",
-          ac_end_register: activityData.end_register
-            ? activityData.end_register.toISOString().split("T")[0]
-            : "",
-          ac_normal_register: activityData.normal_register // ✅ เพิ่มค่า ac_normal_register
-            ? activityData.normal_register.toISOString().split("T")[0]
-            : "",
-          ac_create_date: activityData.create_date
-            ? activityData.create_date.toISOString()
-            : "",
-          ac_last_update: activityData.last_update
-            ? activityData.last_update.toISOString()
-            : "",
-          ac_start_time: activityData.start_time
-            ? activityData.start_time.toISOString()
-            : "",
-          ac_end_time: activityData.end_time
-            ? activityData.end_time.toISOString()
-            : "",
-          ac_image_data: activityData.image_data || null,
-        }));
-      } catch (error) {
-        console.error("❌ Error fetching activity:", error);
-      }
-    };
-
-    loadActivity();
-  }, [finalActivityId, fetchActivity]);
-
-  // ✅ โหลดข้อมูลเมื่อ `finalActivityId` เปลี่ยน
+  const convertToDate = (value: string | null | undefined) =>
+    value && value.trim() !== "" ? new Date(value) : undefined;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.ac_name) {
-      alert("กรุณากรอกชื่อกิจกรรม!");
+    if (!validateForm()) {
+      toast.error("กรุณากรอกข้อมูลให้ถูกต้องก่อนส่งฟอร์ม!");
       return;
     }
 
-    const updatedActivity: Activity = {
-      id: finalActivityId?.toString() || "",
-      name: formData.ac_name,
-      company_lecturer: formData.ac_company_lecturer,
-      description: formData.ac_description,
-      type: formData.ac_type,
-      room: formData.ac_room || "ไม่ระบุห้อง",
-      seat: formData.ac_seat ? formData.ac_seat.toString() : "0",
-      food: formData.ac_food || [],
-      status: formData.ac_status || "Private",
-      location_type: formData.ac_location_type,
-      start_register: formData.ac_start_register
-        ? new Date(formData.ac_start_register)
-        : null,
-      end_register: formData.ac_end_register
-        ? new Date(formData.ac_end_register)
-        : null,
-      create_date: formData.ac_create_date
-        ? new Date(formData.ac_create_date)
-        : null,
-      last_update: new Date(),
-      registered_count: formData.ac_registered_count || 0,
-      attended_count: formData.ac_attended_count || 0,
-      not_attended_count: formData.ac_not_attended_count || 0,
-      start_time: formData.ac_start_time
-        ? new Date(formData.ac_start_time)
-        : null,
-      end_time: formData.ac_end_time ? new Date(formData.ac_end_time) : null,
+    let imageUrl = "";
+    if (formData.ac_image_url instanceof File) {
+      imageUrl = await uploadImageToCloudinary(formData.ac_image_url);
+    }
 
-      image_data: formData.ac_image_data, // ✅ ตรวจสอบให้แน่ใจว่าเป็น Base64 ที่ถูกต้อง
-      state: formData.ac_state || "Not Start",
+    let acRecieveHours = formData.ac_recieve_hours
+      ? Number(formData.ac_recieve_hours)
+      : 0;
+
+    if (
+      formData.ac_location_type !== "Course" &&
+      formData.ac_start_time &&
+      formData.ac_end_time
+    ) {
+      const start = dayjs(formData.ac_start_time);
+      const end = dayjs(formData.ac_end_time);
+      const duration = end.diff(start, "hour", true); // ✅ คำนวณเป็นชั่วโมง (รวมเศษทศนิยม)
+      acRecieveHours = duration > 0 ? duration : 0; // ✅ ป้องกันค่าติดลบ
+    }
+
+    let startRegister = dayjs(formData.ac_start_register);
+    if (formData.ac_status == "Public") {
+      startRegister = dayjs(new Date());
+    }
+
+    const activityData: Activity = {
+      ...formData,
+      ac_create_date: new Date(),
+      ac_last_update: new Date(),
+      ac_start_register: startRegister,
+      ac_recieve_hours: acRecieveHours,
+      ac_state: "Not Start",
+      ac_image_url: imageUrl, // ✅ ใช้ URL ของรูปภาพจาก Cloudinary
+      ac_normal_register: convertToDate(formData.ac_normal_register),
+      ac_end_register: convertToDate(formData.ac_end_register),
+      ac_start_assessment: convertToDate(formData.ac_start_assessment),
+      ac_end_assessment: convertToDate(formData.ac_end_assessment),
+      assessment_id: formData.assessment_id
+        ? Number(formData.assessment_id)
+        : null,
     };
 
-    console.log("✅ Sending Updated Activity Data:", updatedActivity);
+    console.log(
+      "typeof ac_start_assessment => ",
+      typeof formData.ac_start_assessment
+    );
+
+    console.log(
+      "typeof ac_end_assessment => ",
+      typeof new Date(formData.ac_end_assessment)
+    );
+
+    console.log(
+      "typeof ac_start_register => ",
+      typeof formData.ac_start_register
+    );
+
+    console.log("🚀 Data ที่ส่งไป Backend:", activityData);
 
     try {
-      await updateActivity(updatedActivity);
-      toast.success("Updated Success !"); // ✅ แสดง Toast เมื่ออัปเดตเสร็จ
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      await updateActivity(activityData);
+      toast.success(
+        formData.ac_status === "Public"
+          ? "สร้างกิจกรรมสำเร็จ !"
+          : "ร่างกิจกรรมสำเร็จ !",
+        { duration: 5000 }
+      );
+      // navigate("/list-activity-admin");
     } catch (error) {
-      console.error("❌ Error updating activity:", error);
-      toast.error("Update failed!"); // ✅ แสดง Toast ถ้าอัปเดตไม่สำเร็จ
+      console.error("❌ Error creating activity:", error);
+      toast.error("Create failed!");
     }
   };
 
@@ -341,202 +417,306 @@ const UpdateActivityAdmin: React.FC = () => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
 
-      // ✅ ตรวจสอบว่าเป็นไฟล์รูปภาพ
       if (!file.type.startsWith("image/")) {
-        alert("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!");
+        toast.error("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!");
         return;
       }
 
-      // ✅ ตรวจสอบขนาดไฟล์ (ต้องไม่เกิน 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert("ไฟล์ขนาดใหญ่เกินไป (ต้องไม่เกิน 5MB)");
+        toast.error("ไฟล์ขนาดใหญ่เกินไป (ต้องไม่เกิน 5MB)");
         return;
       }
 
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = () => {
-        const base64String = reader.result?.toString() || "";
+      // ✅ แสดงตัวอย่างรูปภาพ
+      const imageUrl = URL.createObjectURL(file);
+      setPreviewImage(imageUrl);
 
-        setFormData((prev) => ({
-          ...prev,
-          ac_image_data: base64String, // ✅ บันทึก Base64 พร้อม `data:image/`
-        }));
-        console.log("set formData", formData.ac_image_data);
-
-        setPreviewImage(URL.createObjectURL(file)); // ✅ แสดงตัวอย่างรูปใหม่
-      };
+      // ✅ เก็บไฟล์ไว้ใน `ac_image_url`
+      setFormData((prev) => ({
+        ...prev,
+        ac_image_url: file, // ✅ ตอนนี้เก็บเป็น File
+      }));
     }
   };
-
-  useEffect(() => {
-    console.log("📌 ac_location_type:", formData.ac_location_type); // ✅ ตรวจสอบค่าจริงที่โหลดมา
-  }, [formData.ac_location_type]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (formData.ac_type === "Hard Skill") {
-      setFormData((prev) => ({ ...prev, ac_type: "HardSkill" }));
-    } else if (formData.ac_type === "Soft Skill") {
-      setFormData((prev) => ({ ...prev, ac_type: "SoftSkill" }));
+    console.log("Fetching assessments..."); // ✅ ตรวจสอบว่า useEffect ทำงาน
+    fetchAssessments();
+  }, []);
+
+  useEffect(() => {
+    console.log("Assessments:", assessments); // ✅ ตรวจสอบว่า assessments มีค่าหรือไม่
+  }, [assessments]);
+
+  useEffect(() => {
+    const loadActivity = async () => {
+      if (!finalActivityId) {
+        console.error("❌ No valid activity ID!", id);
+        return;
+      }
+      console.log("📌 Fetching activity with ID:", finalActivityId);
+
+      try {
+        const activityData: Activity | null = await fetchActivity(
+          finalActivityId
+        );
+        console.log("📌 Received activity data:", activityData);
+
+        if (!activityData) {
+          console.error("❌ No activity data found!");
+          return;
+        }
+
+        console.log("✅ Fetched activity:", activityData);
+
+        setFormData((prev) => ({
+          ...prev,
+          ac_name: activityData.name || "",
+          assessment_id: activityData.assessment_id,
+          ac_company_lecturer: activityData.company_lecturer || "",
+          ac_description: activityData.description || "",
+          ac_type: activityData.type || "",
+          ac_room: activityData.room || "",
+          ac_seat: activityData.seat.toString() || "",
+          ac_food: activityData.food || [],
+          ac_status: activityData.status || "",
+          ac_location_type: activityData.location_type,
+          ac_state: activityData.state || "",
+          ac_start_register: activityData.start_register
+            ? activityData.start_register.toISOString().split("T")[0]
+            : "",
+          ac_end_register: activityData.end_register
+            ? activityData.end_register.toISOString().split("T")[0]
+            : "",
+          ac_normal_register: activityData.normal_register // ✅ เพิ่มค่า ac_normal_register
+            ? activityData.normal_register.toISOString().split("T")[0]
+            : "",
+          ac_create_date: activityData.create_date
+            ? activityData.create_date.toISOString()
+            : "",
+          ac_last_update: activityData.last_update
+            ? activityData.last_update.toISOString()
+            : "",
+          ac_start_time: activityData.start_time
+            ? activityData.start_time.toISOString()
+            : "",
+          ac_end_time: activityData.end_time
+            ? activityData.end_time.toISOString()
+            : "",
+          ac_image_url: activityData.image_url || null,
+          ac_recieve_hours: activityData.ac_recieve_hours,
+          ac_start_assessment: activityData.start_assessment
+            ? new Date(activityData.start_assessment).toISOString()
+            : "",
+          ac_end_assessment: activityData.end_assessment
+            ? new Date(activityData.end_assessment).toISOString()
+            : "",
+          assessment: activityData.assessment,
+        }));
+      } catch (error) {
+        console.error("❌ Error fetching activity:", error);
+      }
+    };
+
+    loadActivity();
+  }, [finalActivityId, fetchActivity]);
+
+  useEffect(() => {
+    if (formData.ac_room) {
+      const floor =
+        formData.ac_room.charAt(3) === "1"
+          ? formData.ac_room.substring(3, 5) // ชั้น 10 ขึ้นไป เช่น 11M280 → 11
+          : formData.ac_room.charAt(3); // ชั้น 3-9 เช่น 3M210 → 3
+
+      setSelectedFloor(floor);
+      setSelectedRoom(formData.ac_room);
     }
-  }, [formData.ac_type]);
+  }, [formData.ac_room]);
+
+  useEffect(() => {
+    if (selectedRoom && selectedFloor) {
+      const roomData = IfBuildingRoom[selectedFloor]?.find(
+        (room) => room.name === selectedRoom
+      );
+      if (roomData) {
+        setFormData((prev) => ({ ...prev, ac_seat: roomData.capacity }));
+      }
+    }
+  }, [selectedRoom, selectedFloor]);
+
+  // useEffect(() => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     ac_type:
+  //       prev.ac_type === "Hard Skill"
+  //         ? "HardSkill"
+  //         : prev.ac_type === "Soft Skill"
+  //         ? "SoftSkill"
+  //         : prev.ac_type,
+  //     ac_status: prev.ac_status || "Private",
+  //   }));
+  // }, [formData.ac_type, formData.ac_status]);
 
   return (
     <>
-      <div className="justify-items-center">
+      <Box className="justify-items-center">
         <div
-          className={`w-320 mx-auto ml-2xl mt-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm h-435  flex flex-col`}
+          className={`w-320 mx-auto ml-2xl mt-5 mb-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm min-h-screen flex flex-col`}
         >
+          {/* <h1>{formData.assessment}</h1> */}
           <h1 className="text-4xl font-bold mb-11">รายละเอียดกิจกรรมสหกิจ</h1>
           <form
             onSubmit={handleSubmit}
             className="space-y-4 flex flex-col flex-grow"
           >
             {/* scrollbar */}
-            <div className="max-h-[800px] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200 pr-4">
-              <div className="flex space-x-6">
+            <div className="flex-grow">
+              <div className="flex space-x-6 items-center">
                 {/* ช่องกรอกชื่อกิจกรรม */}
                 <div>
                   <label className="block font-semibold w-50">
                     ชื่อกิจกรรม *
                   </label>
-                  <input
-                    type="text"
+                  <TextField
+                    id="ac_name"
                     name="ac_name"
-                    value={formData.ac_name}
-                    onChange={handleChange}
-                    className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
                     placeholder="ชื่อกิจกรรม"
-                    required
+                    value={formData.ac_name}
+                    className="w-140"
+                    onChange={handleChange}
+                    error={
+                      formData.ac_status !== "Private" &&
+                      formData.ac_name.length > 0 &&
+                      formData.ac_name.length < 4
+                    }
+                    helperText={
+                      formData.ac_status !== "Private" &&
+                      formData.ac_name.length > 0 &&
+                      formData.ac_name.length < 4
+                        ? "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร"
+                        : ""
+                    }
+                    sx={{ height: "56px" }} // กำหนดความสูงให้ TextField
                   />
                 </div>
-                <div className="grid grid-cols-1 gap-2 w-full">
-                  <div>
-                    <label className="block font-semibold">
-                      วันและเวลาปิดการลงทะเบียน *
-                    </label>
-                    <div className="flex space-x-2 w-full">
-                      {/* กรอกวันและเวลาการปิดลงทะเบียน */}
-                      <div className="w-1/2">
-                        <div className="flex space-x-2">
-                          {/* กรอกวันที่ปิดรับลงทะเบียน */}
-                          <input
-                            name="ac_end_register_date"
-                            type="date"
-                            value={
-                              formData.ac_end_register
-                                ? new Date(formData.ac_end_register)
-                                    .toISOString()
-                                    .split("T")[0] // ✅ แปลงเป็น YYYY-MM-DD
-                                : ""
-                            }
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
 
-                          {/* กรอกเวลาปิดรับลงทะเบียน */}
-                          <input
-                            type="time"
-                            name="ac_end_register_time"
-                            value={
-                              formData.ac_end_register
-                                ? new Date(
-                                    formData.ac_end_register
-                                  ).toLocaleTimeString("en-GB", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }) // ✅ ใช้เวลา 24 ชม.
-                                : ""
-                            }
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                {/* ช่องกรอกวันและเวลาปิดการลงทะเบียน */}
+                <div className="flex flex-col">
+                  <label className="block font-semibold">
+                    วันและเวลาปิดการลงทะเบียน *
+                  </label>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateTimePicker
+                      className="w-77.5"
+                      value={
+                        formData.ac_end_register
+                          ? dayjs(formData.ac_end_register)
+                          : null
+                      }
+                      onChange={(newValue) =>
+                        handleDateTimeChange("ac_end_register", newValue)
+                      }
+                    />
+                  </LocalizationProvider>
                 </div>
               </div>
 
-              <div className="flex space-x-6">
-                {/* ช่องกรอกชื่อบริษัท/วิทยากร */}
-                <div className="w-1/2">
-                  <label className="block font-semibold ">
+              <div className="flex space-x-6 items-center mt-10">
+                {/* ช่องกรอกชื่อบริษัท/ชื่อวิทยากร */}
+                <div>
+                  <label className="block font-semibold w-50">
                     ชื่อบริษัท/วิทยากร *
                   </label>
-                  <input
-                    type="text"
+                  <TextField
+                    id="ac_company_lecturer"
                     name="ac_company_lecturer"
-                    value={formData.ac_company_lecturer}
-                    onChange={handleChange}
-                    className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
                     placeholder="ชื่อบริษัท หรือ วิทยากร ที่มาอบรม"
-                    required
+                    value={formData.ac_company_lecturer}
+                    className="w-140"
+                    onChange={handleChange}
+                    error={
+                      formData.ac_status !== "Private" &&
+                      formData.ac_company_lecturer.length > 0 &&
+                      formData.ac_company_lecturer.length < 4
+                    }
+                    helperText={
+                      formData.ac_status !== "Private" &&
+                      formData.ac_company_lecturer.length > 0 &&
+                      formData.ac_company_lecturer.length < 4
+                        ? "ต้องมีอย่างน้อย 4 ตัวอักษร"
+                        : ""
+                    }
+                    sx={{ height: "56px" }} // กำหนดความสูงให้ TextField
                   />
                 </div>
 
-                {/* ช่องกรอกวันและเวลาที่ให้นิสิตที่มีสถานะ normal ลงทะเบียน */}
-                <div className="grid grid-cols-1 gap-2 w-full">
-                  <div>
-                    <label className="block font-semibold">
-                      วันและเวลาที่ให้นิสิตที่มีสถานะ normal ลงทะเบียน *
-                    </label>
-                    <div className="flex space-x-2 w-full">
-                      {/* กรอกวันเริ่มให้นิสิตที่มีสถานะ normal ลงทะเบียน */}
-                      <div className="w-1/2">
-                        <div className="flex space-x-2">
-                          {/* กรอกวันที่ปิดรับลงทะเบียน */}
-                          <input
-                            name="ac_normal_register_date"
-                            type="date"
-                            value={
-                              formData.ac_normal_register
-                                ? new Date(formData.ac_normal_register)
-                                    .toISOString()
-                                    .split("T")[0]
-                                : ""
-                            }
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
-
-                          {/* กรอกเวลาปิดรับลงทะเบียน */}
-                          <input
-                            type="time"
-                            name="ac_normal_register_time"
-                            value={
-                              formData.ac_normal_register
-                                ? new Date(
-                                    formData.ac_normal_register
-                                  ).toLocaleTimeString("en-GB", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })
-                                : ""
-                            }
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                {/* ช่องกรอก วันและเวลาเปิดให้นิสิตสถานะ normal ลงทะเบียน */}
+                <div className="flex flex-col">
+                  <label className="block font-semibold">
+                    วันและเวลาเปิดให้นิสิตสถานะ normal ลงทะเบียน *
+                  </label>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateTimePicker
+                      className="w-77.5"
+                      value={
+                        formData.ac_normal_register
+                          ? dayjs(formData.ac_normal_register)
+                          : null
+                      }
+                      onChange={(newValue) =>
+                        handleDateTimeChange("ac_normal_register", newValue)
+                      }
+                      slotProps={{
+                        textField: {
+                          sx: { height: "56px" },
+                          error: !!(
+                            formData.ac_status !== "Private" &&
+                            formData.ac_normal_register &&
+                            formData.ac_end_register &&
+                            dayjs(formData.ac_normal_register).isAfter(
+                              dayjs(formData.ac_end_register)
+                            )
+                          ),
+                          helperText:
+                            formData.ac_status !== "Private" &&
+                            formData.ac_normal_register &&
+                            formData.ac_end_register &&
+                            dayjs(formData.ac_normal_register).isAfter(
+                              dayjs(formData.ac_end_register)
+                            )
+                              ? "กรุณาใส่วันหรือเวลาใหม่ เวลาที่เปิดให้นิสิตสถานะ normal ลงทะเบียนต้องอยู่ก่อนเวลาปิดการลงทะเบียน"
+                              : "",
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
                 </div>
               </div>
 
               {/* ช่องกรอกคำอธิบาย */}
-              <div className="flex space-x-6">
+              <div className="flex space-x-6 mt-10">
                 <div>
                   <label className="block font-semibold w-50">
                     คำอธิบายกิจกรรม
                   </label>
-                  <textarea
+                  <TextField
                     name="ac_description"
                     value={formData.ac_description}
                     onChange={handleChange}
-                    className="w-140 p-2 border rounded mb-4 h-42 border-[#9D9D9D]"
+                    multiline
+                    rows={6} // ปรับจำนวนแถวตามต้องการ
+                    variant="outlined"
+                    fullWidth
+                    sx={{
+                      width: "35rem", // เทียบเท่ากับ w-140
+                      mb: 2, // เทียบเท่ากับ mb-4
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "0.375rem", // เทียบเท่ากับ rounded
+                        borderColor: "#9D9D9D", // เทียบเท่ากับ border-[#9D9D9D]
+                      },
+                    }}
                     placeholder="รายละเอียดกิจกรรม หรือ คำอธิบาย"
                     required
                   />
@@ -550,37 +730,60 @@ const UpdateActivityAdmin: React.FC = () => {
                     <div className="flex space-x-2 w-full">
                       {/* กรอกวันเริ่้ม */}
                       <div className="w-1/2">
-                        <div className="flex space-x-2">
-                          <input
-                            name="ac_start_date"
-                            type="date"
-                            value={
-                              formData.ac_start_time
-                                ? new Date(formData.ac_start_time)
-                                    .toISOString()
-                                    .split("T")[0] // ✅ แปลงเป็น YYYY-MM-DD
-                                : ""
-                            }
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
-                          {/* กรอกเวลาเริ่ม */}
-                          <input
-                            type="time"
-                            name="ac_start_time"
-                            value={
-                              formData.ac_start_time
-                                ? new Date(
-                                    formData.ac_start_time
-                                  ).toLocaleTimeString("en-GB", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }) // ✅ ใช้เวลา 24 ชม.
-                                : ""
-                            }
-                            onChange={handleChange}
-                            className="w-100 p-2 border rounded border-[#9D9D9D]"
-                          />
+                        <div className="flex flex-col">
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
+                              className="w-77.5"
+                              value={
+                                formData.ac_start_time
+                                  ? dayjs(formData.ac_start_time)
+                                  : null
+                              }
+                              onChange={(newValue) =>
+                                handleDateTimeChange("ac_start_time", newValue)
+                              }
+                              slotProps={{
+                                textField: {
+                                  sx: { height: "56px" },
+                                  error: !!(
+                                    (
+                                      formData.ac_status !== "Private" &&
+                                      formData.ac_start_time &&
+                                      ((formData.ac_end_register &&
+                                        dayjs(formData.ac_start_time).isBefore(
+                                          dayjs(formData.ac_end_register)
+                                        )) || // ✅ เงื่อนไขที่ 1
+                                        (formData.ac_normal_register &&
+                                          dayjs(
+                                            formData.ac_start_time
+                                          ).isBefore(
+                                            dayjs(formData.ac_normal_register)
+                                          )))
+                                    ) // ✅ เงื่อนไขที่ 2
+                                  ),
+                                  helperText:
+                                    formData.ac_status !== "Private" &&
+                                    formData.ac_start_time &&
+                                    (formData.ac_end_register ||
+                                      formData.ac_normal_register)
+                                      ? formData.ac_end_register &&
+                                        dayjs(formData.ac_start_time).isBefore(
+                                          dayjs(formData.ac_end_register)
+                                        )
+                                        ? "❌ วันและเวลาการดำเนินกิจกรรมต้องมากกว่าวันที่ปิดลงทะเบียน" // 🔴 กรณีที่ 1
+                                        : formData.ac_normal_register &&
+                                          dayjs(
+                                            formData.ac_start_time
+                                          ).isBefore(
+                                            dayjs(formData.ac_normal_register)
+                                          )
+                                        ? "❌ วันและเวลาการดำเนินกิจกรรมต้องอยู่หลังวันที่เปิดให้นิสิตสถานะ normal ลงทะเบียน" // 🔴 กรณีที่ 2
+                                        : ""
+                                      : "",
+                                },
+                              }}
+                            />
+                          </LocalizationProvider>
                         </div>
                         <p className="text-xs text-gray-500  mt-1">Start</p>
                       </div>
@@ -589,220 +792,526 @@ const UpdateActivityAdmin: React.FC = () => {
 
                       {/* กรอกวันจบ */}
                       <div className="w-1/2">
-                        <div className="flex space-x-2">
-                          <input
-                            type="date"
-                            name="ac_end_date"
-                            value={
-                              formData.ac_end_time
-                                ? new Date(formData.ac_end_time)
-                                    .toISOString()
-                                    .split("T")[0] // ✅ แปลงเป็น YYYY-MM-DD
-                                : ""
-                            }
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
-                          {/* กรอกเวลาจบ */}
-                          <input
-                            type="time"
-                            name="ac_end_time"
-                            value={
-                              formData.ac_end_time
-                                ? new Date(
+                        <div className="flex flex-col">
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
+                              className="w-77.5"
+                              value={
+                                formData.ac_end_time
+                                  ? dayjs(formData.ac_end_time)
+                                  : null
+                              }
+                              onChange={(newValue) =>
+                                handleDateTimeChange("ac_end_time", newValue)
+                              }
+                              slotProps={{
+                                textField: {
+                                  sx: { height: "56px" },
+                                  error:
+                                    formData.ac_status !== "Private" && // ✅ ตรวจสอบสถานะก่อน
+                                    formData.ac_end_time && // ✅ ต้องมีค่า end_time ก่อน
+                                    ((formData.ac_start_time &&
+                                      dayjs(formData.ac_end_time).isBefore(
+                                        dayjs(formData.ac_start_time)
+                                      )) || // ✅ เงื่อนไขที่ 1
+                                      (formData.ac_normal_register &&
+                                        dayjs(formData.ac_end_time).isBefore(
+                                          dayjs(formData.ac_normal_register)
+                                        )) || // ✅ เงื่อนไขที่ 2
+                                      (formData.ac_end_register &&
+                                        dayjs(formData.ac_end_time).isBefore(
+                                          dayjs(formData.ac_end_register)
+                                        ))), // ✅ เงื่อนไขที่ 3
+                                  helperText:
+                                    formData.ac_status !== "Private" &&
                                     formData.ac_end_time
-                                  ).toLocaleTimeString("en-GB", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }) // ✅ ใช้เวลา 24 ชม.
-                                : ""
-                            }
-                            onChange={handleChange}
-                            className="w-1/2 p-2 border rounded border-[#9D9D9D]"
-                          />
+                                      ? formData.ac_start_time &&
+                                        dayjs(formData.ac_end_time).isBefore(
+                                          dayjs(formData.ac_start_time)
+                                        )
+                                        ? "❌ วันที่ หรือ เวลาต้องมากกว่าช่วงเริ่มต้น" // 🔴 เงื่อนไขที่ 1
+                                        : formData.ac_normal_register &&
+                                          dayjs(formData.ac_end_time).isBefore(
+                                            dayjs(formData.ac_normal_register)
+                                          )
+                                        ? "❌ วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาที่เปิดให้นิสิตที่มีสถานะ" // 🔴 เงื่อนไขที่ 2
+                                        : formData.ac_end_register &&
+                                          dayjs(formData.ac_end_time).isBefore(
+                                            dayjs(formData.ac_end_register)
+                                          )
+                                        ? "❌ วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาปิดการลงทะเบียน" // 🔴 เงื่อนไขที่ 3
+                                        : ""
+                                      : "",
+                                },
+                              }}
+                            />
+                          </LocalizationProvider>
                         </div>
                         <p className="text-xs text-gray-500  mt-1">End</p>
                       </div>
                     </div>
-                    <div>
-                      <label className="block font-semibold w-50">
-                        ประเภทสถานที่จัดกิจกรรม *
-                      </label>
-                      <select
-                        name="ac_location_type"
-                        value={formData.ac_location_type}
-                        onChange={(e) =>
+                  </div>
+                  <div className="w-77.5 mb-2">
+                    <label className="block font-semibold ">
+                      จำนวนชั่วโมงที่จะได้รับ *
+                    </label>
+                    <TextField
+                      id="ac_recieve_hours"
+                      name="ac_recieve_hours"
+                      type="number"
+                      placeholder="จำนวนชั่วโมงที่จะได้รับ"
+                      value={
+                        formData.ac_location_type !== "Course" &&
+                        formData.ac_start_time &&
+                        formData.ac_end_time
+                          ? dayjs(formData.ac_end_time).diff(
+                              dayjs(formData.ac_start_time),
+                              "hour",
+                              true
+                            ) // ✅ คำนวณชั่วโมงอัตโนมัติ
+                          : formData.ac_recieve_hours || ""
+                      }
+                      className="w-full"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (/^\d*$/.test(value)) {
                           setFormData((prev) => ({
                             ...prev,
-                            ac_location_type: e.target.value, // ✅ อัปเดตค่า ac_type ทันที
-                          }))
+                            ac_recieve_hours: value,
+                          }));
                         }
-                        className="w-1/2 p-2 border rounded mb-4 border-[#9D9D9D]"
-                      >
-                        <option value="Online">Online</option>
-                        <option value="Offline">Offline</option>
-                      </select>
-                    </div>
+                      }}
+                      error={
+                        formData.ac_status === "Public" &&
+                        formData.ac_location_type === "Course" &&
+                        (!formData.ac_recieve_hours ||
+                          Number(formData.ac_recieve_hours) <= 0)
+                      }
+                      helperText={
+                        formData.ac_status === "Public" &&
+                        formData.ac_location_type === "Course" &&
+                        (!formData.ac_recieve_hours ||
+                          Number(formData.ac_recieve_hours) <= 0)
+                          ? "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0"
+                          : ""
+                      }
+                      disabled={formData.ac_location_type !== "Course"} // ✅ ปิดการแก้ไขถ้าไม่ใช่ "Course"
+                      sx={{ height: "56px" }}
+                    />
                   </div>
                 </div>
               </div>
 
               {/* ช่องกรอกระเภท */}
-              {formData.ac_type}
-              <div className="flex space-x-6">
+              <div className="flex space-x-6 items-center mt-6">
                 <div>
                   <label className="block font-semibold w-50">ประเภท *</label>
-                  <select
+                  <Select
+                    labelId="ac_type-label"
                     name="ac_type"
                     value={formData.ac_type}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        ac_type: e.target.value, // ✅ อัปเดตค่า ac_type ทันที
-                      }))
-                    }
-                    className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
+                    onChange={handleChange}
+                    className="rounded w-140"
+                    displayEmpty // ✅ ทำให้แสดง Placeholder
+                    renderValue={(selected) => {
+                      if (!selected) {
+                        return (
+                          <span className="text-black">เลือกประเภทกิจกรรม</span>
+                        ); // ✅ Placeholder
+                      }
+                      return selected;
+                    }}
+                    sx={{
+                      height: "56px", // ลดความสูงของ Select
+                      "& .MuiSelect-select": {
+                        padding: "8px", // ลด padding ด้านใน
+                      },
+                    }}
                   >
-                    <option value="SoftSkill">
+                    <MenuItem disabled value="">
+                      เลือกประเภทกิจกรรม
+                    </MenuItem>{" "}
+                    {/* ✅ Disabled Placeholder */}
+                    <MenuItem value="Soft Skill">
                       ชั่วโมงเตรียมความพร้อม (Soft Skill)
-                    </option>
-                    <option value="HardSkill">
-                      ชั่วโมงทักษะทางวิชาการ (Hard Skill)
-                    </option>
-                    <option value="other">อื่นๆ</option>
-                  </select>
+                    </MenuItem>
+                    <MenuItem value="Hard Skill">
+                      ชั้่วโมงทักษะทางวิชาการ (Hard Skill)
+                    </MenuItem>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block font-semibold w-50">
+                    ประเภทสถานที่จัดกิจกรรม *
+                  </label>
+                  <Select
+                    labelId="ac_location_type-label"
+                    name="ac_location_type"
+                    value={formData.ac_location_type}
+                    onChange={handleChangeSelect} // ✅ ใช้ฟังก์ชันใหม่
+                    className="rounded w-76"
+                    sx={{
+                      height: "56px",
+                      "& .MuiSelect-select": { padding: "8px" },
+                    }}
+                  >
+                    <MenuItem value="Online">Online</MenuItem>
+                    <MenuItem value="Onsite">Onsite</MenuItem>
+                    <MenuItem value="Course">Course</MenuItem>
+                  </Select>
                 </div>
               </div>
 
               {/* ช่องกรอกห้องที่ใช้อบรม */}
-              <div className="flex space-x-4">
+              <div className="flex space-x-4 mt-5">
                 {/* เลือกชั้น */}
                 <div className="w-1/6">
                   <label className="block font-semibold">เลือกชั้น</label>
-                  <select
+                  <Select
+                    labelId="floor-select-label"
                     value={
-                      selectedFloor ||
-                      (formData.ac_room ? formData.ac_room.charAt(0) : "")
-                    } // ✅ ใช้ตัวเลขตัวแรกของ ac_room ถ้ามี
+                      formData.ac_room
+                        ? formData.ac_room.charAt(3) == "1"
+                          ? formData.ac_room.substring(3, 5)
+                          : formData.ac_room.charAt(3)
+                        : selectedFloor
+                    }
                     onChange={handleFloorChange}
-                    className="w-full p-2 border rounded border-[#9D9D9D]"
+                    className="rounded p-2 w-full"
+                    disabled={formData.ac_location_type !== "Onsite"} // 🔴 ปิดการใช้งานหากไม่ใช่ Onsite
+                    sx={{
+                      height: "56px",
+                      "& .MuiSelect-select": { padding: "8px" },
+                    }}
                   >
-                    <option value="">เลือกชั้น</option>
+                    <MenuItem value="">เลือกชั้น</MenuItem>
                     {Object.keys(IfBuildingRoom).map((floor) => (
-                      <option key={floor} value={floor}>
+                      <MenuItem key={floor} value={floor}>
                         {floor}
-                      </option>
+                      </MenuItem>
                     ))}
-                  </select>
+                  </Select>
                 </div>
 
                 {/* เลือกห้อง */}
                 <div className="w-85.5">
                   <label className="block font-semibold">เลือกห้อง</label>
-                  <select
-                    value={formData.ac_room || selectedRoom} // ✅ ใช้ค่า ac_room ถ้ามี
+                  <Select
+                    labelId="room-select-label"
+                    value={selectedRoom || formData.ac_room || ""}
                     onChange={handleRoomChange}
-                    className={`w-full p-2 border rounded border-[#9D9D9D] ${
-                      selectedFloor ? "" : " cursor-not-allowed opacity-50"
+                    className={`rounded p-2 w-full ${
+                      !selectedFloor || formData.ac_location_type !== "Onsite"
+                        ? "cursor-not-allowed"
+                        : ""
                     }`}
-                    disabled={!selectedFloor} // ปิดการใช้งานถ้ายังไม่ได้เลือกชั้น
+                    disabled={
+                      formData.ac_location_type !== "Onsite" ||
+                      (!selectedFloor && !formData.ac_room)
+                    } // 🔴 ปิดการใช้งานหากไม่ใช่ Onsite หรือยังไม่เลือกชั้น
+                    sx={{
+                      height: "56px",
+                      "& .MuiSelect-select": { padding: "8px" },
+                    }}
                   >
-                    <option value="">เลือกห้อง</option>
+                    <MenuItem value="">เลือกห้อง</MenuItem>
                     {selectedFloor &&
-                      IfBuildingRoom[selectedFloor]?.map((room) => (
-                        <option key={room} value={room}>
-                          {room}
-                        </option>
-                      ))}
-                  </select>
+                    Array.isArray(IfBuildingRoom[selectedFloor]) ? (
+                      IfBuildingRoom[selectedFloor].map((room) => (
+                        <MenuItem key={room.name} value={room.name}>
+                          {room.name} (ความจุ {room.capacity} ที่นั่ง)
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>ไม่พบห้อง</MenuItem> // ✅ กรณีไม่เจอห้อง
+                    )}
+                  </Select>
                 </div>
               </div>
 
-              <div className="flex space-x-4">
+              <div className="flex space-x-4 mt-5">
                 {/* ช่องกรอกสถานะ*/}
                 <div className="w-1/6">
                   <label className="block font-semibold w-50">สถานะ *</label>
-                  <select
-                    name="ac_status"
-                    value={formData.ac_status || "Private"} // ✅ ใช้ค่า ac_status ถ้ามี ถ้าไม่มีให้เป็น "Private"
+                  <Select
+                    labelId="ac_status" // ✅ ใช้ labelId ให้ตรงกับ name
+                    name="ac_status" // ✅ เปลี่ยนให้ตรงกับ key ใน formData
+                    value={formData.ac_status}
                     onChange={handleChange}
-                    className="w-full p-2 border rounded border-[#9D9D9D]"
+                    className="rounded w-50"
+                    sx={{
+                      height: "56px",
+                      "& .MuiSelect-select": {
+                        padding: "8px",
+                      },
+                    }}
                   >
-                    <option value="Private">Private</option>
-                    <option value="Public">Public</option>
-                  </select>
+                    <MenuItem value="Private">Private</MenuItem>
+                    <MenuItem value="Public">Public</MenuItem>
+                  </Select>
                 </div>
                 {/* ช่องกรอกจำนวนที่นั่ง*/}
                 <div className="w-85.5">
                   <label className="block font-semibold ">จำนวนที่นั่ง *</label>
-                  <input
-                    type="number"
+                  <TextField
+                    id="ac_seat"
                     name="ac_seat"
-                    value={formData.ac_seat ?? ""}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded border-[#9D9D9D]"
-                    min="1"
+                    type="number" // ✅ รับเฉพาะตัวเลข
+                    placeholder="จำนวนที่เปิดให้นิสิตลงทะเบียน"
+                    value={formData.ac_seat || seatCapacity} // ✅ ถ้ามี formData.ac_seat ให้ใช้ค่านั้น
+                    className="w-full"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^\d*$/.test(value)) {
+                        setSeatCapacity(value); // ✅ อัปเดตค่า seatCapacity
+                        setFormData((prev) => ({ ...prev, ac_seat: value })); // ✅ อัปเดต formData.ac_seat ด้วย
+                      }
+                    }}
+                    error={
+                      formData.ac_location_type === "Onsite" &&
+                      Number(seatCapacity) < 0
+                    }
+                    disabled={
+                      selectedRoom && formData.ac_location_type !== "Course"
+                    } // ✅ ปิดการแก้ไข ถ้าเลือกห้องและไม่ใช่ Course
+                    sx={{ height: "56px" }}
                   />
                 </div>
               </div>
 
-              {/* ช่องเลือกอาหาร */}
-              <div className="w-140 mt-5 bg-white p-6 border border-[#9D9D9D] rounded-lg shadow-sm">
+              {/* ช่องเลือกอาหาร (เลือกได้เฉพาะ Onsite) */}
+              <Paper
+                className={`w-140 mt-5 p-6 bg-white border border-gray-300 rounded-lg shadow-sm ${
+                  formData.ac_location_type !== "Onsite" ? "opacity-50" : ""
+                }`}
+              >
                 {/* หัวข้อ */}
-                <label className="block font-semibold mb-2">อาหาร *</label>
+                <Typography variant="h6" className="font-semibold mb-2">
+                  อาหาร *
+                </Typography>
 
-                {/* ส่วนรายการเมนู มี Scrollbar */}
-                <div className="max-h-30 overflow-y-auto pr-2 space-y-2">
+                {/* ส่วนรายการเมนู ไม่มี Scrollbar */}
+                <Box className="pr-2 space-y-2 flex flex-col">
                   {formData.ac_food?.map((menu, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <input
-                        type="text"
+                    <Box key={index} className="flex items-center space-x-2">
+                      <TextField
+                        fullWidth
                         value={menu}
                         onChange={(e) =>
                           updateFoodOption(index, e.target.value)
                         }
-                        className="w-full p-2 border rounded border-[#9D9D9D]"
+                        variant="outlined"
+                        size="small"
+                        className="border-gray-400 rounded"
+                        disabled={formData.ac_location_type !== "Onsite"} // ✅ ปิดใช้งานถ้าไม่ใช่ Onsite
                       />
-                      <button
-                        type="button"
+                      <IconButton
                         onClick={() => removeFoodOption(index)}
-                        className="bg-red-500 text-white px-2 py-1 rounded"
+                        color="error"
+                        disabled={formData.ac_location_type !== "Onsite"} // ✅ ปิดใช้งานถ้าไม่ใช่ Onsite
                       >
-                        X
-                      </button>
-                    </div>
+                        <Delete />
+                      </IconButton>
+                    </Box>
                   ))}
-                </div>
+                </Box>
 
-                {/* ปุ่มเพิ่มเมนู (อยู่นอก Scrollbar) */}
-                <div className="flex justify-end mt-2">
-                  <button
-                    type="button"
-                    onClick={addFoodOption}
-                    className="bg-[#1E3A8A] text-white px-4 py-2 rounded mt-4"
-                  >
-                    เพิ่มอาหาร
-                  </button>
-                </div>
-              </div>
+                {/* ปุ่มเพิ่มเมนู (จะซ่อนไปเลยถ้าไม่ใช่ Onsite) */}
+                {formData.ac_location_type === "Onsite" && (
+                  <Box className="flex justify-end mt-2">
+                    <Button
+                      onClick={addFoodOption}
+                      variant="contained"
+                      color="blue"
+                      startIcon={<Add />}
+                      className="mt-4 text-white"
+                    >
+                      เพิ่มอาหาร
+                    </Button>
+                  </Box>
+                )}
+              </Paper>
 
               {/* แบบประเมิน */}
-              <div className="mt-4 border-[#9D9D9D]">
-                <label className="block font-semibold">แบบประเมิน *</label>
-                <select
-                  name="evaluationType"
-                  value={formData.assesment_id}
-                  onChange={handleChange}
-                  className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
-                >
-                  <option value="แบบประเมิน 1">แบบประเมิน 1</option>
-                  <option value="แบบประเมิน 2">แบบประเมิน 2</option>
-                  <option value="แบบประเมิน 3">แบบประเมิน 3</option>
-                </select>
+              <div className="flex space-x-6 items-center mt-6">
+                <div className="border-[#9D9D9D]">
+                  <label className="block font-semibold">แบบประเมิน *</label>
+                  <Select
+                    labelId="assessment"
+                    name="assessment_id"
+                    className="w-140"
+                    value={
+                      formData.assessment_id !== null
+                        ? String(formData.assessment_id)
+                        : ""
+                    }
+                    onChange={handleChange}
+                    displayEmpty
+                    renderValue={(selected) => {
+                      console.log("📌 Selected assessment_id:", selected);
+                      console.log(
+                        "📌 Current formData.assessment_id:",
+                        formData.assessment_id
+                      );
+
+                      // ใช้ค่า as_name ถ้ามี assessment_id อยู่แล้ว
+                      const selectedAssessment =
+                        assessments.find(
+                          (a) =>
+                            String(a.as_id) ===
+                            String(selected || formData.assessment_id)
+                        )?.as_name || formData.assessment?.as_name; // ✅ ดึงค่า as_name จาก formData
+
+                      if (!selectedAssessment) {
+                        return (
+                          <span className="text-gray-500">เลือกแบบประเมิน</span>
+                        );
+                      }
+                      return selectedAssessment;
+                    }}
+                  >
+                    <MenuItem disabled value="">
+                      เลือกแบบประเมิน
+                    </MenuItem>
+                    {assessments && assessments.length > 0 ? (
+                      assessments.map((assessment) => (
+                        <MenuItem
+                          key={assessment.as_id}
+                          value={String(assessment.as_id)}
+                        >
+                          {assessment.as_name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>กำลังโหลดข้อมูล...</MenuItem>
+                    )}
+                  </Select>
+                </div>
+
+                {/* วันและเวลาทำแบบประเมิน */}
+
+                <div className="mt-5">
+                  <label className="block font-semibold">
+                    วันและเวลาเริ่มและสิ้นสุดการทำแบบประเมิน *
+                  </label>
+                  <div className="flex space-x-2 w-full">
+                    {/* กรอกวันเริ่้ม */}
+                    <div className="w-1/2">
+                      <div className="flex flex-col">
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DateTimePicker
+                            className="w-77.5"
+                            value={
+                              formData.ac_start_assessment &&
+                              dayjs(formData.ac_start_assessment).isValid()
+                                ? dayjs(formData.ac_start_assessment)
+                                : null
+                            }
+                            onChange={(newValue) =>
+                              handleDateTimeChange(
+                                "ac_start_assessment",
+                                newValue
+                              )
+                            }
+                            slotProps={{
+                              textField: {
+                                sx: { height: "56px" },
+                                error: !!(
+                                  (
+                                    formData.ac_status === "Public" && // ✅ แสดง error เฉพาะเมื่อเป็น Public
+                                    formData.ac_start_assessment &&
+                                    ((formData.ac_start_time &&
+                                      dayjs(
+                                        formData.ac_start_assessment
+                                      ).isBefore(
+                                        dayjs(formData.ac_start_time)
+                                      )) || // ✅ เงื่อนไขที่ 1
+                                      (formData.ac_end_assessment &&
+                                        dayjs(
+                                          formData.ac_start_assessment
+                                        ).isAfter(
+                                          dayjs(formData.ac_end_assessment)
+                                        )))
+                                  ) // ✅ เงื่อนไขที่ 2
+                                ),
+                                helperText:
+                                  formData.ac_status === "Public" && // ✅ แสดงข้อความเตือนเฉพาะเมื่อเป็น Public
+                                  formData.ac_start_assessment &&
+                                  (formData.ac_start_time &&
+                                  dayjs(formData.ac_start_assessment).isBefore(
+                                    dayjs(formData.ac_start_time)
+                                  )
+                                    ? "❌ วันและเวลาเปิดให้ทำแบบประเมินต้องมากกว่าหรือเท่ากับวันที่เริ่มดำเนินกิจกรรม"
+                                    : formData.ac_end_assessment &&
+                                      dayjs(
+                                        formData.ac_start_assessment
+                                      ).isAfter(
+                                        dayjs(formData.ac_end_assessment)
+                                      )
+                                    ? "❌ วันที่ หรือ เวลาปิดให้ทำแบบประเมินต้องอยู่เท่ากับหรือหลังวันที่เปิดให้ทำแบบประเมิน"
+                                    : ""),
+                              },
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+                      <p className="text-xs text-gray-500  mt-1">Start</p>
+                    </div>
+
+                    <span className="self-center font-semibold">-</span>
+
+                    {/* กรอกวันจบ */}
+                    <div className="w-1/2">
+                      <div className="flex flex-col">
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DateTimePicker
+                            className="w-77.5"
+                            value={
+                              formData.ac_end_assessment
+                                ? dayjs(formData.ac_end_assessment)
+                                : null
+                            }
+                            onChange={(newValue) =>
+                              handleDateTimeChange(
+                                "ac_end_assessment",
+                                newValue
+                              )
+                            }
+                            slotProps={{
+                              textField: {
+                                sx: { height: "56px" },
+                                error: !!(
+                                  (
+                                    formData.ac_status === "Public" && // ✅ แสดง error เฉพาะเมื่อเป็น Public
+                                    formData.ac_end_assessment &&
+                                    formData.ac_start_assessment &&
+                                    dayjs(formData.ac_end_assessment).isBefore(
+                                      dayjs(formData.ac_start_assessment)
+                                    )
+                                  ) // ✅ เงื่อนไขที่ 1
+                                ),
+                                helperText:
+                                  formData.ac_status === "Public" && // ✅ แสดงข้อความเตือนเฉพาะเมื่อเป็น Public
+                                  formData.ac_end_assessment &&
+                                  formData.ac_start_assessment &&
+                                  dayjs(formData.ac_end_assessment).isBefore(
+                                    dayjs(formData.ac_start_assessment)
+                                  )
+                                    ? "❌ วันที่ หรือ เวลาสิ้นสุดการทำแบบประเมินต้องอยู่หลังวันที่เริ่มทำแบบประเมิน"
+                                    : "",
+                              },
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+                      <p className="text-xs text-gray-500  mt-1">End</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* อัปโหลดไฟล์ */}
-              <div>
+              <div className="mt-10">
                 <label className=" font-semibold">แนบไฟล์ :</label>
                 <input
                   type="file"
@@ -811,23 +1320,14 @@ const UpdateActivityAdmin: React.FC = () => {
                 />
               </div>
 
-              {/* แสดงภาพที่อัปโหลด */}
-              {previewImage || formData.ac_image_data ? (
-                <div className="mt-4 w-200 h-125 border-red-900">
-                  <p className="text-sm text-gray-500">
-                    ตัวอย่างรูปที่อัปโหลด:
-                  </p>
+              {/* แสดงภาพที่อัปโหลด (ถ้าเป็นรูป) */}
+              {/* แสดงภาพที่อัปโหลด (ถ้ามี) */}
+              {previewImage || formData.ac_image_url ? (
+                <div className="mt-4 w-200 h-125 border-gray-300">
+                  <p className="text-sm text-gray-500">ตัวอย่างรูปภาพ:</p>
                   <img
-                    src={
-                      previewImage ||
-                      (typeof formData.ac_image_data === "string" &&
-                      formData.ac_image_data.startsWith("data:image")
-                        ? formData.ac_image_data
-                        : formData.ac_image_data instanceof File
-                        ? URL.createObjectURL(formData.ac_image_data) // ✅ ใช้ URL.createObjectURL() สำหรับไฟล์
-                        : null) // ถ้าไม่ใช่ String หรือ File ให้เป็น null
-                    }
-                    alt="อัปโหลดภาพกิจกรรม"
+                    src={previewImage || formData.ac_image_url}
+                    alt="รูปภาพกิจกรรม"
                     className="w-200 h-125 mt-2 object-cover border rounded-lg shadow"
                   />
                 </div>
@@ -840,41 +1340,54 @@ const UpdateActivityAdmin: React.FC = () => {
                 </div>
               )}
 
-              {/* Confirm Dialog */}
               <ConfirmDialog
                 isOpen={isModalOpen}
-                title="ยกเลิกการแก้ไขกิจกรรม"
-                message="คุณแน่ใจว่าจะยกเลิกการแก้ไข
-                กิจกรรมในครั้งนี้ ?
-            (การแก้ไขในครั้งนี้จะไม่ถูกบันทึก)"
+                title="แก้ไขกิจกรรม"
+                message="คุณแน่ใจว่าจะแก้ไขข้อมูลในกิจกรรมนี้
+            (นิสิตในระบบจะเห็นการเปลี่ยนแปลงของกิจกรรมนี้)"
                 onCancel={() => setIsModalOpen(false)}
-                onConfirm={() => {
-                  navigate("/list-activity-admin"); // ✅ เปลี่ยนหน้าเมื่อกดยืนยัน
-                }}
+                type="submit" // ✅ ทำให้เป็นปุ่ม submit
+                onConfirm={() => {}}
               />
 
               {/* ปุ่ม ยกเลิก & สร้าง */}
-              <div className="mt-10 flex justify-end items-center space-x-4 px-6 ">
+              <div className="mt-auto flex justify-end items-center space-x-4 px-6">
                 {/* ปุ่มยกเลิก */}
                 <Button
                   type="button"
                   color="red"
-                  onClick={() => {
-                    setIsModalOpen(true);
-                  }}
+                  onClick={() => navigate("/list-activity-admin")}
                 >
                   ยกเลิก
                 </Button>
 
-                {/* ปุ่มสร้าง */}
-                <Button type="submit" color="blue" width="100px">
-                  แก้ไข
-                </Button>
+                {/* ปุ่มบันทึก */}
+                {formData.ac_status === "Public" ? (
+                  <Button
+                    onClick={() => {
+                      setIsModalOpen(true);
+                      console.log("clicked");
+                    }}
+                    color="blue"
+                  >
+                    บันทึก
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      console.log("clicked");
+                    }}
+                    color="blue"
+                    type="submit"
+                  >
+                    บันทึก
+                  </Button>
+                )}
               </div>
             </div>
           </form>
         </div>
-      </div>
+      </Box>
     </>
   );
 };
