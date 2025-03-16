@@ -44,7 +44,7 @@ interface Activity {
   seat: string;
   food: string[];
   status: string;
-  location_type: "Online" | "Offline";
+  location_type: "Onsite" | "Online" | "Course";
   start_register: Date | null;
   end_register: Date | null;
   create_date: Date | null;
@@ -102,7 +102,7 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   seat: `${apiData.ac_seat}`,
   food: Array.isArray(apiData.ac_food) ? apiData.ac_food : [],
   status: apiData.ac_status.toLowerCase() === "public" ? "Public" : "Private",
-  location_type: apiData.ac_location_type === "Online" ? "Online" : "Offline",
+  location_type: apiData.ac_location_type,
 
   // ✅ แปลง `string` เป็น `Date`
   start_register: apiData.ac_start_register

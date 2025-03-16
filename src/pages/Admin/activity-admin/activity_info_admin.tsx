@@ -9,7 +9,10 @@ import {
   CalendarDays,
   Hourglass,
   Frown,
+  School,
+  HouseWifi,
 } from "lucide-react";
+import Typography from "@mui/material/Typography";
 
 export default function ActivityInfoAdmin() {
   const { id: paramId } = useParams();
@@ -55,7 +58,7 @@ export default function ActivityInfoAdmin() {
 
   return (
     <div className="justify-items-center">
-      <div className="w-320 h-230 mx-auto ml-2xl mt-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
+      <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <div className="flex justify-between items-center">
           <h1 className="text-[35px] font-semibold font-sans">
             {activity.name}
@@ -84,19 +87,56 @@ export default function ActivityInfoAdmin() {
             <p className="font-semibold text-[25px] font-sans">
               {activity.company_lecturer}
             </p>
-            <span className="text-[12px] font-semibold bg-[#ceccfb] text-[#0e0cf4] px-2 py-1 w-[90px] text-center font-sans">
+            <span
+              className="px-2 py-1 rounded ml-5"
+              style={{
+                backgroundColor:
+                  activity.type === "Hard Skill"
+                    ? "rgba(255, 174, 0, 0.2)"
+                    : "rgba(9, 0, 255, 0.2)",
+                color: activity.type === "Hard Skill" ? "#FFAE00" : "#0900FF",
+                minWidth: "100px",
+                display: "flex", // ✅ ใช้ flexbox
+                justifyContent: "center", // ✅ จัดให้อยู่กึ่งกลางแนวนอน
+                alignItems: "center",
+              }}
+            >
               {activity.type}
             </span>
           </div>
           <div className="flex items-center gap-1 font-[Sarabun]">
+            {activity.location_type == "Onsite" ? (
+              <Typography
+                component="span"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 1,
+                  pr: 4,
+                }}
+              >
+                <School /> Onsite
+              </Typography>
+            ) : (
+              <Typography
+                component="span"
+                sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+              >
+                <HouseWifi /> {activity.location_type}
+              </Typography>
+            )}
             <CalendarDays size={25} />
             วันที่จัดกิจกรรม{" "}
             {activity.start_time
-              ? new Date(activity.start_time).getDate()
+              ? new Date(activity.start_time).getDate() + 1 < 10
+                ? `0${new Date(activity.start_time).getDate() + 1}`
+                : new Date(activity.start_time).getDate()
               : "ไม่ระบุ"}{" "}
             /
             {activity.start_time
-              ? new Date(activity.start_time).getMonth() + 1 // ✅ แก้ไขตรงนี้
+              ? new Date(activity.start_time).getMonth() + 1 < 10
+                ? `0${new Date(activity.start_time).getMonth() + 1}`
+                : new Date(activity.start_time).getMonth() // ✅ แก้ไขตรงนี้
               : "ไม่ระบุ"}{" "}
             /
             {activity.start_time
@@ -104,11 +144,15 @@ export default function ActivityInfoAdmin() {
               : "ไม่ระบุ"}{" "}
             <Hourglass size={25} /> ปิดลงทะเบียน{" "}
             {activity.end_register
-              ? new Date(activity.end_register).getDate()
+              ? new Date(activity.end_register).getDate() + 1 < 10
+                ? `0${new Date(activity.end_register).getDate() + 1}`
+                : new Date(activity.end_register).getDate() // ✅ แก้ไขตรงนี้
               : "ไม่ระบุ"}{" "}
             /
             {activity.end_register
-              ? new Date(activity.end_register).getMonth() + 1 // ✅ แก้ไขตรงนี้
+              ? new Date(activity.end_register).getMonth() + 1 < 10
+                ? `0${new Date(activity.end_register).getMonth() + 1}`
+                : new Date(activity.end_register).getMonth() // ✅ แก้ไขตรงนี้
               : "ไม่ระบุ"}{" "}
             /
             {activity.end_register
