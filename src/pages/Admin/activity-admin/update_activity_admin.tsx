@@ -127,9 +127,17 @@ const UpdateActivityAdmin: React.FC = () => {
   );
 
   const handleFloorChange = (event: SelectChangeEvent) => {
-    setSelectedFloor(event.target.value);
+    const newFloor = event.target.value;
+
+    setSelectedFloor(newFloor);
     setSelectedRoom(""); // ✅ รีเซ็ตห้องเมื่อเปลี่ยนชั้น
     setSeatCapacity(""); // ✅ รีเซ็ตที่นั่งเมื่อเปลี่ยนชั้น
+
+    setFormData((prev) => ({
+      ...prev,
+      ac_room: "", // ✅ รีเซ็ตค่าห้องใน formData ด้วย
+      ac_seat: "", // ✅ รีเซ็ตค่าที่นั่ง
+    }));
   };
 
   const handleRoomChange = (event: SelectChangeEvent) => {
@@ -316,7 +324,8 @@ const UpdateActivityAdmin: React.FC = () => {
       return;
     }
 
-    let imageUrl = "";
+    console.log("🛠 Submitting Activity:", formData);
+    let imageUrl = formData.ac_image_url;
     if (formData.ac_image_url instanceof File) {
       imageUrl = await uploadImageToCloudinary(formData.ac_image_url);
     }
@@ -337,15 +346,16 @@ const UpdateActivityAdmin: React.FC = () => {
     }
 
     let startRegister = dayjs(formData.ac_start_register);
-    if (formData.ac_status == "Public") {
+    if (formData.ac_status == "Public" && !formData.ac_start_register) {
       startRegister = dayjs(new Date());
+      console.log("dont have start register");
     }
 
     const activityData: Activity = {
       ...formData,
-      ac_create_date: new Date(),
       ac_last_update: new Date(),
-      ac_start_register: startRegister,
+      ac_start_register:
+        convertToDate(formData.ac_start_register) || startRegister,
       ac_recieve_hours: acRecieveHours,
       ac_state: "Not Start",
       ac_image_url: imageUrl, // ✅ ใช้ URL ของรูปภาพจาก Cloudinary
@@ -355,6 +365,10 @@ const UpdateActivityAdmin: React.FC = () => {
       ac_end_assessment: convertToDate(formData.ac_end_assessment),
       assessment_id: formData.assessment_id
         ? Number(formData.assessment_id)
+        : null,
+      assessment: formData.assessment_id
+        ? assessments.find((a) => a.as_id === Number(formData.assessment_id)) ||
+          null
         : null,
     };
 
@@ -473,8 +487,10 @@ const UpdateActivityAdmin: React.FC = () => {
 
         setFormData((prev) => ({
           ...prev,
+          ac_id: activityData.id || finalActivityId,
           ac_name: activityData.name || "",
           assessment_id: activityData.assessment_id,
+          assessment: activityData.assessment || null,
           ac_company_lecturer: activityData.company_lecturer || "",
           ac_description: activityData.description || "",
           ac_type: activityData.type || "",
@@ -513,7 +529,6 @@ const UpdateActivityAdmin: React.FC = () => {
           ac_end_assessment: activityData.end_assessment
             ? new Date(activityData.end_assessment).toISOString()
             : "",
-          assessment: activityData.assessment,
         }));
       } catch (error) {
         console.error("❌ Error fetching activity:", error);

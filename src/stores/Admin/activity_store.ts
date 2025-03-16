@@ -265,60 +265,93 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  updateActivity: async (activity: Activity): Promise<void> => {
+  updateActivity: async (activity: ApiActivity): Promise<void> => {
     set({ activityLoading: true, activityError: null });
+
+    if (!activity.ac_id) {
+      console.error("❌ Error: Activity ID is missing!", activity);
+      return Promise.reject(new Error("Activity ID is required"));
+    }
 
     try {
       console.log("📡 Sending update request for activity:", activity);
 
-      // ✅ ตรวจสอบ `image_data` และแปลงเป็น Base64 ถ้าจำเป็น
-      let imageData: string | null = null;
-
-      if (activity.image_url instanceof File) {
-        console.log("📸 Detected File, converting to Base64...");
-        imageData = await convertFileToBase64(activity.image_url);
-      } else if (typeof activity.image_url === "string") {
-        imageData = activity.image_url.startsWith("data:image")
-          ? activity.image_url // ถ้ามี "data:image" อยู่แล้วใช้เลย
-          : `data:image/png;base64,${activity.image_url}`; // ถ้าไม่มีให้เติม prefix
-      }
-
       const updatedData = {
         ...activity,
-        ac_name: activity.name,
-        ac_company_lecturer: activity.company_lecturer,
-        ac_description: activity.description,
-        ac_type: activity.type,
-        ac_room: activity.room,
-        ac_seat: parseInt(activity.seat, 10),
-        ac_food: activity.food,
-        ac_status: activity.status,
-        ac_location_type: activity.location_type,
-        ac_state: activity.state,
-        ac_start_register: activity.start_register?.toISOString() || null,
-        ac_end_register: activity.end_register?.toISOString() || null,
-        ac_create_date: activity.create_date?.toISOString() || null,
+        ac_id: activity.ac_id,
+        ac_name: activity.ac_name,
+        ac_company_lecturer: activity.ac_company_lecturer,
+        ac_description: activity.ac_description,
+        ac_type: activity.ac_type,
+        ac_room: activity.ac_room,
+        ac_seat: parseInt(activity.ac_seat, 10),
+        ac_food: activity.ac_food,
+        ac_status: activity.ac_status,
+        ac_location_type: activity.ac_location_type,
+        ac_state: activity.ac_state,
+        ac_start_register:
+          activity.ac_start_register instanceof Date
+            ? activity.ac_start_register.toISOString()
+            : activity.ac_start_register
+            ? new Date(activity.ac_start_register).toISOString()
+            : null,
+        ac_end_register:
+          activity.ac_end_register instanceof Date
+            ? activity.ac_end_register.toISOString()
+            : activity.ac_end_register
+            ? new Date(activity.ac_end_register).toISOString()
+            : null,
+        ac_create_date:
+          activity.ac_create_date instanceof Date
+            ? activity.ac_create_date.toISOString()
+            : activity.ac_create_date
+            ? new Date(activity.ac_create_date).toISOString()
+            : null,
         ac_last_update: new Date().toISOString(),
-        ac_start_time: activity.start_time?.toISOString() || null,
-        ac_end_time: activity.end_time?.toISOString() || null,
-        ac_image_url: imageData, // ✅ ส่ง Base64 เต็มรูปแบบไปยัง Backend
-        ac_normal_register: activity.normal_register?.toISOString() || null,
-        ac_recieve_hours: activity.recieve_hours,
-        ac_start_assessment: activity.start_assessment,
-        ac_end_assessment: activity.end_assessment,
+        ac_start_time:
+          activity.ac_start_time instanceof Date
+            ? activity.ac_start_time.toISOString()
+            : activity.ac_start_time
+            ? new Date(activity.ac_start_time).toISOString()
+            : null,
+        ac_end_time:
+          activity.ac_end_time instanceof Date
+            ? activity.ac_end_time.toISOString()
+            : activity.ac_end_time
+            ? new Date(activity.ac_end_time).toISOString()
+            : null,
+        ac_image_url: activity.ac_image_url,
+        ac_normal_register:
+          activity.ac_normal_register instanceof Date
+            ? activity.ac_normal_register.toISOString()
+            : activity.ac_normal_register
+            ? new Date(activity.ac_normal_register).toISOString()
+            : null,
+        ac_recieve_hours: activity.ac_recieve_hours,
+        ac_start_assessment:
+          activity.ac_start_assessment instanceof Date
+            ? activity.ac_start_assessment.toISOString()
+            : activity.ac_start_assessment
+            ? new Date(activity.ac_start_assessment).toISOString()
+            : null,
+        ac_end_assessment:
+          activity.ac_end_assessment instanceof Date
+            ? activity.ac_end_assessment.toISOString()
+            : activity.ac_end_assessment
+            ? new Date(activity.ac_end_assessment).toISOString()
+            : null,
       };
 
-      console.log("📸 Image Data Before Send:", updatedData.ac_image_url);
+      console.log("✅ Final Data Before Sending:", updatedData);
 
       await axiosInstance.put(
-        `/activity/update-activity/${activity.id}`,
+        `/activity/update-activity/${activity.ac_id}`,
         updatedData
       );
 
       console.log("✅ Activity updated successfully!");
 
-      // ✅ โหลดข้อมูลใหม่หลังจากอัปเดต
-      await get().fetchActivity(activity.id);
+      await get().fetchActivity(activity.ac_id);
       set({ activityLoading: false });
     } catch (error: any) {
       console.error("❌ Error updating activity:", error);
