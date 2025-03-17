@@ -19,6 +19,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { TextField, IconButton, Paper, Box, Typography } from "@mui/material";
 import { Delete, Add } from "@mui/icons-material";
 import { SelectChangeEvent } from "@mui/material"; // ✅ นำเข้า SelectChangeEvent
+import { faLeaf } from "@fortawesome/free-solid-svg-icons";
 
 interface FormData {
   ac_id: number | null;
@@ -372,32 +373,15 @@ const UpdateActivityAdmin: React.FC = () => {
         : null,
     };
 
-    console.log(
-      "typeof ac_start_assessment => ",
-      typeof formData.ac_start_assessment
-    );
-
-    console.log(
-      "typeof ac_end_assessment => ",
-      typeof new Date(formData.ac_end_assessment)
-    );
-
-    console.log(
-      "typeof ac_start_register => ",
-      typeof formData.ac_start_register
-    );
-
     console.log("🚀 Data ที่ส่งไป Backend:", activityData);
 
     try {
       await updateActivity(activityData);
       toast.success(
-        formData.ac_status === "Public"
-          ? "สร้างกิจกรรมสำเร็จ !"
-          : "ร่างกิจกรรมสำเร็จ !",
+        "แก้ไขกิจกรรมสำเร็จ !",
         { duration: 5000 }
       );
-      // navigate("/list-activity-admin");
+      setIsModalOpen(false);
     } catch (error) {
       console.error("❌ Error creating activity:", error);
       toast.error("Create failed!");

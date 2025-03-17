@@ -345,21 +345,6 @@ const CreateActivityAdmin: React.FC = () => {
         : null,
     };
 
-    console.log(
-      "typeof ac_start_assessment => ",
-      typeof formData.ac_start_assessment
-    );
-
-    console.log(
-      "typeof ac_end_assessment => ",
-      typeof new Date(formData.ac_end_assessment)
-    );
-
-    console.log(
-      "typeof ac_start_register => ",
-      typeof formData.ac_start_register
-    );
-
     console.log("🚀 Data ที่ส่งไป Backend:", activityData);
 
     try {
