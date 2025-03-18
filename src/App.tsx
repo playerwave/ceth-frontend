@@ -1,23 +1,23 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
 
 //import components
 import Navbar from "./components/Navbar";
 
-//import pages
+//import pages Admin
 import Main from "./pages/Admin/main_admin";
 import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
 import TestCreate from "./pages/Test/test_create";
-
-// import Crud_Test from "./pages/Test/crud_test";
 import CreateActivityAdmin from "./pages/Admin/activity-admin/create_activity_admin";
 import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity_info_admin";
 import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled_list_admin";
 import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 // import Crud_Test from "./pages/Test/crud_test";
 
-//import toast
-import { Toaster } from "sonner";
+
+//import pages Student
+import ActivityInfoStudent from "./pages/Student/activity-student/activity_info_student";
 
 function App() {
   return (
@@ -42,6 +42,30 @@ function App() {
               </Navbar>
             }
           ></Route>
+          <Route
+          path="/activity-info-admin/:id"
+          element={
+            <Navbar>
+              <ActivityInfoAdmin />
+            </Navbar>
+          }
+        />
+          <Route
+          path="/enrolled_list_admin/:id"
+          element={
+            <Navbar>
+              <EnrolledListAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/activity-info-student"
+          element={
+            <Navbar>
+              <ActivityInfoStudent />
+            </Navbar>
+          }
+        />
           <Route
             path="/activity-info-admin"
             element={
