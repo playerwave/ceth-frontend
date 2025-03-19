@@ -22,7 +22,7 @@ export const useAssessmentStore = create<AssessmentStore>((set) => ({
   fetchAssessments: async () => {
     try {
       console.log("Calling API to fetch assessments...");
-      const response = await axios.get("/assessment/get-assessments");
+      const response = await axios.get("/admin/assessment/get-assessments");
 
       // ✅ แก้ให้เซ็ต `assessments.assessments` แทนที่จะเป็น `assessments`
       set({ assessments: response.data.assessments });

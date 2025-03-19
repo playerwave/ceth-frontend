@@ -15,9 +15,9 @@ import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled_list_admin"
 import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 // import Crud_Test from "./pages/Test/crud_test";
 
-
 //import pages Student
 import ActivityInfoStudent from "./pages/Student/activity-student/activity_info_student";
+import ListActivityStudent from "./pages/Student/activity-student/list_activity_student"
 
 function App() {
   return (
@@ -43,29 +43,21 @@ function App() {
             }
           ></Route>
           <Route
-          path="/activity-info-admin/:id"
-          element={
-            <Navbar>
-              <ActivityInfoAdmin />
-            </Navbar>
-          }
-        />
+            path="/activity-info-admin/:id"
+            element={
+              <Navbar>
+                <ActivityInfoAdmin />
+              </Navbar>
+            }
+          />
           <Route
-          path="/enrolled_list_admin/:id"
-          element={
-            <Navbar>
-              <EnrolledListAdmin />
-            </Navbar>
-          }
-        />
-        <Route
-          path="/activity-info-student"
-          element={
-            <Navbar>
-              <ActivityInfoStudent />
-            </Navbar>
-          }
-        />
+            path="/enrolled_list_admin/:id"
+            element={
+              <Navbar>
+                <EnrolledListAdmin />
+              </Navbar>
+            }
+          />
           <Route
             path="/activity-info-admin"
             element={
@@ -110,7 +102,22 @@ function App() {
 
         {/* Student Routes */}
         <Routes>
-          <Route></Route>
+          <Route
+            path="/activity-info-student"
+            element={
+              <Navbar>
+                <ActivityInfoStudent />
+              </Navbar>
+            }
+          />
+          <Route
+            path="/list-activity-student"
+            element={
+              <Navbar>
+                <ListActivityStudent />
+              </Navbar>
+            }
+          ></Route>
         </Routes>
       </div>
     </>

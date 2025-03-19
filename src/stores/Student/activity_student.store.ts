@@ -99,14 +99,8 @@ interface ActivityState {
   enrolledStudents: EnrolledStudent[];
   fetchActivities: () => Promise<void>;
   searchActivities: (query: string) => Promise<void>;
-  updateActivityStatus: (
-    id: string,
-    currentStatus: "Public" | "Private"
-  ) => Promise<void>;
-  updateActivity: (activity: Activity) => Promise<void>;
   fetchActivity: (id: number | string) => Promise<void>;
   fetchEnrolledStudents: (id: number | string) => Promise<void>;
-  createActivity: (activity: ApiActivity) => Promise<void>;
 }
 
 const mapActivityData = (apiData: ApiActivity): Activity => ({
@@ -170,18 +164,16 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activityError: null,
   activityLoading: false,
   activity: null,
-  enrolledStudents: [],
 
-  fetchActivities: async () => {
+  fetchStudentActivities: async (userId: string) => {
     set({ activityLoading: true, activityError: null });
 
     try {
       const response = await axiosInstance.get(
-        "/admin/activity/get-activities"
+        `/student/activity/get-student-activities/${userId}`
       );
-      console.log("✅ API Response:", response.data); // ตรวจสอบข้อมูลที่ได้จาก API
+      console.log("✅ FetchStudentActivity API Response:", response.data);
 
-      // ✅ แปลงโครงสร้างข้อมูลให้ตรงกับ React
       const formattedActivities = response.data.map((a: ApiActivity) => ({
         id: a.ac_id,
         name: a.ac_name,
@@ -191,29 +183,50 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         room: a.ac_room,
         seat: a.ac_seat,
         food: a.ac_food || [],
-        status: a.ac_status, // ✅ ตรงกับที่ใช้ใน UI
+        status: a.ac_status,
         location_type: a.ac_location_type,
-        start_register: a.ac_start_register || null,
-        end_register: a.ac_end_register || null,
-        create_date: a.ac_create_date || null,
-        last_update: a.ac_last_update || null,
+        start_register: a.ac_start_register,
+        end_register: a.ac_end_register,
+        create_date: a.ac_create_date,
+        last_update: a.ac_last_update,
         registered_count: a.ac_registered_count,
         attended_count: a.ac_attended_count || 0,
         not_attended_count: a.ac_not_attended_count || 0,
-        start_time: a.ac_start_time || null,
-        end_time: a.ac_end_time || null,
-        image_url: a.ac_image_url || "", // ✅ ใช้ชื่อให้ตรงกับ UI
+        start_time: a.ac_start_time,
+        end_time: a.ac_end_time,
+        image_url: a.ac_image_url || "",
         state: a.ac_state,
         normal_register: a.ac_normal_register,
         recieve_hours: a.ac_recieve_hours || 0,
-        start_assessment: a.ac_start_assessment || null,
-        end_assessment: a.ac_end_assessment || null,
+        start_assessment: a.ac_start_assessment,
+        end_assessment: a.ac_end_assessment,
       }));
 
       set({ activities: formattedActivities, activityLoading: false });
     } catch (error) {
-      console.error("❌ Error fetching activities:", error);
-      set({ activityError: "ไม่สามารถโหลดกิจกรรมได้", activityLoading: false });
+      console.error("❌ Error fetching student activities:", error);
+      set({
+        activityError: "ไม่สามารถโหลดกิจกรรมนิสิตได้",
+        activityLoading: false,
+      });
+    }
+  },
+
+  enrollActivity: async (userId: string, activityId: number) => {
+    try {
+      const response = await axiosInstance.post(
+        `/student/activity/student-enroll-activity/${userId}`,
+        { activityId }
+      );
+
+      console.log("✅ ลงทะเบียนสำเร็จ:", response.data);
+      toast.success("✅ ลงทะเบียนสำเร็จ!");
+
+      // ✅ โหลดข้อมูลกิจกรรมใหม่หลังจากลงทะเบียน
+      get().fetchStudentActivities(userId);
+    } catch (error) {
+      console.error("❌ ลงทะเบียนล้มเหลว:", error);
+      toast.error("❌ ลงทะเบียนไม่สำเร็จ!");
     }
   },
 
@@ -230,7 +243,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
     try {
       const { data } = await axiosInstance.get(
-        `/admin/activity/searchActivity`,
+        `/student/activity/searchActivity`,
         {
           params: { ac_name: searchName.trim() || "" }, // ✅ เปลี่ยนให้ตรงกับ backend
         }
@@ -257,118 +270,6 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  updateActivityStatus: async (id, currentStatus) => {
-    set({ activityLoading: true });
-    try {
-      const newStatus = currentStatus === "Public" ? "Private" : "Public";
-      await axiosInstance.patch(`/admin/activity/adjustActivity/${id}`, {
-        ac_status: newStatus.toLowerCase(),
-      });
-      await get().fetchActivities();
-    } catch (error) {
-      set({ activityLoading: false });
-    }
-  },
-
-  updateActivity: async (activity: ApiActivity): Promise<void> => {
-    set({ activityLoading: true, activityError: null });
-
-    if (!activity.ac_id) {
-      console.error("❌ Error: Activity ID is missing!", activity);
-      return Promise.reject(new Error("Activity ID is required"));
-    }
-
-    try {
-      console.log("📡 Sending update request for activity:", activity);
-
-      const updatedData = {
-        ...activity,
-        ac_id: activity.ac_id,
-        ac_name: activity.ac_name,
-        ac_company_lecturer: activity.ac_company_lecturer,
-        ac_description: activity.ac_description,
-        ac_type: activity.ac_type,
-        ac_room: activity.ac_room,
-        ac_seat: parseInt(activity.ac_seat, 10),
-        ac_food: activity.ac_food,
-        ac_status: activity.ac_status,
-        ac_location_type: activity.ac_location_type,
-        ac_state: activity.ac_state,
-        ac_start_register:
-          activity.ac_start_register instanceof Date
-            ? activity.ac_start_register.toISOString()
-            : activity.ac_start_register
-            ? new Date(activity.ac_start_register).toISOString()
-            : null,
-        ac_end_register:
-          activity.ac_end_register instanceof Date
-            ? activity.ac_end_register.toISOString()
-            : activity.ac_end_register
-            ? new Date(activity.ac_end_register).toISOString()
-            : null,
-        ac_create_date:
-          activity.ac_create_date instanceof Date
-            ? activity.ac_create_date.toISOString()
-            : activity.ac_create_date
-            ? new Date(activity.ac_create_date).toISOString()
-            : null,
-        ac_last_update: new Date().toISOString(),
-        ac_start_time:
-          activity.ac_start_time instanceof Date
-            ? activity.ac_start_time.toISOString()
-            : activity.ac_start_time
-            ? new Date(activity.ac_start_time).toISOString()
-            : null,
-        ac_end_time:
-          activity.ac_end_time instanceof Date
-            ? activity.ac_end_time.toISOString()
-            : activity.ac_end_time
-            ? new Date(activity.ac_end_time).toISOString()
-            : null,
-        ac_image_url: activity.ac_image_url,
-        ac_normal_register:
-          activity.ac_normal_register instanceof Date
-            ? activity.ac_normal_register.toISOString()
-            : activity.ac_normal_register
-            ? new Date(activity.ac_normal_register).toISOString()
-            : null,
-        ac_recieve_hours: activity.ac_recieve_hours,
-        ac_start_assessment:
-          activity.ac_start_assessment instanceof Date
-            ? activity.ac_start_assessment.toISOString()
-            : activity.ac_start_assessment
-            ? new Date(activity.ac_start_assessment).toISOString()
-            : null,
-        ac_end_assessment:
-          activity.ac_end_assessment instanceof Date
-            ? activity.ac_end_assessment.toISOString()
-            : activity.ac_end_assessment
-            ? new Date(activity.ac_end_assessment).toISOString()
-            : null,
-      };
-
-      console.log("✅ Final Data Before Sending:", updatedData);
-
-      await axiosInstance.put(
-        `/admin/activity/update-activity/${activity.ac_id}`,
-        updatedData
-      );
-
-      console.log("✅ Activity updated successfully!");
-
-      await get().fetchActivity(activity.ac_id);
-      set({ activityLoading: false });
-    } catch (error: any) {
-      console.error("❌ Error updating activity:", error);
-
-      set({
-        activityError:
-          error.response?.data?.message || "Error updating activity",
-        activityLoading: false,
-      });
-    }
-  },
-
   fetchActivity: async (id: number | string): Promise<Activity | null> => {
     const numericId = Number(id);
     if (!numericId || isNaN(numericId)) {
@@ -384,7 +285,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       );
 
       const { data } = await axiosInstance.get<ApiActivity>(
-        `/admin/activity/get-activity/${numericId}`
+        `/student/activity/get-activity/${numericId}`
       );
 
       console.log("📡 API Response:", data);
@@ -426,7 +327,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     set({ activityLoading: true, activityError: null, enrolledStudents: [] });
     try {
       const { data } = await axiosInstance.get<{ users?: EnrolledStudent[] }>(
-        `/admin/activity/get-enrolled/${id}`
+        `/student/activity/get-enrolled/${id}`
       );
       set({ enrolledStudents: data?.users || [], activityLoading: false });
     } catch (error: any) {
@@ -445,7 +346,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     try {
       console.log("log in createActivity Store: ", activity);
 
-      await axiosInstance.post("/admin/activity/create-activity", activity);
+      await axiosInstance.post("/student/activity/create-activity", activity);
       set((state) => ({
         activities: [...state.activities, mapActivityData(activity)],
         activityLoading: false,

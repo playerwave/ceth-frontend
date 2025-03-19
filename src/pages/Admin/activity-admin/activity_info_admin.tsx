@@ -13,6 +13,7 @@ import {
   HouseWifi,
 } from "lucide-react";
 import Typography from "@mui/material/Typography";
+import Button from "../../../components/Button";
 
 export default function ActivityInfoAdmin() {
   const { id: paramId } = useParams();
@@ -203,21 +204,16 @@ export default function ActivityInfoAdmin() {
 
           {/* ปุ่มต่าง ๆ */}
           <div className="flex justify-end gap-3">
-            <button
-              onClick={() => window.history.back()}
-              className="flex items-center justify-center gap-2 w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none"
-            >
+            <Button color="blue" onClick={() => window.history.back()}>
               ← กลับ
-            </button>
-            <button className="flex items-center justify-center w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none">
-              QR Code
-            </button>
-            <button
-              className="flex items-center justify-center w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none"
+            </Button>
+            <Button color="blue">QR Code</Button>
+            <Button
+              color="blue"
               onClick={() => handleToUpdateActivity(activity.id)}
             >
               แก้ไข
-            </button>
+            </Button>
           </div>
         </div>
       </div>

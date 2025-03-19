@@ -1,8 +1,5 @@
 @import "tailwindcss";
 
- {
-  /*Loading 1*/
-}
 @layer utilities {
   @keyframes spinner-fade {
     0% {
