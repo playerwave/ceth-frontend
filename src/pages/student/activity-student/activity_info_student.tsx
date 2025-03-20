@@ -29,7 +29,7 @@ export default function ActivityInfoStudent() {
   const { activity, isLoading, error, fetchActivity, enrollActivity } =
     useActivityStore();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
 
   const fetchActivityData = useCallback(() => {
     if (finalActivityId !== null && !isNaN(finalActivityId)) {
@@ -60,15 +60,17 @@ export default function ActivityInfoStudent() {
     return `${hours}:${minutes} ${ampm}`;
   };
 
-  const handleEnroll = () => {
+  const handleEnroll = async () => {
     const userId = 1; // ดึง userId จาก localStorage
     if (!userId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
 
-    enrollActivity(userId, activity.id); // ✅ เรียกฟังก์ชันลงทะเบียน
-    setIsModalOpen(false); // ปิด Modal
+    await enrollActivity(userId, activity.id); // ✅ เรียกฟังก์ชันลงทะเบียน
+    setIsEnrollModalOpen(false); // ปิด Modal
+    navigate("/list-activity-student");
+    window.location.reload();
   };
 
   return (
@@ -216,7 +218,7 @@ export default function ActivityInfoStudent() {
             </div>
           </div>
           <ConfirmDialog
-            isOpen={isModalOpen}
+            isOpen={isEnrollModalOpen}
             title="ยืนยันการลงทะเบียน"
             message={`คุณแน่ใจว่าจะลงทะเบียนกิจกรรมนี้
                       (ยกเลิกลงทะเบียนได้ถึง ${new Intl.DateTimeFormat(
@@ -227,7 +229,7 @@ export default function ActivityInfoStudent() {
                           year: "numeric",
                         }
                       ).format(activity.end_register)})`}
-            onCancel={() => setIsModalOpen(false)}
+            onCancel={() => setIsEnrollModalOpen(false)}
             // ✅ ทำให้เป็นปุ่ม submit
             onConfirm={handleEnroll}
           />
@@ -237,7 +239,8 @@ export default function ActivityInfoStudent() {
             <Button color="blue" onClick={() => window.history.back()}>
               ← กลับ
             </Button>
-            <Button color="blue" onClick={() => setIsModalOpen(true)}>
+
+            <Button color="blue" onClick={() => setIsEnrollModalOpen(true)}>
               ลงทะเบียน
             </Button>
           </div>
