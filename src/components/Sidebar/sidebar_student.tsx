@@ -58,7 +58,7 @@ const SidebarStudent = () => {
       {/* เมนู Sidebar */}
       <div className="flex flex-col space-y-1">
         <SidebarItem
-          to="/"
+          to="/main-student"
           icon={<Home size={24} />}
           text="หน้าหลัก"
           collapsed={isCollapsed}

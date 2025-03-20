@@ -95,7 +95,6 @@ const ManageActivityAdmin: React.FC = () => {
           </button>
         </div>
       </div>
-
       {/* ✅ แสดง Loading อยู่กลางจอ แต่ไม่ทับ Navbar */}
       {activityLoading ? (
         <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-50 backdrop-blur-md z-40">

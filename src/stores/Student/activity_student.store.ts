@@ -164,6 +164,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activityError: null,
   activityLoading: false,
   activity: null,
+  enrolledActivities: [],
 
   fetchStudentActivities: async (userId: string) => {
     set({ activityLoading: true, activityError: null });
@@ -315,49 +316,31 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  fetchEnrolledStudents: async (id) => {
-    if (!id || isNaN(id)) {
-      set({
-        activityError: "Invalid Activity ID",
-        activityLoading: false,
-        enrolledStudents: [],
-      });
-      return;
-    }
-    set({ activityLoading: true, activityError: null, enrolledStudents: [] });
+  fetchEnrolledActivities: async (studentId: string) => {
+    set({ activityLoading: true, activityError: null });
+
     try {
-      const { data } = await axiosInstance.get<{ users?: EnrolledStudent[] }>(
-        `/student/activity/get-enrolled/${id}`
+      console.log(
+        `🚀 Fetching enrolled activities for student ID: ${studentId}`
       );
-      set({ enrolledStudents: data?.users || [], activityLoading: false });
-    } catch (error: any) {
+      const { data } = await axiosInstance.get<Activity[]>(
+        `/student/activity/get-enrolled-activities/${studentId}`
+      );
+
+      console.log("✅ Enrolled Activities API Response:", data);
+
       set({
-        activityError:
-          error.response?.data?.message || "Error fetching enrolled students",
+        enrolledActivities: data, // ✅ เก็บกิจกรรมที่นิสิตลงทะเบียนไว้
         activityLoading: false,
-        enrolledStudents: [],
       });
-    }
-  },
-
-  createActivity: async (activity: ApiActivity): Promise<void> => {
-    set(() => ({ activityLoading: true, activityError: null }));
-
-    try {
-      console.log("log in createActivity Store: ", activity);
-
-      await axiosInstance.post("/student/activity/create-activity", activity);
-      set((state) => ({
-        activities: [...state.activities, mapActivityData(activity)],
+    } catch (error) {
+      const err = error as AxiosError<{ error: string }>;
+      set({
+        activityError: err.response?.data?.error ?? "Error fetching activities",
         activityLoading: false,
-        activityError: null,
-      }));
-    } catch (error: unknown) {
-      console.error("❌ Unknown error:", error);
-      set(() => ({
-        activityError: "An unknown error occurred",
-        activityLoading: false,
-      }));
+      });
+
+      console.error("❌ Error fetching enrolled activities:", err);
     }
   },
 }));
