@@ -48,17 +48,19 @@ const MainStudent = () => {
     console.log("📌 ข้อมูลกิจกรรมที่ลงทะเบียน:", enrolledActivities);
   }, [enrolledActivities]);
 
-  const transformedActivities = enrolledActivities.map((act) => ({
-    id: act.ac_id.toString(), // ✅ แปลง id เป็น string
-    name: act.ac_name || "ไม่มีชื่อกิจกรรม",
-    company_lecturer: act.ac_company_lecturer || "ไม่มีข้อมูลบริษัท",
-    description: act.ac_description || "",
-    type: act.ac_type || "Soft Skill",
-    start_time: new Date(act.ac_start_time), // ✅ แปลงเป็น Date object
-    seat: act.ac_seat || 0,
-    status: act.ac_status || "Public",
-    registered_count: act.ac_registered_count || 0,
-  }));
+  const transformedActivities = enrolledActivities
+    .filter((act) => act.ac_status === "Public")
+    .map((act) => ({
+      id: act.ac_id.toString(), // ✅ แปลง id เป็น string
+      name: act.ac_name || "ไม่มีชื่อกิจกรรม",
+      company_lecturer: act.ac_company_lecturer || "ไม่มีข้อมูลบริษัท",
+      description: act.ac_description || "",
+      type: act.ac_type || "Soft Skill",
+      start_time: new Date(act.ac_start_time), // ✅ แปลงเป็น Date object
+      seat: act.ac_seat || 0,
+      status: act.ac_status || "Public",
+      registered_count: act.ac_registered_count || 0,
+    }));
 
   return (
     <Box className="justify-items-center">
@@ -77,8 +79,8 @@ const MainStudent = () => {
                 height: "220px",
               }}
             >
-              <h2 className="text-lg font-bold">Soft Skill ปัจจุบัน</h2>
-              <p className="text-4xl font-bold text-blue-600">⏳</p>
+              <h2 className="text-lg font-bold mb-5">Soft Skill ปัจจุบัน</h2>
+              <p className="text-4xl font-bold text-blue-600">5</p>
             </Card>
 
             <Card
@@ -92,8 +94,8 @@ const MainStudent = () => {
                 height: "220px",
               }}
             >
-              <h2 className="text-lg font-bold">Hard Skill ปัจจุบัน</h2>
-              <p className="text-4xl font-bold text-orange-500">⏳</p>
+              <h2 className="text-lg font-bold mb-5">Hard Skill ปัจจุบัน</h2>
+              <p className="text-4xl font-bold text-orange-500">7</p>
             </Card>
           </div>
 

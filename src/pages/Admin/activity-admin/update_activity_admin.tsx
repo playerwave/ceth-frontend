@@ -216,71 +216,85 @@ const UpdateActivityAdmin: React.FC = () => {
   const validateForm = () => {
     let newErrors: Record<string, string> = {};
 
-    if (!formData.ac_name || formData.ac_name.length < 4) {
-      newErrors.ac_name = "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร";
-    }
-    if (
-      !formData.ac_company_lecturer ||
-      formData.ac_company_lecturer.length < 4
-    ) {
-      newErrors.ac_company_lecturer = "ต้องมีอย่างน้อย 4 ตัวอักษร";
-    }
-    if (!formData.ac_type) {
-      newErrors.ac_type = "กรุณาเลือกประเภท";
-    }
-    if (!formData.ac_status) {
-      newErrors.ac_status = "กรุณาเลือกสถานะ";
-    }
-    if (!formData.ac_start_time) {
-      newErrors.ac_start_time = "กรุณาเลือกวันและเวลาเริ่มกิจกรรม";
-    }
-    if (!formData.ac_end_time) {
-      newErrors.ac_end_time = "กรุณาเลือกวันและเวลาสิ้นสุดกิจกรรม";
-    }
-    if (
-      formData.ac_start_time &&
-      formData.ac_end_time &&
-      dayjs(formData.ac_start_time).isAfter(dayjs(formData.ac_end_time))
-    ) {
-      newErrors.ac_end_time = "วันสิ้นสุดกิจกรรมต้องมากกว่าวันเริ่มกิจกรรม";
-    }
-    if (
-      formData.ac_normal_register &&
-      formData.ac_end_register &&
-      dayjs(formData.ac_normal_register).isAfter(
-        dayjs(formData.ac_end_register)
-      )
-    ) {
-      newErrors.ac_normal_register =
-        "วันเปิดลงทะเบียนต้องอยู่ก่อนวันปิดลงทะเบียน";
-    }
-    if (
-      formData.ac_status === "Public" &&
-      formData.ac_location_type === "Course" &&
-      (!formData.ac_recieve_hours || Number(formData.ac_recieve_hours) <= 0)
-    ) {
-      newErrors.ac_recieve_hours =
-        "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0";
-    }
-    if (
-      formData.ac_start_assessment &&
-      formData.ac_start_time &&
-      dayjs(formData.ac_start_assessment).isBefore(
-        dayjs(formData.ac_start_time)
-      )
-    ) {
-      newErrors.ac_start_assessment =
-        "❌ วันและเวลาเปิดให้ทำแบบประเมินต้องมากกว่าหรือเท่ากับวันที่เริ่มดำเนินกิจกรรม";
-    }
-    if (
-      formData.ac_end_assessment &&
-      formData.ac_start_assessment &&
-      dayjs(formData.ac_end_assessment).isBefore(
-        dayjs(formData.ac_start_assessment)
-      )
-    ) {
-      newErrors.ac_end_assessment =
-        "❌ วันที่ หรือ เวลาสิ้นสุดการทำแบบประเมินต้องอยู่หลังวันที่เริ่มทำแบบประเมิน";
+    if (formData.ac_status == "Public") {
+      if (!formData.ac_name || formData.ac_name.length < 4) {
+        newErrors.ac_name = "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร";
+        console.log(newErrors.ac_name);
+      }
+      if (
+        !formData.ac_company_lecturer ||
+        formData.ac_company_lecturer.length < 4
+      ) {
+        newErrors.ac_company_lecturer = "ต้องมีอย่างน้อย 4 ตัวอักษร";
+        console.log(newErrors.ac_company_lecturer);
+      }
+      if (!formData.ac_type) {
+        newErrors.ac_type = "กรุณาเลือกประเภท";
+        console.log(newErrors.ac_type);
+      }
+      if (!formData.ac_status) {
+        newErrors.ac_status = "กรุณาเลือกสถานะ";
+        console.log(newErrors.ac_status);
+      }
+      if (!formData.ac_start_time) {
+        newErrors.ac_start_time = "กรุณาเลือกวันและเวลาเริ่มกิจกรรม";
+        console.log(newErrors.ac_start_time);
+      }
+      if (!formData.ac_end_time) {
+        newErrors.ac_end_time = "กรุณาเลือกวันและเวลาสิ้นสุดกิจกรรม";
+        console.log(newErrors.ac_end_time);
+      }
+      if (
+        formData.ac_start_time &&
+        formData.ac_end_time &&
+        dayjs(formData.ac_start_time).isAfter(dayjs(formData.ac_end_time))
+      ) {
+        newErrors.ac_end_time = "วันสิ้นสุดกิจกรรมต้องมากกว่าวันเริ่มกิจกรรม";
+        console.log(newErrors.ac_end_time);
+      }
+      if (
+        formData.ac_normal_register &&
+        formData.ac_end_register &&
+        dayjs(formData.ac_normal_register).isAfter(
+          dayjs(formData.ac_end_register)
+        )
+      ) {
+        newErrors.ac_normal_register =
+          "วันเปิดลงทะเบียนต้องอยู่ก่อนวันปิดลงทะเบียน";
+        console.log(newErrors.ac_normal_register);
+      }
+      if (
+        formData.ac_status === "Public" &&
+        formData.ac_location_type === "Course" &&
+        (!formData.ac_recieve_hours || Number(formData.ac_recieve_hours) <= 0)
+      ) {
+        newErrors.ac_recieve_hours =
+          "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0";
+        console.log(newErrors.ac_recieve_hours);
+      }
+      if (
+        formData.ac_start_assessment &&
+        formData.ac_start_time &&
+        dayjs(formData.ac_start_assessment).isBefore(
+          dayjs(formData.ac_start_time)
+        )
+      ) {
+        newErrors.ac_start_assessment =
+          "❌ วันและเวลาเปิดให้ทำแบบประเมินต้องมากกว่าหรือเท่ากับวันที่เริ่มดำเนินกิจกรรม";
+
+        console.log(newErrors.ac_start_assessment);
+      }
+      if (
+        formData.ac_end_assessment &&
+        formData.ac_start_assessment &&
+        dayjs(formData.ac_end_assessment).isBefore(
+          dayjs(formData.ac_start_assessment)
+        )
+      ) {
+        newErrors.ac_end_assessment =
+          "❌ วันที่ หรือ เวลาสิ้นสุดการทำแบบประเมินต้องอยู่หลังวันที่เริ่มทำแบบประเมิน";
+        console.log(newErrors.ac_end_assessment);
+      }
     }
 
     setErrors(newErrors);
@@ -314,8 +328,12 @@ const UpdateActivityAdmin: React.FC = () => {
     return data.secure_url;
   };
 
-  const convertToDate = (value: string | null | undefined) =>
-    value && value.trim() !== "" ? new Date(value) : undefined;
+  const convertToDate = (value: string | null | undefined) => {
+    if (!value || value.trim() === "" || isNaN(Date.parse(value))) {
+      return null; // ถ้าค่าไม่ถูกต้อง ให้ส่ง null แทน
+    }
+    return new Date(value);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -355,15 +373,24 @@ const UpdateActivityAdmin: React.FC = () => {
     const activityData: Activity = {
       ...formData,
       ac_last_update: new Date(),
-      ac_start_register:
-        convertToDate(formData.ac_start_register) || startRegister,
+      ac_start_register: formData.ac_start_register
+        ? convertToDate(formData.ac_start_register) || startRegister
+        : null,
       ac_recieve_hours: acRecieveHours,
       ac_state: "Not Start",
       ac_image_url: imageUrl, // ✅ ใช้ URL ของรูปภาพจาก Cloudinary
-      ac_normal_register: convertToDate(formData.ac_normal_register),
-      ac_end_register: convertToDate(formData.ac_end_register),
-      ac_start_assessment: convertToDate(formData.ac_start_assessment),
-      ac_end_assessment: convertToDate(formData.ac_end_assessment),
+      ac_normal_register: formData.ac_normal_register
+        ? convertToDate(formData.ac_normal_register)
+        : null,
+      ac_end_register: formData.ac_end_register
+        ? convertToDate(formData.ac_end_register)
+        : null,
+      ac_start_assessment: formData.ac_start_assessment
+        ? convertToDate(formData.ac_start_assessment)
+        : null,
+      ac_end_assessment: formData.ac_end_assessment
+        ? convertToDate(formData.ac_end_assessment)
+        : null,
       assessment_id: formData.assessment_id
         ? Number(formData.assessment_id)
         : null,
@@ -377,10 +404,7 @@ const UpdateActivityAdmin: React.FC = () => {
 
     try {
       await updateActivity(activityData);
-      toast.success(
-        "แก้ไขกิจกรรมสำเร็จ !",
-        { duration: 5000 }
-      );
+      toast.success("แก้ไขกิจกรรมสำเร็จ !", { duration: 5000 });
       setIsModalOpen(false);
     } catch (error) {
       console.error("❌ Error creating activity:", error);

@@ -39,13 +39,20 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
             backgroundColor:
               act.type === "Hard Skill"
                 ? "rgba(255, 174, 0, 0.2)"
-                : "rgba(9, 0, 255, 0.2)",
-            color: act.type === "Hard Skill" ? "#FFAE00" : "#0900FF",
+                : act.type === "Soft Skill"
+                ? "rgba(9, 0, 255, 0.2)"
+                : "#rgba(128, 128, 128, 0.2)",
+            color:
+              act.type === "Hard Skill"
+                ? "#FFAE00"
+                : act.type === "Soft Skill"
+                ? "#0900FF"
+                : "B0B0B0",
             minWidth: "100px",
             display: "inline-block",
           }}
         >
-          {act.type}
+          {act.type || "ยังไม่ระบุ"}
         </span>
       </td>
       <td className="p-2">
