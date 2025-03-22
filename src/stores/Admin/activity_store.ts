@@ -419,6 +419,35 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
+  deleteActivity: async (activityId: number | string) => {
+    try {
+      console.log(`🛑 deleteActivity: , activityId=${activityId}`);
+
+      const response = await axiosInstance.delete(
+        `/admin/activity/delete-activity/${activityId}`,
+        {
+          data: { activityId },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("✅ ลบกิจกรรมสำเร็จ");
+      } else {
+        throw new Error("❌ ไม่สามารถลบกิจกรรมได้");
+      }
+    } catch (error: any) {
+      console.error("❌ Error in deleteActivity:", error);
+
+      if (error.response) {
+        toast.error(
+          `❌ ล้มเหลว: ${error.response.data.message || "เกิดข้อผิดพลาด"}`
+        );
+      } else {
+        toast.error("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์");
+      }
+    }
+  },
+
   // fetchEnrolledStudents: async (activityId: number) => {
   //   const res = await axiosInstance.get(
   //     `/admin/activity/get-enrolled-studentslist/${activityId}`

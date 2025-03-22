@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Trash2 } from "lucide-react";
 import { useActivityStore } from "../../../stores/Admin/activity_store"; // ✅ นำเข้า Zustand Store
 import { useAssessmentStore } from "../../../stores/Admin/assessment_store";
 import Button from "../../../components/Button";
@@ -59,7 +59,7 @@ interface FormData {
 }
 
 const UpdateActivityAdmin: React.FC = () => {
-  const { updateActivity, fetchActivity } = useActivityStore(); //
+  const { updateActivity, fetchActivity, deleteActivity } = useActivityStore(); //
   const [formData, setFormData] = useState<FormData>({
     ac_id: null,
     ac_name: "",
@@ -468,6 +468,19 @@ const UpdateActivityAdmin: React.FC = () => {
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteActivity(id);
+      setIsModalOpen(false);
+      navigate("/list-activity-admin");
+      toast.success("ลบกิจกรรมสำเร็จ !", { duration: 5000 });
+    } catch (error) {
+      console.error("❌ Error delete activity:", error);
+      toast.error("Delete failed!");
+    }
+  };
 
   useEffect(() => {
     console.log("Fetching assessments..."); // ✅ ตรวจสอบว่า useEffect ทำงาน
@@ -596,7 +609,13 @@ const UpdateActivityAdmin: React.FC = () => {
           className={`w-320 mx-auto ml-2xl mt-5 mb-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm min-h-screen flex flex-col`}
         >
           {/* <h1>{formData.assessment}</h1> */}
-          <h1 className="text-4xl font-bold mb-11">รายละเอียดกิจกรรมสหกิจ</h1>
+          <div className="flex items-center justify-between mb-11">
+            <h1 className="text-4xl font-bold">รายละเอียดกิจกรรมสหกิจ</h1>
+            <Trash2
+              className="cursor-pointer text-red-500"
+              onClick={() => setIsDeleteOpen(true)}
+            />
+          </div>
           <form
             onSubmit={handleSubmit}
             className="space-y-4 flex flex-col flex-grow"
@@ -1379,6 +1398,18 @@ const UpdateActivityAdmin: React.FC = () => {
                 onCancel={() => setIsModalOpen(false)}
                 type="submit" // ✅ ทำให้เป็นปุ่ม submit
                 onConfirm={() => {}}
+              />
+
+              <ConfirmDialog
+                isOpen={isDeleteOpen}
+                title="ลบกิจกรรม"
+                message="คุณแน่ใจว่าจะลบกิจกรรมนี้
+            (หากลบกิจกรรมนี้แล้วจะไม่สามารถกู้คืนข้อมูลได้)"
+                onCancel={() => setIsDeleteOpen(false)}
+                type="submit" // ✅ ทำให้เป็นปุ่ม submit
+                onConfirm={() => {
+                  handleDelete(formData.ac_id);
+                }}
               />
 
               {/* ปุ่ม ยกเลิก & สร้าง */}

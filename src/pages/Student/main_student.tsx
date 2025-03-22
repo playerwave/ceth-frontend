@@ -38,7 +38,7 @@ const MainStudent = () => {
     }
   };
 
-  const userId = localStorage.getItem("userId") || "2";
+  const userId = localStorage.getItem("userId") || "8";
 
   useEffect(() => {
     fetchEnrolledActivities(userId).finally(() => {});

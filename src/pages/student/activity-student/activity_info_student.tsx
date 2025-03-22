@@ -42,7 +42,7 @@ export default function ActivityInfoStudent() {
 
   // ✅ โหลดข้อมูลกิจกรรมที่ลงทะเบียนเมื่อหน้าโหลด
   useEffect(() => {
-    const userId = 1;
+    const userId = 8;
     fetchEnrolledActivities(userId);
   }, []);
 
@@ -112,7 +112,7 @@ export default function ActivityInfoStudent() {
   };
 
   const handleEnroll = async () => {
-    const userId = 2; // ดึง userId จาก localStorage
+    const userId = 8; // ดึง userId จาก localStorage
     if (!userId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
@@ -125,7 +125,7 @@ export default function ActivityInfoStudent() {
   };
 
   const handleUnenroll = async () => {
-    const userId = 2; // ดึงจาก localStorage แทนภายหลัง
+    const userId = 8; // ดึงจาก localStorage แทนภายหลัง
     if (!userId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;

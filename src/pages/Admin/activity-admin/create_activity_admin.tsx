@@ -367,13 +367,13 @@ const CreateActivityAdmin: React.FC = () => {
 
     try {
       await createActivity(activityData);
+      navigate("/list-activity-admin");
       toast.success(
         formData.ac_status === "Public"
           ? "สร้างกิจกรรมสำเร็จ !"
           : "ร่างกิจกรรมสำเร็จ !",
         { duration: 5000 }
       );
-      navigate("/list-activity-admin");
     } catch (error) {
       console.error("❌ Error creating activity:", error);
       toast.error("Create failed!");

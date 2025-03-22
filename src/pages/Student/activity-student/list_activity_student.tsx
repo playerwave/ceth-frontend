@@ -40,7 +40,7 @@ const ManageActivityAdmin: React.FC = () => {
   //   }
   // }, [location, navigate]);
 
-  const userId = localStorage.getItem("userId") || "2";
+  const userId = localStorage.getItem("userId") || "8";
 
   useEffect(() => {
     if (userId) {
