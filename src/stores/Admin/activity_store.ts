@@ -419,23 +419,52 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
+  // fetchEnrolledStudents: async (activityId: number) => {
+  //   const res = await axiosInstance.get(
+  //     `/admin/activity/get-enrolled-studentslist/${activityId}`
+  //   );
+  //   const studentsRaw = res.data.students;
+
+  //   const mappedStudents = studentsRaw.map((s: any) => ({
+  //     id: s.studentid,
+  //     name: s.fullname,
+  //     department: s.department || "ไม่ระบุ",
+  //     status: s.riskstatus === "Low" ? "normal" : "risk",
+  //     checkIn: s.checkIn || "No",
+  //     checkOut: s.checkOut || "No",
+  //     evaluated: s.evaluated || "No",
+  //   }));
+
+  //   set({ enrolledStudents: mappedStudents });
+  // },
+
   fetchEnrolledStudents: async (activityId: number) => {
-    const res = await axiosInstance.get(`/api/admin/activity/get-enrolled-studentslist/${activityId}`);
-    const studentsRaw = res.data.students;
-  
-    const mappedStudents = studentsRaw.map((s: any) => ({
-      id: s.studentid,
-      name: s.fullname,
-      department: s.department || "ไม่ระบุ",
-      status: s.riskstatus === "Low" ? "normal" : "risk",
-      checkIn: s.checkIn || "No",
-      checkOut: s.checkOut || "No",
-      evaluated: s.evaluated || "No",
-    }));
-  
-    set({ enrolledStudents: mappedStudents });
+    try {
+      const res = await axiosInstance.get(
+        `/admin/activity/get-enrolled-studentslist/${activityId}`
+      );
+      console.log("📥 Raw students from API:", res.data);
+      console.log(activityId);
+
+      console.log(typeof activityId);
+
+      const mappedStudents = res.data.students.map((s: any) => ({
+        id: s.studentid, // ใช้ studentid → id
+        name: s.fullname, // fullname → name
+        department: s.department || "SE", // ถ้าไม่มีให้ default ไว้ (เช่น "SE")
+        status: s.riskstatus === "Low" ? "normal" : "risk",
+        checkIn: "No", // ถ้ายังไม่มีข้อมูลให้ fix ไว้ก่อน
+        checkOut: "No",
+        evaluated: "No",
+      }));
+
+      set({ enrolledStudents: mappedStudents });
+      console.log("✅ Mapped enrolled students:", mappedStudents);
+    } catch (error) {
+      console.error("❌ Error fetching enrolled students:", error);
+      set({ enrolledStudents: [] });
+    }
   },
-  
 
   createActivity: async (activity: ApiActivity): Promise<void> => {
     set(() => ({ activityLoading: true, activityError: null }));

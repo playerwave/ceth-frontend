@@ -12,7 +12,7 @@ export default function enrolled_list_admin() {
     fetchActivity,
     enrolledStudents,
     fetchEnrolledStudents,
-    isLoading,
+    activityLoading,
   } = useActivityStore();
 
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
@@ -21,38 +21,30 @@ export default function enrolled_list_admin() {
 
   console.log(id);
 
-  // ✅ โหลด activity ก่อน แล้วค่อยดึง enrolledStudents เมื่อ activity มีค่าที่ถูกต้อง
+  // ✅ โหลด activity แล้วจะ trigger การโหลดนักศึกษาโดยอัตโนมัติ
   useEffect(() => {
     if (!isNaN(activityId) && activityId > 0) {
-      fetchActivity(activityId).then(() => {
-        if (activity) {
-          fetchEnrolledStudents(activityId);
-        }
-      });
+      fetchActivity(activityId);
     }
-  }, [activityId, fetchActivity]);
+  }, [activityId]);
 
-  // ✅ ตรวจสอบว่า activity โหลดเสร็จก่อน แล้วค่อยโหลด enrolledStudents
+  // ✅ เมื่อ activity ใน store เปลี่ยนแล้วถึงจะเรียก fetchEnrolledStudents
   useEffect(() => {
-    if (activity && activity.ac_id === activityId) {
+    console.log("🔍 useEffect: activity = ", activity);
+    console.log("🔍 useEffect: activityId = ", typeof activityId);
+
+    if (activity && parseInt(activity.id) === activityId) {
+      console.log("🎯 Calling fetchEnrolledStudents with:", activityId);
       fetchEnrolledStudents(activityId);
+    } else {
+      console.log("⚠️ Not calling because condition failed");
     }
-  }, [activity, fetchEnrolledStudents]);
+  }, [activity, activityId, fetchEnrolledStudents]);
 
-  const filteredStudents = (enrolledStudents || []).filter((student) => {
-    return (
-      (selectedDepartments.length === 0 ||
-        selectedDepartments.includes(student.department)) &&
-      (selectedStatus.length === 0 ||
-        selectedStatus.includes(student.status)) &&
-      (selectedTab !== "partial" || student.checkOut === "No") && // แสดงเฉพาะ checkOut === "No" ถ้าเลือก "นิสิตเข้าร่วมไม่เต็มเวลา"
-      (selectedTab !== "no-eval" || student.evaluated === "No") // แสดงเฉพาะ evaluated === "No" ถ้าเลือก "นิสิตไม่ทำแบบประเมิน"
-    );
+  const filteredStudents = enrolledStudents.filter((student) => {
+    // 🔁 ใส่เงื่อนไข filter ของคุณที่นี่ หรือ return true ไปก่อน
+    return true;
   });
-
-  useEffect(() => {
-    console.log("Enrolled students:", enrolledStudents);
-  }, [enrolledStudents]);
 
   return (
     <div className="p-6 w-full max-w-[1110px] mx-auto">
@@ -86,7 +78,7 @@ export default function enrolled_list_admin() {
         <div className="flex justify-between items-center p-4">
           <div className="flex items-center gap-2 text-lg font-semibold">
             {activity
-              ? `${activity.ac_registerant_count || 0}/${activity.ac_seat || 0}`
+              ? `${activity.registered_count || 0}/${activity.seat || 0}`
               : "กำลังโหลด..."}{" "}
             <User size={24} />
           </div>
@@ -175,7 +167,7 @@ export default function enrolled_list_admin() {
 
             {/* 🔹 เนื้อหาข้อมูล (เลื่อนเฉพาะส่วนนี้) */}
             <tbody className="bg-white">
-              {isLoading ? (
+              {activityLoading ? (
                 <tr>
                   <td colSpan={7} className="text-center p-4">
                     กำลังโหลดข้อมูล...
