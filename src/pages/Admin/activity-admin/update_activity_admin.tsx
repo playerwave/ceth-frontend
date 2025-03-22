@@ -68,11 +68,12 @@ const UpdateActivityAdmin: React.FC = () => {
     ac_description: "",
     ac_type: "",
     ac_room: "",
-    ac_seat: "",
+    ac_seat: null,
     ac_food: [],
     ac_status: "Private",
     ac_location_type: "Onsite",
     ac_state: "",
+    ac_recieve_hours: null,
     ac_start_register: "",
     ac_end_register: "",
     ac_create_date: "",
@@ -86,6 +87,7 @@ const UpdateActivityAdmin: React.FC = () => {
     ac_normal_register: "",
     ac_start_assessment: "",
     ac_end_assessment: "",
+    assessment: null,
   });
 
   const IfBuildingRoom: Record<string, { name: string; capacity: number }[]> = {
@@ -263,6 +265,9 @@ const UpdateActivityAdmin: React.FC = () => {
           "วันเปิดลงทะเบียนต้องอยู่ก่อนวันปิดลงทะเบียน";
         console.log(newErrors.ac_normal_register);
       }
+      if (!formData.ac_seat) {
+        newErrors.ac_seat = "กรุณาใส่จำนวนที่นั่ง";
+      }
       if (
         formData.ac_status === "Public" &&
         formData.ac_location_type === "Course" &&
@@ -401,7 +406,7 @@ const UpdateActivityAdmin: React.FC = () => {
         : null,
     };
 
-    console.log("🚀 Data ที่ส่งไป Backend:", activityData);
+    console.log("🚀 Data ที่ส่งไป store:", activityData);
 
     try {
       await updateActivity(activityData);
@@ -509,6 +514,7 @@ const UpdateActivityAdmin: React.FC = () => {
           ac_status: activityData.status || "",
           ac_location_type: activityData.location_type,
           ac_state: activityData.state || "",
+          ac_recieve_hours: activityData.recieve_hours,
           ac_registered_count: activityData.registered_count,
           ac_start_register: activityData.start_register
             ? activityData.start_register.toISOString().split("T")[0]
@@ -532,7 +538,6 @@ const UpdateActivityAdmin: React.FC = () => {
             ? activityData.end_time.toISOString()
             : "",
           ac_image_url: activityData.image_url || null,
-          ac_recieve_hours: activityData.ac_recieve_hours,
           ac_start_assessment: activityData.start_assessment
             ? new Date(activityData.start_assessment).toISOString()
             : "",
@@ -878,7 +883,7 @@ const UpdateActivityAdmin: React.FC = () => {
                   </div>
                   <div className="w-77.5 mb-2">
                     <label className="block font-semibold ">
-                      จำนวนชั่วโมงที่จะได้รับ *
+                      จำนวนชั่วโมงที่จะได้รับ * {}
                     </label>
                     <TextField
                       id="ac_recieve_hours"
@@ -886,23 +891,24 @@ const UpdateActivityAdmin: React.FC = () => {
                       type="number"
                       placeholder="จำนวนชั่วโมงที่จะได้รับ"
                       value={
-                        formData.ac_location_type !== "Course" &&
-                        formData.ac_start_time &&
-                        formData.ac_end_time
+                        formData.ac_location_type === "Course"
+                          ? String(formData.ac_recieve_hours)
+                          : formData.ac_start_time && formData.ac_end_time
                           ? dayjs(formData.ac_end_time).diff(
                               dayjs(formData.ac_start_time),
                               "hour",
                               true
-                            ) // ✅ คำนวณชั่วโมงอัตโนมัติ
-                          : formData.ac_recieve_hours || ""
+                            )
+                          : String(formData.ac_recieve_hours ?? "")
                       }
                       className="w-full"
                       onChange={(e) => {
                         const value = e.target.value;
-                        if (/^\d*$/.test(value)) {
+                        if (/^\d*\.?\d*$/.test(value)) {
                           setFormData((prev) => ({
                             ...prev,
-                            ac_recieve_hours: value,
+                            ac_recieve_hours:
+                              value === "" ? null : Number(value),
                           }));
                         }
                       }}

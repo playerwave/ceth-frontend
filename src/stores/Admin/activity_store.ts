@@ -419,30 +419,23 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  fetchEnrolledStudents: async (id) => {
-    if (!id || isNaN(id)) {
-      set({
-        activityError: "Invalid Activity ID",
-        activityLoading: false,
-        enrolledStudents: [],
-      });
-      return;
-    }
-    set({ activityLoading: true, activityError: null, enrolledStudents: [] });
-    try {
-      const { data } = await axiosInstance.get<{ users?: EnrolledStudent[] }>(
-        `/admin/activity/get-enrolled/${id}`
-      );
-      set({ enrolledStudents: data?.users || [], activityLoading: false });
-    } catch (error: any) {
-      set({
-        activityError:
-          error.response?.data?.message || "Error fetching enrolled students",
-        activityLoading: false,
-        enrolledStudents: [],
-      });
-    }
+  fetchEnrolledStudents: async (activityId: number) => {
+    const res = await axiosInstance.get(`/api/admin/activity/get-enrolled-studentslist/${activityId}`);
+    const studentsRaw = res.data.students;
+  
+    const mappedStudents = studentsRaw.map((s: any) => ({
+      id: s.studentid,
+      name: s.fullname,
+      department: s.department || "ไม่ระบุ",
+      status: s.riskstatus === "Low" ? "normal" : "risk",
+      checkIn: s.checkIn || "No",
+      checkOut: s.checkOut || "No",
+      evaluated: s.evaluated || "No",
+    }));
+  
+    set({ enrolledStudents: mappedStudents });
   },
+  
 
   createActivity: async (activity: ApiActivity): Promise<void> => {
     set(() => ({ activityLoading: true, activityError: null }));

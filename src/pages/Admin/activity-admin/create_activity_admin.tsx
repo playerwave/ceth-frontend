@@ -59,7 +59,7 @@ const CreateActivityAdmin: React.FC = () => {
     ac_description: "",
     ac_type: "",
     ac_room: "",
-    ac_seat: "",
+    ac_seat: null,
     ac_food: [],
     ac_status: "Private",
     ac_location_type: "Onsite",
@@ -221,6 +221,9 @@ const CreateActivityAdmin: React.FC = () => {
       if (!formData.ac_end_time) {
         newErrors.ac_end_time = "กรุณาเลือกวันและเวลาสิ้นสุดกิจกรรม";
         console.log(newErrors.ac_end_time);
+      }
+      if (!seatCapacity) {
+        newErrors.ac_seat = "กรุณาใส่จำนวนที่นั่ง";
       }
       if (
         formData.ac_start_time &&
@@ -945,9 +948,9 @@ const CreateActivityAdmin: React.FC = () => {
                         setSeatCapacity(value); // ✅ อัปเดตค่า seatCapacity
                       }
                     }}
-                    error={
-                      formData.ac_location_type === "Onsite" &&
-                      Number(seatCapacity) < 0
+                    error={Number(seatCapacity) < 0}
+                    helperText={
+                      Number(seatCapacity) < 0 ? "❌ กรุณาใส่จำนวนที่นั่ง" : ""
                     }
                     disabled={selectedRoom} // ✅ ปิดการแก้ไขถ้าไม่ได้เลือกห้อง
                     sx={{ height: "56px" }}

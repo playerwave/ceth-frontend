@@ -19,6 +19,8 @@ export default function enrolled_list_admin() {
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
   const [selectedTab, setSelectedTab] = useState("list");
 
+  console.log(id);
+
   // ✅ โหลด activity ก่อน แล้วค่อยดึง enrolledStudents เมื่อ activity มีค่าที่ถูกต้อง
   useEffect(() => {
     if (!isNaN(activityId) && activityId > 0) {
@@ -47,6 +49,10 @@ export default function enrolled_list_admin() {
       (selectedTab !== "no-eval" || student.evaluated === "No") // แสดงเฉพาะ evaluated === "No" ถ้าเลือก "นิสิตไม่ทำแบบประเมิน"
     );
   });
+
+  useEffect(() => {
+    console.log("Enrolled students:", enrolledStudents);
+  }, [enrolledStudents]);
 
   return (
     <div className="p-6 w-full max-w-[1110px] mx-auto">
