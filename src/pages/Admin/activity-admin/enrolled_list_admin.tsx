@@ -80,7 +80,7 @@ export default function enrolled_list_admin() {
         <div className="flex justify-between items-center p-4">
           <div className="flex items-center gap-2 text-lg font-semibold">
             {activity
-              ? `${activity.ac_registerant_count}/${activity.ac_seat}`
+              ? `${activity.ac_registerant_count || 0}/${activity.ac_seat || 0}`
               : "กำลังโหลด..."}{" "}
             <User size={24} />
           </div>

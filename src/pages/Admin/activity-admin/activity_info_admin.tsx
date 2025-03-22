@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Typography from "@mui/material/Typography";
 import Button from "../../../components/Button";
+import { Select, MenuItem } from "@mui/material";
 
 export default function ActivityInfoAdmin() {
   const { id: paramId } = useParams();
@@ -169,13 +170,18 @@ export default function ActivityInfoAdmin() {
         <div className="mt-4">
           <p className="font-semibold font-[Sarabun]">อาหาร</p>
           {Array.isArray(activity.food) && activity.food.length > 0 ? (
-            <select className="w-[40%] p-2 border border-[#ccc] rounded mt-1">
+            <Select
+              className="w-[40%] mt-1"
+              value={activity.food[0] || ""} // ค่าเริ่มต้นเป็นตัวแรกในรายการ หรือเป็น "" ถ้าไม่มีค่า
+              onChange={(e) => console.log("เลือก:", e.target.value)} // สามารถเปลี่ยนเป็นฟังก์ชันที่ต้องการ
+              displayEmpty
+            >
               {activity.food.map((food, index) => (
-                <option key={index} className="font-[Sarabun]">
+                <MenuItem key={index} value={food}>
                   {food}
-                </option>
+                </MenuItem>
               ))}
-            </select>
+            </Select>
           ) : (
             <p className="text-gray-500 mt-1 flex items-center">
               ไม่มีอาหารสำหรับกิจกรรมนี้ <Frown className="ml-3" />

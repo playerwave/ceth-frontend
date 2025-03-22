@@ -18,6 +18,7 @@ import { toast } from "sonner";
 // import components
 import Button from "../../../components/Button";
 import ConfirmDialog from "../../../components/ConfirmDialog";
+import Loading from "../../../components/Loading";
 
 export default function ActivityInfoStudent() {
   const { id: paramId } = useParams();
@@ -26,10 +27,60 @@ export default function ActivityInfoStudent() {
   const finalActivityId = id ? Number(id) : null;
   const navigate = useNavigate();
 
-  const { activity, isLoading, error, fetchActivity, enrollActivity } =
-    useActivityStore();
+  const {
+    activity,
+    activityLoading,
+    error,
+    fetchActivity,
+    enrollActivity,
+    enrolledActivities,
+    fetchEnrolledActivities,
+    unenrollActivity,
+  } = useActivityStore();
+
+  const [isEnrolled, setIsEnrolled] = useState(false);
+
+  // ✅ โหลดข้อมูลกิจกรรมที่ลงทะเบียนเมื่อหน้าโหลด
+  useEffect(() => {
+    const userId = 1;
+    fetchEnrolledActivities(userId);
+  }, []);
+
+  // ✅ เช็คว่า user ลงทะเบียนกิจกรรมนี้หรือไม่ (หลังจากข้อมูลโหลดเสร็จ)
+  useEffect(() => {
+    console.log("📡 Fetching Activity Details...");
+    fetchActivity(id);
+  }, [fetchEnrolledActivities]); // ✅ ทำงานเมื่อ `fetchEnrolledActivities` เสร็จ
+
+  useEffect(() => {
+    if (enrolledActivities.length === 0) {
+      console.log("⚠ ไม่มีข้อมูล enrolledActivities ยังไม่โหลด");
+      return;
+    }
+
+    console.log("🔄 Checking if user is enrolled...");
+
+    const isUserEnrolled = enrolledActivities.some(
+      (act) => Number(act.ac_id) === Number(id) // ✅ แปลงเป็นตัวเลขก่อนเทียบ
+    );
+
+    setIsEnrolled((prev) => {
+      if (prev !== isUserEnrolled) {
+        console.log("✅ Updating isEnrolled to:", isUserEnrolled);
+        return isUserEnrolled;
+      }
+      return prev; // ❌ ถ้าเท่าเดิม ไม่ต้อง setState ซ้ำ
+    });
+  }, [enrolledActivities, id]); // ✅ ทำงานเมื่อ enrolledActivities หรือ id เปลี่ยน
+
+  console.log(id);
+
+  console.log(enrolledActivities);
+
+  console.log("✅ isEnrolled (client-side):", isEnrolled);
 
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
+  const [isUnEnrollModalOpen, setIsUnEnrollModalOpen] = useState(false);
 
   const fetchActivityData = useCallback(() => {
     if (finalActivityId !== null && !isNaN(finalActivityId)) {
@@ -46,7 +97,7 @@ export default function ActivityInfoStudent() {
 
   console.log("📌 Activity from Store:", activity);
 
-  if (isLoading) return <p className="text-center text-lg">⏳ กำลังโหลด...</p>;
+  if (activityLoading) return <Loading />;
   if (error)
     return <p className="text-center text-lg text-red-500">❌ {error}</p>;
   if (!activity) return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
@@ -61,7 +112,7 @@ export default function ActivityInfoStudent() {
   };
 
   const handleEnroll = async () => {
-    const userId = 1; // ดึง userId จาก localStorage
+    const userId = 2; // ดึง userId จาก localStorage
     if (!userId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
@@ -70,6 +121,19 @@ export default function ActivityInfoStudent() {
     await enrollActivity(userId, activity.id); // ✅ เรียกฟังก์ชันลงทะเบียน
     setIsEnrollModalOpen(false); // ปิด Modal
     navigate("/list-activity-student");
+    window.location.reload();
+  };
+
+  const handleUnenroll = async () => {
+    const userId = 2; // ดึงจาก localStorage แทนภายหลัง
+    if (!userId) {
+      toast.error("❌ ไม่พบข้อมูลผู้ใช้");
+      return;
+    }
+
+    await unenrollActivity(userId, activity.id); // ✅ ฟังก์ชันนี้คุณต้องเพิ่มใน store ด้วย
+    toast.success("✅ ยกเลิกการลงทะเบียนเรียบร้อย");
+    navigate("/main-student");
     window.location.reload();
   };
 
@@ -120,6 +184,10 @@ export default function ActivityInfoStudent() {
             >
               {activity.type}
             </span>
+
+            <div className="text-green-600 text-2xl">
+              +<span className="text-3xl">{activity.recieve_hours} Hrs</span>
+            </div>
           </div>
           <div className="flex items-center gap-1 font-[Sarabun]">
             {activity.location_type == "Onsite" ? (
@@ -217,10 +285,28 @@ export default function ActivityInfoStudent() {
               <Play size={25} /> {activity.state}
             </div>
           </div>
-          <ConfirmDialog
-            isOpen={isEnrollModalOpen}
-            title="ยืนยันการลงทะเบียน"
-            message={`คุณแน่ใจว่าจะลงทะเบียนกิจกรรมนี้
+          {isEnrolled ? (
+            <ConfirmDialog
+              isOpen={isUnEnrollModalOpen}
+              title="ยกเลิกการลงทะเบียนกิจกรรม"
+              message={`คุณแน่ใจว่าจะยกเลิกการทะเบียนกิจกรรมนี้
+                      (ลงทะเบียนกิจกรรมได้ถึง ${new Intl.DateTimeFormat(
+                        "th-TH",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        }
+                      ).format(activity.end_register)})`}
+              onCancel={() => setIsUnEnrollModalOpen(false)}
+              // ✅ ทำให้เป็นปุ่ม submit
+              onConfirm={handleUnenroll}
+            />
+          ) : (
+            <ConfirmDialog
+              isOpen={isEnrollModalOpen}
+              title="ยืนยันการลงทะเบียน"
+              message={`คุณแน่ใจว่าจะลงทะเบียนกิจกรรมนี้
                       (ยกเลิกลงทะเบียนได้ถึง ${new Intl.DateTimeFormat(
                         "th-TH",
                         {
@@ -229,10 +315,11 @@ export default function ActivityInfoStudent() {
                           year: "numeric",
                         }
                       ).format(activity.end_register)})`}
-            onCancel={() => setIsEnrollModalOpen(false)}
-            // ✅ ทำให้เป็นปุ่ม submit
-            onConfirm={handleEnroll}
-          />
+              onCancel={() => setIsEnrollModalOpen(false)}
+              // ✅ ทำให้เป็นปุ่ม submit
+              onConfirm={handleEnroll}
+            />
+          )}
 
           {/* ปุ่มต่าง ๆ */}
           <div className="flex justify-end gap-3">
@@ -240,9 +327,15 @@ export default function ActivityInfoStudent() {
               ← กลับ
             </Button>
 
-            <Button color="blue" onClick={() => setIsEnrollModalOpen(true)}>
-              ลงทะเบียน
-            </Button>
+            {isEnrolled ? (
+              <Button color="red" onClick={() => setIsUnEnrollModalOpen(true)}>
+                ยกเลิกลงทะเบียน
+              </Button>
+            ) : (
+              <Button color="blue" onClick={() => setIsEnrollModalOpen(true)}>
+                ลงทะเบียน
+              </Button>
+            )}
           </div>
         </div>
       </div>

@@ -379,6 +379,7 @@ const UpdateActivityAdmin: React.FC = () => {
       ac_recieve_hours: acRecieveHours,
       ac_state: "Not Start",
       ac_image_url: imageUrl, // ✅ ใช้ URL ของรูปภาพจาก Cloudinary
+      ac_registered_count: formData.ac_registered_count,
       ac_normal_register: formData.ac_normal_register
         ? convertToDate(formData.ac_normal_register)
         : null,
@@ -508,6 +509,7 @@ const UpdateActivityAdmin: React.FC = () => {
           ac_status: activityData.status || "",
           ac_location_type: activityData.location_type,
           ac_state: activityData.state || "",
+          ac_registered_count: activityData.registered_count,
           ac_start_register: activityData.start_register
             ? activityData.start_register.toISOString().split("T")[0]
             : "",

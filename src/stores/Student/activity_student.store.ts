@@ -92,6 +92,7 @@ interface EnrolledStudent {
 
 interface ActivityState {
   activities: Activity[];
+  enrolledActivities: Activity[];
   searchResults: Activity[] | null;
   activityError: string | null;
   activityLoading: boolean;
@@ -296,9 +297,37 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         return null;
       }
 
+      data.ac_food = forceToArray(data.ac_food || []);
+
       // ✅ ตรวจสอบว่า mapActivityData() คืนค่า `Activity` ที่ถูกต้อง
       const mappedActivity = mapActivityData(data);
       console.log("✅ Mapped Activity:", mappedActivity);
+
+      const enrolledActivities = get().enrolledActivities; // ✅ ดึงค่าจาก store
+      console.log("📌 Enrolled Activities (All):", enrolledActivities);
+
+      // ✅ ตรวจสอบว่ามีอย่างน้อย 2 ตัวหรือไม่ก่อน log
+      if (enrolledActivities.length > 1) {
+        console.log("📌 Enrolled Activity [1]:", enrolledActivities[1]);
+      } else {
+        console.log("⚠ ไม่มีข้อมูลกิจกรรมตัวที่ 2 ใน enrolledActivities");
+      }
+
+      // ✅ ตรวจสอบค่าที่ใช้เปรียบเทียบ
+      console.log("📌 Checking Activity ID:", id);
+
+      // ✅ ค้นหากิจกรรมใน `enrolledActivities`
+      const is_enrolled = enrolledActivities.find((act) => act.id === id);
+
+      console.log("✅ Final is_enrolled:", is_enrolled);
+
+      // ✅ ตั้งค่า activity ใน store
+      set((state) => ({
+        activity: {
+          ...data,
+          is_enrolled: is_enrolled, // 🟢 ใช้ตัวแปรที่กำหนดไว้
+        },
+      }));
 
       set({ activity: mappedActivity, activityLoading: false });
 
@@ -343,4 +372,49 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       console.error("❌ Error fetching enrolled activities:", err);
     }
   },
+
+  async unenrollActivity(userId: number, activityId: number) {
+    try {
+      console.log(
+        `🛑 Unenrolling: studentId=${userId}, activityId=${activityId}`
+      );
+
+      const response = await axiosInstance.delete(
+        `/student/activity/unenroll-activity/${userId}`,
+        {
+          data: { activityId },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("✅ ยกเลิกลงทะเบียนสำเร็จ");
+      } else {
+        throw new Error("❌ ไม่สามารถยกเลิกลงทะเบียนได้");
+      }
+    } catch (error: any) {
+      console.error("❌ Error in unenrollActivity:", error);
+
+      if (error.response) {
+        toast.error(
+          `❌ ล้มเหลว: ${error.response.data.message || "เกิดข้อผิดพลาด"}`
+        );
+      } else {
+        toast.error("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์");
+      }
+    }
+  },
 }));
+
+function forceToArray(input: string): string[] {
+  try {
+    // ลอง parse แบบ array ปกติก่อน
+    const parsed = JSON.parse(input);
+    if (Array.isArray(parsed)) return parsed;
+  } catch {
+    // ถ้า parse ไม่ได้ เช่น {"ข้าว"} → ตัด {} และ " ออก
+    const cleaned = input.replace(/[{}"]/g, "").trim();
+    if (cleaned) return [cleaned];
+  }
+
+  return [];
+}

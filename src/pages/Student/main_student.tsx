@@ -38,10 +38,10 @@ const MainStudent = () => {
     }
   };
 
-  const userId = localStorage.getItem("userId") || "1";
+  const userId = localStorage.getItem("userId") || "2";
 
   useEffect(() => {
-    fetchEnrolledActivities(userId);
+    fetchEnrolledActivities(userId).finally(() => {});
   }, []);
 
   useEffect(() => {

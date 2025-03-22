@@ -357,9 +357,10 @@ const CreateActivityAdmin: React.FC = () => {
       assessment_id: formData.assessment_id
         ? Number(formData.assessment_id)
         : null,
+      ac_food: [...(formData.ac_food || null)],
     };
 
-    console.log("🚀 Data ที่ส่งไป Backend:", activityData);
+    console.log("🚀 Data ที่ส่งไป store:", activityData);
 
     try {
       await createActivity(activityData);
