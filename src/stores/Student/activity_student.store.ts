@@ -102,6 +102,8 @@ interface ActivityState {
   searchActivities: (query: string) => Promise<void>;
   fetchActivity: (id: number | string) => Promise<void>;
   fetchEnrolledStudents: (id: number | string) => Promise<void>;
+  recommendedActivities: Activity[];
+  adviceActivities: (userId: number) => Promise<void>;
 }
 
 const mapActivityData = (apiData: ApiActivity): Activity => ({
@@ -166,6 +168,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activityLoading: false,
   activity: null,
   enrolledActivities: [],
+  recommendedActivities: [],
 
   fetchStudentActivities: async (userId: string) => {
     set({ activityLoading: true, activityError: null });
@@ -401,6 +404,22 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       } else {
         toast.error("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์");
       }
+    }
+  },
+
+  adviceActivities: async (userId: number) => {
+    set({ activityLoading: true, activityError: null });
+  
+    try {
+      const res = await axiosInstance.get(`/student/activity/advice-activity/${userId}`);
+      const mapped = res.data.map(mapActivityData);
+      set({ recommendedActivities: mapped, activityLoading: false });
+    } catch (error: any) {
+      console.error("❌ ดึงกิจกรรมแนะนำล้มเหลว:", error);
+      set({
+        activityError: "ไม่สามารถโหลดกิจกรรมแนะนำได้",
+        activityLoading: false,
+      });
     }
   },
 }));
