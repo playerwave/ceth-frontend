@@ -88,7 +88,10 @@ interface EnrolledStudent {
   checkIn: string;
   checkOut: string;
   evaluated: string;
+<<<<<<< HEAD
   selectedfood: string;
+=======
+>>>>>>> b18dec3 (add recomend activity (no store))
 }
 
 interface ActivityState {
@@ -398,7 +401,11 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
       console.log(data.ac_food);
 
+<<<<<<< HEAD
       // data.ac_food = forceToArray(data.ac_food || []);
+=======
+      data.ac_food = forceToArray(data.ac_food || []);
+>>>>>>> b18dec3 (add recomend activity (no store))
 
       // ✅ ตรวจสอบว่า mapActivityData() คืนค่า `Activity` ที่ถูกต้อง
       const mappedActivity = mapActivityData(data);
@@ -422,7 +429,10 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   deleteActivity: async (activityId: number | string) => {
     try {
+<<<<<<< HEAD
       set({ activityLoading: true, activityError: null });
+=======
+>>>>>>> b18dec3 (add recomend activity (no store))
       console.log(`🛑 deleteActivity: , activityId=${activityId}`);
 
       const response = await axiosInstance.delete(
@@ -433,12 +443,19 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       );
 
       if (response.status === 200) {
+<<<<<<< HEAD
         toast.success("ลบกิจกรรมสำเร็จ !", { duration: 3000 });
       } else {
         toast.error("ลบกิจกรรมไม่สำเร็จ T-T", { duration: 3000 });
         throw new Error("❌ ไม่สามารถลบกิจกรรมได้");
       }
       set({ activityLoading: false });
+=======
+        toast.success("✅ ลบกิจกรรมสำเร็จ");
+      } else {
+        throw new Error("❌ ไม่สามารถลบกิจกรรมได้");
+      }
+>>>>>>> b18dec3 (add recomend activity (no store))
     } catch (error: any) {
       console.error("❌ Error in deleteActivity:", error);
 
@@ -489,7 +506,10 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         checkIn: "No", // ถ้ายังไม่มีข้อมูลให้ fix ไว้ก่อน
         checkOut: "No",
         evaluated: "No",
+<<<<<<< HEAD
         selectedfood: s.selectedfood,
+=======
+>>>>>>> b18dec3 (add recomend activity (no store))
       }));
 
       set({ enrolledStudents: mappedStudents });
@@ -507,12 +527,15 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       console.log("log in createActivity Store: ", activity);
 
       await axiosInstance.post("/admin/activity/create-activity", activity);
+<<<<<<< HEAD
       toast.success(
         activity.ac_status === "Public"
           ? "สร้างกิจกรรมสำเร็จ !"
           : "ร่างกิจกรรมสำเร็จ !",
         { duration: 3000 }
       );
+=======
+>>>>>>> b18dec3 (add recomend activity (no store))
       set((state) => ({
         activities: [...state.activities, mapActivityData(activity)],
         activityLoading: false,
@@ -528,6 +551,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   },
 }));
 
+<<<<<<< HEAD
 function forceToArray(input: unknown): string[] {
   if (typeof input !== "string") return [];
 
@@ -535,6 +559,15 @@ function forceToArray(input: unknown): string[] {
     const parsed = JSON.parse(input);
     if (Array.isArray(parsed)) return parsed;
   } catch {
+=======
+function forceToArray(input: string): string[] {
+  try {
+    // ลอง parse แบบ array ปกติก่อน
+    const parsed = JSON.parse(input);
+    if (Array.isArray(parsed)) return parsed;
+  } catch {
+    // ถ้า parse ไม่ได้ เช่น {"ข้าว"} → ตัด {} และ " ออก
+>>>>>>> b18dec3 (add recomend activity (no store))
     const cleaned = input.replace(/[{}"]/g, "").trim();
     if (cleaned) return [cleaned];
   }

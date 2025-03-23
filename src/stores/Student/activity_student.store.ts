@@ -39,7 +39,10 @@ interface ApiActivity {
     as_create_date: string;
     as_last_update?: string;
   } | null;
+<<<<<<< HEAD
   uac_selected_food: string | null;
+=======
+>>>>>>> b18dec3 (add recomend activity (no store))
 }
 
 // ✅ อินเทอร์เฟซที่ React ใช้งาน
@@ -78,7 +81,10 @@ interface Activity {
     as_create_date: string;
     as_last_update?: string;
   } | null;
+<<<<<<< HEAD
   selected_food: string | null;
+=======
+>>>>>>> b18dec3 (add recomend activity (no store))
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -159,7 +165,10 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
         as_last_update: apiData.assessment.as_last_update,
       }
     : null,
+<<<<<<< HEAD
   uac_selected_food: apiData.uac_selected_food,
+=======
+>>>>>>> b18dec3 (add recomend activity (no store))
 });
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
@@ -217,6 +226,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
+<<<<<<< HEAD
   enrollActivity: async (userId: string, activityId: number, food?: string) => {
     try {
       set({ activityLoading: true, activityError: null });
@@ -231,6 +241,20 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       get().fetchStudentActivities(userId);
       set({ activityLoading: false });
       toast.success("ลงทะเบียนสำเร็จ!", { duration: 3000 });
+=======
+  enrollActivity: async (userId: string, activityId: number) => {
+    try {
+      const response = await axiosInstance.post(
+        `/student/activity/student-enroll-activity/${userId}`,
+        { activityId }
+      );
+
+      console.log("✅ ลงทะเบียนสำเร็จ:", response.data);
+      toast.success("✅ ลงทะเบียนสำเร็จ!");
+
+      // ✅ โหลดข้อมูลกิจกรรมใหม่หลังจากลงทะเบียน
+      get().fetchStudentActivities(userId);
+>>>>>>> b18dec3 (add recomend activity (no store))
     } catch (error) {
       console.error("❌ ลงทะเบียนล้มเหลว:", error);
       toast.error("❌ ลงทะเบียนไม่สำเร็จ!");
@@ -277,10 +301,14 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
+<<<<<<< HEAD
   fetchActivity: async (
     id: number | string,
     userId: number
   ): Promise<Activity | null> => {
+=======
+  fetchActivity: async (id: number | string): Promise<Activity | null> => {
+>>>>>>> b18dec3 (add recomend activity (no store))
     const numericId = Number(id);
     if (!numericId || isNaN(numericId)) {
       set({ activityError: "Invalid Activity ID", activityLoading: false });
@@ -290,6 +318,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     set({ activityLoading: true, activityError: null });
 
     try {
+<<<<<<< HEAD
       console.log("userId in fetchActivity(store): ", userId);
       console.log(
         `📡 Fetching activity from API: /activity/get-activity/${numericId}?userId=${userId}`
@@ -297,6 +326,14 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
       const { data } = await axiosInstance.get<ApiActivity>(
         `/student/activity/get-activity/${numericId}?userId=${userId}`
+=======
+      console.log(
+        `📡 Fetching activity from API: /activity/get-activity/${numericId}`
+      );
+
+      const { data } = await axiosInstance.get<ApiActivity>(
+        `/student/activity/get-activity/${numericId}`
+>>>>>>> b18dec3 (add recomend activity (no store))
       );
 
       console.log("📡 API Response:", data);
@@ -306,7 +343,11 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         return null;
       }
 
+<<<<<<< HEAD
       // data.ac_food = forceToArray(data.ac_food || []);
+=======
+      data.ac_food = forceToArray(data.ac_food || []);
+>>>>>>> b18dec3 (add recomend activity (no store))
 
       // ✅ ตรวจสอบว่า mapActivityData() คืนค่า `Activity` ที่ถูกต้อง
       const mappedActivity = mapActivityData(data);
@@ -384,7 +425,10 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   async unenrollActivity(userId: number, activityId: number) {
     try {
+<<<<<<< HEAD
       set({ activityLoading: true, activityError: null });
+=======
+>>>>>>> b18dec3 (add recomend activity (no store))
       console.log(
         `🛑 Unenrolling: studentId=${userId}, activityId=${activityId}`
       );
@@ -396,8 +440,16 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         }
       );
 
+<<<<<<< HEAD
       set({ activityLoading: false });
       toast.success("ยกเลิกการลงทะเบียนเรียบร้อย", { duration: 3000 });
+=======
+      if (response.status === 200) {
+        toast.success("✅ ยกเลิกลงทะเบียนสำเร็จ");
+      } else {
+        throw new Error("❌ ไม่สามารถยกเลิกลงทะเบียนได้");
+      }
+>>>>>>> b18dec3 (add recomend activity (no store))
     } catch (error: any) {
       console.error("❌ Error in unenrollActivity:", error);
 
@@ -412,6 +464,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   },
 }));
 
+<<<<<<< HEAD
 function forceToArray(input: unknown): string[] {
   if (typeof input !== "string") return [];
 
@@ -419,6 +472,15 @@ function forceToArray(input: unknown): string[] {
     const parsed = JSON.parse(input);
     if (Array.isArray(parsed)) return parsed;
   } catch {
+=======
+function forceToArray(input: string): string[] {
+  try {
+    // ลอง parse แบบ array ปกติก่อน
+    const parsed = JSON.parse(input);
+    if (Array.isArray(parsed)) return parsed;
+  } catch {
+    // ถ้า parse ไม่ได้ เช่น {"ข้าว"} → ตัด {} และ " ออก
+>>>>>>> b18dec3 (add recomend activity (no store))
     const cleaned = input.replace(/[{}"]/g, "").trim();
     if (cleaned) return [cleaned];
   }

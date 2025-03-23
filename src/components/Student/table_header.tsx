@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import { Activity } from "../components/table";
 
 // interface TableHeaderProps {
@@ -66,16 +67,23 @@
 
 import { Activity } from "../components/table";
 import { Checkbox, FormControlLabel } from "@mui/material";
+=======
+import { Activity } from "../components/table";
+>>>>>>> b18dec3 (add recomend activity (no store))
 
 interface TableHeaderProps {
   handleSort: (key: keyof Activity) => void;
   sortConfig?: { key: keyof Activity | null; direction: "asc" | "desc" };
+<<<<<<< HEAD
   setFilterType: (type: "HardSkill" | "SoftSkill" | "All") => void;
+=======
+>>>>>>> b18dec3 (add recomend activity (no store))
 }
 
 const TableHeader: React.FC<TableHeaderProps> = ({
   handleSort,
   sortConfig,
+<<<<<<< HEAD
   setFilterType,
 }) => {
   const columns: { key: keyof Activity; label: string; sortable: boolean }[] = [
@@ -98,6 +106,29 @@ const TableHeader: React.FC<TableHeaderProps> = ({
         ? "▲" // ถ้าทิศทางเป็น asc ให้แสดงลูกศรชี้ขึ้น
         : "▼" // ถ้าทิศทางเป็น desc ให้แสดงลูกศรชี้ลง
       : "↕"; // ถ้าไม่ได้เรียงตามคอลัมน์นี้ให้แสดงไอคอนทั่วไป
+=======
+}) => {
+  const columns: { key: keyof Activity; label: string; sortable: boolean }[] = [
+    {
+      key: "conpany_lecturer_name",
+      label: "ชื่อวิทยากร/ชื่อบริษัท",
+      sortable: true,
+    },
+    { key: "type", label: "ประเภท", sortable: false },
+    { key: "name", label: "ชื่อกิจกรรม", sortable: false }, // ❌ ปิดการ Sort
+    { key: "start_time", label: "วันที่จัดกิจกรรม", sortable: true },
+    { key: "seat", label: "ที่นั่ง", sortable: true },
+    { key: "status", label: "สถานะ", sortable: false }, // ❌ ปิดการ Sort
+  ];
+
+  const getSortIcon = (columnKey: keyof Activity) => {
+    if (!sortConfig || !sortConfig.key) return "↕";
+    return sortConfig.key === columnKey
+      ? sortConfig.direction === "asc"
+        ? "▲"
+        : "▼"
+      : "↕";
+>>>>>>> b18dec3 (add recomend activity (no store))
   };
 
   return (
@@ -107,6 +138,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
           <th
             key={col.key}
             className={`p-2 ${col.sortable ? "cursor-pointer" : ""}`}
+<<<<<<< HEAD
             onClick={() => col.sortable && handleSort(col.key)} // เรียงลำดับเมื่อคลิก
           >
             {col.key === "type" ? (
@@ -146,6 +178,23 @@ const TableHeader: React.FC<TableHeaderProps> = ({
               <span>
                 {col.label} {col.sortable && getSortIcon(col.key)}{" "}
                 {/* แสดงลูกศรตามทิศทางการเรียง */}
+=======
+            onClick={() => col.sortable && handleSort(col.key)}
+          >
+            {col.key === "type" ? (
+              // 🔹 กรณีพิเศษ: คอลัมน์ "ประเภท" แสดงช่องสี
+              <div className="flex items-center justify-center">
+                <span>{col.label}</span>
+                <span className="w-5 h-5 bg-[#F5DEB3] border-2 border-black ml-2"></span>{" "}
+                {/* สีเหลืองอ่อน */}
+                <span className="w-5 h-5 bg-[#D3C3F7] border-2 border-black ml-2"></span>{" "}
+                {/* สีม่วงอ่อน */}
+              </div>
+            ) : (
+              // 🔹 คอลัมน์ปกติ
+              <span>
+                {col.label} {col.sortable && getSortIcon(col.key)}
+>>>>>>> b18dec3 (add recomend activity (no store))
               </span>
             )}
           </th>
