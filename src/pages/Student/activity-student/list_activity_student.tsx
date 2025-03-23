@@ -21,6 +21,8 @@ const ManageActivityAdmin: React.FC = () => {
     activityLoading,
     activityError,
     fetchStudentActivities,
+    recommendedActivities,
+    adviceActivities,
   } = useActivityStore();
 
   const [activeTab, setActiveTab] = useState<"list" | "calendar">("list");
@@ -41,12 +43,18 @@ const ManageActivityAdmin: React.FC = () => {
   // }, [location, navigate]);
 
   const userId = localStorage.getItem("userId") || "8";
-  const [showRecommendModal, setShowRecommendModal] = useState(false); // ✅ NEW: modal toggle
+  const [showRecommendModal, setShowRecommendModal] = useState(false); 
 
   useEffect(() => {
     if (userId) {
       fetchStudentActivities(userId);
     } // ✅ โหลดข้อมูลใหม่ทุกครั้งเมื่อเปิดหน้านี้
+  }, []);
+
+  useEffect(() => {
+    if (userId && !isNaN(Number(userId))) {
+      adviceActivities(Number(userId));
+    }     // เรียกโหลดกิจกรรมที่ระบบแนะนำ
   }, []);
 
   const displayedActivities = searchResults ?? activities;
@@ -126,15 +134,20 @@ const ManageActivityAdmin: React.FC = () => {
                 <div className="flex items-center justify-between bg-white rounded-full px-6 py-4 shadow">
                   <div className="flex items-center gap-4">
                     <p className="font-semibold">Clicknext</p>
+                    {/* <p className="font-semibold">{activity.company_lecturer}</p> */}
                     <span className="bg-yellow-100 text-[#FFAE00] text-sm font-medium px-2 py-1 rounded-full">
                       Hard Skill
+                    {/* {activity.type} */}
                     </span>
                     <p>Participating in cooperative education activities</p>
+                    {/* <p>{activity.name}</p> */}
                   </div>
                   <div className="text-sm ">
                     12/09/2024 - 09.00 - 16.00 PM
+                    {/* {activity.start_time}-{activity.end_time} */}
                     <span className="text-black font-medium ml-7">
                       ชั่วโมงที่ได้รับ 6 ชั่วโมง
+                      {/* {activity.recieve_hours} */}
                     </span>
                   </div>
                 </div>
@@ -145,13 +158,17 @@ const ManageActivityAdmin: React.FC = () => {
                     <p className="font-semibold">Clicknext</p>
                     <span className="bg-blue-100 text-[#0900FF] text-sm font-medium px-2 py-1 rounded-full">
                       Soft Skill
+                      {/* {activity.type} */}
                     </span>
                     <p>Participating in cooperative education activities</p>
+                    {/* <p>{activity.name}</p> */}
                   </div>
                   <div className="text-sm">
                     12/09/2024 - 09.00 - 16.00 PM
+                    {/* {activity.start_time}-{activity.end_time} */}
                     <span className="text-black font-medium ml-7">
                       ชั่วโมงที่ได้รับ 3 ชั่วโมง
+                      {/* {activity.recieve_hours} */}
                     </span>
                   </div>
                 </div>
@@ -172,6 +189,7 @@ const ManageActivityAdmin: React.FC = () => {
                       </span>
                       <p className="text-lg font-bold leading-none">
                         0 <span className="text-sm text-green-600">+6</span>
+                        {/* 0 <span className="text-sm text-green-600">+{activity.recieve_hours}</span> */}
                       </p>
                     </div>
                     {/* Soft Skill */}
@@ -180,7 +198,8 @@ const ManageActivityAdmin: React.FC = () => {
                         Soft Skill
                       </span>
                       <p className="text-lg font-bold  leading-none">
-                        15 <span className="text-sm text-green-600">+3</span>
+                        0 <span className="text-sm text-green-600">+3</span>
+                        {/* 0 <span className="text-sm text-green-600">+{activity.recieve_hours}</span> */}
                       </p>
                     </div>
                   </div>
@@ -205,7 +224,7 @@ const ManageActivityAdmin: React.FC = () => {
                         Soft Skill
                       </span>
                       <p className="text-lg font-bold leading-none">
-                        18
+                        3
                       </p>
                     </div>
                   </div>
