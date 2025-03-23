@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@layer utilities {
+  @keyframes spinner-fade {
+    0% {
+      background-color: #1e3a8a;
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  .animate-spinner-fade {
+    animation: spinner-fade 1s infinite linear;
+  }
+}
