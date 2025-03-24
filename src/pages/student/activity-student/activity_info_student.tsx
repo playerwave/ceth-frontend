@@ -121,7 +121,7 @@ export default function ActivityInfoStudent() {
     await enrollActivity(userId, activity.id); // ✅ เรียกฟังก์ชันลงทะเบียน
     setIsEnrollModalOpen(false); // ปิด Modal
     navigate("/list-activity-student");
-    window.location.reload();
+    // window.location.reload();
   };
 
   const handleUnenroll = async () => {
@@ -132,164 +132,177 @@ export default function ActivityInfoStudent() {
     }
 
     await unenrollActivity(userId, activity.id); // ✅ ฟังก์ชันนี้คุณต้องเพิ่มใน store ด้วย
-    toast.success("✅ ยกเลิกการลงทะเบียนเรียบร้อย");
+    setIsUnEnrollModalOpen(false);
     navigate("/main-student");
-    window.location.reload();
+    // window.location.reload();
   };
 
   return (
-    <div className="justify-items-center">
-      <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
-        <div className="flex justify-between items-center">
-          <h1 className="text-[35px] font-semibold font-sans">
-            {activity.name}
-          </h1>
-          <div
-            className="flex items-center text-[25px] gap-[4px] cursor-pointer"
-            onClick={() => navigate(`/enrolled_list_admin/${activity.id}`)}
-          >
-            {activity.registered_count}/{activity.seat} <User size={40} />
-          </div>
-        </div>
-
-        {/* ภาพกิจกรรม */}
-        <div className="flex justify-center w-full h-130 bg-white border border-black rounded-lg mt-4">
-          <img
-            src={activity.image_url || "/img/default.png"} // ✅ ใช้รูป Cloudinary หรือ default
-            alt="Activity"
-            className="w-full h-full object-cover rounded-lg"
-            onError={(e) => (e.currentTarget.src = "/img/default.png")} // ✅ ใช้ default image ถ้าโหลดไม่สำเร็จ
-          />
-        </div>
-
-        {/* รายละเอียดกิจกรรม */}
-        <div className="flex items-center justify-between w-full mt-4">
-          <div className="flex items-center gap-2">
-            <p className="font-semibold text-[25px] font-sans">
-              {activity.company_lecturer}
-            </p>
-            <span
-              className="px-2 py-1 rounded ml-5"
-              style={{
-                backgroundColor:
-                  activity.type === "Hard Skill"
-                    ? "rgba(255, 174, 0, 0.2)"
-                    : "rgba(9, 0, 255, 0.2)",
-                color: activity.type === "Hard Skill" ? "#FFAE00" : "#0900FF",
-                minWidth: "100px",
-                display: "flex", // ✅ ใช้ flexbox
-                justifyContent: "center", // ✅ จัดให้อยู่กึ่งกลางแนวนอน
-                alignItems: "center",
-              }}
-            >
-              {activity.type}
-            </span>
-
-            <div className="text-green-600 text-2xl">
-              +<span className="text-3xl">{activity.recieve_hours} Hrs</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 font-[Sarabun]">
-            {activity.location_type == "Onsite" ? (
-              <Typography
-                component="span"
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 1,
-                  pr: 4,
-                }}
+    <>
+      {activityLoading ? (
+        <Loading />
+      ) : (
+        <div className="justify-items-center">
+          <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
+            <div className="flex justify-between items-center">
+              <h1 className="text-[35px] font-semibold font-sans">
+                {activity.name}
+              </h1>
+              <div
+                className="flex items-center text-[25px] gap-[4px] cursor-pointer"
+                onClick={() => navigate(`/enrolled_list_admin/${activity.id}`)}
               >
-                <School /> Onsite
-              </Typography>
-            ) : (
-              <Typography
-                component="span"
-                sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
-              >
-                <HouseWifi /> {activity.location_type}
-              </Typography>
-            )}
-            <CalendarDays size={25} />
-            วันที่จัดกิจกรรม{" "}
-            {activity.start_time
-              ? new Date(activity.start_time).getDate() + 1 < 10
-                ? `0${new Date(activity.start_time).getDate() + 1}`
-                : new Date(activity.start_time).getDate()
-              : "ไม่ระบุ"}{" "}
-            /
-            {activity.start_time
-              ? new Date(activity.start_time).getMonth() + 1 < 10
-                ? `0${new Date(activity.start_time).getMonth() + 1}`
-                : new Date(activity.start_time).getMonth() // ✅ แก้ไขตรงนี้
-              : "ไม่ระบุ"}{" "}
-            /
-            {activity.start_time
-              ? new Date(activity.start_time).getFullYear()
-              : "ไม่ระบุ"}{" "}
-            <Hourglass size={25} /> ปิดลงทะเบียน{" "}
-            {activity.end_register
-              ? new Date(activity.end_register).getDate() + 1 < 10
-                ? `0${new Date(activity.end_register).getDate() + 1}`
-                : new Date(activity.end_register).getDate() // ✅ แก้ไขตรงนี้
-              : "ไม่ระบุ"}{" "}
-            /
-            {activity.end_register
-              ? new Date(activity.end_register).getMonth() + 1 < 10
-                ? `0${new Date(activity.end_register).getMonth() + 1}`
-                : new Date(activity.end_register).getMonth() // ✅ แก้ไขตรงนี้
-              : "ไม่ระบุ"}{" "}
-            /
-            {activity.end_register
-              ? new Date(activity.end_register).getFullYear()
-              : "ไม่ระบุ"}{" "}
-            <MapPin size={25} /> ชั้น {activity.room[0]} ห้อง {activity.room}
-          </div>
-        </div>
-
-        <p className="mt-2 text-[14px] font-sans">{activity.description}</p>
-
-        {/*เลือก อาหาร*/}
-        <div className="mt-4">
-          <p className="font-semibold font-[Sarabun]">อาหาร</p>
-          {Array.isArray(activity.food) && activity.food.length > 0 ? (
-            <select className="w-[40%] p-2 border border-[#ccc] rounded mt-1">
-              {activity.food.map((food, index) => (
-                <option key={index} className="font-[Sarabun]">
-                  {food}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <p className="text-gray-500 mt-1 flex items-center">
-              ไม่มีอาหารสำหรับกิจกรรมนี้ <Frown className="ml-3" />
-            </p>
-          )}
-        </div>
-
-        {/* เวลา + สถานะ + ปุ่มต่าง ๆ */}
-        <div className="flex justify-between items-center mt-4 text-[14px]">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 font-[Sarabun] font-semibold">
-              <Clock size={25} />
-              {activity.start_time
-                ? formatTime(new Date(activity.start_time))
-                : "ไม่ระบุ"}{" "}
-              -{" "}
-              {activity.end_time
-                ? formatTime(new Date(activity.end_time))
-                : "ไม่ระบุ"}
+                {activity.registered_count}/{activity.seat} <User size={40} />
+              </div>
             </div>
 
-            <div className="flex items-center gap-1 ml-3 font-[Sarabun] font-semibold">
-              <Play size={25} /> {activity.state}
+            {/* ภาพกิจกรรม */}
+            <div className="flex justify-center w-full h-130 bg-white border border-black rounded-lg mt-4">
+              <img
+                src={activity.image_url || "/img/default.png"} // ✅ ใช้รูป Cloudinary หรือ default
+                alt="Activity"
+                className="w-full h-full object-cover rounded-lg"
+                onError={(e) => (e.currentTarget.src = "/img/default.png")} // ✅ ใช้ default image ถ้าโหลดไม่สำเร็จ
+              />
             </div>
-          </div>
-          {isEnrolled ? (
-            <ConfirmDialog
-              isOpen={isUnEnrollModalOpen}
-              title="ยกเลิกการลงทะเบียนกิจกรรม"
-              message={`คุณแน่ใจว่าจะยกเลิกการทะเบียนกิจกรรมนี้
+
+            {/* รายละเอียดกิจกรรม */}
+            <div className="flex items-center justify-between w-full mt-4">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-[25px] font-sans">
+                  {activity.company_lecturer}
+                </p>
+                <span
+                  className="px-2 py-1 rounded ml-5"
+                  style={{
+                    backgroundColor:
+                      activity.type === "Hard Skill"
+                        ? "rgba(255, 174, 0, 0.2)"
+                        : "rgba(9, 0, 255, 0.2)",
+                    color:
+                      activity.type === "Hard Skill" ? "#FFAE00" : "#0900FF",
+                    minWidth: "100px",
+                    display: "flex", // ✅ ใช้ flexbox
+                    justifyContent: "center", // ✅ จัดให้อยู่กึ่งกลางแนวนอน
+                    alignItems: "center",
+                  }}
+                >
+                  {activity.type}
+                </span>
+
+                <div className="text-green-600 text-2xl">
+                  +
+                  <span className="text-3xl">{activity.recieve_hours} Hrs</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 font-[Sarabun]">
+                {activity.location_type == "Onsite" ? (
+                  <Typography
+                    component="span"
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 1,
+                      pr: 4,
+                    }}
+                  >
+                    <School /> Onsite
+                  </Typography>
+                ) : (
+                  <Typography
+                    component="span"
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <HouseWifi /> {activity.location_type}
+                  </Typography>
+                )}
+                <CalendarDays size={25} />
+                วันที่จัดกิจกรรม{" "}
+                {activity.start_time
+                  ? new Date(activity.start_time).getDate() + 1 < 10
+                    ? `0${new Date(activity.start_time).getDate() + 1}`
+                    : new Date(activity.start_time).getDate()
+                  : "ไม่ระบุ"}{" "}
+                /
+                {activity.start_time
+                  ? new Date(activity.start_time).getMonth() + 1 < 10
+                    ? `0${new Date(activity.start_time).getMonth() + 1}`
+                    : new Date(activity.start_time).getMonth() // ✅ แก้ไขตรงนี้
+                  : "ไม่ระบุ"}{" "}
+                /
+                {activity.start_time
+                  ? new Date(activity.start_time).getFullYear()
+                  : "ไม่ระบุ"}{" "}
+                <Hourglass size={25} /> ปิดลงทะเบียน{" "}
+                {activity.end_register
+                  ? new Date(activity.end_register).getDate() + 1 < 10
+                    ? `0${new Date(activity.end_register).getDate() + 1}`
+                    : new Date(activity.end_register).getDate() // ✅ แก้ไขตรงนี้
+                  : "ไม่ระบุ"}{" "}
+                /
+                {activity.end_register
+                  ? new Date(activity.end_register).getMonth() + 1 < 10
+                    ? `0${new Date(activity.end_register).getMonth() + 1}`
+                    : new Date(activity.end_register).getMonth() // ✅ แก้ไขตรงนี้
+                  : "ไม่ระบุ"}{" "}
+                /
+                {activity.end_register
+                  ? new Date(activity.end_register).getFullYear()
+                  : "ไม่ระบุ"}{" "}
+                <MapPin size={25} />{" "}
+                {activity.location_type == "Onsite"
+                  ? `ห้อง ${activity.room}`
+                  : `ไม่มีห้องสำหรับกิจกรรมนี้`}
+              </div>
+            </div>
+
+            <p className="mt-2 text-[14px] font-sans">{activity.description}</p>
+
+            {/*เลือก อาหาร*/}
+            <div className="mt-4">
+              <p className="font-semibold font-[Sarabun]">อาหาร</p>
+              {Array.isArray(activity.food) && activity.food.length > 0 ? (
+                <select className="w-[40%] p-2 border border-[#ccc] rounded mt-1">
+                  {activity.food.map((food, index) => (
+                    <option key={index} className="font-[Sarabun]">
+                      {food}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-gray-500 mt-1 flex items-center">
+                  ไม่มีอาหารสำหรับกิจกรรมนี้ <Frown className="ml-3" />
+                </p>
+              )}
+            </div>
+
+            {/* เวลา + สถานะ + ปุ่มต่าง ๆ */}
+            <div className="flex justify-between items-center mt-4 text-[14px]">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 font-[Sarabun] font-semibold">
+                  <Clock size={25} />
+                  {activity.start_time
+                    ? formatTime(new Date(activity.start_time))
+                    : "ไม่ระบุ"}{" "}
+                  -{" "}
+                  {activity.end_time
+                    ? formatTime(new Date(activity.end_time))
+                    : "ไม่ระบุ"}
+                </div>
+
+                <div className="flex items-center gap-1 ml-3 font-[Sarabun] font-semibold">
+                  <Play size={25} /> {activity.state}
+                </div>
+              </div>
+              {isEnrolled ? (
+                <ConfirmDialog
+                  isOpen={isUnEnrollModalOpen}
+                  title="ยกเลิกการลงทะเบียนกิจกรรม"
+                  message={`คุณแน่ใจว่าจะยกเลิกการทะเบียนกิจกรรมนี้
                       (ลงทะเบียนกิจกรรมได้ถึง ${new Intl.DateTimeFormat(
                         "th-TH",
                         {
@@ -298,15 +311,15 @@ export default function ActivityInfoStudent() {
                           year: "numeric",
                         }
                       ).format(activity.end_register)})`}
-              onCancel={() => setIsUnEnrollModalOpen(false)}
-              // ✅ ทำให้เป็นปุ่ม submit
-              onConfirm={handleUnenroll}
-            />
-          ) : (
-            <ConfirmDialog
-              isOpen={isEnrollModalOpen}
-              title="ยืนยันการลงทะเบียน"
-              message={`คุณแน่ใจว่าจะลงทะเบียนกิจกรรมนี้
+                  onCancel={() => setIsUnEnrollModalOpen(false)}
+                  // ✅ ทำให้เป็นปุ่ม submit
+                  onConfirm={handleUnenroll}
+                />
+              ) : (
+                <ConfirmDialog
+                  isOpen={isEnrollModalOpen}
+                  title="ยืนยันการลงทะเบียน"
+                  message={`คุณแน่ใจว่าจะลงทะเบียนกิจกรรมนี้
                       (ยกเลิกลงทะเบียนได้ถึง ${new Intl.DateTimeFormat(
                         "th-TH",
                         {
@@ -315,30 +328,38 @@ export default function ActivityInfoStudent() {
                           year: "numeric",
                         }
                       ).format(activity.end_register)})`}
-              onCancel={() => setIsEnrollModalOpen(false)}
-              // ✅ ทำให้เป็นปุ่ม submit
-              onConfirm={handleEnroll}
-            />
-          )}
+                  onCancel={() => setIsEnrollModalOpen(false)}
+                  // ✅ ทำให้เป็นปุ่ม submit
+                  onConfirm={handleEnroll}
+                />
+              )}
 
-          {/* ปุ่มต่าง ๆ */}
-          <div className="flex justify-end gap-3">
-            <Button color="blue" onClick={() => window.history.back()}>
-              ← กลับ
-            </Button>
+              {/* ปุ่มต่าง ๆ */}
+              <div className="flex justify-end gap-3">
+                <Button color="blue" onClick={() => window.history.back()}>
+                  ← กลับ
+                </Button>
 
-            {isEnrolled ? (
-              <Button color="red" onClick={() => setIsUnEnrollModalOpen(true)}>
-                ยกเลิกลงทะเบียน
-              </Button>
-            ) : (
-              <Button color="blue" onClick={() => setIsEnrollModalOpen(true)}>
-                ลงทะเบียน
-              </Button>
-            )}
+                {isEnrolled ? (
+                  <Button
+                    color="red"
+                    onClick={() => setIsUnEnrollModalOpen(true)}
+                  >
+                    ยกเลิกลงทะเบียน
+                  </Button>
+                ) : (
+                  <Button
+                    color="blue"
+                    onClick={() => setIsEnrollModalOpen(true)}
+                  >
+                    ลงทะเบียน
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

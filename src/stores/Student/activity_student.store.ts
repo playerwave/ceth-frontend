@@ -216,16 +216,18 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   enrollActivity: async (userId: string, activityId: number) => {
     try {
+      set({ activityLoading: true, activityError: null });
       const response = await axiosInstance.post(
         `/student/activity/student-enroll-activity/${userId}`,
         { activityId }
       );
 
       console.log("✅ ลงทะเบียนสำเร็จ:", response.data);
-      toast.success("✅ ลงทะเบียนสำเร็จ!");
 
       // ✅ โหลดข้อมูลกิจกรรมใหม่หลังจากลงทะเบียน
       get().fetchStudentActivities(userId);
+      set({ activityLoading: false });
+      toast.success("ลงทะเบียนสำเร็จ!", { duration: 3000 });
     } catch (error) {
       console.error("❌ ลงทะเบียนล้มเหลว:", error);
       toast.error("❌ ลงทะเบียนไม่สำเร็จ!");
@@ -375,6 +377,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   async unenrollActivity(userId: number, activityId: number) {
     try {
+      set({ activityLoading: true, activityError: null });
       console.log(
         `🛑 Unenrolling: studentId=${userId}, activityId=${activityId}`
       );
@@ -386,11 +389,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         }
       );
 
-      if (response.status === 200) {
-        toast.success("✅ ยกเลิกลงทะเบียนสำเร็จ");
-      } else {
-        throw new Error("❌ ไม่สามารถยกเลิกลงทะเบียนได้");
-      }
+      set({ activityLoading: false });
+      toast.success("ยกเลิกการลงทะเบียนเรียบร้อย", { duration: 3000 });
     } catch (error: any) {
       console.error("❌ Error in unenrollActivity:", error);
 

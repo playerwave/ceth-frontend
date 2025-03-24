@@ -143,7 +143,7 @@ const MainStudent = () => {
         </div>
 
         {/* ช่องกรอก ID และปุ่มค้นหา */}
-        <div className="mt-6 flex justify-center items-center gap-2 ">
+        {/* <div className="mt-6 flex justify-center items-center gap-2 ">
           <input
             type="text"
             placeholder="กรอก ID"
@@ -161,7 +161,7 @@ const MainStudent = () => {
             ค้นหา
           </Button>
           <p>(ใช้ทดสอบดึงข้อมูลกิจกรรมของนิสิต)</p>
-        </div>
+        </div> */}
 
         <div className="flex justify-center mt-4 lg:mt-6">
           <Card
