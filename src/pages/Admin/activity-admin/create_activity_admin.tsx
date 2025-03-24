@@ -199,6 +199,21 @@ const CreateActivityAdmin: React.FC = () => {
         newErrors.ac_name = "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร";
         console.log(newErrors.ac_name);
       }
+      // ตรวจสอบ ac_normal_register ว่าไม่สามารถเลือกวันที่ก่อนวันนี้ได้
+      if (
+        formData.ac_normal_register &&
+        dayjs(formData.ac_normal_register).isBefore(dayjs(), "day")
+      ) {
+        newErrors.ac_normal_register = "ไม่สามารถเลือกวันที่ก่อนวันนี้ได้";
+      }
+
+      // ตรวจสอบ ac_end_register ว่าไม่สามารถเลือกวันที่ก่อนวันนี้ได้
+      if (
+        formData.ac_end_register &&
+        dayjs(formData.ac_end_register).isBefore(dayjs(), "day")
+      ) {
+        newErrors.ac_end_register = "ไม่สามารถเลือกวันที่ก่อนวันนี้ได้";
+      }
       if (
         !formData.ac_company_lecturer ||
         formData.ac_company_lecturer.length < 4
@@ -497,6 +512,7 @@ const CreateActivityAdmin: React.FC = () => {
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DateTimePicker
                       className="w-77.5"
+                      minDate={dayjs()}
                       value={
                         formData.ac_end_register
                           ? dayjs(formData.ac_end_register)
@@ -547,6 +563,7 @@ const CreateActivityAdmin: React.FC = () => {
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DateTimePicker
                       className="w-77.5"
+                      minDate={dayjs()}
                       value={
                         formData.ac_normal_register
                           ? dayjs(formData.ac_normal_register)
@@ -621,6 +638,7 @@ const CreateActivityAdmin: React.FC = () => {
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
                               className="w-77.5"
+                              minDate={dayjs(formData.ac_end_register)}
                               value={
                                 formData.ac_start_time
                                   ? dayjs(formData.ac_start_time)
@@ -683,6 +701,7 @@ const CreateActivityAdmin: React.FC = () => {
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
                               className="w-77.5"
+                              minDate={dayjs(formData.ac_start_time)}
                               value={
                                 formData.ac_end_time
                                   ? dayjs(formData.ac_end_time)
@@ -1057,6 +1076,7 @@ const CreateActivityAdmin: React.FC = () => {
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DateTimePicker
                             className="w-77.5"
+                            minDate={dayjs(formData.ac_start_time)}
                             value={
                               formData.ac_start_assessment
                                 ? dayjs(formData.ac_start_assessment)
@@ -1121,6 +1141,7 @@ const CreateActivityAdmin: React.FC = () => {
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DateTimePicker
                             className="w-77.5"
+                            minDate={dayjs(formData.ac_start_assessment)}
                             value={
                               formData.ac_end_assessment
                                 ? dayjs(formData.ac_end_assessment)

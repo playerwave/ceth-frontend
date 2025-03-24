@@ -662,6 +662,7 @@ const UpdateActivityAdmin: React.FC = () => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DateTimePicker
                         className="w-77.5"
+                        minDate={dayjs()}
                         value={
                           formData.ac_end_register
                             ? dayjs(formData.ac_end_register)
@@ -712,6 +713,7 @@ const UpdateActivityAdmin: React.FC = () => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DateTimePicker
                         className="w-77.5"
+                        minDate={dayjs()}
                         value={
                           formData.ac_normal_register
                             ? dayjs(formData.ac_normal_register)
@@ -786,6 +788,7 @@ const UpdateActivityAdmin: React.FC = () => {
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                               <DateTimePicker
                                 className="w-77.5"
+                                minDate={dayjs(formData.ac_end_register)}
                                 value={
                                   formData.ac_start_time
                                     ? dayjs(formData.ac_start_time)
@@ -855,6 +858,7 @@ const UpdateActivityAdmin: React.FC = () => {
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                               <DateTimePicker
                                 className="w-77.5"
+                                minDate={dayjs(formData.ac_start_time)}
                                 value={
                                   formData.ac_end_time
                                     ? dayjs(formData.ac_end_time)
@@ -1271,6 +1275,7 @@ const UpdateActivityAdmin: React.FC = () => {
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
                               className="w-77.5"
+                              minDate={dayjs(formData.ac_start_time)}
                               value={
                                 formData.ac_start_assessment &&
                                 dayjs(formData.ac_start_assessment).isValid()
@@ -1336,6 +1341,7 @@ const UpdateActivityAdmin: React.FC = () => {
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
                               className="w-77.5"
+                              minDate={dayjs(formData.ac_start_assessment)}
                               value={
                                 formData.ac_end_assessment
                                   ? dayjs(formData.ac_end_assessment)
