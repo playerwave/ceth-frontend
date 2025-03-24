@@ -170,7 +170,7 @@ export default function ActivityInfoAdmin() {
             {activity.end_register
               ? new Date(activity.end_register).getFullYear()
               : "ไม่ระบุ"}{" "}
-            <MapPin size={25} /> ชั้น {activity.room[0]} ห้อง {activity.room}
+            <MapPin size={25} /> ห้อง {activity.room}
           </div>
         </div>
 
