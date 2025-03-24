@@ -50,7 +50,7 @@ interface FormData {
 }
 
 const CreateActivityAdmin: React.FC = () => {
-  const { createActivity } = useActivityStore(); //
+  const { createActivity, activityLoading } = useActivityStore(); //
   const [formData, setFormData] = useState<FormData>({
     ac_id: null,
     ac_name: "",
@@ -368,12 +368,6 @@ const CreateActivityAdmin: React.FC = () => {
     try {
       await createActivity(activityData);
       navigate("/list-activity-admin");
-      toast.success(
-        formData.ac_status === "Public"
-          ? "สร้างกิจกรรมสำเร็จ !"
-          : "ร่างกิจกรรมสำเร็จ !",
-        { duration: 5000 }
-      );
     } catch (error) {
       console.error("❌ Error creating activity:", error);
       toast.error("Create failed!");

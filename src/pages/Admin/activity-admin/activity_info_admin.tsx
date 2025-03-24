@@ -11,6 +11,7 @@ import {
   Frown,
   School,
   HouseWifi,
+  ImageOff,
 } from "lucide-react";
 import Typography from "@mui/material/Typography";
 import Button from "../../../components/Button";
@@ -74,14 +75,23 @@ export default function ActivityInfoAdmin() {
         </div>
 
         {/* ภาพกิจกรรม */}
-        <div className="flex justify-center w-full h-130 bg-white border border-black rounded-lg mt-4">
-          <img
-            src={activity.image_url || "/img/default.png"} // ✅ ใช้รูป Cloudinary หรือ default
-            alt="Activity"
-            className="w-full h-full object-cover rounded-lg"
-            onError={(e) => (e.currentTarget.src = "/img/default.png")} // ✅ ใช้ default image ถ้าโหลดไม่สำเร็จ
-          />
-        </div>
+        {activity.image_url !== "/img/default.png" ? (
+          <div className="flex justify-center w-full h-130 bg-white border border-black rounded-lg mt-4">
+            <img
+              src={activity.image_url} // ✅ ใช้รูป Cloudinary หรือ default
+              alt="Activity"
+              className="w-full h-full object-cover rounded-lg"
+              onError={(e) => (e.currentTarget.src = "/img/default.png")} // ✅ ใช้ default image ถ้าโหลดไม่สำเร็จ
+            />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center bg-gray-100 w-full h-130 text-sm text-black-500 border border-black rounded-lg mt-4">
+            <div className="text-center text-black-400">
+              <ImageOff size={60} className="mx-auto" />
+              <p className="text-xl mt-2">ไม่มีรูปภาพสำหรับกิจกรรมนี้</p>
+            </div>
+          </div>
+        )}
 
         {/* รายละเอียดกิจกรรม */}
         <div className="flex items-center justify-between w-full mt-4">
@@ -210,7 +220,12 @@ export default function ActivityInfoAdmin() {
 
           {/* ปุ่มต่าง ๆ */}
           <div className="flex justify-end gap-3">
-            <Button color="blue" onClick={() => window.history.back()}>
+            <Button
+              color="blue"
+              onClick={() =>
+                navigate("/list-activity-admin", { state: { reload: true } })
+              }
+            >
               ← กลับ
             </Button>
             <Button color="blue">QR Code</Button>

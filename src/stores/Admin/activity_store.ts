@@ -421,6 +421,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   deleteActivity: async (activityId: number | string) => {
     try {
+      set({ activityLoading: true, activityError: null });
       console.log(`🛑 deleteActivity: , activityId=${activityId}`);
 
       const response = await axiosInstance.delete(
@@ -431,10 +432,12 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       );
 
       if (response.status === 200) {
-        toast.success("✅ ลบกิจกรรมสำเร็จ");
+        toast.success("ลบกิจกรรมสำเร็จ !", { duration: 3000 });
       } else {
+        toast.error("ลบกิจกรรมไม่สำเร็จ T-T", { duration: 3000 });
         throw new Error("❌ ไม่สามารถลบกิจกรรมได้");
       }
+      set({ activityLoading: false });
     } catch (error: any) {
       console.error("❌ Error in deleteActivity:", error);
 
@@ -502,6 +505,12 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       console.log("log in createActivity Store: ", activity);
 
       await axiosInstance.post("/admin/activity/create-activity", activity);
+      toast.success(
+        activity.ac_status === "Public"
+          ? "สร้างกิจกรรมสำเร็จ !"
+          : "ร่างกิจกรรมสำเร็จ !",
+        { duration: 3000 }
+      );
       set((state) => ({
         activities: [...state.activities, mapActivityData(activity)],
         activityLoading: false,
