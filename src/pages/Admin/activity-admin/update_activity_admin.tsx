@@ -377,6 +377,10 @@ const UpdateActivityAdmin: React.FC = () => {
       console.log("dont have start register");
     }
 
+    if (formData.ac_location_type !== "Onsite") {
+      formData.ac_room = "";
+    }
+
     const activityData: Activity = {
       ...formData,
       ac_last_update: new Date(),
@@ -1057,7 +1061,9 @@ const UpdateActivityAdmin: React.FC = () => {
                       <MenuItem value="">เลือกชั้น</MenuItem>
                       {Object.keys(IfBuildingRoom).map((floor) => (
                         <MenuItem key={floor} value={floor}>
-                          {floor}
+                          {formData.ac_location_type !== "Onsite"
+                            ? ""
+                            : `${floor}`}
                         </MenuItem>
                       ))}
                     </Select>
