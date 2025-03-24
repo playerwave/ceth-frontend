@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { useActivityStore } from "../../../stores/Admin/activity_store";
 import { useParams } from "react-router-dom";
+import Button from "../../../components/Button";
 
 export default function enrolled_list_admin() {
   const { id } = useParams<{ id: string }>();
@@ -47,7 +48,7 @@ export default function enrolled_list_admin() {
   });
 
   return (
-    <div className="p-6 w-full max-w-[1110px] mx-auto">
+    <div className="p-6 w-320 h-230 mx-auto">
       {/* Header */}
       <h1 className="text-3xl font-bold mb-4">รายชื่อนิสิตที่ลงทะเบียน</h1>
 
@@ -211,12 +212,9 @@ export default function enrolled_list_admin() {
 
         {/* ปุ่มย้อนกลับ อยู่ในกรอบ */}
         <div className="mt-auto flex justify-left p-4">
-          <button
-            onClick={() => window.history.back()}
-            className="flex items-center justify-center gap-2 w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none"
-          >
+          <Button color="blue" onClick={() => window.history.back()}>
             ← กลับ
-          </button>
+          </Button>
         </div>
       </div>
     </div>

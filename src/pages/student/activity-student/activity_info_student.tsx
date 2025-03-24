@@ -150,7 +150,7 @@ export default function ActivityInfoStudent() {
               </h1>
               <div
                 className="flex items-center text-[25px] gap-[4px] cursor-pointer"
-                onClick={() => navigate(`/enrolled_list_admin/${activity.id}`)}
+                style={{ pointerEvents: "none" }}
               >
                 {activity.registered_count}/{activity.seat} <User size={40} />
               </div>

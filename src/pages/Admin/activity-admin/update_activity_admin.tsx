@@ -372,7 +372,7 @@ const UpdateActivityAdmin: React.FC = () => {
     }
 
     let startRegister = dayjs(formData.ac_start_register);
-    if (formData.ac_status == "Public" && !formData.ac_start_register) {
+    if (formData.ac_status == "Public" && formData.ac_start_register == "") {
       startRegister = dayjs(new Date());
       console.log("dont have start register");
     }
@@ -384,9 +384,7 @@ const UpdateActivityAdmin: React.FC = () => {
     const activityData: Activity = {
       ...formData,
       ac_last_update: new Date(),
-      ac_start_register: formData.ac_start_register
-        ? convertToDate(formData.ac_start_register) || startRegister
-        : null,
+      ac_start_register: startRegister,
       ac_recieve_hours: acRecieveHours,
       ac_state: "Not Start",
       ac_image_url: imageUrl, // ✅ ใช้ URL ของรูปภาพจาก Cloudinary
