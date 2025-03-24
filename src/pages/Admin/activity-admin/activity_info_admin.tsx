@@ -170,7 +170,10 @@ export default function ActivityInfoAdmin() {
             {activity.end_register
               ? new Date(activity.end_register).getFullYear()
               : "ไม่ระบุ"}{" "}
-            <MapPin size={25} /> ห้อง {activity.room}
+            <MapPin size={25} />{" "}
+            {activity.location_type == "Onsite"
+              ? `ห้อง ${activity.room}`
+              : `ไม่มีห้องสำหรับกิจกรรมนี้`}
           </div>
         </div>
 
