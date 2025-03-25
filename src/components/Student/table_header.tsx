@@ -88,8 +88,17 @@ const TableHeader: React.FC<TableHeaderProps> = ({
     { key: "name", label: "ชื่อกิจกรรม", sortable: false },
     { key: "start_time", label: "วันที่จัดกิจกรรม", sortable: true },
     { key: "seat", label: "ที่นั่ง", sortable: true },
-    { key: "status", label: "สถานะ", sortable: false },
   ];
+
+  // ฟังก์ชันสำหรับแสดงลูกศรขึ้นหรือลง
+  const getSortIcon = (columnKey: keyof Activity) => {
+    if (!sortConfig || !sortConfig.key) return "↕"; // ถ้ายังไม่มีการตั้งค่าให้แสดงไอคอนทั่วไป
+    return sortConfig.key === columnKey
+      ? sortConfig.direction === "asc"
+        ? "▲" // ถ้าทิศทางเป็น asc ให้แสดงลูกศรชี้ขึ้น
+        : "▼" // ถ้าทิศทางเป็น desc ให้แสดงลูกศรชี้ลง
+      : "↕"; // ถ้าไม่ได้เรียงตามคอลัมน์นี้ให้แสดงไอคอนทั่วไป
+  };
 
   return (
     <thead className="bg-blue-900 text-white">
@@ -98,7 +107,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
           <th
             key={col.key}
             className={`p-2 ${col.sortable ? "cursor-pointer" : ""}`}
-            onClick={() => col.sortable && handleSort(col.key)}
+            onClick={() => col.sortable && handleSort(col.key)} // เรียงลำดับเมื่อคลิก
           >
             {col.key === "type" ? (
               <div className="flex items-center justify-center">
@@ -134,7 +143,10 @@ const TableHeader: React.FC<TableHeaderProps> = ({
                 />
               </div>
             ) : (
-              <span>{col.label}</span>
+              <span>
+                {col.label} {col.sortable && getSortIcon(col.key)}{" "}
+                {/* แสดงลูกศรตามทิศทางการเรียง */}
+              </span>
             )}
           </th>
         ))}

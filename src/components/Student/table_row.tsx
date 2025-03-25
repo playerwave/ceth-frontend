@@ -179,23 +179,6 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
           <FontAwesomeIcon icon={faUser} className="text-2xl text-black" />
         </div>
       </td>
-      <td className="p-2">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            updateActivityStatus(act.id, act.status);
-          }}
-          className="px-2 py-1 rounded font-medium"
-          style={{
-            backgroundColor: act.status === "Public" ? "#D4EDDA" : "#F8D7DA",
-            color: act.status === "Public" ? "#155724" : "#721C24",
-            minWidth: "100px",
-            display: "inline-block",
-          }}
-        >
-          {act.status}
-        </button>
-      </td>
     </tr>
   );
 };
