@@ -371,9 +371,11 @@ const UpdateActivityAdmin: React.FC = () => {
       acRecieveHours = duration > 0 ? duration : 0; // ✅ ป้องกันค่าติดลบ
     }
 
+    console.log("start register: ", formData.ac_start_register);
+
     let startRegister = dayjs(formData.ac_start_register);
     if (formData.ac_status == "Public" && formData.ac_start_register == "") {
-      startRegister = dayjs(new Date());
+      startRegister = dayjs();
       console.log("dont have start register");
     }
 
@@ -733,16 +735,22 @@ const UpdateActivityAdmin: React.FC = () => {
                               formData.ac_end_register &&
                               dayjs(formData.ac_normal_register).isAfter(
                                 dayjs(formData.ac_end_register)
+                              ) &&
+                              dayjs(formData.ac_normal_register).isBefore(
+                                dayjs()
                               )
                             ),
                             helperText:
                               formData.ac_status !== "Private" &&
                               formData.ac_normal_register &&
                               formData.ac_end_register &&
-                              dayjs(formData.ac_normal_register).isAfter(
+                              (dayjs(formData.ac_normal_register).isAfter(
                                 dayjs(formData.ac_end_register)
-                              )
-                                ? "กรุณาใส่วันหรือเวลาใหม่ เวลาที่เปิดให้นิสิตสถานะ normal ลงทะเบียนต้องอยู่ก่อนเวลาปิดการลงทะเบียน"
+                              ) ||
+                                dayjs(formData.ac_normal_register).isBefore(
+                                  dayjs()
+                                ))
+                                ? "กรุณาใส่วันหรือเวลาใหม่ เวลาที่เปิดให้นิสิตสถานะ normal ลงทะเบียนต้องอยู่ก่อนเวลาปิดการลงทะเบียน และกรุณาเลือกวันที่หลังจากวันที่ปัจจุบัน"
                                 : "",
                           },
                         }}
