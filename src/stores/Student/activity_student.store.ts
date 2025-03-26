@@ -299,7 +299,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         return null;
       }
 
-      data.ac_food = forceToArray(data.ac_food || []);
+      // data.ac_food = forceToArray(data.ac_food || []);
 
       // ✅ ตรวจสอบว่า mapActivityData() คืนค่า `Activity` ที่ถูกต้อง
       const mappedActivity = mapActivityData(data);
@@ -405,13 +405,13 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   },
 }));
 
-function forceToArray(input: string): string[] {
+function forceToArray(input: unknown): string[] {
+  if (typeof input !== "string") return [];
+
   try {
-    // ลอง parse แบบ array ปกติก่อน
     const parsed = JSON.parse(input);
     if (Array.isArray(parsed)) return parsed;
   } catch {
-    // ถ้า parse ไม่ได้ เช่น {"ข้าว"} → ตัด {} และ " ออก
     const cleaned = input.replace(/[{}"]/g, "").trim();
     if (cleaned) return [cleaned];
   }

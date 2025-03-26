@@ -397,7 +397,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
       console.log(data.ac_food);
 
-      data.ac_food = forceToArray(data.ac_food || []);
+      // data.ac_food = forceToArray(data.ac_food || []);
 
       // ✅ ตรวจสอบว่า mapActivityData() คืนค่า `Activity` ที่ถูกต้อง
       const mappedActivity = mapActivityData(data);

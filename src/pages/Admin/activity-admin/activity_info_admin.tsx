@@ -82,7 +82,16 @@ export default function ActivityInfoAdmin() {
             </div>
 
             {/* ภาพกิจกรรม */}
-            {activity.image_url !== "/img/default.png" ? (
+            {activity.image_url == "/img/default.png" ||
+            activity.image_url == "" ||
+            activity.image_url == null ? (
+              <div className="flex items-center justify-center bg-gray-100 w-full h-130 text-sm text-black-500 border border-black rounded-lg mt-4">
+                <div className="text-center text-black-400">
+                  <ImageOff size={60} className="mx-auto" />
+                  <p className="text-xl mt-2">ไม่มีรูปภาพสำหรับกิจกรรมนี้</p>
+                </div>
+              </div>
+            ) : (
               <div className="flex justify-center w-full h-130 bg-white border border-black rounded-lg mt-4">
                 <img
                   src={activity.image_url} // ✅ ใช้รูป Cloudinary หรือ default
@@ -90,13 +99,6 @@ export default function ActivityInfoAdmin() {
                   className="w-full h-full object-cover rounded-lg"
                   onError={(e) => (e.currentTarget.src = "/img/default.png")} // ✅ ใช้ default image ถ้าโหลดไม่สำเร็จ
                 />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center bg-gray-100 w-full h-130 text-sm text-black-500 border border-black rounded-lg mt-4">
-                <div className="text-center text-black-400">
-                  <ImageOff size={60} className="mx-auto" />
-                  <p className="text-xl mt-2">ไม่มีรูปภาพสำหรับกิจกรรมนี้</p>
-                </div>
               </div>
             )}
 
