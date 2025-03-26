@@ -39,6 +39,7 @@ interface ApiActivity {
     as_create_date: string;
     as_last_update?: string;
   } | null;
+  uac_selected_food: string | null;
 }
 
 // ✅ อินเทอร์เฟซที่ React ใช้งาน
@@ -77,6 +78,7 @@ interface Activity {
     as_create_date: string;
     as_last_update?: string;
   } | null;
+  selected_food: string | null;
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -157,6 +159,7 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
         as_last_update: apiData.assessment.as_last_update,
       }
     : null,
+  uac_selected_food: apiData.uac_selected_food,
 });
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
@@ -214,12 +217,12 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  enrollActivity: async (userId: string, activityId: number) => {
+  enrollActivity: async (userId: string, activityId: number, food?: string) => {
     try {
       set({ activityLoading: true, activityError: null });
       const response = await axiosInstance.post(
         `/student/activity/student-enroll-activity/${userId}`,
-        { activityId }
+        { activityId, food }
       );
 
       console.log("✅ ลงทะเบียนสำเร็จ:", response.data);
@@ -274,7 +277,10 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  fetchActivity: async (id: number | string): Promise<Activity | null> => {
+  fetchActivity: async (
+    id: number | string,
+    userId: number
+  ): Promise<Activity | null> => {
     const numericId = Number(id);
     if (!numericId || isNaN(numericId)) {
       set({ activityError: "Invalid Activity ID", activityLoading: false });
@@ -284,12 +290,13 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     set({ activityLoading: true, activityError: null });
 
     try {
+      console.log("userId in fetchActivity(store): ", userId);
       console.log(
-        `📡 Fetching activity from API: /activity/get-activity/${numericId}`
+        `📡 Fetching activity from API: /activity/get-activity/${numericId}?userId=${userId}`
       );
 
       const { data } = await axiosInstance.get<ApiActivity>(
-        `/student/activity/get-activity/${numericId}`
+        `/student/activity/get-activity/${numericId}?userId=${userId}`
       );
 
       console.log("📡 API Response:", data);

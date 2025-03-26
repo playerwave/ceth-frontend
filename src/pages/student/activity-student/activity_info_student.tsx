@@ -87,13 +87,15 @@ export default function ActivityInfoStudent() {
 
   console.log("✅ isEnrolled (client-side):", isEnrolled);
 
+  console.log();
+
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [isUnEnrollModalOpen, setIsUnEnrollModalOpen] = useState(false);
 
   const fetchActivityData = useCallback(() => {
     if (finalActivityId !== null && !isNaN(finalActivityId)) {
       console.log("📡 Fetching Activity with ID:", finalActivityId);
-      fetchActivity(finalActivityId);
+      fetchActivity(finalActivityId, 8);
     } else {
       console.error("❌ Error: Activity ID is missing or invalid!");
     }
@@ -102,6 +104,19 @@ export default function ActivityInfoStudent() {
   useEffect(() => {
     fetchActivityData();
   }, [fetchActivityData]);
+
+  // เพิ่ม useEffect นี้ด้านล่างของ useEffect อื่นๆที่มีอยู่แล้วในไฟล์
+  useEffect(() => {
+    if (isEnrolled && enrolledActivities.length > 0 && activity) {
+      const currentActivity = enrolledActivities.find(
+        (act) => Number(act.ac_id) === Number(activity.id)
+      );
+
+      if (currentActivity && currentActivity.uac_selected_food) {
+        setSelectedFood(currentActivity.uac_selected_food);
+      }
+    }
+  }, [isEnrolled, enrolledActivities, activity]);
 
   console.log("📌 Activity from Store:", activity);
 
@@ -120,16 +135,20 @@ export default function ActivityInfoStudent() {
   };
 
   const handleEnroll = async () => {
-    const userId = 8; // ดึง userId จาก localStorage
+    const userId = 8; // ดึง userId จาก localStorage จริงในอนาคต
     if (!userId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
 
-    await enrollActivity(userId, activity.id); // ✅ เรียกฟังก์ชันลงทะเบียน
-    setIsEnrollModalOpen(false); // ปิด Modal
+    if (activity.food && activity.food.length > 0 && !selectedFood) {
+      toast.error("❌ กรุณาเลือกอาหารก่อนลงทะเบียน");
+      return;
+    }
+
+    await enrollActivity(userId, activity.id, selectedFood); // ✅ ส่งเมนูอาหารไปด้วย
+    setIsEnrollModalOpen(false);
     navigate("/list-activity-student");
-    // window.location.reload();
   };
 
   const handleUnenroll = async () => {
@@ -287,10 +306,15 @@ export default function ActivityInfoStudent() {
               {Array.isArray(activity.food) && activity.food.length > 0 ? (
                 <Select
                   className="w-[40%] mt-1"
-                  value={activity.food[0] || ""} // ค่าเริ่มต้นเป็นตัวแรกในรายการ หรือเป็น "" ถ้าไม่มีค่า
-                  onChange={(e) => console.log("เลือก:", e.target.value)} // สามารถเปลี่ยนเป็นฟังก์ชันที่ต้องการ
+                  value={activity.uac_selected_food || selectedFood || ""}
+                  onChange={(e) => setSelectedFood(e.target.value)}
                   displayEmpty
+                  required
+                  disabled={isEnrolled} // ❗ ปิดการเลือกถ้านิสิตลงทะเบียนแล้ว
                 >
+                  <MenuItem value="" disabled>
+                    เลือกเมนูอาหาร
+                  </MenuItem>
                   {activity.food.map((food, index) => (
                     <MenuItem key={index} value={food}>
                       {food}
