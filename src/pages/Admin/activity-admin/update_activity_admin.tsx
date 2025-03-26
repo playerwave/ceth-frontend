@@ -735,22 +735,16 @@ const UpdateActivityAdmin: React.FC = () => {
                               formData.ac_end_register &&
                               dayjs(formData.ac_normal_register).isAfter(
                                 dayjs(formData.ac_end_register)
-                              ) &&
-                              dayjs(formData.ac_normal_register).isBefore(
-                                dayjs()
                               )
                             ),
                             helperText:
                               formData.ac_status !== "Private" &&
                               formData.ac_normal_register &&
                               formData.ac_end_register &&
-                              (dayjs(formData.ac_normal_register).isAfter(
+                              dayjs(formData.ac_normal_register).isAfter(
                                 dayjs(formData.ac_end_register)
-                              ) ||
-                                dayjs(formData.ac_normal_register).isBefore(
-                                  dayjs()
-                                ))
-                                ? "กรุณาใส่วันหรือเวลาใหม่ เวลาที่เปิดให้นิสิตสถานะ normal ลงทะเบียนต้องอยู่ก่อนเวลาปิดการลงทะเบียน และกรุณาเลือกวันที่หลังจากวันที่ปัจจุบัน"
+                              )
+                                ? "กรุณาใส่วันหรือเวลาใหม่ เวลาที่เปิดให้นิสิตสถานะ normal ลงทะเบียนต้องอยู่ก่อนเวลาปิดการลงทะเบียน "
                                 : "",
                           },
                         }}

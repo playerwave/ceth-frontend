@@ -526,13 +526,13 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   },
 }));
 
-function forceToArray(input: string): string[] {
+function forceToArray(input: unknown): string[] {
+  if (typeof input !== "string") return [];
+
   try {
-    // ลอง parse แบบ array ปกติก่อน
     const parsed = JSON.parse(input);
     if (Array.isArray(parsed)) return parsed;
   } catch {
-    // ถ้า parse ไม่ได้ เช่น {"ข้าว"} → ตัด {} และ " ออก
     const cleaned = input.replace(/[{}"]/g, "").trim();
     if (cleaned) return [cleaned];
   }

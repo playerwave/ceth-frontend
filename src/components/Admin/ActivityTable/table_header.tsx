@@ -111,7 +111,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
     {
       key: "company_lecturer_name",
       label: "ชื่อวิทยากร/ชื่อบริษัท",
-      sortable: true,
+      sortable: false,
     },
     { key: "type", label: "ประเภท", sortable: false },
     { key: "name", label: "ชื่อกิจกรรม", sortable: false },

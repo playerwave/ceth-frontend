@@ -367,6 +367,7 @@ const CreateActivityAdmin: React.FC = () => {
       ac_start_register: startRegister,
       ac_recieve_hours: acRecieveHours,
       ac_state: "Not Start",
+      ac_seat: parseInt(seatCapacity),
       ac_image_url: imageUrl, // ✅ ใช้ URL ของรูปภาพจาก Cloudinary
       ac_normal_register: convertToDate(formData.ac_normal_register),
       ac_end_register: convertToDate(formData.ac_end_register),
