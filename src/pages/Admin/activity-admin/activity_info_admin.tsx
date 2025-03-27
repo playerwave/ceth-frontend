@@ -195,7 +195,12 @@ export default function ActivityInfoAdmin() {
             {/*เลือก อาหาร*/}
             <div className="mt-4">
               <p className="font-semibold font-[Sarabun]">อาหาร</p>
-              {Array.isArray(activity.food) && activity.food.length > 0 ? (
+              {activity.location_type !== "Onsite" ||
+              (!Array.isArray(activity.food) || activity.food.length == 0) ? (
+                <p className="text-gray-500 mt-1 flex items-center">
+                  ไม่มีอาหารสำหรับกิจกรรมนี้ <Frown className="ml-3" />
+                </p>
+              ) : (
                 <Select
                   className="w-[40%] mt-1"
                   value={activity.food[0] || ""} // ค่าเริ่มต้นเป็นตัวแรกในรายการ หรือเป็น "" ถ้าไม่มีค่า
@@ -208,10 +213,6 @@ export default function ActivityInfoAdmin() {
                     </MenuItem>
                   ))}
                 </Select>
-              ) : (
-                <p className="text-gray-500 mt-1 flex items-center">
-                  ไม่มีอาหารสำหรับกิจกรรมนี้ <Frown className="ml-3" />
-                </p>
               )}
             </div>
 

@@ -201,7 +201,11 @@ export default function enrolled_list_admin() {
                         {student.status === "normal" ? "ปกติ" : "เสี่ยง"}
                       </span>
                     </td>
-                    <td className="p-3 text-center">{student.selectedfood}</td>
+                    <td className="p-3 text-center">
+                      {activity?.location_type !== "Onsite"
+                        ? "-"
+                        : student.selectedfood}
+                    </td>
                     <td className="p-3 text-center">{student.checkIn}</td>
                     <td className="p-3 text-center">{student.checkOut}</td>
                     <td className="p-3 text-center">{student.evaluated}</td>

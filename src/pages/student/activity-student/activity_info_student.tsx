@@ -354,28 +354,25 @@ export default function ActivityInfoStudent() {
             {/*เลือก อาหาร*/}
             <div className="mt-4">
               <p className="font-semibold font-[Sarabun]">อาหาร</p>
-              {Array.isArray(activity.food) && activity.food.length > 0 ? (
+              {activity.location_type !== "Onsite" ||
+              !Array.isArray(activity.food) ||
+              activity.food.length == 0 ? (
+                <p className="text-gray-500 mt-1 flex items-center">
+                  ไม่มีอาหารสำหรับกิจกรรมนี้ <Frown className="ml-3" />
+                </p>
+              ) : (
                 <Select
                   className="w-[40%] mt-1"
-                  value={activity.uac_selected_food || selectedFood || ""}
-                  onChange={(e) => setSelectedFood(e.target.value)}
+                  value={activity.food[0] || ""} // ค่าเริ่มต้นเป็นตัวแรกในรายการ หรือเป็น "" ถ้าไม่มีค่า
+                  onChange={(e) => console.log("เลือก:", e.target.value)} // สามารถเปลี่ยนเป็นฟังก์ชันที่ต้องการ
                   displayEmpty
-                  required
-                  disabled={isEnrolled} // ❗ ปิดการเลือกถ้านิสิตลงทะเบียนแล้ว
                 >
-                  <MenuItem value="" disabled>
-                    เลือกเมนูอาหาร
-                  </MenuItem>
                   {activity.food.map((food, index) => (
                     <MenuItem key={index} value={food}>
                       {food}
                     </MenuItem>
                   ))}
                 </Select>
-              ) : (
-                <p className="text-gray-500 mt-1 flex items-center">
-                  ไม่มีอาหารสำหรับกิจกรรมนี้ <Frown className="ml-3" />
-                </p>
               )}
             </div>
 
