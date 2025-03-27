@@ -158,6 +158,7 @@ export default function enrolled_list_admin() {
                 <th className="p-3 text-left w-[200px]">ชื่อ-นามสกุล</th>
                 <th className="p-3 text-left w-[120px]">สาขา</th>
                 <th className="p-3 text-center w-[120px]">สถานะ</th>
+                <th className="p-3 text-center w-[120px]">อาหาร</th>
                 <th className="p-3 text-center w-[120px]">ลงชื่อเข้า</th>
                 <th className="p-3 text-center w-[120px]">ลงชื่อออก</th>
                 <th className="p-3 text-center w-[120px] rounded-tr-lg rounded-br-lg">
@@ -200,6 +201,7 @@ export default function enrolled_list_admin() {
                         {student.status === "normal" ? "ปกติ" : "เสี่ยง"}
                       </span>
                     </td>
+                    <td className="p-3 text-center">{student.selectedfood}</td>
                     <td className="p-3 text-center">{student.checkIn}</td>
                     <td className="p-3 text-center">{student.checkOut}</td>
                     <td className="p-3 text-center">{student.evaluated}</td>

@@ -88,6 +88,7 @@ interface EnrolledStudent {
   checkIn: string;
   checkOut: string;
   evaluated: string;
+  selectedfood: string;
 }
 
 interface ActivityState {
@@ -488,6 +489,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         checkIn: "No", // ถ้ายังไม่มีข้อมูลให้ fix ไว้ก่อน
         checkOut: "No",
         evaluated: "No",
+        selectedfood: s.selectedfood,
       }));
 
       set({ enrolledStudents: mappedStudents });
