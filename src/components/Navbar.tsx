@@ -23,6 +23,8 @@ const Navbar = ({ children }) => {
           className="bg-white text-[#1E3A8A] px-4 py-2 rounded"
         >
           สลับเป็น {role === "admin" ? "Student" : "Admin"}
+          <br />
+          (สำหรับการทดสอบเท่านั้น)
         </button>
       </div>
 
