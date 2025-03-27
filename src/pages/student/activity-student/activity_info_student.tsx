@@ -199,7 +199,7 @@ export default function ActivityInfoStudent() {
 
     await enrollActivity(userId, activity.id, selectedFood);
     setIsEnrollModalOpen(false);
-    // navigate("/list-activity-student");
+    navigate("/list-activity-student");
   };
 
   const handleUnenroll = async () => {

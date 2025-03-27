@@ -26,7 +26,7 @@ export default function ActivityInfoAdmin() {
   const finalActivityId = id ? Number(id) : null;
   const navigate = useNavigate();
 
-  const { activity, isLoading, error, fetchActivity, activityLoading } =
+  const { activity, error, fetchActivity, activityLoading } =
     useActivityStore();
 
   const fetchActivityData = useCallback(() => {
@@ -44,7 +44,6 @@ export default function ActivityInfoAdmin() {
 
   console.log("📌 Activity from Store:", activity);
 
-  if (isLoading) return <p className="text-center text-lg">⏳ กำลังโหลด...</p>;
   if (error)
     return <p className="text-center text-lg text-red-500">❌ {error}</p>;
   if (!activity) return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;

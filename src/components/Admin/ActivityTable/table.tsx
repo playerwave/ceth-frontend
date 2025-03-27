@@ -129,7 +129,7 @@ const Table: React.FC<TableProps> = ({ title, data = [] }) => {
   });
 
   const [selectedTypes, setSelectedTypes] = useState<
-    Set<"HardSkill" | "SoftSkill">
+    Set<"Hard Skill" | "Soft Skill">
   >(new Set());
 
   const handleSort = (key: keyof Activity) => {
@@ -139,7 +139,7 @@ const Table: React.FC<TableProps> = ({ title, data = [] }) => {
     }));
   };
 
-  const handleCheckboxChange = (type: "HardSkill" | "SoftSkill") => {
+  const handleCheckboxChange = (type: "Hard Skill" | "Soft Skill") => {
     setSelectedTypes((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(type)) {

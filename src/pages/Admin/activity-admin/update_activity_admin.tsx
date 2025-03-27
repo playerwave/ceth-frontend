@@ -219,34 +219,34 @@ const UpdateActivityAdmin: React.FC = () => {
   // ✅ ฟังก์ชันตรวจสอบข้อผิดพลาดในฟอร์ม
   const validateForm = () => {
     let newErrors: Record<string, string> = {};
-
-    if (formData.ac_status == "Public") {
+  
+    if (formData.ac_status === "Public") {
+      // ชื่อกิจกรรม
       if (!formData.ac_name || formData.ac_name.length < 4) {
         newErrors.ac_name = "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร";
-        console.log(newErrors.ac_name);
       }
-      if (
-        !formData.ac_company_lecturer ||
-        formData.ac_company_lecturer.length < 4
-      ) {
+  
+      // วิทยากร
+      if (!formData.ac_company_lecturer || formData.ac_company_lecturer.length < 4) {
         newErrors.ac_company_lecturer = "ต้องมีอย่างน้อย 4 ตัวอักษร";
-        console.log(newErrors.ac_company_lecturer);
       }
+  
+      // ประเภทกิจกรรม
       if (!formData.ac_type) {
         newErrors.ac_type = "กรุณาเลือกประเภท";
-        console.log(newErrors.ac_type);
       }
+  
+      // สถานะกิจกรรม
       if (!formData.ac_status) {
         newErrors.ac_status = "กรุณาเลือกสถานะ";
-        console.log(newErrors.ac_status);
       }
+  
+      // วันเวลาเริ่ม-สิ้นสุดกิจกรรม
       if (!formData.ac_start_time) {
         newErrors.ac_start_time = "กรุณาเลือกวันและเวลาเริ่มกิจกรรม";
-        console.log(newErrors.ac_start_time);
       }
       if (!formData.ac_end_time) {
         newErrors.ac_end_time = "กรุณาเลือกวันและเวลาสิ้นสุดกิจกรรม";
-        console.log(newErrors.ac_end_time);
       }
       if (
         formData.ac_start_time &&
@@ -254,59 +254,56 @@ const UpdateActivityAdmin: React.FC = () => {
         dayjs(formData.ac_start_time).isAfter(dayjs(formData.ac_end_time))
       ) {
         newErrors.ac_end_time = "วันสิ้นสุดกิจกรรมต้องมากกว่าวันเริ่มกิจกรรม";
-        console.log(newErrors.ac_end_time);
       }
+  
+      // เวลาลงทะเบียน: ต้องอยู่หลังวันนี้ และก่อนวันปิด
       if (
         formData.ac_normal_register &&
         formData.ac_end_register &&
-        dayjs(formData.ac_normal_register).isAfter(
-          dayjs(formData.ac_end_register)
+        (
+          dayjs(formData.ac_normal_register).isBefore(dayjs().startOf("day")) ||
+          dayjs(formData.ac_normal_register).isAfter(dayjs(formData.ac_end_register)) ||
+          dayjs(formData.ac_normal_register).isSame(dayjs(formData.ac_end_register), "day")
         )
       ) {
-        newErrors.ac_normal_register =
-          "วันเปิดลงทะเบียนต้องอยู่ก่อนวันปิดลงทะเบียน";
-        console.log(newErrors.ac_normal_register);
+        newErrors.ac_normal_register = "วันเปิดลงทะเบียนต้องอยู่หลังวันนี้ และไม่ตรงหรือเกินวันปิดลงทะเบียน";
       }
-      if (!formData.ac_seat) {
-        newErrors.ac_seat = "กรุณาใส่จำนวนที่นั่ง";
+  
+      // จำนวนที่นั่ง
+      if (!formData.ac_seat || Number(formData.ac_seat) <= 0) {
+        newErrors.ac_seat = "❌ ต้องระบุจำนวนที่นั่งมากกว่า 0";
       }
+  
+      // ชั่วโมงกิจกรรม (ถ้าเป็น Course)
       if (
-        formData.ac_status === "Public" &&
         formData.ac_location_type === "Course" &&
         (!formData.ac_recieve_hours || Number(formData.ac_recieve_hours) <= 0)
       ) {
-        newErrors.ac_recieve_hours =
-          "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0";
-        console.log(newErrors.ac_recieve_hours);
+        newErrors.ac_recieve_hours = "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0";
       }
+  
+      // วันที่ประเมิน: ต้องอยู่หลังวันเริ่มกิจกรรม
       if (
         formData.ac_start_assessment &&
         formData.ac_start_time &&
-        dayjs(formData.ac_start_assessment).isBefore(
-          dayjs(formData.ac_start_time)
-        )
+        dayjs(formData.ac_start_assessment).isBefore(dayjs(formData.ac_start_time))
       ) {
-        newErrors.ac_start_assessment =
-          "❌ วันและเวลาเปิดให้ทำแบบประเมินต้องมากกว่าหรือเท่ากับวันที่เริ่มดำเนินกิจกรรม";
-
-        console.log(newErrors.ac_start_assessment);
+        newErrors.ac_start_assessment = "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม";
       }
+  
       if (
         formData.ac_end_assessment &&
         formData.ac_start_assessment &&
-        dayjs(formData.ac_end_assessment).isBefore(
-          dayjs(formData.ac_start_assessment)
-        )
+        dayjs(formData.ac_end_assessment).isBefore(dayjs(formData.ac_start_assessment))
       ) {
-        newErrors.ac_end_assessment =
-          "❌ วันที่ หรือ เวลาสิ้นสุดการทำแบบประเมินต้องอยู่หลังวันที่เริ่มทำแบบประเมิน";
-        console.log(newErrors.ac_end_assessment);
+        newErrors.ac_end_assessment = "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน";
       }
     }
-
+  
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // ✅ คืนค่า true ถ้าไม่มี error
+    return Object.keys(newErrors).length === 0;
   };
+  
 
   const uploadImageToCloudinary = async (file: File) => {
     if (!file || !file.type.startsWith("image/")) {
@@ -717,7 +714,7 @@ const UpdateActivityAdmin: React.FC = () => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DateTimePicker
                         className="w-77.5"
-                        minDate={dayjs()}
+                        minDate={dayjs().add(1, "day")}
                         value={
                           formData.ac_normal_register
                             ? dayjs(formData.ac_normal_register)
@@ -733,18 +730,32 @@ const UpdateActivityAdmin: React.FC = () => {
                               formData.ac_status !== "Private" &&
                               formData.ac_normal_register &&
                               formData.ac_end_register &&
-                              dayjs(formData.ac_normal_register).isAfter(
-                                dayjs(formData.ac_end_register)
-                              )
+                              (dayjs(formData.ac_normal_register).isBefore(
+                                dayjs().startOf("day")
+                              ) || // ❌ ก่อนวันนี้
+                                dayjs(formData.ac_normal_register).isAfter(
+                                  dayjs(formData.ac_end_register)
+                                ) || // ❌ หลังวันปิด
+                                dayjs(formData.ac_normal_register).isSame(
+                                  dayjs(formData.ac_end_register),
+                                  "day"
+                                )) // ❌ วันเดียวกัน
                             ),
                             helperText:
                               formData.ac_status !== "Private" &&
                               formData.ac_normal_register &&
                               formData.ac_end_register &&
-                              dayjs(formData.ac_normal_register).isAfter(
-                                dayjs(formData.ac_end_register)
-                              )
-                                ? "กรุณาใส่วันหรือเวลาใหม่ เวลาที่เปิดให้นิสิตสถานะ normal ลงทะเบียนต้องอยู่ก่อนเวลาปิดการลงทะเบียน "
+                              (dayjs(formData.ac_normal_register).isBefore(
+                                dayjs().startOf("day")
+                              ) ||
+                                dayjs(formData.ac_normal_register).isAfter(
+                                  dayjs(formData.ac_end_register)
+                                ) ||
+                                dayjs(formData.ac_normal_register).isSame(
+                                  dayjs(formData.ac_end_register),
+                                  "day"
+                                ))
+                                ? "วันเปิดให้นิสิตสถานะ normal ลงทะเบียน ต้องอยู่หลังวันนี้ และไม่ตรงกับหรือเลยวันปิดลงทะเบียน"
                                 : "",
                           },
                         }}
