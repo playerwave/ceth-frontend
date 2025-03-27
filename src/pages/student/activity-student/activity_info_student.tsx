@@ -134,8 +134,25 @@ export default function ActivityInfoStudent() {
     return `${hours}:${minutes} ${ampm}`;
   };
 
+  // const handleEnroll = async () => {
+  //   const userId = 8; // ดึง userId จาก localStorage จริงในอนาคต
+  //   if (!userId) {
+  //     toast.error("❌ ไม่พบข้อมูลผู้ใช้");
+  //     return;
+  //   }
+
+  //   if (activity.food && activity.food.length > 0 && !selectedFood) {
+  //     toast.error("❌ กรุณาเลือกอาหารก่อนลงทะเบียน");
+  //     return;
+  //   }
+
+  //   await enrollActivity(userId, activity.id, selectedFood); // ✅ ส่งเมนูอาหารไปด้วย
+  //   setIsEnrollModalOpen(false);
+  //   navigate("/list-activity-student");
+  // };
+
   const handleEnroll = async () => {
-    const userId = 8; // ดึง userId จาก localStorage จริงในอนาคต
+    const userId = 8;
     if (!userId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
@@ -146,9 +163,43 @@ export default function ActivityInfoStudent() {
       return;
     }
 
-    await enrollActivity(userId, activity.id, selectedFood); // ✅ ส่งเมนูอาหารไปด้วย
+    // ✅ ตรวจสอบเวลา
+    const hasTimeConflict = enrolledActivities.some((act) => {
+      // ถ้าอย่างใดอย่างหนึ่งเป็น Course ให้ข้ามไปเลย
+      if (
+        activity.location_type === "Course" ||
+        act.ac_location_type === "Course"
+      ) {
+        return false;
+      }
+
+      const existingStart = new Date(act.ac_start_time).getTime();
+      const existingEnd = new Date(act.ac_end_time).getTime();
+      const newStart = new Date(activity.start_time).getTime();
+      const newEnd = new Date(activity.end_time).getTime();
+
+      console.log("existingStart: ", existingStart);
+      console.log("existingEnd: ", existingEnd);
+      console.log("newStart:", newStart);
+      console.log("newEnd: ", newEnd);
+
+      return (
+        (newStart >= existingStart && newStart < existingEnd) ||
+        (newEnd > existingStart && newEnd <= existingEnd) ||
+        (newStart <= existingStart && newEnd >= existingEnd)
+      );
+    });
+
+    if (hasTimeConflict) {
+      toast.error(
+        "ไม่สามารถลงทะเบียนได้: เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว"
+      );
+      return;
+    }
+
+    await enrollActivity(userId, activity.id, selectedFood);
     setIsEnrollModalOpen(false);
-    navigate("/list-activity-student");
+    // navigate("/list-activity-student");
   };
 
   const handleUnenroll = async () => {
@@ -262,7 +313,7 @@ export default function ActivityInfoStudent() {
                 วันที่จัดกิจกรรม{" "}
                 {activity.start_time
                   ? new Date(activity.start_time).getDate() + 1 < 10
-                    ? `0${new Date(activity.start_time).getDate() + 1}`
+                    ? `0${new Date(activity.start_time).getDate()}`
                     : new Date(activity.start_time).getDate()
                   : "ไม่ระบุ"}{" "}
                 /

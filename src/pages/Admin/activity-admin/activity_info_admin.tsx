@@ -155,7 +155,7 @@ export default function ActivityInfoAdmin() {
                 วันที่จัดกิจกรรม{" "}
                 {activity.start_time
                   ? new Date(activity.start_time).getDate() + 1 < 10
-                    ? `0${new Date(activity.start_time).getDate() + 1}`
+                    ? `0${new Date(activity.start_time).getDate()}`
                     : new Date(activity.start_time).getDate()
                   : "ไม่ระบุ"}{" "}
                 /
