@@ -219,28 +219,31 @@ const UpdateActivityAdmin: React.FC = () => {
   // ✅ ฟังก์ชันตรวจสอบข้อผิดพลาดในฟอร์ม
   const validateForm = () => {
     let newErrors: Record<string, string> = {};
-  
+
     if (formData.ac_status === "Public") {
       // ชื่อกิจกรรม
       if (!formData.ac_name || formData.ac_name.length < 4) {
         newErrors.ac_name = "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร";
       }
-  
+
       // วิทยากร
-      if (!formData.ac_company_lecturer || formData.ac_company_lecturer.length < 4) {
+      if (
+        !formData.ac_company_lecturer ||
+        formData.ac_company_lecturer.length < 4
+      ) {
         newErrors.ac_company_lecturer = "ต้องมีอย่างน้อย 4 ตัวอักษร";
       }
-  
+
       // ประเภทกิจกรรม
       if (!formData.ac_type) {
         newErrors.ac_type = "กรุณาเลือกประเภท";
       }
-  
+
       // สถานะกิจกรรม
       if (!formData.ac_status) {
         newErrors.ac_status = "กรุณาเลือกสถานะ";
       }
-  
+
       // วันเวลาเริ่ม-สิ้นสุดกิจกรรม
       if (!formData.ac_start_time) {
         newErrors.ac_start_time = "กรุณาเลือกวันและเวลาเริ่มกิจกรรม";
@@ -255,55 +258,64 @@ const UpdateActivityAdmin: React.FC = () => {
       ) {
         newErrors.ac_end_time = "วันสิ้นสุดกิจกรรมต้องมากกว่าวันเริ่มกิจกรรม";
       }
-  
+
       // เวลาลงทะเบียน: ต้องอยู่หลังวันนี้ และก่อนวันปิด
       if (
         formData.ac_normal_register &&
         formData.ac_end_register &&
-        (
-          dayjs(formData.ac_normal_register).isBefore(dayjs().startOf("day")) ||
-          dayjs(formData.ac_normal_register).isAfter(dayjs(formData.ac_end_register)) ||
-          dayjs(formData.ac_normal_register).isSame(dayjs(formData.ac_end_register), "day")
-        )
+        (dayjs(formData.ac_normal_register).isAfter(
+          dayjs(formData.ac_end_register)
+        ) ||
+          dayjs(formData.ac_normal_register).isSame(
+            dayjs(formData.ac_end_register),
+            "day"
+          ))
       ) {
-        newErrors.ac_normal_register = "วันเปิดลงทะเบียนต้องอยู่หลังวันนี้ และไม่ตรงหรือเกินวันปิดลงทะเบียน";
+        newErrors.ac_normal_register =
+          "วันเปิดให้นิสิตสถานะ normal ลงทะเบียนต้องไม่ตรงหรือเกินวันปิดลงทะเบียน";
       }
-  
+
       // จำนวนที่นั่ง
       if (!formData.ac_seat || Number(formData.ac_seat) <= 0) {
         newErrors.ac_seat = "❌ ต้องระบุจำนวนที่นั่งมากกว่า 0";
       }
-  
+
       // ชั่วโมงกิจกรรม (ถ้าเป็น Course)
       if (
         formData.ac_location_type === "Course" &&
         (!formData.ac_recieve_hours || Number(formData.ac_recieve_hours) <= 0)
       ) {
-        newErrors.ac_recieve_hours = "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0";
+        newErrors.ac_recieve_hours =
+          "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0";
       }
-  
+
       // วันที่ประเมิน: ต้องอยู่หลังวันเริ่มกิจกรรม
       if (
         formData.ac_start_assessment &&
         formData.ac_start_time &&
-        dayjs(formData.ac_start_assessment).isBefore(dayjs(formData.ac_start_time))
+        dayjs(formData.ac_start_assessment).isBefore(
+          dayjs(formData.ac_start_time)
+        )
       ) {
-        newErrors.ac_start_assessment = "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม";
+        newErrors.ac_start_assessment =
+          "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม";
       }
-  
+
       if (
         formData.ac_end_assessment &&
         formData.ac_start_assessment &&
-        dayjs(formData.ac_end_assessment).isBefore(dayjs(formData.ac_start_assessment))
+        dayjs(formData.ac_end_assessment).isBefore(
+          dayjs(formData.ac_start_assessment)
+        )
       ) {
-        newErrors.ac_end_assessment = "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน";
+        newErrors.ac_end_assessment =
+          "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน";
       }
     }
-  
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
 
   const uploadImageToCloudinary = async (file: File) => {
     if (!file || !file.type.startsWith("image/")) {
@@ -727,35 +739,32 @@ const UpdateActivityAdmin: React.FC = () => {
                           textField: {
                             sx: { height: "56px" },
                             error: !!(
-                              formData.ac_status !== "Private" &&
-                              formData.ac_normal_register &&
-                              formData.ac_end_register &&
-                              (dayjs(formData.ac_normal_register).isBefore(
-                                dayjs().startOf("day")
-                              ) || // ❌ ก่อนวันนี้
-                                dayjs(formData.ac_normal_register).isAfter(
+                              (
+                                formData.ac_status !== "Private" &&
+                                formData.ac_normal_register &&
+                                formData.ac_end_register &&
+                                // ❌ ก่อนวันนี้
+                                (dayjs(formData.ac_normal_register).isAfter(
                                   dayjs(formData.ac_end_register)
                                 ) || // ❌ หลังวันปิด
-                                dayjs(formData.ac_normal_register).isSame(
-                                  dayjs(formData.ac_end_register),
-                                  "day"
-                                )) // ❌ วันเดียวกัน
+                                  dayjs(formData.ac_normal_register).isSame(
+                                    dayjs(formData.ac_end_register),
+                                    "day"
+                                  ))
+                              ) // ❌ วันเดียวกัน
                             ),
                             helperText:
                               formData.ac_status !== "Private" &&
                               formData.ac_normal_register &&
                               formData.ac_end_register &&
-                              (dayjs(formData.ac_normal_register).isBefore(
-                                dayjs().startOf("day")
+                              (dayjs(formData.ac_normal_register).isAfter(
+                                dayjs(formData.ac_end_register)
                               ) ||
-                                dayjs(formData.ac_normal_register).isAfter(
-                                  dayjs(formData.ac_end_register)
-                                ) ||
                                 dayjs(formData.ac_normal_register).isSame(
                                   dayjs(formData.ac_end_register),
                                   "day"
                                 ))
-                                ? "วันเปิดให้นิสิตสถานะ normal ลงทะเบียน ต้องอยู่หลังวันนี้ และไม่ตรงกับหรือเลยวันปิดลงทะเบียน"
+                                ? "วันเปิดให้นิสิตสถานะ normal ลงทะเบียน ต้องไม่ตรงกับหรือเลยวันปิดลงทะเบียน"
                                 : "",
                           },
                         }}
