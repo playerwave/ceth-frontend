@@ -5,6 +5,9 @@ import { Toaster } from "sonner";
 //import components
 import Navbar from "./components/Navbar";
 
+//import login
+import Login from "./pages/login";
+
 //import pages Admin
 import Main from "./pages/Admin/main_admin";
 import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
@@ -25,6 +28,10 @@ function App() {
     <>
       <Toaster position="bottom-right" richColors />
       <div>
+        {/* Un Authenticate Routes */}
+        <Routes>
+          <Route path="/login" element={<Login />} />
+        </Routes>
         {/* Admin Routes */}
         <Routes>
           <Route

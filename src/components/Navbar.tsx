@@ -17,7 +17,7 @@ const Navbar = ({ children }) => {
     <div className="flex">
       {/* Navbar (ติดขอบบน) */}
       <div className="fixed top-0 left-0 w-full bg-[#1E3A8A] text-white h-[80px] p-4 z-50 flex justify-between items-center">
-        <h2>BUU</h2>
+        <h1 className="text-2xl">Burapha University</h1>
         <button
           onClick={() => setRole(role === "admin" ? "student" : "admin")}
           className="bg-white text-[#1E3A8A] px-4 py-2 rounded"

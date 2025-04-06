@@ -152,7 +152,17 @@ const Table: React.FC<TableProps> = ({ title, data = [] }) => {
   };
 
   const sortedData = useMemo(() => {
-    if (!sortConfig.key) return data;
+    if (!sortConfig.key) {
+      return [...data].sort((a, b) => {
+        const timeA = a.start_time
+          ? new Date(a.start_time).getTime()
+          : Infinity;
+        const timeB = b.start_time
+          ? new Date(b.start_time).getTime()
+          : Infinity;
+        return timeA - timeB;
+      });
+    }
 
     return [...data].sort((a, b) => {
       const key = sortConfig.key as keyof Activity;

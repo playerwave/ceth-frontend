@@ -158,7 +158,12 @@ export default function ActivityInfoStudent() {
       return;
     }
 
-    if (activity.food && activity.food.length > 0 && !selectedFood) {
+    if (
+      activity.food &&
+      activity.food.length > 0 &&
+      !selectedFood &&
+      activity.location_type == "Onsite"
+    ) {
       toast.error("❌ กรุณาเลือกอาหารก่อนลงทะเบียน");
       return;
     }
