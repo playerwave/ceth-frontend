@@ -99,7 +99,7 @@ import { Checkbox, FormControlLabel } from "@mui/material";
 interface TableHeaderProps {
   handleSort: (key: keyof Activity) => void;
   sortConfig?: { key: keyof Activity | null; direction: "asc" | "desc" };
-  setFilterType: (type: "HardSkill" | "SoftSkill") => void;
+  setFilterType: (type: "Hard Skill" | "Soft Skill") => void;
 }
 
 const TableHeader: React.FC<TableHeaderProps> = ({
