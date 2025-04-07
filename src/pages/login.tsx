@@ -36,8 +36,16 @@ const Login = () => {
         .then(() => {
           setUser(decoded);
 
+          useAuthStore.setState((prev) => ({
+            user: {
+              ...prev.user!,
+              picture: decoded.picture, // ← เพิ่มเข้ามา
+            },
+          }));
+
           // ✅ ใช้ user role จาก store ใน zustand
           const role = useAuthStore.getState().user?.u_role;
+          console.log("role: ", role);
 
           if (role === "admin") {
             navigate("/main-admin");

@@ -1,13 +1,22 @@
 import { useState, useEffect } from "react";
+
+//import component
 import SidebarAdmin from "./Sidebar/sidebar_admin";
 import SidebarStudent from "./Sidebar/sidebar_student";
+import UserProfile from "./userProfile";
+
+// import mui component
+import Avatar from "@mui/material/Avatar";
+
+//import authStore
+import { useAuthStore } from "../stores/auth.store";
 
 const Navbar = ({ children }) => {
+  const { user } = useAuthStore();
+
   const [isCollapsed, setIsCollapsed] = useState(
     () => localStorage.getItem("sidebarCollapsed") === "true"
   );
-
-  const [role, setRole] = useState("student"); // ค่าเริ่มต้นเป็น student
 
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
@@ -18,14 +27,9 @@ const Navbar = ({ children }) => {
       {/* Navbar (ติดขอบบน) */}
       <div className="fixed top-0 left-0 w-full bg-[#1E3A8A] text-white h-[80px] p-4 z-50 flex justify-between items-center">
         <h1 className="text-2xl">Burapha University</h1>
-        <button
-          onClick={() => setRole(role === "admin" ? "student" : "admin")}
-          className="bg-white text-[#1E3A8A] px-4 py-2 rounded"
-        >
-          สลับเป็น {role === "admin" ? "Student" : "Admin"}
-          <br />
-          (สำหรับการทดสอบเท่านั้น)
-        </button>
+        <div className="mr-18">
+          <UserProfile />
+        </div>
       </div>
 
       {/* Sidebar */}
@@ -34,7 +38,7 @@ const Navbar = ({ children }) => {
           isCollapsed ? "w-[80px]" : "w-[280px]"
         } h-[calc(100vh-80px)] z-50 transition-all duration-300`}
       >
-        {role === "admin" ? (
+        {user?.u_role === "admin" ? (
           <SidebarAdmin
             isCollapsed={isCollapsed}
             toggleSidebar={() => setIsCollapsed(!isCollapsed)}
@@ -51,7 +55,6 @@ const Navbar = ({ children }) => {
       <div
         className={`flex-grow min-h-screen transition-all duration-300`}
         style={{
-          marginLeft: isCollapsed ? "80px" : "280px",
           marginTop: "80px",
         }}
       >

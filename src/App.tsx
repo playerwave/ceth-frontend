@@ -61,10 +61,19 @@ export const RedirectAuthenticatedUser = ({
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
+  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
 
   useEffect(() => {
-    checkAuth();
+    checkAuth(); // ✅ โหลดข้อมูลผู้ใช้ตอนเปิดเว็บหรือ refresh
   }, [checkAuth]);
+
+  if (isCheckingAuth) {
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <Loading /> {/* หรือ loading spinner ที่คุณมี */}
+      </div>
+    );
+  }
 
   return (
     <>
