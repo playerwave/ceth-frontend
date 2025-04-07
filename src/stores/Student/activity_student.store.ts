@@ -113,7 +113,7 @@ interface ActivityState {
   fetchEnrolledStudents: (id: number | string) => Promise<void>;
 }
 
-const mapActivityData = (apiData: ApiActivity): Activity => ({
+export const mapActivityData = (apiData: ApiActivity): Activity => ({
   id: apiData.ac_id.toString(),
   name: apiData.ac_name || "ไม่ระบุชื่อ",
   company_lecturer: apiData.ac_company_lecturer || "ไม่ระบุวิทยากร",
@@ -385,16 +385,18 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       console.log(
         `🚀 Fetching enrolled activities for student ID: ${studentId}`
       );
-      const { data } = await axiosInstance.get<Activity[]>(
+      const { data } = await axiosInstance.get<ApiActivity[]>(
         `/student/activity/get-enrolled-activities/${studentId}`
       );
+
+      const mappedActivities = data.map(mapActivityData);
 
       console.log("✅ Enrolled Activities API Response:", data);
 
       set((state) => ({
         enrolledActivitiesByUser: {
           ...state.enrolledActivitiesByUser,
-          [studentId]: data,
+          [studentId]: mappedActivities, // 👈 เก็บเป็น Activity[] ที่ map แล้ว
         },
         activityLoading: false,
       }));

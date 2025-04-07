@@ -106,7 +106,7 @@ export default function ActivityInfoStudent() {
     console.log("🔄 Checking if user is enrolled...");
 
     const isUserEnrolled = enrolledActivities.some(
-      (act) => Number(act.ac_id) === Number(id)
+      (act) => Number(act.id) === Number(id)
     );
 
     setIsEnrolled((prev) => {

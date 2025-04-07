@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Box, Typography, Card, Grid, TextField, Button } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import {
@@ -13,7 +13,10 @@ import {
 
 //import store
 import { useAuthStore } from "../../stores/auth.store";
-import { useActivityStore } from "../../stores/Student/activity_student.store";
+import {
+  useActivityStore,
+  mapActivityData,
+} from "../../stores/Student/activity_student.store";
 
 //import component
 import Table from "../../components/Student/table";
@@ -23,17 +26,16 @@ const MainStudent = () => {
   const [searchId, setSearchId] = useState("");
 
   const { user } = useAuthStore();
-
   const {
-    activities,
-    searchResults,
-    fetchActivities,
-    searchActivities,
     activityLoading,
     activityError,
     fetchEnrolledActivities,
-    enrolledActivities, // ✅ ดึง enrolledActivities มาใช้งาน
+    enrolledActivitiesByUser,
   } = useActivityStore();
+
+  const userId = user?.u_id?.toString() || "";
+
+  const enrolledActivities = enrolledActivitiesByUser[userId] || [];
 
   // ✅ อัปเดตข้อมูล Soft Skill & Hard Skill ทันทีที่มี ID
 
@@ -46,8 +48,10 @@ const MainStudent = () => {
   };
 
   useEffect(() => {
-    fetchEnrolledActivities(user?.u_id).finally(() => {});
-  }, []);
+    if (user?.u_id) {
+      fetchEnrolledActivities(user.u_id.toString());
+    }
+  }, [user?.u_id]);
 
   useEffect(() => {
     console.log("📌 ข้อมูลกิจกรรมที่ลงทะเบียน:", enrolledActivities);
@@ -56,20 +60,20 @@ const MainStudent = () => {
   const transformedActivities = (enrolledActivities ?? [])
     .filter(
       (act) =>
-        act.ac_status === "Public" &&
-        act.ac_end_register &&
-        new Date(act.ac_end_register) > new Date()
+        act.status === "Public" &&
+        act.end_register &&
+        new Date(act.end_register) > new Date()
     )
     .map((act) => ({
-      id: act.ac_id.toString(),
-      name: act.ac_name || "ไม่มีชื่อกิจกรรม",
-      company_lecturer: act.ac_company_lecturer || "ไม่มีข้อมูลบริษัท",
-      description: act.ac_description || "",
-      type: act.ac_type || "Soft Skill",
-      start_time: new Date(act.ac_start_time),
-      seat: act.ac_seat || 0,
-      status: act.ac_status || "Public",
-      registered_count: act.ac_registered_count || 0,
+      id: act.id,
+      name: act.name,
+      company_lecturer: act.company_lecturer,
+      description: act.description,
+      type: act.type,
+      start_time: act.start_time || new Date(),
+      seat: Number(act.seat),
+      status: act.status,
+      registered_count: act.registered_count,
     }));
 
   return (
