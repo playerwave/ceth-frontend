@@ -53,15 +53,20 @@ const MainStudent = () => {
     console.log("📌 ข้อมูลกิจกรรมที่ลงทะเบียน:", enrolledActivities);
   }, [enrolledActivities]);
 
-  const transformedActivities = enrolledActivities
-    .filter((act) => act.ac_status === "Public")
+  const transformedActivities = (enrolledActivities ?? [])
+    .filter(
+      (act) =>
+        act.ac_status === "Public" &&
+        act.ac_end_register &&
+        new Date(act.ac_end_register) > new Date()
+    )
     .map((act) => ({
-      id: act.ac_id.toString(), // ✅ แปลง id เป็น string
+      id: act.ac_id.toString(),
       name: act.ac_name || "ไม่มีชื่อกิจกรรม",
       company_lecturer: act.ac_company_lecturer || "ไม่มีข้อมูลบริษัท",
       description: act.ac_description || "",
       type: act.ac_type || "Soft Skill",
-      start_time: new Date(act.ac_start_time), // ✅ แปลงเป็น Date object
+      start_time: new Date(act.ac_start_time),
       seat: act.ac_seat || 0,
       status: act.ac_status || "Public",
       registered_count: act.ac_registered_count || 0,
@@ -192,7 +197,8 @@ const MainStudent = () => {
               <p className="text-center text-red-500 p-4">
                 ❌ เกิดข้อผิดพลาด: {activityError}
               </p>
-            ) : enrolledActivities.length === 0 ? (
+            ) : !Array.isArray(enrolledActivities) ||
+              enrolledActivities.length === 0 ? (
               <p className="text-center text-gray-500 p-4">📭 ไม่พบกิจกรรม</p>
             ) : (
               <Table title="" data={transformedActivities} />

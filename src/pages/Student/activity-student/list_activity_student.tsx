@@ -59,8 +59,8 @@ const ManageActivityAdmin: React.FC = () => {
     (a) =>
       a.status === "Public" &&
       a.seat !== a.registered_count &&
-      a.end_time &&
-      new Date(a.end_time) > new Date()
+      a.end_register &&
+      new Date(a.end_register) > new Date()
   );
 
   const [searchTerm, setSearchTerm] = useState("");
