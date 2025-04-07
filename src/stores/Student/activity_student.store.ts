@@ -93,8 +93,15 @@ interface EnrolledStudent {
 }
 
 interface ActivityState {
-  activities: Activity[];
-  enrolledActivities: Activity[];
+  // activities: Activity[];
+  // enrolledActivities: Activity[];
+
+  // new
+  activitiesByUser: Record<string, Activity[]>;
+  enrolledActivitiesByUser: Record<string, Activity[]>;
+  getActivitiesByUser: (userId: string) => Activity[];
+  getEnrolledActivitiesByUser: (userId: string) => Activity[];
+
   searchResults: Activity[] | null;
   activityError: string | null;
   activityLoading: boolean;
@@ -163,12 +170,19 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
 });
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
-  activities: [],
+  // activities: [],
   searchResults: null,
   activityError: null,
   activityLoading: false,
   activity: null,
-  enrolledActivities: [],
+  // enrolledActivities: [],
+
+  // new
+  activitiesByUser: {},
+  enrolledActivitiesByUser: {},
+  getActivitiesByUser: (userId) => get().activitiesByUser[userId] || [],
+  getEnrolledActivitiesByUser: (userId) =>
+    get().enrolledActivitiesByUser[userId] || [],
 
   fetchStudentActivities: async (userId: string) => {
     set({ activityLoading: true, activityError: null });
@@ -207,7 +221,14 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         end_assessment: a.ac_end_assessment,
       }));
 
-      set({ activities: formattedActivities, activityLoading: false });
+      // set({ activities: formattedActivities, activityLoading: false });
+      set((state) => ({
+        activitiesByUser: {
+          ...state.activitiesByUser,
+          [userId]: formattedActivities,
+        },
+        activityLoading: false,
+      }));
     } catch (error) {
       console.error("❌ Error fetching student activities:", error);
       set({
@@ -367,10 +388,13 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
       console.log("✅ Enrolled Activities API Response:", data);
 
-      set({
-        enrolledActivities: data, // ✅ เก็บกิจกรรมที่นิสิตลงทะเบียนไว้
+      set((state) => ({
+        enrolledActivitiesByUser: {
+          ...state.enrolledActivitiesByUser,
+          [studentId]: data,
+        },
         activityLoading: false,
-      });
+      }));
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({

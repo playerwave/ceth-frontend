@@ -18,13 +18,12 @@ const ManageActivityAdmin: React.FC = () => {
   const { user } = useAuthStore();
 
   const {
-    activities,
     searchResults,
-    fetchActivities,
+    fetchStudentActivities,
     searchActivities,
     activityLoading,
     activityError,
-    fetchStudentActivities,
+    getActivitiesByUser,
   } = useActivityStore();
 
   const [activeTab, setActiveTab] = useState<"list" | "calendar">("list");
@@ -50,9 +49,18 @@ const ManageActivityAdmin: React.FC = () => {
     } // ✅ โหลดข้อมูลใหม่ทุกครั้งเมื่อเปิดหน้านี้
   }, []);
 
-  const displayedActivities = searchResults ?? activities;
+  const displayedActivities = searchResults ?? getActivitiesByUser(user?.u_id);
+
+  // const activitiesFilter = displayedActivities.filter(
+  //   (a) => a.status === "Public" && a.seat !== a.registered_count
+  // );
+
   const activitiesFilter = displayedActivities.filter(
-    (a) => a.status === "Public" && a.seat !== a.registered_count
+    (a) =>
+      a.status === "Public" &&
+      a.seat !== a.registered_count &&
+      a.end_time &&
+      new Date(a.end_time) > new Date()
   );
 
   const [searchTerm, setSearchTerm] = useState("");
