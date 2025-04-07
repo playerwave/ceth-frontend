@@ -333,7 +333,10 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       const mappedActivity = mapActivityData(data);
       console.log("✅ Mapped Activity:", mappedActivity);
 
-      const enrolledActivities = get().enrolledActivities; // ✅ ดึงค่าจาก store
+      const enrolledActivities = get().getEnrolledActivitiesByUser(
+        userId.toString()
+      );
+      // ✅ ดึงค่าจาก store
       console.log("📌 Enrolled Activities (All):", enrolledActivities);
 
       // ✅ ตรวจสอบว่ามีอย่างน้อย 2 ตัวหรือไม่ก่อน log

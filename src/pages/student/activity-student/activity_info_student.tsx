@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 //import store
@@ -40,10 +40,14 @@ export default function ActivityInfoStudent() {
     error,
     fetchActivity,
     enrollActivity,
-    enrolledActivities,
     fetchEnrolledActivities,
     unenrollActivity,
+    getEnrolledActivitiesByUser, // ✅ เพิ่ม getter
   } = useActivityStore();
+
+  const enrolledActivities = useMemo(() => {
+    return user?.u_id ? getEnrolledActivitiesByUser(user.u_id.toString()) : [];
+  }, [user?.u_id, getEnrolledActivitiesByUser]);
 
   const [isEnrolled, setIsEnrolled] = useState(false);
 
@@ -55,25 +59,54 @@ export default function ActivityInfoStudent() {
 
   // ✅ โหลดข้อมูลกิจกรรมที่ลงทะเบียนเมื่อหน้าโหลด
   useEffect(() => {
-    fetchEnrolledActivities(user?.u_id);
-  }, []);
+    if (user?.u_id) {
+      fetchEnrolledActivities(user.u_id.toString());
+    }
+  }, [user?.u_id]);
 
   // ✅ เช็คว่า user ลงทะเบียนกิจกรรมนี้หรือไม่ (หลังจากข้อมูลโหลดเสร็จ)
   useEffect(() => {
-    console.log("📡 Fetching Activity Details...");
-    fetchActivity(id);
-  }, [fetchEnrolledActivities]); // ✅ ทำงานเมื่อ `fetchEnrolledActivities` เสร็จ
+    if (user?.u_id && id) {
+      fetchActivity(id, user.u_id);
+    }
+  }, [user?.u_id, id]);
+  // ✅ ทำงานเมื่อ `fetchEnrolledActivities` เสร็จ
+
+  // useEffect(() => {
+  //   if (enrolledActivities.length === 0) {
+  //     console.log("⚠ ไม่มีข้อมูล enrolledActivities ยังไม่โหลด");
+  //     return;
+  //   }
+
+  //   console.log("🔄 Checking if user is enrolled...");
+
+  //   const isUserEnrolled = enrolledActivities.some(
+  //     (act) => Number(act.ac_id) === Number(id) // ✅ แปลงเป็นตัวเลขก่อนเทียบ
+  //   );
+
+  //   setIsEnrolled((prev) => {
+  //     if (prev !== isUserEnrolled) {
+  //       console.log("✅ Updating isEnrolled to:", isUserEnrolled);
+  //       return isUserEnrolled;
+  //     }
+  //     return prev; // ❌ ถ้าเท่าเดิม ไม่ต้อง setState ซ้ำ
+  //   });
+  // }, [enrolledActivities, id]); // ✅ ทำงานเมื่อ enrolledActivities หรือ id เปลี่ยน
 
   useEffect(() => {
-    if (enrolledActivities.length === 0) {
-      console.log("⚠ ไม่มีข้อมูล enrolledActivities ยังไม่โหลด");
+    // if (!Array.isArray(enrolledActivities) || enrolledActivities.length === 0) {
+    //   console.log("⚠ ไม่มีข้อมูล enrolledActivities หรือยังไม่โหลด");
+    //   return;
+    // }
+    if (!Array.isArray(enrolledActivities) || enrolledActivities.length === 0) {
+      console.log("⚠ ไม่มีข้อมูล enrolledActivities หรือยังไม่โหลด");
       return;
     }
 
     console.log("🔄 Checking if user is enrolled...");
 
     const isUserEnrolled = enrolledActivities.some(
-      (act) => Number(act.ac_id) === Number(id) // ✅ แปลงเป็นตัวเลขก่อนเทียบ
+      (act) => Number(act.ac_id) === Number(id)
     );
 
     setIsEnrolled((prev) => {
@@ -81,9 +114,9 @@ export default function ActivityInfoStudent() {
         console.log("✅ Updating isEnrolled to:", isUserEnrolled);
         return isUserEnrolled;
       }
-      return prev; // ❌ ถ้าเท่าเดิม ไม่ต้อง setState ซ้ำ
+      return prev;
     });
-  }, [enrolledActivities, id]); // ✅ ทำงานเมื่อ enrolledActivities หรือ id เปลี่ยน
+  }, [enrolledActivities, id]);
 
   console.log(id);
 
@@ -111,7 +144,12 @@ export default function ActivityInfoStudent() {
 
   // เพิ่ม useEffect นี้ด้านล่างของ useEffect อื่นๆที่มีอยู่แล้วในไฟล์
   useEffect(() => {
-    if (isEnrolled && enrolledActivities.length > 0 && activity) {
+    if (
+      isEnrolled &&
+      Array.isArray(enrolledActivities) &&
+      enrolledActivities.length > 0 &&
+      activity
+    ) {
       const currentActivity = enrolledActivities.find(
         (act) => Number(act.ac_id) === Number(activity.id)
       );
