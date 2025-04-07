@@ -1,6 +1,10 @@
 import { useEffect, useCallback, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+
+//import store
 import { useActivityStore } from "../../../stores/Student/activity_student.store";
+import { useAuthStore } from "../../../stores/auth.store";
+
 import {
   Clock,
   MapPin,
@@ -29,6 +33,7 @@ export default function ActivityInfoStudent() {
   const finalActivityId = id ? Number(id) : null;
   const navigate = useNavigate();
 
+  const { user } = useAuthStore();
   const {
     activity,
     activityLoading,
@@ -50,8 +55,7 @@ export default function ActivityInfoStudent() {
 
   // ✅ โหลดข้อมูลกิจกรรมที่ลงทะเบียนเมื่อหน้าโหลด
   useEffect(() => {
-    const userId = 8;
-    fetchEnrolledActivities(userId);
+    fetchEnrolledActivities(user?.u_id);
   }, []);
 
   // ✅ เช็คว่า user ลงทะเบียนกิจกรรมนี้หรือไม่ (หลังจากข้อมูลโหลดเสร็จ)
@@ -95,7 +99,7 @@ export default function ActivityInfoStudent() {
   const fetchActivityData = useCallback(() => {
     if (finalActivityId !== null && !isNaN(finalActivityId)) {
       console.log("📡 Fetching Activity with ID:", finalActivityId);
-      fetchActivity(finalActivityId, 8);
+      fetchActivity(finalActivityId, user?.u_id);
     } else {
       console.error("❌ Error: Activity ID is missing or invalid!");
     }
@@ -152,8 +156,7 @@ export default function ActivityInfoStudent() {
   // };
 
   const handleEnroll = async () => {
-    const userId = 8;
-    if (!userId) {
+    if (!user) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
@@ -202,19 +205,18 @@ export default function ActivityInfoStudent() {
       return;
     }
 
-    await enrollActivity(userId, activity.id, selectedFood);
+    await enrollActivity(user.u_id, activity.id, selectedFood);
     setIsEnrollModalOpen(false);
     navigate("/list-activity-student");
   };
 
   const handleUnenroll = async () => {
-    const userId = 8; // ดึงจาก localStorage แทนภายหลัง
-    if (!userId) {
+    if (!user) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
 
-    await unenrollActivity(userId, activity.id); // ✅ ฟังก์ชันนี้คุณต้องเพิ่มใน store ด้วย
+    await unenrollActivity(user.u_id, activity.id); // ✅ ฟังก์ชันนี้คุณต้องเพิ่มใน store ด้วย
     setIsUnEnrollModalOpen(false);
     navigate("/main-student");
     // window.location.reload();

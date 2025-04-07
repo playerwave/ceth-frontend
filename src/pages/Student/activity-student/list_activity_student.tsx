@@ -9,10 +9,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Loading from "../../../components/Loading";
 import SearchBar from "../../../components/Searchbar";
 import Table from "../../../components/Student/table";
+import { useAuthStore } from "../../../stores/auth.store";
 
 const ManageActivityAdmin: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { user } = useAuthStore();
+
   const {
     activities,
     searchResults,
@@ -40,11 +44,9 @@ const ManageActivityAdmin: React.FC = () => {
   //   }
   // }, [location, navigate]);
 
-  const userId = localStorage.getItem("userId") || "8";
-
   useEffect(() => {
-    if (userId) {
-      fetchStudentActivities(userId);
+    if (user?.u_id) {
+      fetchStudentActivities(user.u_id);
     } // ✅ โหลดข้อมูลใหม่ทุกครั้งเมื่อเปิดหน้านี้
   }, []);
 

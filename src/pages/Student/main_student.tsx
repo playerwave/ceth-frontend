@@ -10,12 +10,19 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+
+//import store
+import { useAuthStore } from "../../stores/auth.store";
 import { useActivityStore } from "../../stores/Student/activity_student.store";
+
+//import component
 import Table from "../../components/Student/table";
 import Loading from "../../components/Loading";
 
 const MainStudent = () => {
   const [searchId, setSearchId] = useState("");
+
+  const { user } = useAuthStore();
 
   const {
     activities,
@@ -38,10 +45,8 @@ const MainStudent = () => {
     }
   };
 
-  const userId = localStorage.getItem("userId") || "8";
-
   useEffect(() => {
-    fetchEnrolledActivities(userId).finally(() => {});
+    fetchEnrolledActivities(user?.u_id).finally(() => {});
   }, []);
 
   useEffect(() => {
