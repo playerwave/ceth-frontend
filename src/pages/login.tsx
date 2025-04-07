@@ -139,6 +139,7 @@ const Login = () => {
         setUser(decoded);
 
         const role = useAuthStore.getState().user?.u_role;
+        console.log("user role: ", role);
         if (role === "admin") navigate("/main-admin");
         else if (role === "student") navigate("/main-student");
         else alert("❌ ไม่สามารถระบุบทบาทของผู้ใช้ได้");
