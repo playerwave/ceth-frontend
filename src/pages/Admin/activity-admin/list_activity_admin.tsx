@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { FaList, FaCalendar } from "react-icons/fa";
-import SearchBar from "../../../components/search_bar";
-import Table from "../../../components/table";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useActivityStore } from "../../../stores/Admin/activity_store";
@@ -9,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 
 //import component
 import Loading from "../../../components/Loading";
+import SearchBar from "../../../components/Searchbar";
+import Table from "../../../components/Admin/ActivityTable/table";
 
 const ManageActivityAdmin: React.FC = () => {
   const navigate = useNavigate();
@@ -40,7 +40,9 @@ const ManageActivityAdmin: React.FC = () => {
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-5">
       <h1 className="text-center text-2xl font-bold mb-4">จัดการกิจกรรม</h1>
 
-      <SearchBar onSearch={searchActivities} />
+      <div className="flex justify-center items-center w-full">
+        <SearchBar onSearch={searchActivities} />
+      </div>
 
       <div className="flex justify-between items-center mb-4 mt-5">
         <div className="flex space-x-4">

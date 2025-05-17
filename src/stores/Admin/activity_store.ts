@@ -159,28 +159,38 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   searchActivities: async (searchName: string) => {
     if (!searchName.trim()) {
-      get().fetchActivities();
+      console.log("🔄 ค้นหาว่าง → โหลดข้อมูลทั้งหมด");
+      get().fetchActivities(); // ✅ โหลดข้อมูลทั้งหมดแทน
       set({ searchResults: null });
       return;
     }
+
     set({ activityLoading: true, activityError: null });
+    console.log("📡 ค่าที่ส่งไป API:", { ac_name: searchName.trim() || "" });
+
     try {
       const { data } = await axiosInstance.get(`/activity/searchActivity`, {
-        params: { ac_name: searchName },
+        params: { ac_name: searchName.trim() || "" }, // ✅ เปลี่ยนให้ตรงกับ backend
       });
-      set({
-        searchResults: Array.isArray(data) ? data.map(mapActivityData) : [],
-        activityLoading: false,
-      });
+      set({ searchResults: data });
+
+      console.log("🔍 ค้นหา API Response:", data);
+
+      if (Array.isArray(data) && data.length > 0) {
+        const mappedResults = data.map(mapActivityData);
+        set({ searchResults: mappedResults, activityLoading: false });
+        console.log("✅ ผลลัพธ์จากการค้นหา:", mappedResults);
+      } else {
+        set({ searchResults: [], activityLoading: false });
+        console.warn("⚠️ ไม่พบกิจกรรมที่ตรงกับคำค้นหา:", searchName);
+      }
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
-      set({
-        activityError:
-          err.response?.data?.message ?? "Error searching activities",
-        activityError:
-          err.response?.data?.message ?? "Error searching activities",
-        activityLoading: false,
-      });
+      const errorMessage =
+        err.response?.data?.message ?? "Error searching activities";
+      set({ activityError: errorMessage, activityLoading: false });
+
+      console.error("❌ Error searching activities:", err);
     }
   },
 

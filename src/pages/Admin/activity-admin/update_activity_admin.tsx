@@ -490,7 +490,7 @@ const UpdateActivityAdmin: React.FC = () => {
                           {/* กรอกเวลาปิดรับลงทะเบียน */}
                           <input
                             type="time"
-                            name="ac_end_register_time"
+                            name="ac_normal_register_time"
                             value={
                               formData.ac_normal_register
                                 ? new Date(
