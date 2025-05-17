@@ -1,36 +1,12 @@
-import { useEffect, useCallback, useState, useMemo } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import SearchBar from "../../../components/Iist_Actitity_Student/search_bar_student";
+import Table from "../../../components/Iist_Actitity_Student/table_student";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useAppStore } from "../../../stores/Test/store_test_student";
+import { useNavigate } from "react-router-dom";
 
-//import store
-import { useActivityStore } from "../../../stores/Student/activity_student.store";
-import { useAuthStore } from "../../../stores/auth.store";
-
-import {
-  Clock,
-  MapPin,
-  Play,
-  User,
-  CalendarDays,
-  Hourglass,
-  Frown,
-  School,
-  HouseWifi,
-  ImageOff,
-} from "lucide-react";
-import Typography from "@mui/material/Typography";
-import { toast } from "sonner";
-import { Select, MenuItem } from "@mui/material";
-
-// import components
-import Button from "../../../components/Button";
-import ConfirmDialog from "../../../components/ConfirmDialog";
-import Loading from "../../../components/Loading";
-
-export default function ActivityInfoStudent() {
-  const { id: paramId } = useParams();
-  const location = useLocation();
-  const id = location.state?.id || paramId; // ✅ ใช้ state หรือ param ถ้ามี
-  const finalActivityId = id ? Number(id) : null;
+const ManageActivityStudent: React.FC = () => {
   const navigate = useNavigate();
 
   const { user } = useAuthStore();
