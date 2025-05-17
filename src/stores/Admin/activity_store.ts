@@ -94,7 +94,7 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   description: apiData.ac_description || "ไม่ระบุรายละเอียด",
   type: apiData.ac_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
   room: apiData.ac_room || "ไม่ระบุห้อง",
-  seat: `${apiData.ac_seat}/${apiData.ac_registered_count ?? 0}`,
+  seat: `${apiData.ac_seat}`,
   food: Array.isArray(apiData.ac_food) ? apiData.ac_food : [],
   status: apiData.ac_status.toLowerCase() === "public" ? "Public" : "Private",
   start_register: apiData.ac_start_register || null,
