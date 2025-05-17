@@ -164,9 +164,10 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
         </span>
       </td>
       <td className="p-2">
-        {act.name.length > 20
-          ? act.name.slice(0, 20) + "..." // ตัดข้อความที่ยาวเกิน 20 ตัวอักษร
-          : act.name}
+        {act.description
+          ? act.description.split(" ").slice(0, 10).join(" ") +
+            (act.description.split(" ").length > 30 ? "..." : "")
+          : ""}
       </td>
 
       <td>
