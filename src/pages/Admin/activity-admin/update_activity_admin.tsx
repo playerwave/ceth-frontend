@@ -2396,7 +2396,9 @@ const UpdateActivityAdmin: React.FC = () => {
                 <Button
                   type="button"
                   color="red"
-                  onClick={() => navigate("/list-activity-admin")}
+                  onClick={() => {
+                    setIsModalOpen(true);
+                  }}
                 >
                   ยกเลิก
                 </Button>

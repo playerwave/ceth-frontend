@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axiosInstance from "../../libs/axios";
 import { AxiosError } from "axios";
+import { toast, Toaster } from "sonner";
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลที่มาจาก API
 interface ApiActivity {
@@ -128,20 +129,29 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       const { data } = await axiosInstance.get<ApiActivity[]>(
         "/activity/get-activities"
       );
-      if (Array.isArray(data) && data.length > 0) {
-        set({ activities: data.map(mapActivityData), activityLoading: false });
-      } else {
-        set({ activities: [], activityLoading: false });
-      }
+
+      // ✅ ทำให้ Loading นานขึ้น 3 วินาทีก่อนอัปเดต state
+      setTimeout(() => {
+        if (Array.isArray(data) && data.length > 0) {
+          set({
+            activities: data.map(mapActivityData),
+            activityLoading: false,
+          });
+        } else {
+          set({ activities: [], activityLoading: false });
+        }
+      }, 2000); // ⏳ ดีเลย์ 3 วินาที
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
-      set({
-        activityError:
-          err.response?.data?.message ?? "Error fetching activities",
-        activityError:
-          err.response?.data?.message ?? "Error fetching activities",
-        activityLoading: false,
-      });
+
+      // ✅ ทำให้ Error ก็แสดง Loading นานขึ้น 3 วินาทีก่อนปิด
+      setTimeout(() => {
+        set({
+          activityError:
+            err.response?.data?.message ?? "Error fetching activities",
+          activityLoading: false,
+        });
+      }, 2000); // ⏳ ดีเลย์ 3 วินาที
     }
   },
 

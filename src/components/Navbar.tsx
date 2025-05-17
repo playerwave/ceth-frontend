@@ -28,7 +28,9 @@ const Navbar = ({ children }) => {
       </div>
 
       {/* Sidebar */}
+      {/* Sidebar */}
       <div
+        className={`fixed top-[80px] left-0 ${
         className={`fixed top-[80px] left-0 ${
           isCollapsed ? "w-[80px]" : "w-[280px]"
         } h-[calc(100vh-80px)] z-50 transition-all duration-300`}
