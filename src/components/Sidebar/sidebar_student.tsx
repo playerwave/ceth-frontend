@@ -13,9 +13,21 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+
+//import authStore
 import { useAuthStore } from "../../stores/auth.store";
 
-const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
+const SidebarStudent = () => {
+  // ✅ โหลดค่า `isCollapsed` จาก LocalStorage ถ้ามี
+  const [isCollapsed, setIsCollapsed] = useState(
+    () => localStorage.getItem("sidebarCollapsed") === "true"
+  );
+
+  // ✅ เมื่อ `isCollapsed` เปลี่ยน, อัปเดตค่าใน LocalStorage
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
+  }, [isCollapsed]);
+
   const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout);
 
@@ -27,18 +39,6 @@ const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
       console.error("❌ Logout failed:", error);
     }
   };
-
-  // ✅ โหลดค่า `isCollapsed` จาก LocalStorage ถ้ามี
-  // const [isCollapsed, setIsCollapsed] = useState(() => {
-  //   const stored = localStorage.getItem("sidebarCollapsed");
-  //   console.log("▶ sidebarCollapsed from localStorage:", stored); // Debug ตรงนี้
-  //   return stored !== null ? stored === "true" : true; // หุบโดย default
-  // });
-
-  // // ✅ เมื่อ `isCollapsed` เปลี่ยน, อัปเดตค่าใน LocalStorage
-  // useEffect(() => {
-  //   localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
-  // }, [isCollapsed]);
 
   const handleNotInThisSprint = () => {
     alert("Use Case นี้จะถูกพัฒนาใน Sprint อื่นๆ ขออภัยในความไม่สะดวก");
@@ -61,8 +61,9 @@ const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
         >
           Panel
         </span>
+
         <button
-          onClick={toggleSidebar}
+          onClick={() => setIsCollapsed(!isCollapsed)}
           className="text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-200 transition"
         >
           {isCollapsed ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
@@ -72,13 +73,13 @@ const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
       {/* เมนู Sidebar */}
       <div className="flex flex-col space-y-1">
         <SidebarItem
-          to="/main-admin"
+          to="/main-student"
           icon={<Home size={24} />}
           text="หน้าหลัก"
           collapsed={isCollapsed}
         />
         <SidebarItem
-          to="/list-activity-admin"
+          to="/list-activity-student"
           icon={<BookA size={24} />}
           text="กิจกรรมสหกิจ"
           collapsed={isCollapsed}
@@ -87,20 +88,6 @@ const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
           to="/history"
           icon={<History size={24} />}
           text="ประวัติกิจกรรม (ห้าม click)"
-          onClick={handleNotInThisSprint}
-          collapsed={isCollapsed}
-        />
-        <SidebarItem
-          to="/evaluation"
-          icon={<ClipboardList size={24} />}
-          text="แบบประเมิน (ห้าม click)"
-          onClick={handleNotInThisSprint}
-          collapsed={isCollapsed}
-        />
-        <SidebarItem
-          to="/students"
-          icon={<Users size={24} />}
-          text="รายชื่อนิสิต (ห้าม click)"
           onClick={handleNotInThisSprint}
           collapsed={isCollapsed}
         />
@@ -118,7 +105,7 @@ const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
           onClick={handleNotInThisSprint}
           collapsed={isCollapsed}
         />
-        <div className="mt-70">
+        <div className="mt-90">
           <SidebarItem
             to="#"
             icon={<LogOut size={24} />}
@@ -172,4 +159,4 @@ const SidebarItem = ({ to, icon, text, onClick, collapsed }) => {
   );
 };
 
-export default SidebarAdmin;
+export default SidebarStudent;

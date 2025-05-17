@@ -17,7 +17,7 @@ interface ApiActivity {
   ac_end_register: Date;
   ac_create_date: Date;
   ac_last_update: Date;
-  ac_registerant_count: number;
+  ac_registered_count: number;
   ac_attended_count: number;
   ac_not_attended_count: number;
   ac_start_time: Date;
@@ -34,49 +34,26 @@ interface Activity {
   start_time: Date;
   seat: string;
   status: "Public" | "Private";
+  registerant_count: number;
 }
 
-// ✅ State สำหรับจัดการ Activities เท่านั้น
-interface ActivityState {
-  activities: Activity[];
-  searchResults: Activity[] | null; // 🔹 เพิ่ม searchResults ให้รองรับค่าค้นหา
-  activityError: string | null;
-  activityLoading: boolean;
-  fetchActivities: () => Promise<void>;
-  searchActivities: (query: string) => Promise<void>; // 🔹 เพิ่มฟังก์ชัน searchActivities
-  updateActivityStatus: (
-    id: string,
-    currentStatus: "Public" | "Private"
-  ) => Promise<void>;
+// test comment
+interface UserState {
+  users: User[];
+  error: string | null;
+  isLoading: boolean;
+  message: string | null;
+  fetchUsers: () => Promise<User[]>;
 }
 
-// ✅ ฟังก์ชันแปลงข้อมูลจาก API เป็นรูปแบบที่ React ใช้งานได้
-const mapActivityData = (apiData: ApiActivity): Activity => ({
-  id: apiData.ac_id.toString(),
-  name: apiData.ac_company_lecturer || "ไม่ระบุชื่อ",
-  description: apiData.ac_name || "ไม่ระบุชื่อ",
-  type: apiData.ac_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
-  start_time: apiData.ac_start_time || "ไม่ระบุ",
-  seat: `${apiData.ac_seat} ที่นั่ง`,
-  status: Array.isArray(apiData.ac_status)
-    ? apiData.ac_status.some((s) => s.toLowerCase() === "public")
-      ? "Public"
-      : "Private"
-    : apiData.ac_status.toLowerCase() === "public"
-    ? "Public"
-    : "Private",
-});
+export const useUserStore = create<UserState>((set) => ({
+  users: [],
+  error: null,
+  isLoading: false,
+  message: null,
 
-// ✅ ใช้ Zustand เพื่อสร้าง Store สำหรับ Activities เท่านั้น
-export const useAppStore = create<ActivityState>((set, get) => ({
-  activities: [],
-  searchResults: null, // 🔹 ค่าเริ่มต้นของ searchResults เป็น null
-  activityError: null,
-  activityLoading: false,
-
-  // ✅ ฟังก์ชันดึงข้อมูล Activities
-  fetchActivities: async () => {
-    set({ activityLoading: true, activityError: null });
+  fetchUsers: async () => {
+    set(() => ({ isLoading: true, error: null }));
 
     try {
       console.log("🚀 Fetching data from API..."); // ✅ Log ก่อนเรียก API
