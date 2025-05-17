@@ -18,6 +18,11 @@ import Login from "./pages/login";
 import Main from "./pages/Admin/main_admin";
 import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
 // import Crud_Test from "./pages/Test/crud_test";
+import CreateActivityAdmin from "./pages/Admin/activity-admin/create_activity_admin";
+import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity_info_admin";
+import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled_list_admin";
+import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
+// import Crud_Test from "./pages/Test/crud_test";
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -98,15 +103,26 @@ function App() {
             }
           />
           <Route
-            path="/list-activity-student"
+            path="/update-activity-admin"
             element={
-              <ProtectedRoute>
-                <Navbar>
-                  <ListActivityStudent />
-                </Navbar>
-              </ProtectedRoute>
+              <Navbar>
+                <UpdateActivityAdmin />
+              </Navbar>
             }
-          ></Route>
+          />
+          <Route
+            path="/enrolled_list_admin/:id"
+            element={
+              <Navbar>
+                <EnrolledListAdmin />
+              </Navbar>
+            }
+          />
+        </Routes>
+
+        {/* Student Routes */}
+        <Routes>
+          <Route></Route>
         </Routes>
       </div>
     </>
