@@ -37,7 +37,7 @@ interface Activity {
   registerant_count: number;
 }
 
-// test comment
+//comment
 interface UserState {
   users: User[];
   error: string | null;
