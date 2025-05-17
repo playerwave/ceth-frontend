@@ -42,7 +42,7 @@ function App() {
             }
           />
           <Route
-            path="/list-activity-admin"
+            path="/manage-activity-admin"
             element={
               <Navbar>
                 <ManageActivityAdmin />
