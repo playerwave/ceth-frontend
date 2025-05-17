@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import React, { useState } from "react";
 import { Search } from "lucide-react";
-import { useActivityStore } from "../stores/Admin/activity_store";
 
 interface SearchBarProps {
   onSearch: (searchTerm: string) => void;
@@ -10,15 +9,9 @@ interface SearchBarProps {
 const Searchbar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { searchActivities } = useActivityStore();
-
   // ✅ ค้นหาเมื่อกด Enter หรือเมื่อปุ่มค้นหาถูกกด
   const handleSearch = () => {
-    if (searchTerm.trim() === "") {
-      onSearch(""); // ✅ ค่าว่างให้โหลดข้อมูลทั้งหมด
-    } else {
-      searchActivities(searchTerm);
-    }
+    onSearch(searchTerm.trim()); // ✅ ค้นหาเฉพาะเมื่อกดปุ่มหรือ Enter
   };
 
   // ✅ รองรับการกด Enter เพื่อค้นหา
@@ -31,6 +24,7 @@ const Searchbar: React.FC<SearchBarProps> = ({ onSearch }) => {
       handleSearch();
     }
   };
+
   return (
     <div
       className="flex items-center bg-white rounded-full 
@@ -49,7 +43,7 @@ const Searchbar: React.FC<SearchBarProps> = ({ onSearch }) => {
       />
       <button
         className="bg-[#1E3A8A] text-white p-2 rounded-full flex items-center justify-center w-10 h-10"
-        onClick={handleSearch}
+        onClick={handleSearch} // ✅ ค้นหาเมื่อคลิกปุ่ม
       >
         <Search size={20} />
       </button>
