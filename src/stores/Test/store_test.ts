@@ -17,7 +17,7 @@ interface ApiActivity {
   ac_end_register: Date;
   ac_create_date: Date;
   ac_last_update: Date;
-  ac_registerant_count: number;
+  ac_registered_count: number;
   ac_attended_count: number;
   ac_not_attended_count: number;
   ac_start_time: Date;
@@ -34,6 +34,7 @@ interface Activity {
   start_time: Date;
   seat: string;
   status: "Public" | "Private";
+  registerant_count: number;
 }
 
 // ✅ State สำหรับจัดการ Activities เท่านั้น
@@ -57,7 +58,8 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   description: apiData.ac_name || "ไม่ระบุชื่อ",
   type: apiData.ac_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
   start_time: apiData.ac_start_time || "ไม่ระบุ",
-  seat: `${apiData.ac_seat} ที่นั่ง`,
+  registerant_count: apiData.ac_registered_count ?? 0, // 🔹 ป้องกัน undefined
+  seat: `${apiData.ac_seat}/${apiData.ac_registered_count ?? 0}`,
   status: Array.isArray(apiData.ac_status)
     ? apiData.ac_status.some((s) => s.toLowerCase() === "public")
       ? "Public"
