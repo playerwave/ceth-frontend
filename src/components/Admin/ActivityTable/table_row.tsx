@@ -135,11 +135,7 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
       className="border-t text-center cursor-pointer hover:bg-gray-200 transition"
       onClick={() => handleSelectActivity(act.id)}
     >
-      <td className="p-2">
-        {act.company_lecturer.length > 20
-          ? act.company_lecturer.slice(0, 20) + "..." // ตัดข้อความที่ยาวเกิน 20 ตัวอักษร
-          : act.company_lecturer}
-      </td>
+      <td className="p-2">{act.company_lecturer}</td>
       <td className="p-2">
         <span
           className="px-2 py-1 rounded"
@@ -164,9 +160,9 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
         </span>
       </td>
       <td className="p-2">
-        {act.description
-          ? act.description.split(" ").slice(0, 10).join(" ") +
-            (act.description.split(" ").length > 30 ? "..." : "")
+        {act.name
+          ? act.name.split(" ").slice(0, 10).join(" ") +
+            (act.name.split(" ").length > 30 ? "..." : "")
           : ""}
       </td>
 
