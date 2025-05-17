@@ -81,6 +81,34 @@ export const useUserStore = create<UserState>((set) => ({
     }
   },
 
+  updateActivityStatus: async (
+    id: string,
+    currentStatus: "Public" | "Private"
+  ) => {
+    set({ activityLoading: true });
+
+    try {
+      const newStatus = currentStatus === "Public" ? "Private" : "Public";
+
+      console.log(
+        `🔄 กำลังส่ง API เพื่ออัปเดตสถานะ -> ID: ${id}, สถานะใหม่: ${newStatus}`
+      );
+
+      // ✅ ส่งค่า ac_status ให้ตรงกับ API
+      await axiosInstance.patch(`/activity/adjustActivity/${id}`, {
+        ac_status: newStatus.toLowerCase(), // Convert "Public" -> "public"
+      });
+
+      console.log(`✅ อัปเดตสถานะสำเร็จ -> ID: ${id}, สถานะใหม่: ${newStatus}`);
+
+      // ✅ โหลดข้อมูลใหม่อีกครั้งเพื่อให้แน่ใจว่าข้อมูลอัปเดต
+      await get().fetchActivities();
+    } catch (error) {
+      console.error("❌ Error updating activity status:", error);
+      set({ activityLoading: false });
+    }
+  },
+
   // ✅ ฟังก์ชันค้นหา Activities
   searchActivities: async (searchName: string) => {
     if (!searchName.trim()) {
