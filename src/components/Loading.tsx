@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+import styled from "styled-components";
 
+const Loader = () => {
 const Loader = () => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 backdrop-blur-sm z-50">

@@ -6,88 +6,53 @@ const sidebar_admin = () => {
   };
 
   return (
-    <div
-      className={`h-screen bg-gray-100 text-gray-900 p-4 flex flex-col transition-all duration-300 ${
-        isCollapsed
-          ? "w-20 shadow-lg shadow-gray-400"
-          : "w-72 shadow-2xl shadow-gray-400"
-      }`}
-    >
-      {/* ปุ่มย่อ/ขยาย Sidebar */}
-      <div className="flex justify-between items-center mb-4">
-        <span
-          className={`text-lg font-semibold text-gray-600 transition-all duration-300 ${
-            isCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"
-          }`}
-        >
-          Panel
-        </span>
-        <button
-          onClick={toggleSidebar}
-          className="text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-200 transition"
-        >
-          {isCollapsed ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
-        </button>
-      </div>
-
-      {/* เมนู Sidebar */}
-      <div className="flex flex-col space-y-1">
-        <SidebarItem
-          to="/main-admin"
-          icon={<Home size={24} />}
-          text="หน้าหลัก"
-          collapsed={isCollapsed}
-        />
-        <SidebarItem
-          to="/list-activity-admin"
-          icon={<BookA size={24} />}
-          text="กิจกรรมสหกิจ"
-          collapsed={isCollapsed}
-        />
-        <SidebarItem
-          to="/history"
-          icon={<History size={24} />}
-          text="ประวัติกิจกรรม (ห้าม click)"
-          onClick={handleNotInThisSprint}
-          collapsed={isCollapsed}
-        />
-        <SidebarItem
-          to="/evaluation"
-          icon={<ClipboardList size={24} />}
-          text="แบบประเมิน (ห้าม click)"
-          onClick={handleNotInThisSprint}
-          collapsed={isCollapsed}
-        />
-        <SidebarItem
-          to="/students"
-          icon={<Users size={24} />}
-          text="รายชื่อนิสิต (ห้าม click)"
-          onClick={handleNotInThisSprint}
-          collapsed={isCollapsed}
-        />
-        <SidebarItem
-          to="/certificates"
-          icon={<BadgeCheck size={24} />}
-          text="จัดการเกียรติบัตร (ห้าม click)"
-          onClick={handleNotInThisSprint}
-          collapsed={isCollapsed}
-        />
-        <SidebarItem
-          to="/settings"
-          icon={<Settings size={24} />}
-          text="ตั้งค่า (ห้าม click)"
-          onClick={handleNotInThisSprint}
-          collapsed={isCollapsed}
-        />
-        <div className="mt-70">
-          <SidebarItem
-            to="#"
-            icon={<LogOut size={24} />}
-            text="ออกจากระบบ"
-            onClick={handleLogout}
-            collapsed={isCollapsed}
-          />
-        </div>
+    <div className="w-240px h-screen bg-[3A3F44] text-white p-4">
+      <div className="space-y-2">
+        <Link to="/">
+          <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
+            หน้าหลัก
+          </button>
+        </Link>
+        <Link to="/list-activity-admin">
+          <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
+            กิจกรรมสหกิจ
+          </button>
+        </Link>
+        <Link to="/" onClick={handleNotInthisSprint}>
+          <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
+            ประวัติกิจกรรม
+          </button>
+        </Link>
+        <Link to="/" onClick={handleNotInthisSprint}>
+          <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
+            แบบประเมิน
+          </button>
+        </Link>
+        <Link to="/" onClick={handleNotInthisSprint}>
+          <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
+            รายชื่อนิสิต
+          </button>
+        </Link>
+        <Link to="/" onClick={handleNotInthisSprint}>
+          <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
+            จัดการเกียรติบัตร
+          </button>
+        </Link>
+        <Link to="/" onClick={handleNotInthisSprint}>
+          <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
+            setting
+          </button>
+        </Link>
+        <Link to="/" onClick={handleNotInthisSprint}>
+          <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
+            logout
+          </button>
+        </Link>
+        <Link to="/crud-test">
+          <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
+            CRUD Example
+          </button>
+        </Link>
       </div>
     </div>
   );

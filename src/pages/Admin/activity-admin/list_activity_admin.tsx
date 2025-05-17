@@ -25,23 +25,19 @@ const ManageActivityAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"list" | "calendar">("list");
 
   // ✅ โหลดกิจกรรมครั้งแรกเท่านั้น
-  // useEffect(() => {
-  //   if (activities.length === 0) {
-  //     fetchActivities();
-  //   }
-  // }, []);
-
-  // // ✅ รีเฟรชข้อมูลแค่ครั้งเดียวหลังจากเพิ่มกิจกรรมใหม่
-  // useEffect(() => {
-  //   if (location.state?.reload) {
-  //     fetchActivities(); // โหลดข้อมูลใหม่
-  //     navigate(location.pathname, { replace: true }); // ล้างค่า `state`
-  //   }
-  // }, [location, navigate]);
-
   useEffect(() => {
-    fetchActivities(); // ✅ โหลดข้อมูลใหม่ทุกครั้งเมื่อเปิดหน้านี้
+    if (activities.length === 0) {
+      fetchActivities();
+    }
   }, []);
+
+  // ✅ รีเฟรชข้อมูลแค่ครั้งเดียวหลังจากเพิ่มกิจกรรมใหม่
+  useEffect(() => {
+    if (location.state?.reload) {
+      fetchActivities(); // โหลดข้อมูลใหม่
+      navigate(location.pathname, { replace: true }); // ล้างค่า `state`
+    }
+  }, [location, navigate]);
 
   const displayedActivities = searchResults ?? activities;
   const activitiesSuccess = displayedActivities.filter(
