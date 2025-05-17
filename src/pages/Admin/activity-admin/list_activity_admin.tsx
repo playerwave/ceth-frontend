@@ -126,20 +126,14 @@ const ManageActivityAdmin: React.FC = () => {
             <p className="text-center text-red-500 p-4">
               ❌ เกิดข้อผิดพลาด: {activityError}
             </p>
-          ) : activities.length === 0 ? (
-            <p className="text-center text-gray-500 p-4">📭 ไม่มีกิจกรรม</p>
+          ) : displayedActivities.length === 0 ? (
+            <p className="text-center text-gray-500 p-4">
+              📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
+            </p>
           ) : (
             <>
-              <Table
-                title="กิจกรรมสหกิจ"
-                data={activitiesSuccess}
-                // onRowClick={handleRowClick}
-              />
-              <Table
-                title="กิจกรรมสหกิจที่ร่าง"
-                data={activitiesOngoing}
-                // onRowClick={handleRowClick}
-              />
+              <Table title="กิจกรรมสหกิจ" data={activitiesSuccess} />
+              <Table title="กิจกรรมสหกิจที่ร่าง" data={activitiesOngoing} />
             </>
           )}
         </>

@@ -46,7 +46,6 @@ export const useUserStore = create<UserState>((set) => ({
 
     try {
       const { data } = await axiosInstance.get<ApiActivity[]>("/api/activitys");
-
       console.log("✅ API Response:", data); // 🔍 ตรวจสอบค่าจริงที่ API ส่งมา
 
       if (Array.isArray(data) && data.length > 0) {
@@ -64,6 +63,43 @@ export const useUserStore = create<UserState>((set) => ({
       set({ activityError: errorMessage, activityLoading: false });
 
       console.error("❌ Error fetching activities:", err);
+    }
+  },
+
+  // ✅ ฟังก์ชันค้นหา Activities
+  searchActivities: async (searchName: string) => {
+    if (!searchName.trim()) {
+      console.log("🔄 ค้นหาว่าง → โหลดข้อมูลทั้งหมด");
+      get().fetchActivities(); // ✅ โหลดข้อมูลทั้งหมดแทน
+      set({ searchResults: null });
+      return;
+    }
+
+    set({ activityLoading: true, activityError: null });
+
+    try {
+      const { data } = await axiosInstance.get(`/api/activities/searchName`, {
+        params: { searchName }, // ✅ เปลี่ยน URL ให้ตรงกับ backend
+      });
+      set({ searchResults: data });
+
+      console.log("🔍 ค้นหา API Response:", data);
+
+      if (Array.isArray(data) && data.length > 0) {
+        const mappedResults = data.map(mapActivityData);
+        set({ searchResults: mappedResults, activityLoading: false });
+        console.log("✅ ผลลัพธ์จากการค้นหา:", mappedResults);
+      } else {
+        set({ searchResults: [], activityLoading: false });
+        console.warn("⚠️ ไม่พบกิจกรรมที่ตรงกับคำค้นหา:", searchName);
+      }
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      const errorMessage =
+        err.response?.data?.message ?? "Error searching activities";
+      set({ activityError: errorMessage, activityLoading: false });
+
+      console.error("❌ Error searching activities:", err);
     }
   },
 }));
