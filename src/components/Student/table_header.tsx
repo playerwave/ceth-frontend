@@ -1,5 +1,4 @@
 // import { Activity } from "../components/table";
-// import { Checkbox, FormControlLabel } from "@mui/material";
 
 // interface TableHeaderProps {
 //   handleSort: (key: keyof Activity) => void;
@@ -9,7 +8,6 @@
 // const TableHeader: React.FC<TableHeaderProps> = ({
 //   handleSort,
 //   sortConfig,
-//   setFilterType,
 // }) => {
 //   const columns: { key: keyof Activity; label: string; sortable: boolean }[] = [
 //     {
@@ -45,38 +43,11 @@
 //             {col.key === "type" ? (
 //               // 🔹 กรณีพิเศษ: คอลัมน์ "ประเภท" แสดงช่องสี
 //               <div className="flex items-center justify-center">
-//                 <label className="ml-5">ประเภท</label>
-//                 <FormControlLabel
-//                   control={
-//                     <Checkbox
-//                       onChange={() => setFilterType("HardSkill")}
-//                       sx={{
-//                         color: "#F5DEB3", // สีเหลืองอ่อน
-//                         "&.Mui-checked": {
-//                           color: "#F5DEB3",
-//                         },
-//                       }}
-//                     />
-//                   }
-//                   sx={{ marginLeft: 1 }}
-//                 />
-
-//                 {/* MUI Checkbox สำหรับสีม่วง */}
-//                 <FormControlLabel
-//                   control={
-//                     <Checkbox
-//                       onChange={() => setFilterType("SoftSkill")}
-//                       className="bg-[#D3C3F7]"
-//                       sx={{
-//                         color: "#D3C3F7", // สีม่วงอ่อน
-//                         "&.Mui-checked": {
-//                           color: "#D3C3F7",
-//                         },
-//                       }}
-//                     />
-//                   }
-//                   sx={{ marginRight: 1 }}
-//                 />
+//                 <span>{col.label}</span>
+//                 <span className="w-5 h-5 bg-[#F5DEB3] border-2 border-black ml-2"></span>{" "}
+//                 {/* สีเหลืองอ่อน */}
+//                 <span className="w-5 h-5 bg-[#D3C3F7] border-2 border-black ml-2"></span>{" "}
+//                 {/* สีม่วงอ่อน */}
 //               </div>
 //             ) : (
 //               // 🔹 คอลัมน์ปกติ
@@ -99,7 +70,7 @@ import { Checkbox, FormControlLabel } from "@mui/material";
 interface TableHeaderProps {
   handleSort: (key: keyof Activity) => void;
   sortConfig?: { key: keyof Activity | null; direction: "asc" | "desc" };
-  setFilterType: (type: "Hard Skill" | "Soft Skill") => void;
+  setFilterType: (type: "HardSkill" | "SoftSkill" | "All") => void;
 }
 
 const TableHeader: React.FC<TableHeaderProps> = ({
@@ -117,10 +88,9 @@ const TableHeader: React.FC<TableHeaderProps> = ({
     { key: "name", label: "ชื่อกิจกรรม", sortable: false },
     { key: "start_time", label: "วันที่จัดกิจกรรม", sortable: true },
     { key: "seat", label: "ที่นั่ง", sortable: true },
-    { key: "status", label: "สถานะ", sortable: false },
   ];
 
-  // ฟังก์ชันสำหรับแสดงลูกศร
+  // ฟังก์ชันสำหรับแสดงลูกศรขึ้นหรือลง
   const getSortIcon = (columnKey: keyof Activity) => {
     if (!sortConfig || !sortConfig.key) return "↕"; // ถ้ายังไม่มีการตั้งค่าให้แสดงไอคอนทั่วไป
     return sortConfig.key === columnKey

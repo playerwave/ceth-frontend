@@ -1,13 +1,11 @@
-<<<<<<< HEAD
 .topBar {
-  background-color: #1E3A8A;
+  background-color: #1e3a8a;
   height: 15%;
   width: 100%;
   display: flex;
   align-items: center; /* จัดให้อยู่กลางแนวตั้ง */
   justify-content: space-between; /* แบ่งพื้นที่ระหว่างซ้าย-ขวา */
-
-=======
+}
 /* #root {
   max-width: 1280px;
   margin: 0 auto;

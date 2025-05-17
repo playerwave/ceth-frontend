@@ -1,6 +1,6 @@
 // import { Activity } from "./table";
 // import { useNavigate } from "react-router-dom";
-// import { useActivityStore } from "../../../stores/Admin/activity_store";
+// import { useActivityStore } from "../../stores/Student/activity_student.store";
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { faUser } from "@fortawesome/free-solid-svg-icons";
 
@@ -23,7 +23,7 @@
 //   }
 
 //   const handleSelectActivity = (id: string) => {
-//     navigate("/activity-info-admin", { state: { id } }); // ✅ ส่ง `id` ไปเป็น state
+//     navigate("/activity-info-student", { state: { id } }); // ✅ ส่ง `id` ไปเป็น state
 //   };
 
 //   return (
@@ -39,20 +39,13 @@
 //             backgroundColor:
 //               act.type === "Hard Skill"
 //                 ? "rgba(255, 174, 0, 0.2)"
-//                 : act.type === "Soft Skill"
-//                 ? "rgba(9, 0, 255, 0.2)"
-//                 : "#rgba(128, 128, 128, 0.2)",
-//             color:
-//               act.type === "Hard Skill"
-//                 ? "#FFAE00"
-//                 : act.type === "Soft Skill"
-//                 ? "#0900FF"
-//                 : "B0B0B0",
+//                 : "rgba(9, 0, 255, 0.2)",
+//             color: act.type === "Hard Skill" ? "#FFAE00" : "#0900FF",
 //             minWidth: "100px",
 //             display: "inline-block",
 //           }}
 //         >
-//           {act.type || "ยังไม่ระบุ"}
+//           {act.type}
 //         </span>
 //       </td>
 //       <td className="p-2">
@@ -104,7 +97,7 @@
 
 import { Activity } from "./table";
 import { useNavigate } from "react-router-dom";
-import { useActivityStore } from "../../../stores/Admin/activity_store";
+import { useActivityStore } from "../../stores/Student/activity_student.store";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 
@@ -127,7 +120,7 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
   }
 
   const handleSelectActivity = (id: string) => {
-    navigate("/activity-info-admin", { state: { id } });
+    navigate("/activity-info-student", { state: { id } });
   };
 
   return (
@@ -185,23 +178,6 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
           </span>
           <FontAwesomeIcon icon={faUser} className="text-2xl text-black" />
         </div>
-      </td>
-      <td className="p-2">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            updateActivityStatus(act.id, act.status);
-          }}
-          className="px-2 py-1 rounded font-medium"
-          style={{
-            backgroundColor: act.status === "Public" ? "#D4EDDA" : "#F8D7DA",
-            color: act.status === "Public" ? "#155724" : "#721C24",
-            minWidth: "100px",
-            display: "inline-block",
-          }}
-        >
-          {act.status}
-        </button>
       </td>
     </tr>
   );
