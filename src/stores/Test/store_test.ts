@@ -17,7 +17,7 @@ interface ApiActivity {
   ac_end_register: Date;
   ac_create_date: Date;
   ac_last_update: Date;
-  ac_registerant_count: number;
+  ac_registered_count: number;
   ac_attended_count: number;
   ac_not_attended_count: number;
   ac_start_time: Date;

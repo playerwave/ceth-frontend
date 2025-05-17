@@ -20,7 +20,6 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
   return (
     <tr className="border-t text-center cursor-pointer hover:bg-gray-200 transition">
       <td className="p-2">{act.name}</td>
-      <td className="p-2">{act.description}</td>
       <td className="p-2">
         <span
           className={`px-2 py-1 text-white rounded ${
