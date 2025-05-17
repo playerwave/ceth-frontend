@@ -820,9 +820,12 @@ const UpdateActivityAdmin: React.FC = () => {
                   <img
                     src={
                       previewImage ||
-                      (formData.ac_image_data?.startsWith("data:image")
+                      (typeof formData.ac_image_data === "string" &&
+                      formData.ac_image_data.startsWith("data:image")
                         ? formData.ac_image_data
-                        : `data:image/png;base64,${formData.ac_image_data}`)
+                        : formData.ac_image_data instanceof File
+                        ? URL.createObjectURL(formData.ac_image_data) // ✅ ใช้ URL.createObjectURL() สำหรับไฟล์
+                        : null) // ถ้าไม่ใช่ String หรือ File ให้เป็น null
                     }
                     alt="อัปโหลดภาพกิจกรรม"
                     className="w-200 h-125 mt-2 object-cover border rounded-lg shadow"

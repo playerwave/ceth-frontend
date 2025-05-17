@@ -130,36 +130,39 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activity: null,
   enrolledStudents: [],
 
-  fetchActivities: async () => {
+  fetchActivities: async (page: number = 1, limit: number = 10) => {
     set({ activityLoading: true, activityError: null });
 
     try {
-      const { data } = await axiosInstance.get<ApiActivity[]>(
-        "/activity/get-activities"
-      );
+      console.log(
+        `🚀 Fetching data from API... (Page: ${page}, Limit: ${limit})`
+      ); // ✅ Log
 
-      // ✅ ทำให้ Loading นานขึ้น 3 วินาทีก่อนอัปเดต state
-      setTimeout(() => {
-        if (Array.isArray(data) && data.length > 0) {
-          set({
-            activities: data.map(mapActivityData),
-            activityLoading: false,
-          });
-        } else {
-          set({ activities: [], activityLoading: false });
-        }
-      }, 2000); // ⏳ ดีเลย์ 3 วินาที
+      const { data } = await axiosInstance.get<{
+        activities: ApiActivity[];
+        total: number;
+        totalPages: number;
+        page: number;
+        limit: number;
+      }>(`/activity/get-activities?page=${page}&limit=${limit}`);
+
+      console.log("✅ API Response:", data); // ✅ Log ค่า data ที่ได้
+
+      if (Array.isArray(data.activities) && data.activities.length > 0) {
+        const mappedActivities = data.activities.map(mapActivityData);
+        set({ activities: mappedActivities, activityLoading: false });
+        console.log("✅ อัปเดต activities:", mappedActivities);
+      } else {
+        console.warn("⚠️ API ส่งข้อมูลว่างเปล่า:", data);
+        set({ activities: [], activityLoading: false });
+      }
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
+      const errorMessage =
+        err.response?.data?.message ?? "Error fetching activities";
+      set({ activityError: errorMessage, activityLoading: false });
 
-      // ✅ ทำให้ Error ก็แสดง Loading นานขึ้น 3 วินาทีก่อนปิด
-      setTimeout(() => {
-        set({
-          activityError:
-            err.response?.data?.message ?? "Error fetching activities",
-          activityLoading: false,
-        });
-      }, 2000); // ⏳ ดีเลย์ 3 วินาที
+      console.error("❌ Error fetching activities:", err);
     }
   },
 
@@ -219,10 +222,17 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     try {
       console.log("📡 Sending update request for activity:", activity);
 
-      // ✅ ตรวจสอบให้แน่ใจว่า `image_data` มีค่าที่ถูกต้อง
-      const imageData = activity.image_data?.startsWith("data:image")
-        ? activity.image_data // ถ้ามี "data:image" อยู่แล้วใช้เลย
-        : `data:image/png;base64,${activity.image_data}`; // ถ้าไม่มีให้เติม prefix
+      // ✅ ตรวจสอบ `image_data` และแปลงเป็น Base64 ถ้าจำเป็น
+      let imageData: string | null = null;
+
+      if (activity.image_data instanceof File) {
+        console.log("📸 Detected File, converting to Base64...");
+        imageData = await convertFileToBase64(activity.image_data);
+      } else if (typeof activity.image_data === "string") {
+        imageData = activity.image_data.startsWith("data:image")
+          ? activity.image_data // ถ้ามี "data:image" อยู่แล้วใช้เลย
+          : `data:image/png;base64,${activity.image_data}`; // ถ้าไม่มีให้เติม prefix
+      }
 
       const updatedData = {
         ...activity,
@@ -365,3 +375,12 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 }));
+
+const convertFileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+  });
+};
