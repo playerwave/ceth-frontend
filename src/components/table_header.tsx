@@ -1,4 +1,18 @@
-import { Activity } from "../components/table";
+import {
+  faSort,
+  faSortUp,
+  faSortDown,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+interface Activity {
+  name: string;
+  type: "Hard Skill" | "Soft Skill";
+  date: string;
+  time: string;
+  slots: string;
+  status: "Public" | "Private";
+}
 
 interface TableHeaderProps {
   handleSort: (key: keyof Activity) => void; // ✅ เปลี่ยนจาก `string` เป็น `keyof Activity`
@@ -38,9 +52,11 @@ const TableHeader: React.FC<TableHeaderProps> = ({
           { key: "status", label: "สถานะ", sortable: false },
         ].map(({ key, label, sortable }) => (
           <th
-            key={col.key}
-            className={`p-2 ${col.sortable ? "cursor-pointer" : ""}`}
-            onClick={() => col.sortable && handleSort(col.key)}
+            key={key}
+            className={`p-2 ${sortable ? "cursor-pointer" : ""}`}
+            onClick={
+              sortable ? () => handleSort(key as keyof Activity) : undefined
+            }
           >
             {col.label} {col.sortable && getSortIcon(col.key)}
           </th>
