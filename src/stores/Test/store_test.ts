@@ -44,6 +44,10 @@ interface ActivityState {
   activityLoading: boolean;
   fetchActivities: () => Promise<void>;
   searchActivities: (query: string) => Promise<void>; // 🔹 เพิ่มฟังก์ชัน searchActivities
+  updateActivityStatus: (
+    id: string,
+    currentStatus: "Public" | "Private"
+  ) => Promise<void>;
 }
 
 // ✅ ฟังก์ชันแปลงข้อมูลจาก API เป็นรูปแบบที่ React ใช้งานได้
@@ -97,6 +101,34 @@ export const useAppStore = create<ActivityState>((set, get) => ({
       set({ activityError: errorMessage, activityLoading: false });
 
       console.error("❌ Error fetching activities:", err);
+    }
+  },
+
+  updateActivityStatus: async (
+    id: string,
+    currentStatus: "Public" | "Private"
+  ) => {
+    set({ activityLoading: true });
+
+    try {
+      const newStatus = currentStatus === "Public" ? "Private" : "Public";
+
+      console.log(
+        `🔄 กำลังส่ง API เพื่ออัปเดตสถานะ -> ID: ${id}, สถานะใหม่: ${newStatus}`
+      );
+
+      // ✅ ส่งค่า ac_status ให้ตรงกับ API
+      await axiosInstance.patch(`/activity/adjustActivity/${id}`, {
+        ac_status: newStatus.toLowerCase(), // Convert "Public" -> "public"
+      });
+
+      console.log(`✅ อัปเดตสถานะสำเร็จ -> ID: ${id}, สถานะใหม่: ${newStatus}`);
+
+      // ✅ โหลดข้อมูลใหม่อีกครั้งเพื่อให้แน่ใจว่าข้อมูลอัปเดต
+      await get().fetchActivities();
+    } catch (error) {
+      console.error("❌ Error updating activity status:", error);
+      set({ activityLoading: false });
     }
   },
 
