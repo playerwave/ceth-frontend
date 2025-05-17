@@ -2,6 +2,7 @@ import { create } from "zustand";
 import axiosInstance from "../../libs/axios";
 import { AxiosError } from "axios";
 import { toast, Toaster } from "sonner";
+import { act } from "react";
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลที่มาจาก API
 interface ApiActivity {
@@ -25,6 +26,7 @@ interface ApiActivity {
   ac_end_time?: Date;
   ac_image_data?: string;
   ac_state: string;
+  ac_normal_register: string;
 }
 
 // ✅ อินเทอร์เฟซที่ React ใช้งาน
@@ -49,6 +51,7 @@ interface Activity {
   end_time: Date | null;
   image_data: string;
   state: string;
+  normal_register: Date | null;
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -93,7 +96,7 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   name: apiData.ac_name || "ไม่ระบุชื่อ",
   company_lecturer: apiData.ac_company_lecturer || "ไม่ระบุวิทยากร",
   description: apiData.ac_description || "ไม่ระบุรายละเอียด",
-  type: apiData.ac_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
+  type: apiData.ac_type === "HardSkill" ? "HardSkill" : "SoftSkill",
   room: apiData.ac_room || "ไม่ระบุห้อง",
   seat: `${apiData.ac_seat}`,
   food: Array.isArray(apiData.ac_food) ? apiData.ac_food : [],
@@ -112,6 +115,9 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   image_data: apiData.ac_image_data || "/img/default.png",
 
   state: apiData.ac_state || "ไม่ระบุ",
+  normal_register: apiData.ac_normal_register
+    ? new Date(apiData.ac_normal_register)
+    : null,
 });
 
 export const useActivityStore = create<ActivityState>((set, get) => ({

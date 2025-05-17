@@ -40,7 +40,7 @@ const CreateActivityAdmin: React.FC = () => {
     assesment_id: null,
     ac_company_lecturer: "",
     ac_description: "",
-    ac_type: "",
+    ac_type: "SoftSkill",
     ac_room: "",
     ac_seat: "",
     ac_food: [],
@@ -325,6 +325,8 @@ const CreateActivityAdmin: React.FC = () => {
       startregister = undefined; // ถ้าไม่ใช่ Public ให้เป็น undefined
     }
 
+    console.log("startDateTime: ", startDateTime);
+
     const activityData: Activity = {
       ac_name: formData.ac_name,
       assessment_id: 1,
@@ -335,7 +337,7 @@ const CreateActivityAdmin: React.FC = () => {
       ac_seat: !isNaN(numericSeats) ? numericSeats : 0,
       ac_food: formData.ac_food || [],
       ac_status: formData.ac_status || "Private",
-      ac_location_type: formData.ac_location_type,
+      ac_location_type: formData.ac_location_type || "Offline",
       ac_state: "Not Start",
       ac_start_register: startregister, // ✅ ใช้ค่าจาก if-check
       ac_end_register: endRegisterDateTime, // ✅ ส่งเป็น Date
@@ -434,6 +436,23 @@ const CreateActivityAdmin: React.FC = () => {
       };
     }
   };
+
+  useEffect(() => {
+    if (formData.ac_type === "Hard Skill") {
+      setFormData((prev) => ({ ...prev, ac_type: "HardSkill" }));
+    } else if (formData.ac_type === "Soft Skill") {
+      setFormData((prev) => ({ ...prev, ac_type: "SoftSkill" }));
+    }
+  }, [formData.ac_type]);
+
+  useEffect(() => {
+    if (!formData.ac_status) {
+      setFormData((prev) => ({
+        ...prev,
+        ac_status: "Private", // ✅ ตั้งค่าเริ่มต้นเป็น "Private"
+      }));
+    }
+  }, [formData.ac_status]);
 
   return (
     <>
