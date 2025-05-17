@@ -24,6 +24,9 @@ import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled_list_admin"
 import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 // import Crud_Test from "./pages/Test/crud_test";
 
+//import toast
+import { Toaster } from "sonner";
+
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
   const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);

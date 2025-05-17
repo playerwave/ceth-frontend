@@ -7,6 +7,8 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
 import { AdvancedImage } from "@cloudinary/react";
+import { toast } from "sonner";
+import ConfirmDialog from "../../../components/ConfirmDialog";
 
 interface FormData {
   ac_name: string;
@@ -296,7 +298,13 @@ const UpdateActivityAdmin: React.FC = () => {
 
     console.log("✅ Sending Updated Activity Data:", updatedActivity);
 
-    await updateActivity(updatedActivity);
+    try {
+      await updateActivity(updatedActivity);
+      toast.success("Updated Success !"); // ✅ แสดง Toast เมื่ออัปเดตเสร็จ
+    } catch (error) {
+      console.error("❌ Error updating activity:", error);
+      toast.error("Update failed!"); // ✅ แสดง Toast ถ้าอัปเดตไม่สำเร็จ
+    }
   };
 
   const addFoodOption = () => {
@@ -358,16 +366,14 @@ const UpdateActivityAdmin: React.FC = () => {
     console.log("📌 ac_location_type:", formData.ac_location_type); // ✅ ตรวจสอบค่าจริงที่โหลดมา
   }, [formData.ac_location_type]);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <>
       <div className="justify-items-center">
         <div
           className={`w-320 mx-auto ml-2xl mt-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm h-435  flex flex-col`}
         >
-          <h1>{finalActivityId}</h1>
-          <h1>{formData.ac_name}</h1>
-          <h1>{formData.ac_end_register}</h1>
-          <h1>{formData.ac_normal_register}</h1>
           <h1 className="text-4xl font-bold mb-11">รายละเอียดกิจกรรมสหกิจ</h1>
           <form
             onSubmit={handleSubmit}
@@ -809,13 +815,27 @@ const UpdateActivityAdmin: React.FC = () => {
                 </div>
               )}
 
+              {/* Confirm Dialog */}
+              <ConfirmDialog
+                isOpen={isModalOpen}
+                title="ยกเลิกการแก้ไขกิจกรรม"
+                message="คุณแน่ใจว่าจะยกเลิกการแก้ไข
+                กิจกรรมในครั้งนี้ ?"
+                onCancel={() => setIsModalOpen(false)}
+                onConfirm={() => {
+                  navigate("/list-activity-admin"); // ✅ เปลี่ยนหน้าเมื่อกดยืนยัน
+                }}
+              />
+
               {/* ปุ่ม ยกเลิก & สร้าง */}
               <div className="mt-10 flex justify-end items-center space-x-4 px-6 ">
                 {/* ปุ่มยกเลิก */}
                 <Button
                   type="button"
                   color="red"
-                  onClick={() => navigate("/list-activity-admin")}
+                  onClick={() => {
+                    setIsModalOpen(true);
+                  }}
                 >
                   ยกเลิก
                 </Button>

@@ -5,8 +5,7 @@ interface ConfirmDialogProps {
   title: string;
   message: string;
   onCancel: () => void;
-  onConfirm: () => void;
-  type?: "button" | "submit"; // ✅ เพิ่ม type ปุ่ม (default เป็น button)
+  onConfirm: () => void; // ✅ รับ callback function สำหรับการยืนยัน
 }
 
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -15,7 +14,6 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   message,
   onCancel,
   onConfirm,
-  type = "button", // ✅ ตั้งค่า default เป็น button
 }) => {
   if (!isOpen) return null;
 
@@ -33,7 +31,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             onClick={() => {
               onConfirm(); // ✅ เรียกใช้ callback function ที่กำหนด
             }}
-            type={type}
+            type="button"
             color="blue"
           >
             ยืนยัน
