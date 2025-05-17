@@ -7,8 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
 import { AdvancedImage } from "@cloudinary/react";
+import ConfirmDialog from "../../../components/ConfirmDialog";
+import { toast } from "sonner";
 
 interface FormData {
+  ac_id: number | null;
   ac_name: string;
   assesment_id?: number | null;
   ac_company_lecturer: string;
@@ -36,6 +39,7 @@ interface FormData {
 const CreateActivityAdmin: React.FC = () => {
   const { createActivity } = useActivityStore(); //
   const [formData, setFormData] = useState<FormData>({
+    ac_id: null,
     ac_name: "",
     assesment_id: null,
     ac_company_lecturer: "",
@@ -437,6 +441,8 @@ const CreateActivityAdmin: React.FC = () => {
     }
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     if (formData.ac_type === "Hard Skill") {
       setFormData((prev) => ({ ...prev, ac_type: "HardSkill" }));
@@ -454,6 +460,16 @@ const CreateActivityAdmin: React.FC = () => {
     }
   }, [formData.ac_status]);
 
+  const [msg, setMsg] = useState("ร่าง");
+
+  useEffect(() => {
+    if (formData.ac_status == "Public") {
+      setMsg("สร้าง");
+    } else {
+      setMsg("ร่าง");
+    }
+  }, [formData.ac_status]);
+
   return (
     <>
       <Box className="justify-items-center">
@@ -461,6 +477,7 @@ const CreateActivityAdmin: React.FC = () => {
           className={`w-320 mx-auto ml-2xl mt-5 mb-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm min-h-screen flex flex-col`}
         >
           <h1 className="text-4xl font-bold mb-11">สร้างกิจกรรมสหกิจ</h1>
+          <h1>{isModalOpen.toString()}</h1>
           <form
             onSubmit={handleSubmit}
             className="space-y-4 flex flex-col flex-grow"
