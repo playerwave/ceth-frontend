@@ -41,10 +41,32 @@ const Table: React.FC<TableProps> = ({ title, data = [] }) => {
     if (!sortConfig.key) return data;
 
     return [...data].sort((a, b) => {
-      const key = sortConfig.key as keyof Activity; // ✅ ยืนยันว่า key เป็น keyof Activity แน่นอน
-      const valueA = a[key] as string;
-      const valueB = b[key] as string;
+      const key = sortConfig.key as keyof Activity;
 
+      const valueA = a[key];
+      const valueB = b[key];
+
+      // ✅ ตรวจสอบและแปลงค่าถ้าเป็นตัวเลข (ที่นั่ง)
+      if (
+        key === "seat" &&
+        typeof valueA === "string" &&
+        typeof valueB === "string"
+      ) {
+        const seatsA = parseInt(valueA.split("/")[0], 10); // แยกค่าที่นั่งที่ถูกจอง
+        const seatsB = parseInt(valueB.split("/")[0], 10);
+        return sortConfig.direction === "asc"
+          ? seatsA - seatsB
+          : seatsB - seatsA;
+      }
+
+      // ✅ ตรวจสอบและแปลงค่าถ้าเป็นวันที่
+      if (key === "start_time") {
+        return sortConfig.direction === "asc"
+          ? new Date(valueA).getTime() - new Date(valueB).getTime()
+          : new Date(valueB).getTime() - new Date(valueA).getTime();
+      }
+
+      // ✅ เปรียบเทียบสตริงปกติ
       if (valueA < valueB) return sortConfig.direction === "asc" ? -1 : 1;
       if (valueA > valueB) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;

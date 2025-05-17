@@ -132,7 +132,6 @@ export const useAppStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  // ✅ ฟังก์ชันค้นหา Activities
   searchActivities: async (searchName: string) => {
     if (!searchName.trim()) {
       console.log("🔄 ค้นหาว่าง → โหลดข้อมูลทั้งหมด");
@@ -144,8 +143,8 @@ export const useAppStore = create<ActivityState>((set, get) => ({
     set({ activityLoading: true, activityError: null });
 
     try {
-      const { data } = await axiosInstance.get(`/api/activities/searchName`, {
-        params: { searchName }, // ✅ เปลี่ยน URL ให้ตรงกับ backend
+      const { data } = await axiosInstance.get(`/activity/searchActivity`, {
+        params: { ac_name: searchName }, // ✅ เปลี่ยนให้ตรงกับ backend
       });
       set({ searchResults: data });
 
