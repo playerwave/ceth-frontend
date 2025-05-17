@@ -16,48 +16,8 @@ import Login from "./pages/login";
 
 //import pages Admin
 import Main from "./pages/Admin/main_admin";
-import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
-import TestCreate from "./pages/Test/test_create";
-import CreateActivityAdmin from "./pages/Admin/activity-admin/create_activity_admin";
-import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity_info_admin";
-import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled_list_admin";
-import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
-// import Crud_Test from "./pages/Test/crud_test";
-
-//import pages Student
-import MainStudent from "./pages/Student/main_student";
-import ActivityInfoStudent from "./pages/Student/activity-student/activity_info_student";
-import ListActivityStudent from "./pages/Student/activity-student/list_activity_student";
-
-export const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
-
-  if (!isAuthenticated && isCheckingAuth) {
-    return (
-      <div className="loading-overlay">
-        <Loading />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) return <Navigate to="/" replace />;
-
-  return children;
-};
-
-export const RedirectAuthenticatedUser = ({
-  children,
-}: {
-  children: JSX.Element;
-}) => {
-  const { isAuthenticated, user } = useAuthStore();
-
-  if (isAuthenticated && user?.isVerify) {
-    return <Navigate to="/main-admin" replace />; // ปรับ path ถ้าจำเป็น
-  }
-
-  return children;
-};
+import ManageActivityAdmin from "./pages/Admin/activity-admin/manage_activity_admin";
+import Crud_Test from "./pages/Test/crud_test";
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -96,13 +56,11 @@ function App() {
             }
           />
           <Route
-            path="/list-activity-admin"
+            path="/manage-activity-admin"
             element={
-              <ProtectedRoute>
-                <Navbar>
-                  <ListActivityAdmin />
-                </Navbar>
-              </ProtectedRoute>
+              <Navbar>
+                <ManageActivityAdmin />
+              </Navbar>
             }
           ></Route>
           <Route
