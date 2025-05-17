@@ -1,59 +1,36 @@
 import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { Toaster } from "sonner";
-
-import { useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
 
 //import components
 import Navbar from "./components/Navbar";
-import Loading from "./components/Loading";
 
-//import authStore
-import { useAuthStore } from "./stores/auth.store";
-
-//import login
-import Login from "./pages/login";
-
-//import pages Admin
+//import pages
 import Main from "./pages/Admin/main_admin";
 import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
 // import Crud_Test from "./pages/Test/crud_test";
 import ManageActivityStudent from "./pages/Student/activity-student/activity_info_student";
+import MainStudent from "./pages/Student/main_studen";
 
 function App() {
-  const checkAuth = useAuthStore((state) => state.checkAuth);
-  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
-
-  useEffect(() => {
-    checkAuth(); // ✅ โหลดข้อมูลผู้ใช้ตอนเปิดเว็บหรือ refresh
-  }, [checkAuth]);
-
-  if (isCheckingAuth) {
-    return (
-      <div className="h-screen flex justify-center items-center">
-        <Loading /> {/* หรือ loading spinner ที่คุณมี */}
-      </div>
-    );
-  }
-
   return (
     <>
-      <Toaster position="bottom-right" richColors />
       <div>
-        {/* Un Authenticate Routes */}
-        <Routes>
-          <Route path="/" element={<Login />} />
-        </Routes>
         {/* Admin Routes */}
         <Routes>
           <Route
-            path="/main-admin"
+            path="/"
             element={
-              <ProtectedRoute>
-                <Navbar>
-                  <Main />
-                </Navbar>
-              </ProtectedRoute>
+              <Navbar>
+                <Main />
+              </Navbar>
+            }
+          />
+            <Route
+            path="/main-stu"
+            element={
+              <Navbar>
+             <MainStudent />
+              </Navbar>
             }
           />
           <Route
@@ -75,47 +52,16 @@ function App() {
           {/* <Route
             path="/crud-test"
             element={
-              <ProtectedRoute>
-                <Navbar>
-                  <TestCreate />
-                </Navbar>
-              </ProtectedRoute>
+              <Navbar>
+                <Crud_Test />
+              </Navbar>
             }
           ></Route> */}
         </Routes>
 
         {/* Student Routes */}
         <Routes>
-          <Route
-            path="/main-student"
-            element={
-              <ProtectedRoute>
-                <Navbar>
-                  <MainStudent />
-                </Navbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/activity-info-student"
-            element={
-              <ProtectedRoute>
-                <Navbar>
-                  <ActivityInfoStudent />
-                </Navbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/list-activity-student"
-            element={
-              <ProtectedRoute>
-                <Navbar>
-                  <ListActivityStudent />
-                </Navbar>
-              </ProtectedRoute>
-            }
-          ></Route>
+          <Route></Route>
         </Routes>
       </div>
     </>

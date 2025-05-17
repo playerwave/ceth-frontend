@@ -1,10 +1,11 @@
 .topBar {
-  background-color: #1e3a8a;
+  background-color: #1E3A8A;
   height: 15%;
   width: 100%;
   display: flex;
   align-items: center; /* จัดให้อยู่กลางแนวตั้ง */
   justify-content: space-between; /* แบ่งพื้นที่ระหว่างซ้าย-ขวา */
+
 }
 
 .left-text {
@@ -22,5 +23,5 @@
   font-size: 15px;
   text-shadow: 2px 2px 5px black;
   padding-right: 1%;
-  padding-top: 0%;
+  padding-top: 0%
 }
