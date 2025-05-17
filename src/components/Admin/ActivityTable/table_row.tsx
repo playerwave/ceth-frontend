@@ -38,17 +38,10 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
           className="px-2 py-1 rounded"
           style={{
             backgroundColor:
-              act.type === "Hard Skill"
+              act.type === "HardSkill"
                 ? "rgba(255, 174, 0, 0.2)"
-                : act.type === "Soft Skill"
-                ? "rgba(9, 0, 255, 0.2)"
-                : "#rgba(128, 128, 128, 0.2)",
-            color:
-              act.type === "Hard Skill"
-                ? "#FFAE00"
-                : act.type === "Soft Skill"
-                ? "#0900FF"
-                : "B0B0B0",
+                : "rgba(9, 0, 255, 0.2)",
+            color: act.type === "HardSkill" ? "#FFAE00" : "#0900FF",
             minWidth: "100px",
             display: "inline-block",
           }}
