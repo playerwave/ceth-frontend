@@ -28,9 +28,11 @@ interface Activity {
 // ✅ State สำหรับจัดการ Activities เท่านั้น
 interface AppState {
   activities: Activity[];
+  searchResults: Activity[] | null; // 🔹 เพิ่ม searchResults ให้รองรับค่าค้นหา
   activityError: string | null;
   activityLoading: boolean;
   fetchActivities: () => Promise<void>;
+  searchActivities: (query: string) => Promise<void>; // 🔹 เพิ่มฟังก์ชัน searchActivities
 }
 
 // ✅ ฟังก์ชันแปลงข้อมูลจาก API เป็นรูปแบบที่ React ใช้งานได้
@@ -46,9 +48,9 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
 });
 
 // ✅ ใช้ Zustand เพื่อสร้าง Store สำหรับ Activities เท่านั้น
-export const useAppStore = create<AppState>((set) => ({
-  // ✅ ค่าเริ่มต้นของ Activities
+export const useAppStore = create<AppState>((set, get) => ({
   activities: [],
+  searchResults: null, // 🔹 ค่าเริ่มต้นของ searchResults เป็น null
   activityError: null,
   activityLoading: false,
 
@@ -58,7 +60,6 @@ export const useAppStore = create<AppState>((set) => ({
 
     try {
       const { data } = await axiosInstance.get<ApiActivity[]>("/api/activitys");
-
       console.log("✅ API Response:", data); // 🔍 ตรวจสอบค่าจริงที่ API ส่งมา
 
       if (Array.isArray(data) && data.length > 0) {
@@ -76,6 +77,43 @@ export const useAppStore = create<AppState>((set) => ({
       set({ activityError: errorMessage, activityLoading: false });
 
       console.error("❌ Error fetching activities:", err);
+    }
+  },
+
+  // ✅ ฟังก์ชันค้นหา Activities
+  searchActivities: async (searchName: string) => {
+    if (!searchName.trim()) {
+      console.log("🔄 ค้นหาว่าง → โหลดข้อมูลทั้งหมด");
+      get().fetchActivities(); // ✅ โหลดข้อมูลทั้งหมดแทน
+      set({ searchResults: null });
+      return;
+    }
+
+    set({ activityLoading: true, activityError: null });
+
+    try {
+      const { data } = await axiosInstance.get(`/api/activities/searchName`, {
+        params: { searchName }, // ✅ เปลี่ยน URL ให้ตรงกับ backend
+      });
+      set({ searchResults: data });
+
+      console.log("🔍 ค้นหา API Response:", data);
+
+      if (Array.isArray(data) && data.length > 0) {
+        const mappedResults = data.map(mapActivityData);
+        set({ searchResults: mappedResults, activityLoading: false });
+        console.log("✅ ผลลัพธ์จากการค้นหา:", mappedResults);
+      } else {
+        set({ searchResults: [], activityLoading: false });
+        console.warn("⚠️ ไม่พบกิจกรรมที่ตรงกับคำค้นหา:", searchName);
+      }
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      const errorMessage =
+        err.response?.data?.message ?? "Error searching activities";
+      set({ activityError: errorMessage, activityLoading: false });
+
+      console.error("❌ Error searching activities:", err);
     }
   },
 }));
