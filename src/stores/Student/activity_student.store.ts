@@ -39,6 +39,7 @@ interface ApiActivity {
     as_create_date: string;
     as_last_update?: string;
   } | null;
+  uac_selected_food: string | null;
 }
 
 // ✅ อินเทอร์เฟซที่ React ใช้งาน
@@ -77,6 +78,7 @@ interface Activity {
     as_create_date: string;
     as_last_update?: string;
   } | null;
+  selected_food: string | null;
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -91,8 +93,15 @@ interface EnrolledStudent {
 }
 
 interface ActivityState {
-  activities: Activity[];
-  enrolledActivities: Activity[];
+  // activities: Activity[];
+  // enrolledActivities: Activity[];
+
+  // new
+  activitiesByUser: Record<string, Activity[]>;
+  enrolledActivitiesByUser: Record<string, Activity[]>;
+  getActivitiesByUser: (userId: string) => Activity[];
+  getEnrolledActivitiesByUser: (userId: string) => Activity[];
+
   searchResults: Activity[] | null;
   activityError: string | null;
   activityLoading: boolean;
@@ -102,11 +111,9 @@ interface ActivityState {
   searchActivities: (query: string) => Promise<void>;
   fetchActivity: (id: number | string) => Promise<void>;
   fetchEnrolledStudents: (id: number | string) => Promise<void>;
-  recommendedActivities: Activity[];
-  adviceActivities: (userId: number) => Promise<void>;
 }
 
-const mapActivityData = (apiData: ApiActivity): Activity => ({
+export const mapActivityData = (apiData: ApiActivity): Activity => ({
   id: apiData.ac_id.toString(),
   name: apiData.ac_name || "ไม่ระบุชื่อ",
   company_lecturer: apiData.ac_company_lecturer || "ไม่ระบุวิทยากร",
@@ -159,16 +166,23 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
         as_last_update: apiData.assessment.as_last_update,
       }
     : null,
+  uac_selected_food: apiData.uac_selected_food,
 });
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
-  activities: [],
+  // activities: [],
   searchResults: null,
   activityError: null,
   activityLoading: false,
   activity: null,
-  enrolledActivities: [],
-  recommendedActivities: [],
+  // enrolledActivities: [],
+
+  // new
+  activitiesByUser: {},
+  enrolledActivitiesByUser: {},
+  getActivitiesByUser: (userId) => get().activitiesByUser[userId] || [],
+  getEnrolledActivitiesByUser: (userId) =>
+    get().enrolledActivitiesByUser[userId] || [],
 
   fetchStudentActivities: async (userId: string) => {
     set({ activityLoading: true, activityError: null });
@@ -207,7 +221,14 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         end_assessment: a.ac_end_assessment,
       }));
 
-      set({ activities: formattedActivities, activityLoading: false });
+      // set({ activities: formattedActivities, activityLoading: false });
+      set((state) => ({
+        activitiesByUser: {
+          ...state.activitiesByUser,
+          [userId]: formattedActivities,
+        },
+        activityLoading: false,
+      }));
     } catch (error) {
       console.error("❌ Error fetching student activities:", error);
       set({
@@ -217,18 +238,20 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  enrollActivity: async (userId: string, activityId: number) => {
+  enrollActivity: async (userId: string, activityId: number, food?: string) => {
     try {
+      set({ activityLoading: true, activityError: null });
       const response = await axiosInstance.post(
         `/student/activity/student-enroll-activity/${userId}`,
-        { activityId }
+        { activityId, food }
       );
 
       console.log("✅ ลงทะเบียนสำเร็จ:", response.data);
-      toast.success("✅ ลงทะเบียนสำเร็จ!");
 
       // ✅ โหลดข้อมูลกิจกรรมใหม่หลังจากลงทะเบียน
       get().fetchStudentActivities(userId);
+      set({ activityLoading: false });
+      toast.success("ลงทะเบียนสำเร็จ!", { duration: 3000 });
     } catch (error) {
       console.error("❌ ลงทะเบียนล้มเหลว:", error);
       toast.error("❌ ลงทะเบียนไม่สำเร็จ!");
@@ -275,7 +298,10 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  fetchActivity: async (id: number | string): Promise<Activity | null> => {
+  fetchActivity: async (
+    id: number | string,
+    userId: number
+  ): Promise<Activity | null> => {
     const numericId = Number(id);
     if (!numericId || isNaN(numericId)) {
       set({ activityError: "Invalid Activity ID", activityLoading: false });
@@ -285,12 +311,13 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     set({ activityLoading: true, activityError: null });
 
     try {
+      console.log("userId in fetchActivity(store): ", userId);
       console.log(
-        `📡 Fetching activity from API: /activity/get-activity/${numericId}`
+        `📡 Fetching activity from API: /activity/get-activity/${numericId}?userId=${userId}`
       );
 
       const { data } = await axiosInstance.get<ApiActivity>(
-        `/student/activity/get-activity/${numericId}`
+        `/student/activity/get-activity/${numericId}?userId=${userId}`
       );
 
       console.log("📡 API Response:", data);
@@ -300,13 +327,16 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         return null;
       }
 
-      data.ac_food = forceToArray(data.ac_food || []);
+      // data.ac_food = forceToArray(data.ac_food || []);
 
       // ✅ ตรวจสอบว่า mapActivityData() คืนค่า `Activity` ที่ถูกต้อง
       const mappedActivity = mapActivityData(data);
       console.log("✅ Mapped Activity:", mappedActivity);
 
-      const enrolledActivities = get().enrolledActivities; // ✅ ดึงค่าจาก store
+      const enrolledActivities = get().getEnrolledActivitiesByUser(
+        userId.toString()
+      );
+      // ✅ ดึงค่าจาก store
       console.log("📌 Enrolled Activities (All):", enrolledActivities);
 
       // ✅ ตรวจสอบว่ามีอย่างน้อย 2 ตัวหรือไม่ก่อน log
@@ -355,16 +385,21 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       console.log(
         `🚀 Fetching enrolled activities for student ID: ${studentId}`
       );
-      const { data } = await axiosInstance.get<Activity[]>(
+      const { data } = await axiosInstance.get<ApiActivity[]>(
         `/student/activity/get-enrolled-activities/${studentId}`
       );
 
+      const mappedActivities = data.map(mapActivityData);
+
       console.log("✅ Enrolled Activities API Response:", data);
 
-      set({
-        enrolledActivities: data, // ✅ เก็บกิจกรรมที่นิสิตลงทะเบียนไว้
+      set((state) => ({
+        enrolledActivitiesByUser: {
+          ...state.enrolledActivitiesByUser,
+          [studentId]: mappedActivities, // 👈 เก็บเป็น Activity[] ที่ map แล้ว
+        },
         activityLoading: false,
-      });
+      }));
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
@@ -378,6 +413,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   async unenrollActivity(userId: number, activityId: number) {
     try {
+      set({ activityLoading: true, activityError: null });
       console.log(
         `🛑 Unenrolling: studentId=${userId}, activityId=${activityId}`
       );
@@ -389,11 +425,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         }
       );
 
-      if (response.status === 200) {
-        toast.success("✅ ยกเลิกลงทะเบียนสำเร็จ");
-      } else {
-        throw new Error("❌ ไม่สามารถยกเลิกลงทะเบียนได้");
-      }
+      set({ activityLoading: false });
+      toast.success("ยกเลิกการลงทะเบียนเรียบร้อย", { duration: 3000 });
     } catch (error: any) {
       console.error("❌ Error in unenrollActivity:", error);
 
@@ -406,31 +439,15 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       }
     }
   },
-
-  adviceActivities: async (userId: number) => {
-    set({ activityLoading: true, activityError: null });
-  
-    try {
-      const res = await axiosInstance.get(`/student/activity/advice-activity/${userId}`);
-      const mapped = res.data.map(mapActivityData);
-      set({ recommendedActivities: mapped, activityLoading: false });
-    } catch (error: any) {
-      console.error("❌ ดึงกิจกรรมแนะนำล้มเหลว:", error);
-      set({
-        activityError: "ไม่สามารถโหลดกิจกรรมแนะนำได้",
-        activityLoading: false,
-      });
-    }
-  },
 }));
 
-function forceToArray(input: string): string[] {
+function forceToArray(input: unknown): string[] {
+  if (typeof input !== "string") return [];
+
   try {
-    // ลอง parse แบบ array ปกติก่อน
     const parsed = JSON.parse(input);
     if (Array.isArray(parsed)) return parsed;
   } catch {
-    // ถ้า parse ไม่ได้ เช่น {"ข้าว"} → ตัด {} และ " ออก
     const cleaned = input.replace(/[{}"]/g, "").trim();
     if (cleaned) return [cleaned];
   }

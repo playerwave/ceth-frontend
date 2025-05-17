@@ -88,6 +88,7 @@ interface EnrolledStudent {
   checkIn: string;
   checkOut: string;
   evaluated: string;
+  selectedfood: string;
 }
 
 interface ActivityState {
@@ -397,7 +398,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
       console.log(data.ac_food);
 
-      data.ac_food = forceToArray(data.ac_food || []);
+      // data.ac_food = forceToArray(data.ac_food || []);
 
       // ✅ ตรวจสอบว่า mapActivityData() คืนค่า `Activity` ที่ถูกต้อง
       const mappedActivity = mapActivityData(data);
@@ -421,6 +422,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   deleteActivity: async (activityId: number | string) => {
     try {
+      set({ activityLoading: true, activityError: null });
       console.log(`🛑 deleteActivity: , activityId=${activityId}`);
 
       const response = await axiosInstance.delete(
@@ -431,10 +433,12 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       );
 
       if (response.status === 200) {
-        toast.success("✅ ลบกิจกรรมสำเร็จ");
+        toast.success("ลบกิจกรรมสำเร็จ !", { duration: 3000 });
       } else {
+        toast.error("ลบกิจกรรมไม่สำเร็จ T-T", { duration: 3000 });
         throw new Error("❌ ไม่สามารถลบกิจกรรมได้");
       }
+      set({ activityLoading: false });
     } catch (error: any) {
       console.error("❌ Error in deleteActivity:", error);
 
@@ -485,6 +489,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         checkIn: "No", // ถ้ายังไม่มีข้อมูลให้ fix ไว้ก่อน
         checkOut: "No",
         evaluated: "No",
+        selectedfood: s.selectedfood,
       }));
 
       set({ enrolledStudents: mappedStudents });
@@ -502,6 +507,12 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       console.log("log in createActivity Store: ", activity);
 
       await axiosInstance.post("/admin/activity/create-activity", activity);
+      toast.success(
+        activity.ac_status === "Public"
+          ? "สร้างกิจกรรมสำเร็จ !"
+          : "ร่างกิจกรรมสำเร็จ !",
+        { duration: 3000 }
+      );
       set((state) => ({
         activities: [...state.activities, mapActivityData(activity)],
         activityLoading: false,
@@ -517,13 +528,13 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   },
 }));
 
-function forceToArray(input: string): string[] {
+function forceToArray(input: unknown): string[] {
+  if (typeof input !== "string") return [];
+
   try {
-    // ลอง parse แบบ array ปกติก่อน
     const parsed = JSON.parse(input);
     if (Array.isArray(parsed)) return parsed;
   } catch {
-    // ถ้า parse ไม่ได้ เช่น {"ข้าว"} → ตัด {} และ " ออก
     const cleaned = input.replace(/[{}"]/g, "").trim();
     if (cleaned) return [cleaned];
   }

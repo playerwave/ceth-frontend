@@ -1,9 +1,18 @@
 import "./App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
+
+import { useEffect } from "react";
 
 //import components
 import Navbar from "./components/Navbar";
+import Loading from "./components/Loading";
+
+//import authStore
+import { useAuthStore } from "./stores/auth.store";
+
+//import login
+import Login from "./pages/login";
 
 //import pages Admin
 import Main from "./pages/Admin/main_admin";
@@ -20,83 +29,150 @@ import MainStudent from "./pages/Student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity_info_student";
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_student";
 
+export const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated, user, isCheckingAuth } = useAuthStore();
+
+  if (!isAuthenticated && isCheckingAuth) {
+    return (
+      <div className="loading-overlay">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return <Navigate to="/" replace />;
+
+  return children;
+};
+
+export const RedirectAuthenticatedUser = ({
+  children,
+}: {
+  children: JSX.Element;
+}) => {
+  const { isAuthenticated, user } = useAuthStore();
+
+  if (isAuthenticated && user?.isVerify) {
+    return <Navigate to="/main-admin" replace />; // ปรับ path ถ้าจำเป็น
+  }
+
+  return children;
+};
+
 function App() {
+  const checkAuth = useAuthStore((state) => state.checkAuth);
+  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
+
+  useEffect(() => {
+    checkAuth(); // ✅ โหลดข้อมูลผู้ใช้ตอนเปิดเว็บหรือ refresh
+  }, [checkAuth]);
+
+  if (isCheckingAuth) {
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <Loading /> {/* หรือ loading spinner ที่คุณมี */}
+      </div>
+    );
+  }
+
   return (
     <>
       <Toaster position="bottom-right" richColors />
       <div>
+        {/* Un Authenticate Routes */}
+        <Routes>
+          <Route path="/" element={<Login />} />
+        </Routes>
         {/* Admin Routes */}
         <Routes>
           <Route
-            path="/"
+            path="/main-admin"
             element={
-              <Navbar>
-                <Main />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <Main />
+                </Navbar>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/list-activity-admin"
             element={
-              <Navbar>
-                <ListActivityAdmin />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <ListActivityAdmin />
+                </Navbar>
+              </ProtectedRoute>
             }
           ></Route>
           <Route
             path="/activity-info-admin/:id"
             element={
-              <Navbar>
-                <ActivityInfoAdmin />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <ActivityInfoAdmin />
+                </Navbar>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/enrolled_list_admin/:id"
             element={
-              <Navbar>
-                <EnrolledListAdmin />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <EnrolledListAdmin />
+                </Navbar>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/activity-info-admin"
             element={
-              <Navbar>
-                <ActivityInfoAdmin />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <ActivityInfoAdmin />
+                </Navbar>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/create-activity-admin"
             element={
-              <Navbar>
-                <CreateActivityAdmin />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <CreateActivityAdmin />
+                </Navbar>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/update-activity-admin"
             element={
-              <Navbar>
-                <UpdateActivityAdmin />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <UpdateActivityAdmin />
+                </Navbar>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/enrolled_list_admin/:id"
             element={
-              <Navbar>
-                <EnrolledListAdmin />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <EnrolledListAdmin />
+                </Navbar>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/test_create"
             element={
-              <Navbar>
-                <TestCreate />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <TestCreate />
+                </Navbar>
+              </ProtectedRoute>
             }
           />
         </Routes>
@@ -106,25 +182,31 @@ function App() {
           <Route
             path="/main-student"
             element={
-              <Navbar>
-                <MainStudent />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <MainStudent />
+                </Navbar>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/activity-info-student"
             element={
-              <Navbar>
-                <ActivityInfoStudent />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <ActivityInfoStudent />
+                </Navbar>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/list-activity-student"
             element={
-              <Navbar>
-                <ListActivityStudent />
-              </Navbar>
+              <ProtectedRoute>
+                <Navbar>
+                  <ListActivityStudent />
+                </Navbar>
+              </ProtectedRoute>
             }
           ></Route>
         </Routes>

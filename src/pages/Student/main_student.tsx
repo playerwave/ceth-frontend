@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Box, Typography, Card, Grid, TextField, Button } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import {
@@ -10,23 +10,32 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { useActivityStore } from "../../stores/Student/activity_student.store";
+
+//import store
+import { useAuthStore } from "../../stores/auth.store";
+import {
+  useActivityStore,
+  mapActivityData,
+} from "../../stores/Student/activity_student.store";
+
+//import component
 import Table from "../../components/Student/table";
 import Loading from "../../components/Loading";
 
 const MainStudent = () => {
   const [searchId, setSearchId] = useState("");
 
+  const { user } = useAuthStore();
   const {
-    activities,
-    searchResults,
-    fetchActivities,
-    searchActivities,
     activityLoading,
     activityError,
     fetchEnrolledActivities,
-    enrolledActivities, // ✅ ดึง enrolledActivities มาใช้งาน
+    enrolledActivitiesByUser,
   } = useActivityStore();
+
+  const userId = user?.u_id?.toString() || "";
+
+  const enrolledActivities = enrolledActivitiesByUser[userId] || [];
 
   // ✅ อัปเดตข้อมูล Soft Skill & Hard Skill ทันทีที่มี ID
 
@@ -38,28 +47,33 @@ const MainStudent = () => {
     }
   };
 
-  const userId = localStorage.getItem("userId") || "8";
-
   useEffect(() => {
-    fetchEnrolledActivities(userId).finally(() => {});
-  }, []);
+    if (user?.u_id) {
+      fetchEnrolledActivities(user.u_id.toString());
+    }
+  }, [user?.u_id]);
 
   useEffect(() => {
     console.log("📌 ข้อมูลกิจกรรมที่ลงทะเบียน:", enrolledActivities);
   }, [enrolledActivities]);
 
-  const transformedActivities = enrolledActivities
-    .filter((act) => act.ac_status === "Public")
+  const transformedActivities = (enrolledActivities ?? [])
+    .filter(
+      (act) =>
+        act.status === "Public" &&
+        act.end_register &&
+        new Date(act.end_register) > new Date()
+    )
     .map((act) => ({
-      id: act.ac_id.toString(), // ✅ แปลง id เป็น string
-      name: act.ac_name || "ไม่มีชื่อกิจกรรม",
-      company_lecturer: act.ac_company_lecturer || "ไม่มีข้อมูลบริษัท",
-      description: act.ac_description || "",
-      type: act.ac_type || "Soft Skill",
-      start_time: new Date(act.ac_start_time), // ✅ แปลงเป็น Date object
-      seat: act.ac_seat || 0,
-      status: act.ac_status || "Public",
-      registered_count: act.ac_registered_count || 0,
+      id: act.id,
+      name: act.name,
+      company_lecturer: act.company_lecturer,
+      description: act.description,
+      type: act.type,
+      start_time: act.start_time || new Date(),
+      seat: Number(act.seat),
+      status: act.status,
+      registered_count: act.registered_count,
     }));
 
   return (
@@ -143,7 +157,7 @@ const MainStudent = () => {
         </div>
 
         {/* ช่องกรอก ID และปุ่มค้นหา */}
-        <div className="mt-6 flex justify-center items-center gap-2 ">
+        {/* <div className="mt-6 flex justify-center items-center gap-2 ">
           <input
             type="text"
             placeholder="กรอก ID"
@@ -161,7 +175,7 @@ const MainStudent = () => {
             ค้นหา
           </Button>
           <p>(ใช้ทดสอบดึงข้อมูลกิจกรรมของนิสิต)</p>
-        </div>
+        </div> */}
 
         <div className="flex justify-center mt-4 lg:mt-6">
           <Card
@@ -187,7 +201,8 @@ const MainStudent = () => {
               <p className="text-center text-red-500 p-4">
                 ❌ เกิดข้อผิดพลาด: {activityError}
               </p>
-            ) : enrolledActivities.length === 0 ? (
+            ) : !Array.isArray(enrolledActivities) ||
+              enrolledActivities.length === 0 ? (
               <p className="text-center text-gray-500 p-4">📭 ไม่พบกิจกรรม</p>
             ) : (
               <Table title="" data={transformedActivities} />

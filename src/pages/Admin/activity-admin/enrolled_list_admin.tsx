@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { useActivityStore } from "../../../stores/Admin/activity_store";
 import { useParams } from "react-router-dom";
+import Button from "../../../components/Button";
 
 export default function enrolled_list_admin() {
   const { id } = useParams<{ id: string }>();
@@ -47,7 +48,7 @@ export default function enrolled_list_admin() {
   });
 
   return (
-    <div className="p-6 w-full max-w-[1110px] mx-auto">
+    <div className="p-6 w-320 h-230 mx-auto">
       {/* Header */}
       <h1 className="text-3xl font-bold mb-4">รายชื่อนิสิตที่ลงทะเบียน</h1>
 
@@ -157,6 +158,7 @@ export default function enrolled_list_admin() {
                 <th className="p-3 text-left w-[200px]">ชื่อ-นามสกุล</th>
                 <th className="p-3 text-left w-[120px]">สาขา</th>
                 <th className="p-3 text-center w-[120px]">สถานะ</th>
+                <th className="p-3 text-center w-[120px]">อาหาร</th>
                 <th className="p-3 text-center w-[120px]">ลงชื่อเข้า</th>
                 <th className="p-3 text-center w-[120px]">ลงชื่อออก</th>
                 <th className="p-3 text-center w-[120px] rounded-tr-lg rounded-br-lg">
@@ -199,6 +201,11 @@ export default function enrolled_list_admin() {
                         {student.status === "normal" ? "ปกติ" : "เสี่ยง"}
                       </span>
                     </td>
+                    <td className="p-3 text-center">
+                      {activity?.location_type !== "Onsite"
+                        ? "-"
+                        : student.selectedfood}
+                    </td>
                     <td className="p-3 text-center">{student.checkIn}</td>
                     <td className="p-3 text-center">{student.checkOut}</td>
                     <td className="p-3 text-center">{student.evaluated}</td>
@@ -211,12 +218,9 @@ export default function enrolled_list_admin() {
 
         {/* ปุ่มย้อนกลับ อยู่ในกรอบ */}
         <div className="mt-auto flex justify-left p-4">
-          <button
-            onClick={() => window.history.back()}
-            className="flex items-center justify-center gap-2 w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none"
-          >
+          <Button color="blue" onClick={() => window.history.back()}>
             ← กลับ
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -9,20 +9,21 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Loading from "../../../components/Loading";
 import SearchBar from "../../../components/Searchbar";
 import Table from "../../../components/Student/table";
+import { useAuthStore } from "../../../stores/auth.store";
 
 const ManageActivityAdmin: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { user } = useAuthStore();
+
   const {
-    activities,
     searchResults,
-    fetchActivities,
+    fetchStudentActivities,
     searchActivities,
     activityLoading,
     activityError,
-    fetchStudentActivities,
-    recommendedActivities,
-    adviceActivities,
+    getActivitiesByUser,
   } = useActivityStore();
 
   const [activeTab, setActiveTab] = useState<"list" | "calendar">("list");
@@ -42,24 +43,24 @@ const ManageActivityAdmin: React.FC = () => {
   //   }
   // }, [location, navigate]);
 
-  const userId = localStorage.getItem("userId") || "8";
-  const [showRecommendModal, setShowRecommendModal] = useState(false); 
-
   useEffect(() => {
-    if (userId) {
-      fetchStudentActivities(userId);
+    if (user?.u_id) {
+      fetchStudentActivities(user.u_id);
     } // ✅ โหลดข้อมูลใหม่ทุกครั้งเมื่อเปิดหน้านี้
   }, []);
 
-  useEffect(() => {
-    if (userId && !isNaN(Number(userId))) {
-      adviceActivities(Number(userId));
-    }     // เรียกโหลดกิจกรรมที่ระบบแนะนำ
-  }, []);
+  const displayedActivities = searchResults ?? getActivitiesByUser(user?.u_id);
 
-  const displayedActivities = searchResults ?? activities;
+  // const activitiesFilter = displayedActivities.filter(
+  //   (a) => a.status === "Public" && a.seat !== a.registered_count
+  // );
+
   const activitiesFilter = displayedActivities.filter(
-    (a) => a.status === "Public" && a.seat !== a.registered_count
+    (a) =>
+      a.status === "Public" &&
+      a.seat !== a.registered_count &&
+      a.end_register &&
+      new Date(a.end_register) > new Date()
   );
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -80,13 +81,29 @@ const ManageActivityAdmin: React.FC = () => {
         <SearchBar onSearch={handleSearch} />
       </div>
 
-      <div className="flex justify-end items-center mb-4 mt-5">
-        <button
-          onClick={() => setShowRecommendModal(true)} // ✅ เปิด modal
-          className="bg-[#1E3A8A] text-white px-4 py-2 rounded flex items-center gap-2 transition hover:bg-blue-700"
-        >
-          แนะนำกิจกรรม
-        </button>
+      <div className="flex justify-between items-center mb-4 mt-5">
+        <div className="flex space-x-4">
+          <button
+            className={`px-4 py-2 text-lg font-semibold ${
+              activeTab === "list"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500"
+            }`}
+            onClick={() => setActiveTab("list")}
+          >
+            <FaList className="inline mr-2" /> ลิสต์
+          </button>
+          <button
+            className={`px-4 py-2 text-lg font-semibold ${
+              activeTab === "calendar"
+                ? "text-blue-600 border-b-2 border-blue-600"
+                : "text-gray-500"
+            }`}
+            onClick={() => setActiveTab("calendar")}
+          >
+            <FaCalendar className="inline mr-2" /> ปฏิทิน
+          </button>
+        </div>
       </div>
       {/* ✅ แสดง Loading อยู่กลางจอ แต่ไม่ทับ Navbar */}
       {activityLoading ? (
@@ -111,163 +128,6 @@ const ManageActivityAdmin: React.FC = () => {
             📅 โหมดปฏิทิน (ยังไม่มีข้อมูล)
           </h2>
         </div>
-      )}
-      {showRecommendModal && (
-        <>
-          {/* Overlay โปร่งเบลอ */}
-          <div
-            className="fixed inset-0 bg-black/30  z-40"
-            onClick={() => setShowRecommendModal(false)}
-          />
-
-          {/* Modal Box */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-            <div className="bg-[#C2C5D2] w-full max-w-5xl rounded-4xl shadow-xl p-10 relative">
-              {/* หัวข้อ */}
-              <h2 className="text-xl font-bold text-center mb-6 text-[25px]">
-                แนะนำรายการกิจกรรมที่ควรลง
-              </h2>
-
-              {/* รายการกิจกรรม */}
-              <div className="space-y-0.5 max-h-[300px] overflow-y-auto pr-2 mb-2">
-                {/* กิจกรรมที่ 1 */}
-                <div className="flex items-center justify-between bg-white rounded-full px-6 py-4 shadow">
-                  <div className="flex items-center gap-4">
-                    <p className="font-semibold">Clicknext</p>
-                    {/* <p className="font-semibold">{activity.company_lecturer}</p> */}
-                    <span className="bg-yellow-100 text-[#FFAE00] text-sm font-medium px-2 py-1 rounded-full">
-                      Hard Skill
-                    {/* {activity.type} */}
-                    </span>
-                    <p>Participating in cooperative education activities</p>
-                    {/* <p>{activity.name}</p> */}
-                  </div>
-                  <div className="text-sm ">
-                    12/09/2024 - 09.00 - 16.00 PM
-                    {/* {activity.start_time}-{activity.end_time} */}
-                    <span className="text-black font-medium ml-7">
-                      ชั่วโมงที่ได้รับ 6 ชั่วโมง
-                      {/* {activity.recieve_hours} */}
-                    </span>
-                  </div>
-                </div>
-
-                {/* กิจกรรมที่ 2 */}
-                <div className="flex items-center justify-between bg-white rounded-full px-6 py-4 shadow">
-                  <div className="flex items-center gap-4">
-                    <p className="font-semibold">Clicknext</p>
-                    <span className="bg-blue-100 text-[#0900FF] text-sm font-medium px-2 py-1 rounded-full">
-                      Soft Skill
-                      {/* {activity.type} */}
-                    </span>
-                    <p>Participating in cooperative education activities</p>
-                    {/* <p>{activity.name}</p> */}
-                  </div>
-                  <div className="text-sm">
-                    12/09/2024 - 09.00 - 16.00 PM
-                    {/* {activity.start_time}-{activity.end_time} */}
-                    <span className="text-black font-medium ml-7">
-                      ชั่วโมงที่ได้รับ 3 ชั่วโมง
-                      {/* {activity.recieve_hours} */}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* สรุปข้อมูลด้านล่าง */}
-              <div className="-mt-20 flex items-stretch gap-3 h-full">
-                {/* ชั่วโมงปัจจุบัน */}
-                <div className="flex flex-col w-[220px] min-h-[200px] justify-end">
-                  <p className="text-base font-semibold mb-2 text-center">
-                    ชั่วโมงปัจจุบัน
-                  </p>
-                  <div className="bg-white rounded-full px-6 py-3 h-[67px] shadow flex justify-between w-full">
-                    {/* Hard Skill */}
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs bg-yellow-100 text-[#FFAE00] px-2 py-0.5 rounded-full mb-1">
-                        Hard Skill
-                      </span>
-                      <p className="text-lg font-bold leading-none">
-                        0 <span className="text-sm text-green-600">+6</span>
-                        {/* 0 <span className="text-sm text-green-600">+{activity.recieve_hours}</span> */}
-                      </p>
-                    </div>
-                    {/* Soft Skill */}
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs bg-indigo-100 text-[#0900FF] px-2 py-0.5 rounded-full mb-1">
-                        Soft Skill
-                      </span>
-                      <p className="text-lg font-bold  leading-none">
-                        0 <span className="text-sm text-green-600">+3</span>
-                        {/* 0 <span className="text-sm text-green-600">+{activity.recieve_hours}</span> */}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ชั่วโมงหลังจากลงกิจกรรม */}
-                <div className="flex flex-col w-[220px] min-h-[200px] justify-end">
-                  <p className="text-base font-semibold mb-2 text-center">
-                    ชั่วโมงหลังจากลงกิจกรรม
-                  </p>
-                  <div className="bg-white rounded-full px-6 py-3 h-[67px] shadow flex justify-between w-full">
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs bg-yellow-100 text-[#FFAE00] px-2 py-0.5 rounded-full mb-1">
-                        Hard Skill
-                      </span>
-                      <p className="text-lg font-bold leading-none">
-                        6
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs bg-indigo-100 text-[#0900FF] px-2 py-0.5 rounded-full mb-1">
-                        Soft Skill
-                      </span>
-                      <p className="text-lg font-bold leading-none">
-                        3
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* คะแนนความเสี่ยง */}
-                <div className="flex flex-col w-[220px] min-h-[200px] justify-end">
-                  <p className="text-base font-semibold mb-2 text-center">
-                    คะแนนความเสี่ยง
-                  </p>
-                  <div className="bg-white rounded-full px-6 py-3 h-[67px] shadow flex justify-between w-full">
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full mb-1">
-                        Before
-                      </span>
-                      <p className="text-lg font-bold  leading-none">
-                        40 <span className="text-sm text-green-600">-10</span>
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full mb-1">
-                        After
-                      </span>
-                      <p className="text-lg font-bold leading-none">
-                        30
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ปุ่มปิด */}
-                <div className="flex flex-col w-[220px] min-h-[200px] justify-end items-end">
-                  <button
-                    onClick={() => setShowRecommendModal(false)}
-                    className="bg-red-500 hover:bg-red-600 text-white text-lg font-medium w-[150px] px-6 py-2 rounded-full transition"
-                  >
-                    ปิด
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
       )}
     </div>
   );
