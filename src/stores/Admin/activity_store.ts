@@ -66,6 +66,10 @@ interface ActivityState {
     id: string,
     currentStatus: "Public" | "Private"
   ) => Promise<void>;
+  updateActivityStatus: (
+    id: string,
+    currentStatus: "Public" | "Private"
+  ) => Promise<void>;
   fetchActivity: (id: number) => Promise<void>;
   fetchEnrolledStudents: (id: number) => Promise<void>;
 }
@@ -97,7 +101,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     try {
       const { data } = await axiosInstance.get<ApiActivity[]>(
         "/activity/get-activities"
-      ); // ✅ เปลี่ยน URL ให้ตรงกับ Backend
+      );
       if (Array.isArray(data) && data.length > 0) {
         set({ activities: data.map(mapActivityData), activityLoading: false });
       } else {
@@ -106,6 +110,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       set({
+        activityError:
+          err.response?.data?.message ?? "Error fetching activities",
         activityError:
           err.response?.data?.message ?? "Error fetching activities",
         activityLoading: false,
@@ -131,6 +137,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       set({
+        activityError:
+          err.response?.data?.message ?? "Error searching activities",
         activityError:
           err.response?.data?.message ?? "Error searching activities",
         activityLoading: false,
@@ -192,6 +200,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       return mappedActivity; // ✅ คืนค่า Activity
     } catch (error: any) {
       set({
+        activityError:
+          error.response?.data?.message || "Error fetching activity",
         activityError:
           error.response?.data?.message || "Error fetching activity",
         activityLoading: false,

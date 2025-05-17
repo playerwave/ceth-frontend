@@ -1,29 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { ImagePlus } from "lucide-react";
 import { useActivityStore } from "../../../stores/Admin/activity_store"; // ✅ นำเข้า Zustand Store
-import { useAssessmentStore } from "../../../stores/Admin/assessment_store";
 import Button from "../../../components/Button";
 import { Activity } from "../../../stores/Admin/activity_store";
 import { useNavigate } from "react-router-dom";
+import { Cloudinary } from "@cloudinary/url-gen";
 import { auto } from "@cloudinary/url-gen/actions/resize";
 import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
 import { AdvancedImage } from "@cloudinary/react";
-import ConfirmDialog from "../../../components/ConfirmDialog";
-import { toast } from "sonner";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import dayjs, { Dayjs } from "dayjs";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { TextField, IconButton, Paper, Box, Typography } from "@mui/material";
-import { Delete, Add } from "@mui/icons-material";
-import { SelectChangeEvent } from "@mui/material"; // ✅ นำเข้า SelectChangeEvent
 
 interface FormData {
-  ac_id: number | null;
   ac_name: string;
-  assessment_id?: number | null;
+  assesment_id?: number | null;
   ac_company_lecturer: string;
   ac_description: string;
   ac_type: string;
@@ -42,27 +30,23 @@ interface FormData {
   ac_not_attended_count?: number;
   ac_start_time?: string | null;
   ac_end_time?: string | null;
-  ac_image_url?: File | null;
+  ac_image_data?: File | null;
   ac_normal_register?: string | null;
-  ac_recieve_hours?: number | null;
-  ac_start_assessment?: string | null;
-  ac_end_assessment?: string | null;
 }
 
 const CreateActivityAdmin: React.FC = () => {
   const { createActivity } = useActivityStore(); //
   const [formData, setFormData] = useState<FormData>({
-    ac_id: null,
     ac_name: "",
-    assessment_id: null,
+    assesment_id: null,
     ac_company_lecturer: "",
     ac_description: "",
     ac_type: "",
     ac_room: "",
-    ac_seat: null,
+    ac_seat: "",
     ac_food: [],
-    ac_status: "Private",
-    ac_location_type: "Onsite",
+    ac_status: "",
+    ac_location_type: "",
     ac_state: "",
     ac_start_register: "",
     ac_end_register: "",
@@ -73,69 +57,49 @@ const CreateActivityAdmin: React.FC = () => {
     ac_not_attended_count: 0,
     ac_start_time: "",
     ac_end_time: "",
-    ac_image_url: null,
+    ac_image_data: null,
     ac_normal_register: "",
-    ac_start_assessment: "",
-    ac_end_assessment: "",
   });
 
-  const IfBuildingRoom: Record<string, { name: string; capacity: number }[]> = {
-    "3": [
-      { name: "IF-3M210", capacity: 210 }, // ห้องบรรยาย
-      { name: "IF-3C01", capacity: 55 }, // ห้องปฏิบัติการ
-      { name: "IF-3C02", capacity: 55 },
-      { name: "IF-3C03", capacity: 55 },
-      { name: "IF-3C04", capacity: 55 },
-    ],
-    "4": [
-      { name: "IF-4M210", capacity: 210 }, // ห้องบรรยาย
-      { name: "IF-4C01", capacity: 55 }, // ห้องปฏิบัติการ
-      { name: "IF-4C02", capacity: 55 },
-      { name: "IF-4C03", capacity: 55 },
-      { name: "IF-4C04", capacity: 55 },
-    ],
-    "5": [
-      { name: "IF-5M210", capacity: 210 }, // ห้องบรรยาย
-    ],
-    "11": [
-      { name: "IF-11M280", capacity: 280 }, // ห้องบรรยาย
-    ],
+  const IfBuildingRoom: Record<string, string[]> = {
+    "3": ["301", "302", "303"],
+    "4": ["401", "402", "403", "404"],
+    "5": ["501", "502", "503"],
+    "6": ["601", "602"],
+    "7": ["701", "702", "703", "704"],
+    "8": ["801", "802"],
+    "9": ["901", "902", "903"],
+    "10": ["1001", "1002"],
+    "11": ["1101", "1102", "1103"],
   };
 
   const navigate = useNavigate();
-  const { assessments, fetchAssessments } = useAssessmentStore();
 
   const [selectedFloor, setSelectedFloor] = useState<string>("");
   const [selectedRoom, setSelectedRoom] = useState<string>("");
-  const [seatCapacity, setSeatCapacity] = useState<number | string>(""); // ✅ เก็บจำนวนที่นั่งของห้องที่เลือก
 
-  const [value, setValue] = React.useState<Dayjs | null>(
-    dayjs("2022-04-17T15:30")
-  );
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
 
-  const handleFloorChange = (event: SelectChangeEvent) => {
-    setSelectedFloor(event.target.value);
-    setSelectedRoom(""); // ✅ รีเซ็ตห้องเมื่อเปลี่ยนชั้น
-    setSeatCapacity(""); // ✅ รีเซ็ตที่นั่งเมื่อเปลี่ยนชั้น
+  const [endRegisterDate, setEndRegisterDate] = useState("");
+  const [endRegisterTime, setEndRegisterTime] = useState("");
+
+  const [normalRegisterDate, setNormalRegisterDate] = useState("");
+  const [normalRegisterTime, setNormalRegisterTime] = useState("");
+
+  const handleFloorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const floor = e.target.value;
+    setSelectedFloor(floor);
+    setSelectedRoom(""); // รีเซ็ตห้องเมื่อเปลี่ยนชั้น
+    setFormData((prev) => ({ ...prev, ac_room: "" })); // รีเซ็ตค่า ac_room
   };
 
-  const handleRoomChange = (event: SelectChangeEvent) => {
-    setSelectedRoom(event.target.value);
-
-    // ✅ ค้นหา `capacity` ของห้องที่เลือก
-    const selectedRoomObj = IfBuildingRoom[selectedFloor]?.find(
-      (room) => room.name === event.target.value
-    );
-
-    const newSeatCapacity = selectedRoomObj ? selectedRoomObj.capacity : "";
-
-    setSeatCapacity(newSeatCapacity); // ✅ อัปเดตจำนวนที่นั่ง
-
-    setFormData((prev) => ({
-      ...prev,
-      ac_room: event.target.value, // ✅ บันทึกห้องที่เลือก
-      ac_seat: newSeatCapacity, // ✅ บันทึกจำนวนที่นั่ง
-    }));
+  const handleRoomChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const room = e.target.value;
+    setSelectedRoom(room);
+    setFormData((prev) => ({ ...prev, ac_room: room })); // อัปเดต ac_room
   };
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -152,13 +116,40 @@ const CreateActivityAdmin: React.FC = () => {
 
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        type === "number" ? (value ? parseInt(value, 10) || 0 : 0) : value, // ✅ ป้องกัน null และ undefined
+      [name]: type === "number" ? (value ? parseInt(value, 10) : "") : value,
     }));
 
+    // ตรวจจับค่าของ input ที่เป็นวันที่หรือเวลา และอัปเดต state ให้ถูกต้อง
     switch (name) {
-      case "ac_status":
-        console.log("Status changed to:", value);
+      case "ac_start_register":
+        setStartDate(value);
+        break;
+      case "ac_end_register_date":
+        setEndRegisterDate(value);
+        break;
+      case "ac_end_register_time":
+        setEndRegisterTime(value);
+        break;
+      case "ac_normal_register_date":
+        setNormalRegisterDate(value);
+        break;
+      case "ac_normal_register_time":
+        setNormalRegisterTime(value);
+        break;
+      case "ac_start_date":
+        setStartDate(value);
+        break;
+      case "ac_start_time":
+        setStartTime(value);
+        break;
+      case "ac_end_date":
+        setEndDate(value);
+        break;
+      case "ac_end_time":
+        setEndTime(value);
+        break;
+      case "ac_normal_register":
+        setNormalRegisterDate(value);
         break;
       default:
         break;
@@ -315,38 +306,40 @@ const CreateActivityAdmin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      toast.error("กรุณากรอกข้อมูลให้ถูกต้องก่อนส่งฟอร์ม!");
-      return;
-    }
+    const numericSeats = formData.ac_seat ? parseInt(formData.ac_seat, 10) : 0;
 
-    let imageUrl = "";
-    if (formData.ac_image_url instanceof File) {
-      imageUrl = await uploadImageToCloudinary(formData.ac_image_url);
-    }
+    // ✅ แปลงค่า string เป็น Date (Backend คาดหวังเป็น Date)
+    const endRegisterDateTime = new Date(
+      `${endRegisterDate}T${endRegisterTime}:00Z`
+    );
+    const startDateTime = new Date(`${startDate}T${startTime}:00Z`);
+    const endDateTime = new Date(`${endDate}T${endTime}:00Z`);
+    const normalRegister = new Date(
+      `${normalRegisterDate}T${normalRegisterTime}:00Z`
+    );
 
-    let acRecieveHours = formData.ac_recieve_hours
-      ? Number(formData.ac_recieve_hours)
-      : 0;
-
-    if (
-      formData.ac_location_type !== "Course" &&
-      formData.ac_start_time &&
-      formData.ac_end_time
-    ) {
-      const start = dayjs(formData.ac_start_time);
-      const end = dayjs(formData.ac_end_time);
-      const duration = end.diff(start, "hour", true); // ✅ คำนวณเป็นชั่วโมง (รวมเศษทศนิยม)
-      acRecieveHours = duration > 0 ? duration : 0; // ✅ ป้องกันค่าติดลบ
-    }
-
-    let startRegister = dayjs(formData.ac_start_register);
-    if (formData.ac_status == "Public") {
-      startRegister = dayjs(new Date());
+    // ✅ ใช้ let แทน const และตรวจสอบสถานะ
+    let startregister: Date | undefined;
+    if (formData.ac_status === "Public") {
+      startregister = new Date(); // ตั้งค่าเป็นวันที่ปัจจุบัน
+    } else {
+      startregister = undefined; // ถ้าไม่ใช่ Public ให้เป็น undefined
     }
 
     const activityData: Activity = {
-      ...formData,
+      ac_name: formData.ac_name,
+      assessment_id: 1,
+      ac_company_lecturer: formData.ac_company_lecturer,
+      ac_description: formData.ac_description,
+      ac_type: formData.ac_type,
+      ac_room: formData.ac_room || "Unknown",
+      ac_seat: !isNaN(numericSeats) ? numericSeats : 0,
+      ac_food: formData.ac_food || [],
+      ac_status: formData.ac_status || "Private",
+      ac_location_type: formData.ac_location_type,
+      ac_state: "Not Start",
+      ac_start_register: startregister, // ✅ ใช้ค่าจาก if-check
+      ac_end_register: endRegisterDateTime, // ✅ ส่งเป็น Date
       ac_create_date: new Date(),
       ac_last_update: new Date(),
       ac_start_register: startRegister,
@@ -387,18 +380,26 @@ const CreateActivityAdmin: React.FC = () => {
         ...(prev.ac_food ?? []),
         `เมนู ${prev.ac_food?.length ?? 0 + 1}`,
       ],
+      ac_food: [
+        ...(prev.ac_food ?? []),
+        `เมนู ${prev.ac_food?.length ?? 0 + 1}`,
+      ],
     }));
   };
 
   // ฟังก์ชันแก้ไขเมนูอาหาร
   const updateFoodOption = (index: number, newValue: string) => {
     const updatedFoodOptions = [...(formData.ac_food ?? [])];
+    const updatedFoodOptions = [...(formData.ac_food ?? [])];
     updatedFoodOptions[index] = newValue;
+    setFormData((prev) => ({ ...prev, ac_food: updatedFoodOptions }));
     setFormData((prev) => ({ ...prev, ac_food: updatedFoodOptions }));
   };
 
   // ฟังก์ชันลบเมนูอาหาร
   const removeFoodOption = (index: number) => {
+    const updatedFoodOptions = formData.ac_food?.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, ac_food: updatedFoodOptions }));
     const updatedFoodOptions = formData.ac_food?.filter((_, i) => i !== index);
     setFormData((prev) => ({ ...prev, ac_food: updatedFoodOptions }));
   };
@@ -407,51 +408,33 @@ const CreateActivityAdmin: React.FC = () => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
 
+      // ✅ ตรวจสอบว่าเป็นไฟล์รูปภาพ
       if (!file.type.startsWith("image/")) {
-        toast.error("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!");
+        alert("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!");
         return;
       }
 
+      // ✅ ตรวจสอบขนาดไฟล์ (ต้องไม่เกิน 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("ไฟล์ขนาดใหญ่เกินไป (ต้องไม่เกิน 5MB)");
+        alert("ไฟล์ขนาดใหญ่เกินไป (ต้องไม่เกิน 5MB)");
         return;
       }
 
-      // ✅ แสดงตัวอย่างรูปภาพ
-      const imageUrl = URL.createObjectURL(file);
-      setPreviewImage(imageUrl);
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        // ✅ ตัด "data:image/png;base64," ออกจาก Base64
+        const base64String = reader.result?.toString().split(",")[1];
 
-      // ✅ เก็บไฟล์ไว้ใน `ac_image_url`
-      setFormData((prev) => ({
-        ...prev,
-        ac_image_url: file, // ✅ ตอนนี้เก็บเป็น File
-      }));
+        setFormData((prev) => ({
+          ...prev,
+          ac_image_data: base64String, // ✅ บันทึก Base64 ลง state
+        }));
+
+        setPreviewImage(URL.createObjectURL(file)); // ✅ แสดงตัวอย่างรูป
+      };
     }
   };
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    console.log("Fetching assessments..."); // ✅ ตรวจสอบว่า useEffect ทำงาน
-    fetchAssessments();
-  }, []);
-
-  useEffect(() => {
-    console.log("Assessments:", assessments); // ✅ ตรวจสอบว่า assessments มีค่าหรือไม่
-  }, [assessments]);
-
-  // useEffect(() => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     ac_type:
-  //       prev.ac_type === "Hard Skill"
-  //         ? "HardSkill"
-  //         : prev.ac_type === "Soft Skill"
-  //         ? "SoftSkill"
-  //         : prev.ac_type,
-  //     ac_status: prev.ac_status || "Private",
-  //   }));
-  // }, [formData.ac_type, formData.ac_status]);
 
   return (
     <>
