@@ -1,22 +1,8 @@
-import {
-  faSort,
-  faSortUp,
-  faSortDown,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-interface Activity {
-  name: string;
-  type: "Hard Skill" | "Soft Skill";
-  date: string;
-  time: string;
-  slots: string;
-  status: "Public" | "Private";
-}
+import { Activity } from "../components/table";
 
 interface TableHeaderProps {
-  handleSort: (key: keyof Activity) => void; // ✅ ใช้ keyof Activity
-  sortConfig: { key: keyof Activity | null; direction: "asc" | "desc" };
+  handleSort: (key: keyof Activity) => void;
+  sortConfig?: { key: keyof Activity | null; direction: "asc" | "desc" };
 }
 
 const TableHeader: React.FC<TableHeaderProps> = ({
@@ -42,22 +28,13 @@ const TableHeader: React.FC<TableHeaderProps> = ({
   };
 
   return (
-    <thead className="bg-[#1E3A8A] text-white text-center rounded-t-lg">
-      <tr className="rounded-lg">
-        {[
-          { key: "name", label: "ชื่อบริษัท/วิทยากร", sortable: true },
-          { key: "type", label: "ประเภท", sortable: true },
-          { key: "activity", label: "ชื่อกิจกรรม", sortable: false },
-          { key: "date", label: "วันที่จัดกิจกรรม", sortable: true },
-          { key: "slots", label: "ที่นั่ง", sortable: true },
-          { key: "status", label: "สถานะ", sortable: false },
-        ].map(({ key, label, sortable }) => (
+    <thead className="bg-blue-900 text-white">
+      <tr>
+        {columns.map((col) => (
           <th
-            key={key}
-            className={`p-2 ${sortable ? "cursor-pointer" : ""}`}
-            onClick={
-              sortable ? () => handleSort(key as keyof Activity) : undefined
-            }
+            key={col.key}
+            className={`p-2 ${col.sortable ? "cursor-pointer" : ""}`}
+            onClick={() => col.sortable && handleSort(col.key)}
           >
             {col.label} {col.sortable && getSortIcon(col.key)}
           </th>

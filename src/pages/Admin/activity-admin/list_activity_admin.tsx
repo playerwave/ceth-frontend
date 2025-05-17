@@ -1,120 +1,71 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaList, FaCalendar } from "react-icons/fa";
 import SearchBar from "../../../components/search_bar";
 import Table from "../../../components/table";
+// import TableHeader from "../../../components/table_header";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useAppStore } from "../../../stores/Test/store_test";
+import { useNavigate } from "react-router-dom";
 
-const ListActivityAdmin: React.FC = () => {
-  interface Activity {
-    name: string;
-    type: "Hard Skill" | "Soft Skill";
-    date: string;
-    time: string;
-    slots: string;
-    status: "Public" | "Private";
-  }
-
+const ManageActivityAdmin: React.FC = () => {
+  const navigate = useNavigate();
+  const { activities, fetchActivities, activityLoading, activityError } =
+    useAppStore();
   const [activeTab, setActiveTab] = useState<"list" | "calendar">("list");
 
-  const activitiesSuccess: Activity[] = [
-    {
-      name: "Clicknext",
-      type: "Hard Skill",
-      date: "06/03/2025",
-      time: "13:00 - 16:00",
-      slots: "50/50",
-      status: "Public",
-    },
-    {
-      name: "Clicknext",
-      type: "Hard Skill",
-      date: "13/02/2025",
-      time: "13:00 - 16:00",
-      slots: "15/50",
-      status: "Public",
-    },
-    {
-      name: "Clicknext",
-      type: "Soft Skill",
-      date: "12/03/2025",
-      time: "13:00 - 16:00",
-      slots: "15/50",
-      status: "Public",
-    },
-  ];
+  useEffect(() => {
+    console.log("📡 กำลังเรียก fetchActivities...");
+    fetchActivities();
+  }, [fetchActivities]);
 
-  const activitiesOngoing: Activity[] = [
-    {
-      name: "Clicknext",
-      type: "Soft Skill",
-      date: "12/03/2024",
-      time: "13:00 - 16:00",
-      slots: "15/50",
-      status: "Private",
-    },
-    {
-      name: "Alicknext",
-      type: "Soft Skill",
-      date: "09/03/2024",
-      time: "13:00 - 16:00",
-      slots: "40/50",
-      status: "Private",
-    },
-    {
-      name: "Clicknext",
-      type: "Hard Skill",
-      date: "01/03/2024",
-      time: "13:00 - 16:00",
-      slots: "3/50",
-      status: "Private",
-    },
-  ];
+  console.log("✅ ข้อมูลกิจกรรมที่ได้รับจาก Store:", activities);
+
+  // const handleRowClick = (activityId: string) => {
+  //   navigate(`/activity/${activityId}`);
+  // };
+
+  const activitiesSuccess = activities.filter((a) => a.status === "Public");
+  const activitiesOngoing = activities.filter((a) => a.status === "Private");
 
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-5">
       <h1 className="text-center text-2xl font-bold mb-4">จัดการกิจกรรม</h1>
 
-      {/* ✅ แถบค้นหา */}
-      <div className="w-full">
-        <SearchBar />
-      </div>
+      <SearchBar />
 
-      {/* ✅ แท็บ "ลิสต์" และ "ปฏิทิน" + ปุ่มเพิ่ม */}
-      <div className="flex justify-between items-center ">
-        {/* 🔹 แท็บลิสต์ และ ปฏิทิน (อยู่ซ้าย) */}
-        <div className="flex space-x-4">
-          <button
-            className={`px-4 py-2 text-lg font-semibold relative ${
-              activeTab === "list"
-                ? "text-blue-600 border-b-4 border-blue-600 -mb-1"
-                : "text-gray-500"
-            }`}
-            onClick={() => setActiveTab("list")}
-          >
-            <FaList className="inline mr-2" /> ลิสต์
-          </button>
-
-          <button
-            className={`px-4 py-2 text-lg font-semibold relative ${
-              activeTab === "calendar"
-                ? "text-blue-600 border-b-4 border-blue-600 -mb-1"
-                : "text-gray-500"
-            }`}
-            onClick={() => setActiveTab("calendar")}
-          >
-            <FaCalendar className="inline mr-2" /> ปฏิทิน
-          </button>
-        </div>
-
-        {/* 🔹 ปุ่มเพิ่ม (อยู่ขวาสุด) */}
-        <button className="bg-[#1E3A8A] text-white px-6 py-2 rounded flex items-center justify-center gap-2 transition mb-4 w-35">
-          <span className="text-base">เพิ่ม</span>
-          <FontAwesomeIcon icon={faPlus} className="text-lg" />
+      <div className="flex justify-end">
+        <button
+          className="bg-[#1E3A8A] text-white px-4 py-2 rounded flex items-center gap-2 transition hover:bg-blue-700"
+          onClick={() => navigate("/add-activity")}
+        >
+          เพิ่ม <FontAwesomeIcon icon={faPlus} />
         </button>
       </div>
 
-      {/* ✅ แสดงเนื้อหาตามแท็บที่เลือก */}
+      <div className="flex mb-4">
+        <button
+          className={`px-4 py-2 text-lg font-semibold ${
+            activeTab === "list"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500"
+          }`}
+          onClick={() => setActiveTab("list")}
+        >
+          <FaList className="inline mr-2" /> ลิสต์
+        </button>
+        <button
+          className={`px-4 py-2 text-lg font-semibold ${
+            activeTab === "calendar"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500"
+          }`}
+          onClick={() => setActiveTab("calendar")}
+        >
+          <FaCalendar className="inline mr-2" /> ปฏิทิน
+        </button>
+      </div>
+
       {activeTab === "list" ? (
         <>
           {activityLoading ? (
@@ -147,4 +98,4 @@ const ListActivityAdmin: React.FC = () => {
   );
 };
 
-export default ListActivityAdmin;
+export default ManageActivityAdmin;
