@@ -108,7 +108,7 @@ function App() {
 
           {/* ✅ Student */}
           <Route
-            path="/main-student"
+            path="/activity-info-admin"
             element={
               <Navbar>
                 <MainStudent />

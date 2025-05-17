@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useActivityStore } from "../../../stores/Admin/activity_store";
 import {
   Clock,
@@ -17,9 +17,11 @@ import Button from "../../../components/Button";
 import { Select, MenuItem } from "@mui/material";
 
 export default function ActivityInfoAdmin() {
-  const { id: paramId } = useParams();
   const location = useLocation();
-  const id = location.state?.id || paramId; // ✅ ใช้ state หรือ param ถ้ามี
+  const id = location.state?.id; // ✅ ดึง `id` จาก `state`
+  const navigate = useNavigate();
+  const { activity, isLoading, error, fetchActivity } = useActivityStore();
+
   const finalActivityId = id ? Number(id) : null;
   const navigate = useNavigate();
 
@@ -32,11 +34,7 @@ export default function ActivityInfoAdmin() {
     } else {
       console.error("❌ Error: Activity ID is missing or invalid!");
     }
-  }, [finalActivityId, fetchActivity]);
-
-  useEffect(() => {
-    fetchActivityData();
-  }, [fetchActivityData]);
+  }, [finalActivityId, fetchActivity]); // ✅ เพิ่ม fetchActivity ใน Dependency Array
 
   console.log("📌 Activity from Store:", activity);
 
@@ -226,3 +224,4 @@ export default function ActivityInfoAdmin() {
     </div>
   );
 }
+
