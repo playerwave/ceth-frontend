@@ -28,7 +28,10 @@ export default function ActivityInfoStudent() {
   const navigate = useNavigate();
 
   const {
-    activity,
+    activities,
+    searchResults,
+    fetchActivities,
+    searchActivities,
     activityLoading,
     error,
     fetchActivity,
@@ -341,4 +344,6 @@ export default function ActivityInfoStudent() {
       </div>
     </div>
   );
-}
+};
+
+export default ManageActivityStudent;

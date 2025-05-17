@@ -1,4 +1,4 @@
-import { Activity } from "../table";
+import { Activity } from "./table_student";
 
 interface TableHeaderProps {
   handleSort: (key: keyof Activity) => void;
