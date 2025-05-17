@@ -1,11 +1,7 @@
-import axios, { AxiosInstance } from "axios";
+import axios from "axios";
 
-const axiosInstance: AxiosInstance = axios.create({
-  baseURL: "http://localhost:5090", // ✅ baseURL ควรเป็นแค่ URL หลัก
-  withCredentials: true, // ✅ ส่ง cookie ไปพร้อม request
-  headers: {
-    "Content-Type": "application/json",
-  },
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:3000", // ✅ ตรวจสอบว่าใช้ `http://localhost:3000`
   headers: {
     "Content-Type": "application/json",
   },
@@ -13,3 +9,15 @@ const axiosInstance: AxiosInstance = axios.create({
 
 
 export default axiosInstance;
+
+// import axios, { AxiosInstance } from "axios";
+
+// const axiosInstance: AxiosInstance = axios.create({
+//   baseURL:
+//     import.meta.env.MODE === "development"
+//       ? "http://localhost:5090/api"
+//       : "/api",
+//   withCredentials: true, // ✅ ส่ง cookie ไปพร้อม request
+// });
+
+// export default axiosInstance;

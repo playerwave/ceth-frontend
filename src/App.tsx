@@ -16,8 +16,8 @@ import Login from "./pages/login";
 
 //import pages Admin
 import Main from "./pages/Admin/main_admin";
-import ManageActivityAdmin from "./pages/Admin/activity-admin/manage_activity_admin";
-import Crud_Test from "./pages/Test/crud_test";
+import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
+// import Crud_Test from "./pages/Test/crud_test";
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -63,68 +63,8 @@ function App() {
               </Navbar>
             }
           ></Route>
-          <Route
-            path="/activity-info-admin/:id"
-            element={
-              <ProtectedRoute>
-                <Navbar>
-                  <ActivityInfoAdmin />
-                </Navbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/enrolled_list_admin/:id"
-            element={
-              <ProtectedRoute>
-                <Navbar>
-                  <EnrolledListAdmin />
-                </Navbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/activity-info-admin"
-            element={
-              <ProtectedRoute>
-                <Navbar>
-                  <ActivityInfoAdmin />
-                </Navbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/create-activity-admin"
-            element={
-              <ProtectedRoute>
-                <Navbar>
-                  <CreateActivityAdmin />
-                </Navbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/update-activity-admin"
-            element={
-              <ProtectedRoute>
-                <Navbar>
-                  <UpdateActivityAdmin />
-                </Navbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/enrolled_list_admin/:id"
-            element={
-              <ProtectedRoute>
-                <Navbar>
-                  <EnrolledListAdmin />
-                </Navbar>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/test_create"
+          {/* <Route
+            path="/crud-test"
             element={
               <ProtectedRoute>
                 <Navbar>
@@ -132,7 +72,7 @@ function App() {
                 </Navbar>
               </ProtectedRoute>
             }
-          />
+          ></Route> */}
         </Routes>
 
         {/* Student Routes */}
