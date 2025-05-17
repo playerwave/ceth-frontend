@@ -78,7 +78,7 @@ function App() {
         {/* Student Routes */}
         <Routes>
           <Route
-            path="/main-student"
+            path="/activity-info-admin"
             element={
               <ProtectedRoute>
                 <Navbar>

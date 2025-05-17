@@ -1,28 +1,14 @@
-import { useEffect, useCallback } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useActivityStore } from "../../../stores/Admin/activity_store";
-import {
-  Clock,
-  MapPin,
-  Play,
-  User,
-  CalendarDays,
-  Hourglass,
-  Frown,
-  School,
-  HouseWifi,
-  ImageOff,
-} from "lucide-react";
-import Typography from "@mui/material/Typography";
-import Button from "../../../components/Button";
-import { Select, MenuItem } from "@mui/material";
-
-import Loading from "../../../components/Loading";
+import { Clock, MapPin, Play, User } from "lucide-react";
 
 export default function ActivityInfoAdmin() {
-  const { id: paramId } = useParams();
   const location = useLocation();
-  const id = location.state?.id || paramId; // ✅ ใช้ state หรือ param ถ้ามี
+  const id = location.state?.id; // ✅ ดึง `id` จาก `state`
+  const navigate = useNavigate();
+  const { activity, isLoading, error, fetchActivity } = useActivityStore();
+
   const finalActivityId = id ? Number(id) : null;
   const navigate = useNavigate();
 
@@ -36,14 +22,11 @@ export default function ActivityInfoAdmin() {
     } else {
       console.error("❌ Error: Activity ID is missing or invalid!");
     }
-  }, [finalActivityId, fetchActivity]);
-
-  useEffect(() => {
-    fetchActivityData();
-  }, [fetchActivityData]);
+  }, [finalActivityId, fetchActivity]); // ✅ เพิ่ม fetchActivity ใน Dependency Array
 
   console.log("📌 Activity from Store:", activity);
 
+  if (isLoading) return <p className="text-center text-lg">⏳ กำลังโหลด...</p>;
   if (error)
     return <p className="text-center text-lg text-red-500">❌ {error}</p>;
   if (!activity) return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
@@ -62,203 +45,96 @@ export default function ActivityInfoAdmin() {
   };
 
   return (
-    <>
-      {activityLoading ? (
-        <Loading />
-      ) : (
-        <div className="justify-items-center">
-          <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
-            <div className="flex justify-between items-center">
-              <h1 className="text-[35px] font-semibold font-sans">
-                {activity.name}
-              </h1>
-              <div
-                className="flex items-center text-[25px] gap-[4px] cursor-pointer"
-                onClick={() => navigate(`/enrolled_list_admin/${activity.id}`)}
-              >
-                {activity.registered_count}/{activity.seat} <User size={40} />
-              </div>
-            </div>
-
-            {/* ภาพกิจกรรม */}
-            {activity.image_url == "/img/default.png" ||
-            activity.image_url == "" ||
-            activity.image_url == null ? (
-              <div className="flex items-center justify-center bg-gray-100 w-full h-130 text-sm text-black-500 border border-black rounded-lg mt-4">
-                <div className="text-center text-black-400">
-                  <ImageOff size={60} className="mx-auto" />
-                  <p className="text-xl mt-2">ไม่มีรูปภาพสำหรับกิจกรรมนี้</p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex justify-center w-full h-130 bg-white border border-black rounded-lg mt-4">
-                <img
-                  src={activity.image_url} // ✅ ใช้รูป Cloudinary หรือ default
-                  alt="Activity"
-                  className="w-full h-full object-cover rounded-lg"
-                  onError={(e) => (e.currentTarget.src = "/img/default.png")} // ✅ ใช้ default image ถ้าโหลดไม่สำเร็จ
-                />
-              </div>
-            )}
-
-            {/* รายละเอียดกิจกรรม */}
-            <div className="flex items-center justify-between w-full mt-4">
-              <div className="flex items-center gap-2">
-                <p className="font-semibold text-[25px] font-sans">
-                  {activity.company_lecturer}
-                </p>
-                <span
-                  className="px-2 py-1 rounded ml-5"
-                  style={{
-                    backgroundColor:
-                      activity.type === "Hard Skill"
-                        ? "rgba(255, 174, 0, 0.2)"
-                        : "rgba(9, 0, 255, 0.2)",
-                    color:
-                      activity.type === "Hard Skill" ? "#FFAE00" : "#0900FF",
-                    minWidth: "100px",
-                    display: "flex", // ✅ ใช้ flexbox
-                    justifyContent: "center", // ✅ จัดให้อยู่กึ่งกลางแนวนอน
-                    alignItems: "center",
-                  }}
-                >
-                  {activity.type}
-                </span>
-              </div>
-              <div className="flex items-center gap-1 font-[Sarabun]">
-                {activity.location_type == "Onsite" ? (
-                  <Typography
-                    component="span"
-                    sx={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 1,
-                      pr: 4,
-                    }}
-                  >
-                    <School /> Onsite
-                  </Typography>
-                ) : (
-                  <Typography
-                    component="span"
-                    sx={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <HouseWifi /> {activity.location_type}
-                  </Typography>
-                )}
-                <CalendarDays size={25} />
-                วันที่จัดกิจกรรม{" "}
-                {activity.start_time
-                  ? new Date(activity.start_time).getDate() + 1 < 10
-                    ? `0${new Date(activity.start_time).getDate()}`
-                    : new Date(activity.start_time).getDate()
-                  : "ไม่ระบุ"}{" "}
-                /
-                {activity.start_time
-                  ? new Date(activity.start_time).getMonth() + 1 < 10
-                    ? `0${new Date(activity.start_time).getMonth() + 1}`
-                    : new Date(activity.start_time).getMonth() // ✅ แก้ไขตรงนี้
-                  : "ไม่ระบุ"}{" "}
-                /
-                {activity.start_time
-                  ? new Date(activity.start_time).getFullYear()
-                  : "ไม่ระบุ"}{" "}
-                <Hourglass size={25} /> ปิดลงทะเบียน{" "}
-                {activity.end_register
-                  ? new Date(activity.end_register).getDate() + 1 < 10
-                    ? `0${new Date(activity.end_register).getDate() + 1}`
-                    : new Date(activity.end_register).getDate() // ✅ แก้ไขตรงนี้
-                  : "ไม่ระบุ"}{" "}
-                /
-                {activity.end_register
-                  ? new Date(activity.end_register).getMonth() + 1 < 10
-                    ? `0${new Date(activity.end_register).getMonth() + 1}`
-                    : new Date(activity.end_register).getMonth() // ✅ แก้ไขตรงนี้
-                  : "ไม่ระบุ"}{" "}
-                /
-                {activity.end_register
-                  ? new Date(activity.end_register).getFullYear()
-                  : "ไม่ระบุ"}{" "}
-                <MapPin size={25} />{" "}
-                {activity.location_type == "Onsite"
-                  ? `ห้อง ${activity.room}`
-                  : `ไม่มีห้องสำหรับกิจกรรมนี้`}
-              </div>
-            </div>
-
-            <p className="mt-2 text-[14px] font-sans">{activity.description}</p>
-
-            {/*เลือก อาหาร*/}
-            <div className="mt-4">
-              <p className="font-semibold font-[Sarabun]">อาหาร</p>
-              {activity.location_type !== "Onsite" ||
-              (!Array.isArray(activity.food) || activity.food.length == 0) ? (
-                <p className="text-gray-500 mt-1 flex items-center">
-                  ไม่มีอาหารสำหรับกิจกรรมนี้ <Frown className="ml-3" />
-                </p>
-              ) : (
-                <Select
-                  className="w-[40%] mt-1"
-                  value={activity.food[0] || ""} // ค่าเริ่มต้นเป็นตัวแรกในรายการ หรือเป็น "" ถ้าไม่มีค่า
-                  onChange={(e) => console.log("เลือก:", e.target.value)} // สามารถเปลี่ยนเป็นฟังก์ชันที่ต้องการ
-                  displayEmpty
-                >
-                  {activity.food.map((food, index) => (
-                    <MenuItem key={index} value={food}>
-                      {food}
-                    </MenuItem>
-                  ))}
-                </Select>
-              )}
-            </div>
-
-            {/* เวลา + สถานะ + ปุ่มต่าง ๆ */}
-            <div className="flex justify-between items-center mt-4 text-[14px]">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 font-[Sarabun] font-semibold">
-                  <Clock size={25} />
-                  {activity.start_time
-                    ? formatTime(new Date(activity.start_time))
-                    : "ไม่ระบุ"}{" "}
-                  -{" "}
-                  {activity.end_time
-                    ? formatTime(new Date(activity.end_time))
-                    : "ไม่ระบุ"}
-                </div>
-
-                <div className="flex items-center gap-1 ml-3 font-[Sarabun] font-semibold">
-                  <Play size={25} /> {activity.state}
-                </div>
-              </div>
-
-              {/* ปุ่มต่าง ๆ */}
-              <div className="flex justify-end gap-3">
-                <Button
-                  color="blue"
-                  onClick={() =>
-                    navigate("/list-activity-admin", {
-                      state: { reload: true },
-                    })
-                  }
-                >
-                  ← กลับ
-                </Button>
-                <Button color="blue">QR Code</Button>
-                <Button
-                  color="blue"
-                  onClick={() => handleToUpdateActivity(activity.id)}
-                >
-                  แก้ไข
-                </Button>
-              </div>
-            </div>
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="mt-4 p-6 w-[1090px] h-auto border border-[#ddd] rounded-lg shadow-md bg-white mx-auto">
+        <div className="flex justify-between items-center">
+          <h1 className="text-[35px] font-semibold font-sans">
+            {activity.ac_name}
+          </h1>
+          <div
+            className="flex items-center text-[25px] gap-[4px] cursor-pointer"
+            onClick={() => navigate(`/enrolled_list_admin/${activity.ac_id}`)}
+          >
+            {activity.ac_registerant_count}/{activity.ac_seat}{" "}
+            <User size={40} />
           </div>
         </div>
-      )}
-    </>
+
+        {/* ภาพกิจกรรม */}
+        <div className="flex justify-center w-full h-[300px] bg-white border border-black rounded-lg mt-4">
+          <img
+            src="/img/images.png"
+            alt="Activity"
+            className="w-[40%] h-full object-cover"
+            onError={(e) => (e.currentTarget.src = "/img/default.png")}
+          />
+        </div>
+
+        {/* รายละเอียดกิจกรรม */}
+        <div className="flex items-center justify-between w-full mt-4">
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-[25px] font-sans">
+              {activity.ac_company_lecturer}
+            </p>
+            <span className="text-[12px] font-semibold bg-[#ceccfb] text-[#0e0cf4] px-2 py-1 w-[90px] text-center font-sans">
+              {activity.ac_type}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 font-[Sarabun]">
+            <MapPin size={16} /> {activity.ac_room}
+          </div>
+        </div>
+
+        <p className="mt-2 text-[14px] font-sans">{activity.ac_description}</p>
+
+        {/* รายละเอียดอื่น ๆ */}
+        <div className="mt-4">
+          <p className="font-semibold font-[Sarabun]">อาหาร</p>
+          <select className="w-[40%] p-2 border border-[#ccc] rounded mt-1">
+            {Array.isArray(activity.ac_food) && activity.ac_food.length > 0 ? (
+              activity.ac_food.map((food, index) => (
+                <option key={index} className="font-[Sarabun]">
+                  {food}
+                </option>
+              ))
+            ) : (
+              <option disabled>ไม่มีข้อมูล</option>
+            )}
+          </select>
+        </div>
+
+        {/* เวลา + สถานะ + ปุ่มต่าง ๆ */}
+        <div className="flex justify-between items-center mt-4 text-[14px]">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 font-[Sarabun] font-semibold">
+              <Clock size={16} />
+              {activity.ac_start_time || "ไม่ระบุ"} -{" "}
+              {activity.ac_end_time || "ไม่ระบุ"}
+            </div>
+
+            <div className="flex items-center gap-1 ml-3 font-[Sarabun] font-semibold">
+              <Play size={16} /> {activity.ac_state}
+            </div>
+          </div>
+
+          {/* ปุ่มต่าง ๆ */}
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => window.history.back()}
+              className="flex items-center justify-center gap-2 w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none"
+            >
+              ← กลับ
+            </button>
+            <button className="flex items-center justify-center w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none">
+              QR Code
+            </button>
+            <button className="flex items-center justify-center w-[100px] h-[30px] rounded-[20px] bg-[#1e3a8a] text-white font-bold text-[17px] font-[Sarabun] border-none">
+              แก้ไข
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
+
