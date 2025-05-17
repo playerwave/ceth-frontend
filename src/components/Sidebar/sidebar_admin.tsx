@@ -57,9 +57,9 @@ const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
             กิจกรรมสหกิจ
           </button>
         </Link>
-        <Link to="/" onClick={handleNotInthisSprint}>
+        <Link to="/List-activity-student">
           <button className="w-full p-2 bg-blue-500 hover:bg-blue-700 rounded">
-            ประวัติกิจกรรม
+            กิจกรรมนิสิต
           </button>
         </Link>
         <Link to="/" onClick={handleNotInthisSprint}>
