@@ -11,18 +11,18 @@ interface ApiActivity {
   ac_type: string;
   ac_room: string;
   ac_seat: number;
-  ac_food: string[];
+  ac_food?: string[];
   ac_status: string;
-  ac_start_register: Date;
-  ac_end_register: Date;
-  ac_create_date: Date;
-  ac_last_update: Date;
+  ac_start_register?: Date;
+  ac_end_register?: Date;
+  ac_create_date?: Date;
+  ac_last_update?: Date;
   ac_registered_count: number;
-  ac_attended_count: number;
-  ac_not_attended_count: number;
-  ac_start_time: Date;
-  ac_end_time: Date;
-  ac_image_url: string;
+  ac_attended_count?: number;
+  ac_not_attended_count?: number;
+  ac_start_time?: Date;
+  ac_end_time?: Date;
+  ac_image_data?: string;
   ac_state: string;
 }
 
@@ -30,12 +30,24 @@ interface ApiActivity {
 interface Activity {
   id: string;
   name: string;
+  company_lecturer: string;
   description: string;
   type: "Hard Skill" | "Soft Skill";
-  start_time: Date;
+  room: string;
   seat: string;
-  status: "Public" | "Private";
-  registerant_count: number;
+  food: string[];
+  status: string;
+  start_register: Date | null;
+  end_register: Date | null;
+  create_date: Date | null;
+  last_update: Date | null;
+  registered_count: number;
+  attended_count: number;
+  not_attended_count: number;
+  start_time: Date | null;
+  end_time: Date | null;
+  image_data: string;
+  state: string;
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -66,21 +78,35 @@ interface ActivityState {
     id: string,
     currentStatus: "Public" | "Private"
   ) => Promise<void>;
-  fetchActivity: (id: number) => Promise<void>;
-  fetchEnrolledStudents: (id: number) => Promise<void>;
+  fetchActivity: (id: number | string) => Promise<void>;
+  fetchEnrolledStudents: (id: number | string) => Promise<void>;
+  createActivity: (activity: ApiActivity) => Promise<void>;
 }
 
-// ✅ ฟังก์ชันแปลงข้อมูลจาก API เป็นรูปแบบที่ React ใช้งานได้
 const mapActivityData = (apiData: ApiActivity): Activity => ({
   id: apiData.ac_id.toString(),
   name: apiData.ac_name || "ไม่ระบุชื่อ",
+  company_lecturer: apiData.ac_company_lecturer || "ไม่ระบุวิทยากร",
   description: apiData.ac_description || "ไม่ระบุรายละเอียด",
   type: apiData.ac_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
-  start_time: new Date(apiData.ac_start_time),
-  registerant_count: apiData.ac_registered_count ?? 0,
+  room: apiData.ac_room || "ไม่ระบุห้อง",
   seat: `${apiData.ac_seat}/${apiData.ac_registered_count ?? 0}`,
+  food: Array.isArray(apiData.ac_food) ? apiData.ac_food : [],
   status: apiData.ac_status.toLowerCase() === "public" ? "Public" : "Private",
-  ac_food: apiData.ac_food ?? [], // ✅ แก้ให้ `ac_food` มีค่าเริ่มต้นเป็น `[]`
+  start_register: apiData.ac_start_register || null,
+  end_register: apiData.ac_end_register || null,
+  create_date: apiData.ac_create_date || null,
+  last_update: apiData.ac_last_update || null,
+  registered_count: apiData.ac_registered_count ?? 0,
+  attended_count: apiData.ac_attended_count ?? 0,
+  not_attended_count: apiData.ac_not_attended_count ?? 0,
+  start_time: apiData.ac_start_time || null,
+  end_time: apiData.ac_end_time || null,
+
+  // ✅ ใช้ Base64 หรือ Default รูปภาพ
+  image_data: apiData.ac_image_data || "/img/default.png",
+
+  state: apiData.ac_state || "ไม่ระบุ",
 });
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
@@ -156,20 +182,17 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   },
 
   fetchActivity: async (id) => {
-    if (!id || isNaN(id)) {
-      set({
-        activityError: "Invalid Activity ID",
-        activityLoading: false,
-        activity: null,
-      });
+    const numericId = Number(id);
+    if (!numericId || isNaN(numericId)) {
+      set({ activityError: "Invalid Activity ID", activityLoading: false });
       return;
     }
 
-    set({ activityLoading: true, activityError: null, activity: null });
+    set({ activityLoading: true, activityError: null });
 
     try {
       const { data } = await axiosInstance.get<ApiActivity>(
-        `/activity/get-activity/${id}`
+        `/activity/get-activity/${numericId}`
       );
       set({ activity: mapActivityData(data), activityLoading: false });
     } catch (error: any) {
@@ -179,7 +202,6 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         activityError:
           error.response?.data?.message || "Error fetching activity",
         activityLoading: false,
-        activity: null,
       });
     }
   },
