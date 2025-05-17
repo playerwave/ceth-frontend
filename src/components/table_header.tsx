@@ -15,7 +15,7 @@ interface Activity {
 }
 
 interface TableHeaderProps {
-  handleSort: (key: keyof Activity) => void; // ✅ เปลี่ยนจาก `string` เป็น `keyof Activity`
+  handleSort: (key: keyof Activity) => void; // ✅ ใช้ keyof Activity
   sortConfig: { key: keyof Activity | null; direction: "asc" | "desc" };
 }
 
@@ -43,10 +43,11 @@ const TableHeader: React.FC<TableHeaderProps> = ({
 
   return (
     <thead>
-      <tr className="bg-[#1E3A8A] text-white rounded border-b">
+      <tr className="bg-[#1E3A8A] text-white rounded">
         {[
           { key: "name", label: "ชื่อบริษัท/วิทยากร", sortable: true },
           { key: "type", label: "ประเภท", sortable: true },
+          { key: "activity", label: "ชื่อกิจกรรม", sortable: false },
           { key: "date", label: "วันที่จัดกิจกรรม", sortable: true },
           { key: "slots", label: "ที่นั่ง", sortable: true },
           { key: "status", label: "สถานะ", sortable: false },
