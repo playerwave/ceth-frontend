@@ -4,24 +4,35 @@ import { AxiosError } from "axios";
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลที่มาจาก API
 interface ApiActivity {
-  id: number;
-  activity_company_lecturer: string;
-  activity_name: string;
-  activity_type: string;
-  activity_date: string;
-  activity_seat: number;
-  activity_status: string[];
+  ac_id: number;
+  ac_name: string;
+  ac_company_lecturer: string;
+  ac_description: string;
+  ac_type: string;
+  ac_room: string;
+  ac_seat: number;
+  ac_food: string[];
+  ac_status: string;
+  ac_start_register: Date;
+  ac_end_register: Date;
+  ac_create_date: Date;
+  ac_last_update: Date;
+  ac_registerant_count: number;
+  ac_attended_count: number;
+  ac_not_attended_count: number;
+  ac_start_time: Date;
+  ac_end_time: Date;
+  ac_image_url: string;
 }
 
 // ✅ อินเทอร์เฟซที่ React ใช้งาน
 interface Activity {
   id: string;
   name: string;
-  dis: string;
+  description: string;
   type: "Hard Skill" | "Soft Skill";
-  date: string;
-  time: string;
-  slots: string;
+  start_time: Date;
+  seat: string;
   status: "Public" | "Private";
   registerant_count: number;
 }
@@ -45,8 +56,12 @@ export const useUserStore = create<UserState>((set) => ({
     set(() => ({ isLoading: true, error: null }));
 
     try {
-      const { data } = await axiosInstance.get<ApiActivity[]>("/api/activitys");
-      console.log("✅ API Response:", data); // 🔍 ตรวจสอบค่าจริงที่ API ส่งมา
+      console.log("🚀 Fetching data from API..."); // ✅ Log ก่อนเรียก API
+      const { data } = await axiosInstance.get<ApiActivity[]>(
+        "/activity/acitvities"
+      );
+
+      console.log("✅ API Response:", data); // ✅ Log ค่า data ที่ได้
 
       if (Array.isArray(data) && data.length > 0) {
         const mappedActivities = data.map(mapActivityData);
