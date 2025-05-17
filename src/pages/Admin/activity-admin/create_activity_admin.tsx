@@ -208,6 +208,8 @@ const CreateActivityAdmin: React.FC = () => {
     await createActivity(activityData);
   };
 
+  const [cardHigh, setCardHigh] = useState(410);
+
   const addFoodOption = () => {
     setFormData((prev) => ({
       ...prev,
@@ -274,9 +276,14 @@ const CreateActivityAdmin: React.FC = () => {
   return (
     <>
       <div className="justify-items-center">
-        <div className="w-320 h-410 mx-auto ml-2xl mt-5 bg-white p-6 border border-gray-200 rounded-lg shadow-sm min-h-screen ">
+        <div
+          className={`w-320 mx-auto ml-2xl mt-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm h-435  flex flex-col`}
+        >
           <h1 className="text-4xl font-bold mb-11">สร้างกิจกรรมสหกิจ</h1>
-          <form onSubmit={handleSubmit} className="space-y-4 ">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 flex flex-col flex-grow"
+          >
             {/* scrollbar */}
             <div className="max-h-[800px] scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200 pr-4">
               <div className="flex space-x-6">
@@ -555,34 +562,43 @@ const CreateActivityAdmin: React.FC = () => {
               </div>
 
               {/* ช่องเลือกอาหาร */}
-              <div className="w-140  mt-5 bg-white p-6 border border-[#9D9D9D] rounded-lg shadow-sm">
+              <div className="w-140 mt-5 bg-white p-6 border border-[#9D9D9D] rounded-lg shadow-sm">
+                {/* หัวข้อ */}
                 <label className="block font-semibold mb-2">อาหาร *</label>
-                {formData.ac_food?.map((menu, index) => (
-                  <div key={index} className="flex items-center space-x-2 mb-2">
-                    {/* อินพุตที่แก้ไขได้ */}
-                    <input
-                      type="text"
-                      value={menu}
-                      onChange={(e) => updateFoodOption(index, e.target.value)}
-                      className="w-full p-2 border rounded border-[#9D9D9D]"
-                    />
-                    {/* ปุ่มกากบาทลบเมนู */}
-                    <button
-                      type="button"
-                      onClick={() => removeFoodOption(index)}
-                      className="bg-red-500 text-white px-2 py-1 rounded"
-                    >
-                      X
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addFoodOption}
-                  className="bg-[#1E3A8A] text-white px-4 py-2 rounded mt-2"
-                >
-                  เพิ่มอาหาร
-                </button>
+
+                {/* ส่วนรายการเมนู มี Scrollbar */}
+                <div className="max-h-30 overflow-y-auto pr-2 space-y-2">
+                  {formData.ac_food?.map((menu, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={menu}
+                        onChange={(e) =>
+                          updateFoodOption(index, e.target.value)
+                        }
+                        className="w-full p-2 border rounded border-[#9D9D9D]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeFoodOption(index)}
+                        className="bg-red-500 text-white px-2 py-1 rounded"
+                      >
+                        X
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ปุ่มเพิ่มเมนู (อยู่นอก Scrollbar) */}
+                <div className="flex justify-end mt-2">
+                  <button
+                    type="button"
+                    onClick={addFoodOption}
+                    className="bg-[#1E3A8A] text-white px-4 py-2 rounded mt-4"
+                  >
+                    เพิ่มอาหาร
+                  </button>
+                </div>
               </div>
 
               {/* แบบประเมิน */}
@@ -612,18 +628,18 @@ const CreateActivityAdmin: React.FC = () => {
 
               {/* แสดงภาพที่อัปโหลด (ถ้าเป็นรูป) */}
               {previewImage ? (
-                <div className="mt-4">
+                <div className="mt-4 w-200 h-125 border-red-900">
                   <p className="text-sm text-gray-500">
                     ตัวอย่างรูปที่อัปโหลด:
                   </p>
                   <img
                     src={previewImage}
                     alt="อัปโหลดภาพกิจกรรม"
-                    className="mt-2 w-200 h-100 object-cover border rounded-lg shadow"
+                    className="w-200 h-125 mt-2 object-cover border rounded-lg shadow"
                   />
                 </div>
               ) : (
-                <div className="w-200 h-100 mt-5 max-w-3xl bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center cursor-default transition pointer-events-none">
+                <div className="w-200 h-125 mt-5 max-w-3xl bg-gray-100 border border-gray-300 rounded-lg flex items-center justify-center cursor-default transition pointer-events-none">
                   <div className="text-center text-black-400">
                     <ImagePlus size={48} className="mx-auto" />
                     <p className="text-sm mt-2">อัปโหลดรูปภาพ</p>
@@ -632,8 +648,8 @@ const CreateActivityAdmin: React.FC = () => {
               )}
 
               {/* ปุ่ม ยกเลิก & สร้าง */}
-              <div className="flex justify-end space-x-4 mt-10">
-                {/* ปุ่มยกเลิกที่ไม่ทำให้ฟอร์ม Submit */}
+              <div className="mt-10 flex justify-end items-center space-x-4 px-6 ">
+                {/* ปุ่มยกเลิก */}
                 <Button
                   type="button"
                   color="red"
@@ -642,34 +658,15 @@ const CreateActivityAdmin: React.FC = () => {
                   ยกเลิก
                 </Button>
 
-                  {/* ปุ่มสร้าง */}
-                  {formData.ac_status === "Public" ? (
-                    <Button
-                      onClick={() => {
-                        setIsModalOpen(true);
-                        console.log("clicked");
-                      }}
-                      color="blue"
-                    >
-                      สร้าง
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => {
-                        console.log("clicked");
-                      }}
-                      color="blue"
-                      type="submit"
-                    >
-                      ร่าง
-                    </Button>
-                  )}
-                </div>
+                {/* ปุ่มสร้าง */}
+                <Button type="submit" color="blue" width="100px">
+                  สร้าง
+                </Button>
               </div>
-            </form>
-          </div>
-        </Box>
-      )}
+            </div>
+          </form>
+        </div>
+      </div>
     </>
   );
 };

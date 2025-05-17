@@ -38,25 +38,17 @@ const Navbar = ({ children }) => {
           isCollapsed ? "w-[80px]" : "w-[280px]"
         } h-[calc(100vh-80px)] z-50 transition-all duration-300`}
       >
-        {user?.u_role === "admin" ? (
-          <SidebarAdmin
-            isCollapsed={isCollapsed}
-            toggleSidebar={() => setIsCollapsed(!isCollapsed)}
-          />
-        ) : (
-          <SidebarStudent
-            isCollapsed={isCollapsed}
-            toggleSidebar={() => setIsCollapsed(!isCollapsed)}
-          />
-        )}
+        <Sidebar
+          isCollapsed={isCollapsed}
+          toggleSidebar={() => setIsCollapsed(!isCollapsed)}
+        />
       </div>
 
-      {/* Content (เว้นที่ให้ Sidebar และให้มี min-height) */}
+      {/* Content (เว้นที่ให้ Sidebar) */}
       <div
-        className={`flex-grow min-h-screen transition-all duration-300`}
-        style={{
-          marginTop: "80px",
-        }}
+        className={`ml-[${
+          isCollapsed ? "80px" : "280px"
+        }] mt-[35px] w-full p-4`}
       >
         {children}
       </div>
