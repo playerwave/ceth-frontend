@@ -58,6 +58,10 @@ export default function ActivityInfoAdmin() {
     return `${hours}:${minutes} ${ampm}`;
   };
 
+  const handleToUpdateActivity = (id: string) => {
+    navigate("/update-activity-admin", { state: { id } }); // ✅ ส่ง `id` ไปเป็น state
+  };
+
   return (
     <div className="justify-items-center">
       <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
