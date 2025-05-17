@@ -185,6 +185,6 @@ export default function enrolled_list_admin() {
       )}
     </div>
   );
-};
+}
 
 export default enrolled_list_admin;
