@@ -1,22 +1,25 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import TableHeader from "./table_header";
 import TableRow from "./table_row";
 
-interface Activity {
+export type Activity = {
   name: string;
+  dis: string;
   type: "Hard Skill" | "Soft Skill";
   date: string;
   time: string;
   slots: string;
   status: "Public" | "Private";
-}
+};
 
 interface TableProps {
   title: string;
-  data: Activity[];
+  data?: Activity[];
 }
 
-const Table: React.FC<TableProps> = ({ title, data }) => {
+const Table: React.FC<TableProps> = ({ title, data = [] }) => {
+  console.log("📊 ข้อมูลที่ส่งไปยัง Table:", data);
+
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Activity | null;
     direction: "asc" | "desc";
@@ -25,6 +28,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
     direction: "asc",
   });
 
+  // ✅ ฟังก์ชันสำหรับเปลี่ยนสถานะการเรียง
   const handleSort = (key: keyof Activity) => {
     setSortConfig((prev) => ({
       key,

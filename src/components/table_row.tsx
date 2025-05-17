@@ -1,31 +1,26 @@
-import { useNavigate } from "react-router-dom";
-
-interface Activity {
-  name: string;
-  type: "Hard Skill" | "Soft Skill";
-  date: string;
-  time: string;
-  slots: string;
-  status: "Public" | "Private";
-}
+import { Activity } from "../components/table"; // ✅ เปลี่ยน path ตามที่ถูกต้อง
 
 interface TableRowProps {
-  act: Activity;
+  act?: Activity; // ✅ ป้องกัน `undefined`
 }
 
 const TableRow: React.FC<TableRowProps> = ({ act }) => {
-  const navigate = useNavigate();
+  console.log("📊 TableRow รับข้อมูล:", act);
 
-  const handleRowClick = () => {
-    navigate(`/edit-activity/${act.name}`); // ✅ เปลี่ยนไปหน้าแก้ไขกิจกรรม
-  };
+  if (!act) {
+    return (
+      <tr>
+        <td colSpan={6} className="text-center text-gray-500 py-4">
+          ❌ ข้อมูลกิจกรรมไม่ถูกต้อง
+        </td>
+      </tr>
+    );
+  }
 
   return (
-    <tr
-      className="border-t text-center cursor-pointer hover:bg-gray-200 transition"
-      onClick={handleRowClick} // ✅ ให้คลิกแถวแล้วเปลี่ยนหน้า
-    >
+    <tr className="border-t text-center cursor-pointer hover:bg-gray-200 transition">
       <td className="p-2">{act.name}</td>
+      <td className="p-2">{act.dis}</td>
       <td className="p-2">
         <span
           className={`px-2 py-1 text-white rounded ${
@@ -35,7 +30,6 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
           {act.type}
         </span>
       </td>
-      <td className="p-2">Participating in cooperative education activities</td>
       <td className="p-2">
         {act.date} - {act.time}
       </td>
@@ -52,5 +46,4 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
     </tr>
   );
 };
-
 export default TableRow;

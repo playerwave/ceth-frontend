@@ -118,8 +118,30 @@ const ManageActivityAdmin: React.FC = () => {
         </p>
       ) : activeTab === "list" ? (
         <>
-          <Table title="กิจกรรมสหกิจ" data={activitiesSuccess} />
-          <Table title="กิจกรรมสหกิจที่ร่าง" data={activitiesOngoing} />
+          {activityLoading ? (
+            <p className="text-center text-gray-500 p-4">
+              ⏳ กำลังโหลดข้อมูล...
+            </p>
+          ) : activityError ? (
+            <p className="text-center text-red-500 p-4">
+              ❌ เกิดข้อผิดพลาด: {activityError}
+            </p>
+          ) : activities.length === 0 ? (
+            <p className="text-center text-gray-500 p-4">📭 ไม่มีกิจกรรม</p>
+          ) : (
+            <>
+              <Table
+                title="กิจกรรมสหกิจ"
+                data={activitiesSuccess}
+                // onRowClick={handleRowClick}
+              />
+              <Table
+                title="กิจกรรมสหกิจที่ร่าง"
+                data={activitiesOngoing}
+                // onRowClick={handleRowClick}
+              />
+            </>
+          )}
         </>
       ) : (
         <div className="text-center text-gray-500 p-6">
