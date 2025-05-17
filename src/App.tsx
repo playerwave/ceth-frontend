@@ -42,7 +42,7 @@ function App() {
             }
           ></Route>
           <Route
-            path="/List-activity-student"
+            path="/activity-info-admin"
             element={
               <Navbar>
                 <ManageActivityStudent />

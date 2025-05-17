@@ -127,8 +127,9 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
   }
 
   const handleSelectActivity = (id: string) => {
-    navigate("/activity-info-admin", { state: { id } });
+    navigate("/activity-info-admin", { state: { id } }); // ✅ ส่ง `id` ไปเป็น state
   };
+  
 
   return (
     <tr
