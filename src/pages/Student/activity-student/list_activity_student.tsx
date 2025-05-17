@@ -2,24 +2,28 @@ import { useEffect, useState } from "react";
 import { FaList, FaCalendar } from "react-icons/fa";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useActivityStore } from "../../../stores/Admin/activity_store";
+import { useActivityStore } from "../../../stores/Student/activity_student.store";
 import { useNavigate, useLocation } from "react-router-dom";
 
 // Import Component
 import Loading from "../../../components/Loading";
 import SearchBar from "../../../components/Searchbar";
-import Table from "../../../components/Admin/ActivityTable/table";
+import Table from "../../../components/Student/table";
+import { useAuthStore } from "../../../stores/auth.store";
 
 const ManageActivityAdmin: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { user } = useAuthStore();
+
   const {
-    activities,
     searchResults,
-    fetchActivities,
+    fetchStudentActivities,
     searchActivities,
     activityLoading,
     activityError,
+    getActivitiesByUser,
   } = useActivityStore();
 
   const [activeTab, setActiveTab] = useState<"list" | "calendar">("list");
@@ -40,15 +44,23 @@ const ManageActivityAdmin: React.FC = () => {
   // }, [location, navigate]);
 
   useEffect(() => {
-    fetchActivities(); // ✅ โหลดข้อมูลใหม่ทุกครั้งเมื่อเปิดหน้านี้
+    if (user?.u_id) {
+      fetchStudentActivities(user.u_id);
+    } // ✅ โหลดข้อมูลใหม่ทุกครั้งเมื่อเปิดหน้านี้
   }, []);
 
-  const displayedActivities = searchResults ?? activities;
-  const activitiesSuccess = displayedActivities.filter(
-    (a) => a.status === "Public"
-  );
-  const activitiesOngoing = displayedActivities.filter(
-    (a) => a.status === "Private"
+  const displayedActivities = searchResults ?? getActivitiesByUser(user?.u_id);
+
+  // const activitiesFilter = displayedActivities.filter(
+  //   (a) => a.status === "Public" && a.seat !== a.registered_count
+  // );
+
+  const activitiesFilter = displayedActivities.filter(
+    (a) =>
+      a.status === "Public" &&
+      a.seat !== a.registered_count &&
+      a.end_register &&
+      new Date(a.end_register) > new Date()
   );
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -63,7 +75,7 @@ const ManageActivityAdmin: React.FC = () => {
 
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-5">
-      <h1 className="text-center text-2xl font-bold mb-4">จัดการกิจกรรม</h1>
+      <h1 className="text-center text-2xl font-bold mb-4">กิจกรรม</h1>
 
       <div className="flex justify-center items-center w-full">
         <SearchBar onSearch={handleSearch} />
@@ -92,17 +104,7 @@ const ManageActivityAdmin: React.FC = () => {
             <FaCalendar className="inline mr-2" /> ปฏิทิน
           </button>
         </div>
-
-        <button
-          className="bg-[#1E3A8A] text-white px-4 py-2 rounded flex items-center gap-2 transition hover:bg-blue-700"
-          onClick={() =>
-            navigate("/create-activity-admin", { state: { reload: true } })
-          }
-        >
-          เพิ่ม <FontAwesomeIcon icon={faPlus} />
-        </button>
       </div>
-
       {/* ✅ แสดง Loading อยู่กลางจอ แต่ไม่ทับ Navbar */}
       {activityLoading ? (
         <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-50 backdrop-blur-md z-40">
@@ -118,8 +120,7 @@ const ManageActivityAdmin: React.FC = () => {
         </p>
       ) : activeTab === "list" ? (
         <>
-          <Table title="กิจกรรมสหกิจ" data={activitiesSuccess} />
-          <Table title="กิจกรรมสหกิจที่ร่าง" data={activitiesOngoing} />
+          <Table title="กิจกรรมสหกิจ" data={activitiesFilter} />
         </>
       ) : (
         <div className="text-center text-gray-500 p-6">
