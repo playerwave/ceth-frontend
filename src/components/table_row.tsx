@@ -28,9 +28,16 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
       <td className="p-2">{act.name}</td>
       <td className="p-2">
         <span
-          className={`px-2 py-1 text-white rounded ${
-            act.type === "Hard Skill" ? "bg-yellow-500" : "bg-purple-500"
-          }`}
+          className="px-2 py-1 rounded"
+          style={{
+            backgroundColor:
+              act.type === "Hard Skill"
+                ? "rgba(255, 174, 0, 0.2)"
+                : "rgba(9, 0, 255, 0.2)",
+            color: act.type === "Hard Skill" ? "#FFAE00" : "#0900FF",
+            minWidth: "100px",
+            display: "inline-block",
+          }}
         >
           {act.type}
         </span>
@@ -42,9 +49,13 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
       <td className="p-2">{act.slots}</td>
       <td className="p-2">
         <span
-          className={`px-2 py-1 rounded ${
-            act.status === "Public" ? "bg-green-500" : "bg-red-500"
-          } text-white`}
+          className="px-2 py-1 rounded font-medium"
+          style={{
+            backgroundColor: act.status === "Public" ? "#D4EDDA" : "#F8D7DA",
+            color: act.status === "Public" ? "#155724" : "#721C24",
+            minWidth: "100px",
+            display: "inline-block",
+          }}
         >
           {act.status}
         </span>

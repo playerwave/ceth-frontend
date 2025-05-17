@@ -108,7 +108,7 @@ const Table: React.FC<TableProps> = ({ title, data }) => {
       <h2 className="text-left font-semibold text-black p-2 rounded">
         {title}
       </h2>
-      <table className="w-full mt-2 border-collapse">
+      <table className="w-full mt-2 border-collapse overflow-hidden rounded-lg">
         <TableHeader handleSort={handleSort} sortConfig={sortConfig} />
         <tbody>
           {sortedData.map((act, index) => (
