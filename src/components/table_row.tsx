@@ -1,5 +1,7 @@
 import { Activity } from "../components/table"; // ✅ เปลี่ยน path ตามที่ถูกต้อง
 import { useAppStore } from "../stores/Test/store_test";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 
 interface TableRowProps {
   act?: Activity; // ✅ ป้องกัน `undefined`
@@ -22,7 +24,6 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
   return (
     <tr className="border-t text-center cursor-pointer hover:bg-gray-200 transition">
       <td className="p-2">{act.name}</td>
-      <td className="p-2">{act.description}</td>
       <td className="p-2">
         <span
           className="px-2 py-1 rounded"
@@ -39,6 +40,7 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
           {act.type}
         </span>
       </td>
+      <td className="p-2">{act.description}</td>
       <td>
         {new Intl.DateTimeFormat("th-TH", {
           year: "numeric",
@@ -49,7 +51,10 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
         }).format(new Date(act.start_time))}
       </td>
 
-      <td className="p-2">{act.seat}</td>
+      <td className="p-2">
+        <span className="mr-3">{act.seat}</span>
+        <FontAwesomeIcon icon={faUser} className="text-2xl text-black" />
+      </td>
       <td className="p-2">
         <button
           onClick={() => updateActivityStatus(act.id, act.status)}
