@@ -62,6 +62,10 @@ interface ActivityState {
     id: string,
     currentStatus: "Public" | "Private"
   ) => Promise<void>;
+  updateActivityStatus: (
+    id: string,
+    currentStatus: "Public" | "Private"
+  ) => Promise<void>;
   fetchActivity: (id: number) => Promise<void>;
   fetchEnrolledStudents: (id: number) => Promise<void>;
 }
@@ -93,7 +97,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     try {
       const { data } = await axiosInstance.get<ApiActivity[]>(
         "/activity/get-activities"
-      ); // ✅ เปลี่ยน URL ให้ตรงกับ Backend
+      );
       if (Array.isArray(data) && data.length > 0) {
         set({ activities: data.map(mapActivityData), activityLoading: false });
       } else {
@@ -102,6 +106,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       set({
+        activityError:
+          err.response?.data?.message ?? "Error fetching activities",
         activityError:
           err.response?.data?.message ?? "Error fetching activities",
         activityLoading: false,
@@ -127,6 +133,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
       set({
+        activityError:
+          err.response?.data?.message ?? "Error searching activities",
         activityError:
           err.response?.data?.message ?? "Error searching activities",
         activityLoading: false,
@@ -163,23 +171,11 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       const { data } = await axiosInstance.get<ApiActivity>(
         `/activity/get-activity/${id}`
       );
-
-      // ✅ ตรวจสอบค่าที่อาจเป็น undefined หรือ null
-      const safeData = {
-        ...data,
-        ac_food: data.ac_food || [], // ป้องกัน undefined
-        ac_start_time: data.ac_start_time
-          ? new Date(data.ac_start_time).toLocaleString("th-TH")
-          : "ไม่ระบุ",
-        ac_end_time: data.ac_end_time
-          ? new Date(data.ac_end_time).toLocaleString("th-TH")
-          : "ไม่ระบุ",
-      };
-
-      console.log("📌 ข้อมูลที่ถูกต้องจาก API:", safeData);
-      set({ activity: safeData, activityLoading: false });
+      set({ activity: mapActivityData(data), activityLoading: false });
     } catch (error: any) {
       set({
+        activityError:
+          error.response?.data?.message || "Error fetching activity",
         activityError:
           error.response?.data?.message || "Error fetching activity",
         activityLoading: false,
@@ -207,9 +203,30 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       set({
         activityError:
           error.response?.data?.message || "Error fetching enrolled students",
+        activityError:
+          error.response?.data?.message || "Error fetching enrolled students",
         activityLoading: false,
         enrolledStudents: [],
       });
+    }
+  },
+
+  // ✅ ฟังก์ชันสร้างกิจกรรมใหม่
+  createActivity: async (activity: ApiActivity): Promise<void> => {
+    set(() => ({ activityLoading: true, activityError: null }));
+    try {
+      await axiosInstance.post("/activity/create-activity", activity);
+      set((state) => ({
+        activities: [...state.activities, mapActivityData(activity)],
+        activityLoading: false,
+        activityError: null,
+      }));
+    } catch (error: unknown) {
+      console.error("❌ Unknown error:", error);
+      set(() => ({
+        activityError: "An unknown error occurred",
+        activityLoading: false,
+      }));
     }
   },
 }));
