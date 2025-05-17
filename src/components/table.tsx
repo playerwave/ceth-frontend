@@ -3,12 +3,12 @@ import TableHeader from "./table_header";
 import TableRow from "./table_row";
 
 export type Activity = {
+  id: string;
   name: string;
-  dis: string;
+  description: string;
   type: "Hard Skill" | "Soft Skill";
-  date: string;
-  time: string;
-  slots: string;
+  start_time: Date;
+  seat: string;
   status: "Public" | "Private";
 };
 

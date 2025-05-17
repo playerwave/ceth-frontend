@@ -4,29 +4,40 @@ import { AxiosError } from "axios";
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลที่มาจาก API
 interface ApiActivity {
-  id: number;
-  activity_company_lecturer: string;
-  activity_name: string;
-  activity_type: string;
-  activity_date: string;
-  activity_seat: number;
-  activity_status: string[];
+  ac_id: number;
+  ac_name: string;
+  ac_company_lecturer: string;
+  ac_description: string;
+  ac_type: string;
+  ac_room: string;
+  ac_seat: number;
+  ac_food: string[];
+  ac_status: string;
+  ac_start_register: Date;
+  ac_end_register: Date;
+  ac_create_date: Date;
+  ac_last_update: Date;
+  ac_registerant_count: number;
+  ac_attended_count: number;
+  ac_not_attended_count: number;
+  ac_start_time: Date;
+  ac_end_time: Date;
+  ac_image_url: string;
 }
 
 // ✅ อินเทอร์เฟซที่ React ใช้งาน
 interface Activity {
   id: string;
   name: string;
-  dis: string;
+  description: string;
   type: "Hard Skill" | "Soft Skill";
-  date: string;
-  time: string;
-  slots: string;
+  start_time: Date;
+  seat: string;
   status: "Public" | "Private";
 }
 
 // ✅ State สำหรับจัดการ Activities เท่านั้น
-interface AppState {
+interface ActivityState {
   activities: Activity[];
   searchResults: Activity[] | null; // 🔹 เพิ่ม searchResults ให้รองรับค่าค้นหา
   activityError: string | null;
@@ -37,18 +48,23 @@ interface AppState {
 
 // ✅ ฟังก์ชันแปลงข้อมูลจาก API เป็นรูปแบบที่ React ใช้งานได้
 const mapActivityData = (apiData: ApiActivity): Activity => ({
-  id: apiData.id.toString(),
-  name: apiData.activity_company_lecturer || "ไม่ระบุชื่อ",
-  dis: apiData.activity_name || "ไม่ระบุชื่อ",
-  type: apiData.activity_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
-  date: apiData.activity_date ? apiData.activity_date.split(" ")[0] : "ไม่ระบุ",
-  time: apiData.activity_date ? apiData.activity_date.split(" ")[1] : "ไม่ระบุ",
-  slots: `${apiData.activity_seat} ที่นั่ง`,
-  status: apiData.activity_status.includes("public") ? "Public" : "Private",
+  id: apiData.ac_id.toString(),
+  name: apiData.ac_company_lecturer || "ไม่ระบุชื่อ",
+  description: apiData.ac_name || "ไม่ระบุชื่อ",
+  type: apiData.ac_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
+  start_time: apiData.ac_start_time || "ไม่ระบุ",
+  seat: `${apiData.ac_seat} ที่นั่ง`,
+  status: Array.isArray(apiData.ac_status)
+    ? apiData.ac_status.some((s) => s.toLowerCase() === "public")
+      ? "Public"
+      : "Private"
+    : apiData.ac_status.toLowerCase() === "public"
+    ? "Public"
+    : "Private",
 });
 
 // ✅ ใช้ Zustand เพื่อสร้าง Store สำหรับ Activities เท่านั้น
-export const useAppStore = create<AppState>((set, get) => ({
+export const useAppStore = create<ActivityState>((set, get) => ({
   activities: [],
   searchResults: null, // 🔹 ค่าเริ่มต้นของ searchResults เป็น null
   activityError: null,
@@ -59,8 +75,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ activityLoading: true, activityError: null });
 
     try {
-      const { data } = await axiosInstance.get<ApiActivity[]>("/api/activitys");
-      console.log("✅ API Response:", data); // 🔍 ตรวจสอบค่าจริงที่ API ส่งมา
+      console.log("🚀 Fetching data from API..."); // ✅ Log ก่อนเรียก API
+      const { data } = await axiosInstance.get<ApiActivity[]>(
+        "/activity/acitvities"
+      );
+
+      console.log("✅ API Response:", data); // ✅ Log ค่า data ที่ได้
 
       if (Array.isArray(data) && data.length > 0) {
         const mappedActivities = data.map(mapActivityData);
