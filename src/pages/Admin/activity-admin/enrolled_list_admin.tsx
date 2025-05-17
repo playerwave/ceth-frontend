@@ -71,48 +71,12 @@ export default function enrolled_list_admin() {
           </button>
         ))}
       </div>
-
-      {/* กรอบทั้งหมด */}
-      <div className="p-0 w-full h-[510px] border border-gray-300 shadow-md rounded-lg flex flex-col">
-        {/* 🔹 จำนวนผู้เข้าร่วม & ฟิลเตอร์ */}
-        <div className="flex justify-between items-center p-4">
-          <div className="flex items-center gap-2 text-lg font-semibold">
-            {activity
-              ? `${activity.registered_count || 0}/${activity.seat || 0}`
-              : "กำลังโหลด..."}{" "}
-            <User size={24} />
-          </div>
-
-          {/* ตัวกรองข้อมูล */}
-          <div className="flex gap-4">
-            {/* ฟิลเตอร์สาขา */}
-            <div className="flex items-center gap-2">
-              <button className="bg-blue-900 text-white px-4 py-1 rounded">
-                สาขา
-              </button>
-              {["SE", "AI", "CS", "IT"].map((dept) => (
-                <FormControlLabel
-                  key={dept}
-                  control={
-                    <Checkbox
-                      checked={selectedDepartments.includes(dept)}
-                      onChange={() =>
-                        setSelectedDepartments((prev) =>
-                          prev.includes(dept)
-                            ? prev.filter((d) => d !== dept)
-                            : [...prev, dept]
-                        )
-                      }
-                      sx={{
-                        color: "#757575",
-                        "&.Mui-checked": { color: "#2196F3" },
-                      }}
-                    />
-                  }
-                  label={dept}
-                />
-              ))}
-            </div>
+      {/* ปุ่มเพิ่ม */}
+      <div className="flex justify-end">
+        <button className="bg-[#1E3A8A] text-white px-4 py-2 rounded flex items-center gap-2 transition">
+          เพิ่ม <FontAwesomeIcon icon={faPlus} />
+        </button>
+      </div>
 
             {/* ฟิลเตอร์สถานะ */}
             <div className="flex items-center gap-2">
@@ -218,7 +182,9 @@ export default function enrolled_list_admin() {
             ← กลับ
           </button>
         </div>
-      </div>
+      )}
     </div>
   );
-}
+};
+
+export default ListActivityAdmin;
