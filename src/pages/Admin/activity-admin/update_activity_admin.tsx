@@ -232,6 +232,9 @@ const UpdateActivityAdmin: React.FC = () => {
           ac_end_register: activityData.end_register
             ? activityData.end_register.toISOString().split("T")[0]
             : "",
+          ac_normal_register: activityData.normal_register // ✅ เพิ่มค่า ac_normal_register
+            ? activityData.normal_register.toISOString().split("T")[0]
+            : "",
           ac_create_date: activityData.create_date
             ? activityData.create_date.toISOString()
             : "",
@@ -253,6 +256,7 @@ const UpdateActivityAdmin: React.FC = () => {
 
     loadActivity();
   }, [finalActivityId, fetchActivity]);
+
   // ✅ โหลดข้อมูลเมื่อ `finalActivityId` เปลี่ยน
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -268,12 +272,12 @@ const UpdateActivityAdmin: React.FC = () => {
       name: formData.ac_name,
       company_lecturer: formData.ac_company_lecturer,
       description: formData.ac_description,
-      type: formData.ac_type as "Hard Skill" | "Soft Skill",
+      type: formData.ac_type,
       room: formData.ac_room || "ไม่ระบุห้อง",
       seat: formData.ac_seat ? formData.ac_seat.toString() : "0",
       food: formData.ac_food || [],
       status: formData.ac_status || "Private",
-      location_type: formData.ac_location_type as "Online" | "Offline",
+      location_type: formData.ac_location_type,
       start_register: formData.ac_start_register
         ? new Date(formData.ac_start_register)
         : null,
@@ -367,6 +371,14 @@ const UpdateActivityAdmin: React.FC = () => {
   }, [formData.ac_location_type]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (formData.ac_type === "Hard Skill") {
+      setFormData((prev) => ({ ...prev, ac_type: "HardSkill" }));
+    } else if (formData.ac_type === "Soft Skill") {
+      setFormData((prev) => ({ ...prev, ac_type: "SoftSkill" }));
+    }
+  }, [formData.ac_type]);
 
   return (
     <>
@@ -480,7 +492,7 @@ const UpdateActivityAdmin: React.FC = () => {
                               formData.ac_normal_register
                                 ? new Date(formData.ac_normal_register)
                                     .toISOString()
-                                    .split("T")[0] // ✅ แปลงเป็น YYYY-MM-DD
+                                    .split("T")[0]
                                 : ""
                             }
                             onChange={handleChange}
@@ -498,7 +510,7 @@ const UpdateActivityAdmin: React.FC = () => {
                                   ).toLocaleTimeString("en-GB", {
                                     hour: "2-digit",
                                     minute: "2-digit",
-                                  }) // ✅ ใช้เวลา 24 ชม.
+                                  })
                                 : ""
                             }
                             onChange={handleChange}
@@ -615,12 +627,15 @@ const UpdateActivityAdmin: React.FC = () => {
                       </label>
                       <select
                         name="ac_location_type"
-                        value={formData.ac_location_type} // ✅ ใช้ค่าจริงจาก formData ถ้ามี
-                        onChange={handleChange}
+                        value={formData.ac_location_type}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            ac_location_type: e.target.value, // ✅ อัปเดตค่า ac_type ทันที
+                          }))
+                        }
                         className="w-1/2 p-2 border rounded mb-4 border-[#9D9D9D]"
                       >
-                        <option value="">เลือกประเภทสถานที่</option>{" "}
-                        {/* ป้องกันค่า null */}
                         <option value="Online">Online</option>
                         <option value="Offline">Offline</option>
                       </select>
@@ -630,13 +645,19 @@ const UpdateActivityAdmin: React.FC = () => {
               </div>
 
               {/* ช่องกรอกระเภท */}
+              {formData.ac_type}
               <div className="flex space-x-6">
                 <div>
                   <label className="block font-semibold w-50">ประเภท *</label>
                   <select
                     name="ac_type"
                     value={formData.ac_type}
-                    onChange={handleChange}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        ac_type: e.target.value, // ✅ อัปเดตค่า ac_type ทันที
+                      }))
+                    }
                     className="w-140 p-2 border rounded mb-4 border-[#9D9D9D]"
                   >
                     <option value="SoftSkill">
@@ -645,7 +666,7 @@ const UpdateActivityAdmin: React.FC = () => {
                     <option value="HardSkill">
                       ชั่วโมงทักษะทางวิชาการ (Hard Skill)
                     </option>
-                    <option value="other">อื่นๆ </option>
+                    <option value="other">อื่นๆ</option>
                   </select>
                 </div>
               </div>
@@ -787,8 +808,6 @@ const UpdateActivityAdmin: React.FC = () => {
                 />
               </div>
 
-              {/* แสดงภาพที่อัปโหลด (ถ้าเป็นรูป) */}
-              {/* แสดงภาพที่อัปโหลด (ถ้าเป็นรูป) */}
               {/* แสดงภาพที่อัปโหลด */}
               {previewImage || formData.ac_image_data ? (
                 <div className="mt-4 w-200 h-125 border-red-900">

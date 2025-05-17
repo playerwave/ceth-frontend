@@ -5,37 +5,39 @@ import styled from "styled-components";
 const Loader = () => {
 const Loader = () => {
   return (
-    <StyledWrapper>
-      <div className="loader">
-        <div className="box box0">
-          <div />
+    <div className="fixed inset-0 flex items-center justify-center bg-transparent bg-opacity-50 backdrop-blur-sm z-50">
+      <StyledWrapper>
+        <div className="loader">
+          <div className="box box0">
+            <div />
+          </div>
+          <div className="box box1">
+            <div />
+          </div>
+          <div className="box box2">
+            <div />
+          </div>
+          <div className="box box3">
+            <div />
+          </div>
+          <div className="box box4">
+            <div />
+          </div>
+          <div className="box box5">
+            <div />
+          </div>
+          <div className="box box6">
+            <div />
+          </div>
+          <div className="box box7">
+            <div />
+          </div>
+          <div className="ground">
+            <div />
+          </div>
         </div>
-        <div className="box box1">
-          <div />
-        </div>
-        <div className="box box2">
-          <div />
-        </div>
-        <div className="box box3">
-          <div />
-        </div>
-        <div className="box box4">
-          <div />
-        </div>
-        <div className="box box5">
-          <div />
-        </div>
-        <div className="box box6">
-          <div />
-        </div>
-        <div className="box box7">
-          <div />
-        </div>
-        <div className="ground">
-          <div />
-        </div>
-      </div>
-    </StyledWrapper>
+      </StyledWrapper>
+    </div>
   );
 };
 
