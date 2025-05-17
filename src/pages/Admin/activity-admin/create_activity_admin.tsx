@@ -214,7 +214,10 @@ const CreateActivityAdmin: React.FC = () => {
 
     try {
       await createActivity(activityData);
-      toast.success("Created Success !"); // ✅ แสดง Toast เมื่ออัปเดตเสร็จ
+      toast.success("Created Successfully!", { duration: 5000 });
+
+      // ✅ ใช้ navigate พร้อม state เพื่อรีโหลดหน้าเพียงครั้งเดียว
+      navigate("/list-activity-admin", { state: { reload: true } });
     } catch (error) {
       console.error("❌ Error creating activity:", error);
       toast.error("Create failed!"); // ✅ แสดง Toast ถ้าอัปเดตไม่สำเร็จ
@@ -700,12 +703,7 @@ const CreateActivityAdmin: React.FC = () => {
             (นิสิตทุกคนในระบบจะเห็นกิจกรรมนี้)"
                 onCancel={() => setIsModalOpen(false)}
                 type="submit" // ✅ ทำให้เป็นปุ่ม submit
-                onConfirm={() => {
-                  navigate("/list-activity-admin"); // ✅ เปลี่ยนหน้าเมื่อกดยืนยัน
-                  setTimeout(() => {
-                    window.location.reload(); // ✅ Refresh หน้าเว็บ
-                  }, 500);
-                }}
+                onConfirm={() => {}}
               />
 
               {/* ปุ่ม ยกเลิก & สร้าง */}

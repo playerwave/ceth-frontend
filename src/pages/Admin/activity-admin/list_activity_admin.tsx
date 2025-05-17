@@ -3,15 +3,16 @@ import { FaList, FaCalendar } from "react-icons/fa";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useActivityStore } from "../../../stores/Admin/activity_store";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
-//import component
+// Import Component
 import Loading from "../../../components/Loading";
 import SearchBar from "../../../components/Searchbar";
 import Table from "../../../components/Admin/ActivityTable/table";
 
 const ManageActivityAdmin: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     activities,
     searchResults,
@@ -23,10 +24,20 @@ const ManageActivityAdmin: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<"list" | "calendar">("list");
 
-  // ✅ โหลดกิจกรรมครั้งแรก
+  // ✅ โหลดกิจกรรมครั้งแรกเท่านั้น
   useEffect(() => {
-    fetchActivities();
-  }, [fetchActivities]);
+    if (activities.length === 0) {
+      fetchActivities();
+    }
+  }, []);
+
+  // ✅ รีเฟรชข้อมูลแค่ครั้งเดียวหลังจากเพิ่มกิจกรรมใหม่
+  useEffect(() => {
+    if (location.state?.reload) {
+      fetchActivities(); // โหลดข้อมูลใหม่
+      navigate(location.pathname, { replace: true }); // ล้างค่า `state`
+    }
+  }, [location, navigate]);
 
   const displayedActivities = searchResults ?? activities;
   const activitiesSuccess = displayedActivities.filter(
@@ -36,12 +47,22 @@ const ManageActivityAdmin: React.FC = () => {
     (a) => a.status === "Private"
   );
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (term: string) => {
+    if (term !== searchTerm) {
+      // ✅ เช็คว่าไม่ใช่ค่าซ้ำ
+      setSearchTerm(term);
+      searchActivities(term);
+    }
+  };
+
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-5">
       <h1 className="text-center text-2xl font-bold mb-4">จัดการกิจกรรม</h1>
 
       <div className="flex justify-center items-center w-full">
-        <SearchBar onSearch={searchActivities} />
+        <SearchBar onSearch={handleSearch} />
       </div>
 
       <div className="flex justify-between items-center mb-4 mt-5">
@@ -70,15 +91,17 @@ const ManageActivityAdmin: React.FC = () => {
 
         <button
           className="bg-[#1E3A8A] text-white px-4 py-2 rounded flex items-center gap-2 transition hover:bg-blue-700"
-          onClick={() => navigate("/add-activity")}
+          onClick={() =>
+            navigate("/create-activity-admin", { state: { reload: true } })
+          }
         >
           เพิ่ม <FontAwesomeIcon icon={faPlus} />
         </button>
       </div>
 
-      {/* ✅ แสดง Loading อยู่กลางจอ และขึ้นเฉพาะ Navbar + Sidebar */}
+      {/* ✅ แสดง Loading อยู่กลางจอ แต่ไม่ทับ Navbar */}
       {activityLoading ? (
-        <div className="fixed inset-0 flex justify-center items-center bg-white z-40">
+        <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-50 backdrop-blur-md z-40">
           <Loading />
         </div>
       ) : activityError ? (
