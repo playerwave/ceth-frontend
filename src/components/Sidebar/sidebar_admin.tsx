@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   Home,
@@ -13,32 +13,17 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useAuthStore } from "../../stores/auth.store";
 
-const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
-  const navigate = useNavigate();
-  const logout = useAuthStore((state) => state.logout);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/"); // ✅ กลับไปหน้าล็อกอิน
-    } catch (error) {
-      console.error("❌ Logout failed:", error);
-    }
-  };
-
+const SidebarAdmin = () => {
   // ✅ โหลดค่า `isCollapsed` จาก LocalStorage ถ้ามี
-  // const [isCollapsed, setIsCollapsed] = useState(() => {
-  //   const stored = localStorage.getItem("sidebarCollapsed");
-  //   console.log("▶ sidebarCollapsed from localStorage:", stored); // Debug ตรงนี้
-  //   return stored !== null ? stored === "true" : true; // หุบโดย default
-  // });
+  const [isCollapsed, setIsCollapsed] = useState(
+    () => localStorage.getItem("sidebarCollapsed") === "true"
+  );
 
-  // // ✅ เมื่อ `isCollapsed` เปลี่ยน, อัปเดตค่าใน LocalStorage
-  // useEffect(() => {
-  //   localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
-  // }, [isCollapsed]);
+  // ✅ เมื่อ `isCollapsed` เปลี่ยน, อัปเดตค่าใน LocalStorage
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
+  }, [isCollapsed]);
 
   const handleNotInThisSprint = () => {
     alert("Use Case นี้จะถูกพัฒนาใน Sprint อื่นๆ ขออภัยในความไม่สะดวก");
@@ -61,8 +46,9 @@ const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
         >
           Panel
         </span>
+
         <button
-          onClick={toggleSidebar}
+          onClick={() => setIsCollapsed(!isCollapsed)}
           className="text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-200 transition"
         >
           {isCollapsed ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
@@ -72,7 +58,7 @@ const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
       {/* เมนู Sidebar */}
       <div className="flex flex-col space-y-1">
         <SidebarItem
-          to="/main-admin"
+          to="/"
           icon={<Home size={24} />}
           text="หน้าหลัก"
           collapsed={isCollapsed}
@@ -118,15 +104,19 @@ const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
           onClick={handleNotInThisSprint}
           collapsed={isCollapsed}
         />
-        <div className="mt-70">
-          <SidebarItem
-            to="#"
-            icon={<LogOut size={24} />}
-            text="ออกจากระบบ"
-            onClick={handleLogout}
-            collapsed={isCollapsed}
-          />
-        </div>
+        <SidebarItem
+          to="/logout"
+          icon={<LogOut size={24} />}
+          text="ออกจากระบบ (ห้าม click)"
+          onClick={handleNotInThisSprint}
+          collapsed={isCollapsed}
+        />
+        <SidebarItem
+          to="/test_create"
+          icon={<FileText size={24} />}
+          text="CRUD Example"
+          collapsed={isCollapsed}
+        />
       </div>
     </div>
   );
@@ -135,19 +125,21 @@ const SidebarAdmin = ({ isCollapsed, toggleSidebar }) => {
 const SidebarItem = ({ to, icon, text, onClick, collapsed }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
-  const isDisabled = typeof onClick === "function" && to !== "#";
 
-  const commonClass = `relative flex items-center py-2 px-3 rounded-lg transition-all duration-300 ${
-    isActive
-      ? "bg-blue-100 text-blue-600 border-l-4 border-blue-500 shadow-md"
-      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-  } ${collapsed ? "justify-center" : ""} ${
-    isDisabled ? "cursor-not-allowed opacity-50" : ""
-  }`;
-
-  const content = (
-    <>
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className={`relative flex items-center py-2 px-3 rounded-lg transition-all duration-300 ${
+        isActive
+          ? "bg-blue-100 text-blue-600 border-l-4 border-blue-500 shadow-md"
+          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+      } ${collapsed ? "justify-center" : ""}`}
+    >
+      {/* ไอคอน */}
       <span className="flex-shrink-0">{icon}</span>
+
+      {/* ข้อความ (ซ่อนเมื่อ collapsed) */}
       <span
         className={`transition-all duration-300 whitespace-nowrap ${
           collapsed
@@ -157,17 +149,6 @@ const SidebarItem = ({ to, icon, text, onClick, collapsed }) => {
       >
         {text}
       </span>
-    </>
-  );
-
-  // ถ้าคลิกไม่ได้ -> ไม่ต้องใช้ Link
-  return isDisabled ? (
-    <div className={commonClass} onClick={onClick}>
-      {content}
-    </div>
-  ) : (
-    <Link to={to} onClick={onClick} className={commonClass}>
-      {content}
     </Link>
   );
 };
