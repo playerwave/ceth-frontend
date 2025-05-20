@@ -24,6 +24,7 @@ import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_ad
 import MainStudent from "./pages/Student/main-student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
+import TestCardPage from "./pages/Test/test_card";
 
 function App() {
   return (
@@ -105,6 +106,16 @@ function App() {
             element={
               <Navbar>
                 <TestCreate />
+              </Navbar>
+            }
+          />
+
+
+          <Route
+            path="/test-card"
+            element={
+              <Navbar>
+                <TestCardPage />
               </Navbar>
             }
           />

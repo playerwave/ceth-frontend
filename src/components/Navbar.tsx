@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import SidebarAdmin from "./Sidebar/sidebar_admin";
 import SidebarStudent from "./Sidebar/sidebar_student";
-
+import Sidebar from "./Sidebar"; // ใช้ไฟล์เดียวแทน admin/student
 const Navbar = ({ children }) => {
   const [isCollapsed, setIsCollapsed] = useState(
     () => localStorage.getItem("sidebarCollapsed") === "true"
   );
 
-  const [role, setRole] = useState("student"); // ค่าเริ่มต้นเป็น student
+  const [role, setRole] = useState<"student" | "admin">("student"); // ✅ กำหนด type ชัดเจน
+
 
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
@@ -30,21 +31,14 @@ const Navbar = ({ children }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-[80px] left-0 ${
-          isCollapsed ? "w-[80px]" : "w-[280px]"
-        } h-[calc(100vh-80px)] z-50 transition-all duration-300`}
+        className={`fixed top-[80px] left-0 ${isCollapsed ? "w-[80px]" : "w-[280px]"
+          } h-[calc(100vh-80px)] z-50 transition-all duration-300`}
       >
-        {role === "admin" ? (
-          <SidebarAdmin
-            isCollapsed={isCollapsed}
-            toggleSidebar={() => setIsCollapsed(!isCollapsed)}
-          />
-        ) : (
-          <SidebarStudent
-            isCollapsed={isCollapsed}
-            toggleSidebar={() => setIsCollapsed(!isCollapsed)}
-          />
-        )}
+        <Sidebar
+          isCollapsed={isCollapsed}
+          toggleSidebar={() => setIsCollapsed(!isCollapsed)}
+          role={role}
+        />
       </div>
 
       {/* Content (เว้นที่ให้ Sidebar และให้มี min-height) */}
