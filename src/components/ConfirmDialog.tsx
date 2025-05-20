@@ -26,7 +26,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <p className="text-gray-600 mt-2 whitespace-pre-line">{message}</p>
 
         <div className="flex justify-center gap-4 mt-6">
-          <Button onClick={onCancel} type="button" color="red">
+          <Button onClick={onCancel} type="button" bgColor="red">
             ยกเลิก
           </Button>
           <Button
@@ -34,7 +34,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               onConfirm(); // ✅ เรียกใช้ callback function ที่กำหนด
             }}
             type={type}
-            color="blue"
+            bgColor="blue"
           >
             ยืนยัน
           </Button>
