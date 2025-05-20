@@ -13,6 +13,7 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
+  School,
   
 } from "lucide-react";
 
@@ -81,6 +82,11 @@ const Sidebar = ({ isCollapsed, toggleSidebar, role }: SidebarProps) => {
       to: "/test_create",
       icon: <FileText size={24} />,
       text: "CRUD Example",
+    },
+     {
+      to: "/list-room",
+      icon: <  School  size={24} />,
+      text: "จัดการห้อง",
     },
   ];
 

@@ -25,6 +25,9 @@ import MainStudent from "./pages/Student/main-student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
 import TestCardPage from "./pages/Test/test_card";
+import ListRoomAdmin from "./pages/Admin/manageroom-admin/list-room/list.room.admin";
+import CreateRoomAdmin from "./pages/Admin/manageroom-admin/create-room/create.room.admin";
+import EditRoomAdmin from "./pages/Admin/manageroom-admin/edit-room/edit.room.admin";
 
 function App() {
   return (
@@ -119,7 +122,39 @@ function App() {
               </Navbar>
             }
           />
+
+
+
+          {/* room */}
+          
+          <Route
+            path="/list-room"
+            element={
+              <Navbar>
+                <ListRoomAdmin />
+              </Navbar>
+            }
+          />
+
+          <Route
+            path="/create-room"
+            element={
+              <Navbar>
+                <CreateRoomAdmin />
+              </Navbar>
+            }
+          />
+
+            <Route
+            path="/edit-room"
+            element={
+              <Navbar>
+                <EditRoomAdmin />
+              </Navbar>
+            }
+          />
         </Routes>
+
 
         {/* Student Routes */}
         <Routes>
