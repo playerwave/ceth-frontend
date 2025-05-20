@@ -25,6 +25,9 @@ import MainStudent from "./pages/Student/main-student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
 import TestCardPage from "./pages/Test/test_card";
+import CreateFoodAdmin from "./pages/Admin/mangefood-admin/create-food/create.food.admin";
+import ListFoodAdmin from "./pages/Admin/mangefood-admin/list-food/list.food.admin";
+import EditFoodAdmin from "./pages/Admin/mangefood-admin/edit-food/edit.food";
 
 function App() {
   return (
@@ -109,6 +112,34 @@ function App() {
               </Navbar>
             }
           />
+
+          {/* food */}
+           <Route
+            path="/create-food"
+            element={
+              <Navbar>
+                <CreateFoodAdmin />
+              </Navbar>
+            }
+          />
+
+           <Route
+            path="/list-food"
+            element={
+              <Navbar>
+                <ListFoodAdmin />
+              </Navbar>
+            }
+          />
+            <Route
+            path="/edit-food"
+            element={
+              <Navbar>
+                <EditFoodAdmin />
+              </Navbar>
+            }
+          />
+
 
 
           <Route

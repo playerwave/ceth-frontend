@@ -4,7 +4,7 @@ import {
   ApiActivity,
   CreateActivityStoreState,
 } from "../../types/Admin/type_create_activity_admin";
-import { createActivityService } from "../../services/admin/service_create_activity"; // ✅ นำเข้า service ที่แยกไว้
+import { createActivityService } from "../../services/Admin/service_create_activity"; // ✅ นำเข้า service ที่แยกไว้
 
 export const useActivityStore = create<CreateActivityStoreState>((set) => ({
   activityLoading: false,
