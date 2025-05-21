@@ -25,9 +25,8 @@ export default function EnrolledListTable({
             <th className="p-3 text-center w-[120px]">อาหาร</th>
             <th className="p-3 text-center w-[120px]">ลงชื่อเข้า</th>
             <th className="p-3 text-center w-[120px]">ลงชื่อออก</th>
-            <th className="p-3 text-center w-[120px] rounded-tr-lg rounded-br-lg">
-              ทำแบบประเมิน
-            </th>
+            <th className="p-3 text-center w-[200px]">ทำแบบประเมิน</th>
+            <th className="p-3 text-center w-[120px] rounded-tr-lg rounded-br-lg"></th>
           </tr>
         </thead>
 
@@ -35,13 +34,13 @@ export default function EnrolledListTable({
         <tbody className="bg-white">
           {activityLoading ? (
             <tr>
-              <td colSpan={8} className="text-center p-4">
+              <td colSpan={9} className="text-center p-4">
                 กำลังโหลดข้อมูล...
               </td>
             </tr>
           ) : enrolledStudents.length === 0 ? (
             <tr>
-              <td colSpan={8} className="text-center p-4">
+              <td colSpan={9} className="text-center p-4">
                 ไม่มีข้อมูลนิสิตที่ลงทะเบียน
               </td>
             </tr>
@@ -73,6 +72,14 @@ export default function EnrolledListTable({
                 <td className="p-3 text-center">{student.checkIn}</td>
                 <td className="p-3 text-center">{student.checkOut}</td>
                 <td className="p-3 text-center">{student.evaluated}</td>
+                <td className="p-3 text-center">
+                  <button
+                    className="bg-red-600 text-white px-3 py-1 hover:bg-red-700 transition rounded-[20px]"
+                    onClick={() => handleKickStudent(student.id)}
+                  >
+                    เตะ
+                  </button>
+                </td>
               </tr>
             ))
           )}

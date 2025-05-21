@@ -44,8 +44,12 @@ export default function ActivityInfoAdmin() {
         <div className="flex-grow overflow-auto">
           <ActivityHeader
             name={activity.name}
-            registeredCount={activity.registered_count}
-            seat={activity.seat}
+            registeredCount={
+              activity.location_type === "Course"
+                ? "-"
+                : activity.registered_count
+            }
+            seat={activity.location_type === "Course" ? "-" : activity.seat}
             onClickRegistered={() =>
               navigate(`/enrolled_list_admin/${activity.id}`)
             }
@@ -56,19 +60,25 @@ export default function ActivityInfoAdmin() {
           <ActivityDetails activity={activity} />
           <br />
 
-          <FoodSelector
-            foodList={activity.food}
-            locationType={activity.location_type}
-          />
+          {activity.location_type === "Onsite" && (
+            <FoodSelector
+              foodList={activity.food}
+              locationType={activity.location_type}
+            />
+          )}
         </div>
         <br />
-        
-        <ActivityLink url="https://aichina.com" label="AI China.com" />
+
+        <ActivityLink
+          url="https://mooc.buu.ac.th/courses/course-v1:BUU+IF002+2024/course/"
+          label={`${activity.name}.com`}
+        />
 
         <ActivityFooter
           startTime={activity.start_time}
           endTime={activity.end_time}
           state={activity.state}
+          locationType={activity.location_type} // ส่งค่าเพิ่ม
           onBack={() =>
             navigate("/list-activity-admin", { state: { reload: true } })
           }

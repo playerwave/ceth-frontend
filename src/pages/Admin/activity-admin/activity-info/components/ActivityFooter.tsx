@@ -5,10 +5,10 @@ interface Props {
   startTime?: string | Date | null;
   endTime?: string | Date | null;
   state: string;
+  locationType?: string; // เพิ่มตรงนี้
   onBack: () => void;
   onEdit: () => void;
 }
-
 
 const formatDate = (dateInput?: string | Date | null) => {
   if (!dateInput) return "ไม่ระบุ";
@@ -32,7 +32,6 @@ const formatTime = (dateInput?: string | Date | null) => {
   return `${formattedHours}:${formattedMinutes} ${ampm}`;
 };
 
-
 const formatDateTimeRange = (
   startTime?: string | Date | null,
   endTime?: string | Date | null
@@ -51,9 +50,11 @@ export default function ActivityFooter({
   startTime,
   endTime,
   state,
+  locationType,
   onBack,
   onEdit,
 }: Props) {
+  const isCourse = locationType === "Course";
   return (
     <div className="flex justify-between items-center mt-1 text-[14px]">
       <div className="flex items-center gap-2">
@@ -71,9 +72,20 @@ export default function ActivityFooter({
         <Button width="120px" onClick={onBack}>
           ← กลับ
         </Button>
-        <Button width="120px">
-          Scan
-        </Button>
+
+        <div className={isCourse ? "opacity-50 pointer-events-none" : ""}>
+          <Button
+            width="120px"
+            onClick={() => {
+              if (!isCourse) {
+                // logic scan
+              }
+            }}
+          >
+            Scan
+          </Button>
+        </div>
+        
         <Button width="120px" onClick={onEdit}>
           แก้ไข
         </Button>

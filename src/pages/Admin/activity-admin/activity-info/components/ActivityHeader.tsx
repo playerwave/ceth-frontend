@@ -20,7 +20,14 @@ export default function ActivityHeader({
         className="flex items-center text-[25px] gap-[4px] cursor-pointer"
         onClick={onClickRegistered}
       >
-        {registeredCount}/{seat} <User size={40} />
+        {registeredCount === "-" ? (
+          "-"
+        ) : (
+          <>
+            {registeredCount}/{seat}
+          </>
+        )}{" "}
+        <User size={40} />
       </div>
     </div>
   );

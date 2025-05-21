@@ -32,7 +32,6 @@ function formatRoom(roomCode: string) {
   return `ชั้น ${floor} ห้อง ${room}`;
 }
 
-
 export default function ActivityDetails({ activity }: Props) {
   const formatDate = (dateInput?: string | Date | null) => {
     if (!dateInput) return "ไม่ระบุ";
@@ -72,8 +71,25 @@ export default function ActivityDetails({ activity }: Props) {
         </div>
         <div className="flex items-center gap-1 font-[Sarabun]">
           <LocationTypeDisplay locationType={activity.location_type} />
-          <Hourglass size={25} /> ปิดลงทะเบียน{" "}
-          {formatDate(activity.end_register)}&nbsp;&nbsp;
+
+          {activity.location_type !== "Course" ? (
+            <>
+              <Hourglass size={25} /> ปิดลงทะเบียน{" "}
+              {formatDate(activity.end_register)}&nbsp;&nbsp;
+            </>
+          ) : (
+            // ล็อคที่ว่าง เท่ากับข้อความ เพื่อไม่ให้ layout ขยับ
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                width: "220px",
+              }}
+            >
+              {/* เว้นที่ว่าง */}
+            </span>
+          )}
+          
           <MapPin size={25} />
           {activity.location_type === "Onsite"
             ? formatRoom(activity.room)
