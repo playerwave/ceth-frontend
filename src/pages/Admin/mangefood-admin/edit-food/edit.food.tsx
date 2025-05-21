@@ -38,47 +38,60 @@ const EditFoodAdmin = () => {
                         </button>
                     </div>
 
-                    <form className="space-y-6">
+                     <form className="space-y-6">
                         {/* ชื่ออาหาร */}
-                        <div className="grid justify-center mt-5">
+                        <div className="grid mt-5">
                             <label className="w-96 text-left font-semibold mb-1">
                                 ชื่ออาหาร <span className="text-red-500">*</span>
                             </label>
-                            <TextField placeholder="ชื่ออาหาร" className="w-2xl" />
+                            <TextField
+                                type="text"
+                                placeholder="ชื่ออาหาร"
+                                className="w-2xl border border-gray-300 rounded px-3 py-2"
+                            />
                         </div>
 
+
                         {/* ราคา */}
-                        <div className="grid justify-center mt-5">
+                        <div className="grid  mt-5">
                             <label className="w-96 text-left font-semibold mb-1">
                                 ราคา <span className="text-red-500">*</span>
                             </label>
-                            <TextField placeholder="ราคาอาหาร" className="w-2xl" />
+                            <TextField
+                                type="text"
+                                placeholder="ชื่ออาหาร"
+                                className="w-2xl border border-gray-300 rounded px-3 py-2"
+                            />
                         </div>
 
                         {/* เบอร์โทร */}
-                        <div className="grid justify-center mt-5">
+                        <div className="grid mt-5">
                             <label className="w-96 text-left font-semibold mb-1">
                                 เบอร์โทร <span className="text-red-500">*</span>
                             </label>
-                            <TextField placeholder="เบอร์โทรศัพท์" className="w-2xl" />
+                            <TextField
+                                type="text"
+                                placeholder="ชื่ออาหาร"
+                                className="w-2xl border border-gray-300 rounded px-3 py-2"
+                            />
                         </div>
 
                         {/* ปุ่ม */}
-                        <div className="flex justify-center gap-20 mt-30">
-                            <button
-                                type="submit"
-                                className="bg-blue-800 text-white font-semibold px-6 py-2 rounded-xl w-40 hover:bg-blue-900"
-                            >
-                                บันทึกเมนู
-                            </button>
-                            <button
-                                type="button"
-                                className="bg-red-600 text-white font-semibold px-6 py-2 rounded-xl w-40 hover:bg-red-700"
-                                onClick={() => navigate('/list-food')}
-                            >
-                                ยกเลิก
-                            </button>
-                        </div>
+                                            <div className="col-span-2 flex justify-end gap-4 mt-75">
+                        <Button
+                            type="button"
+                           color="red"
+                            onClick={() => navigate('/list-food')}
+                        >
+                            ยกเลิก
+                        </Button>
+                     <Button
+                            type="submit"
+                            
+                        >
+                            บันทึก
+                        </Button>
+                    </div>
                     </form>
                 </div>
             </Box>

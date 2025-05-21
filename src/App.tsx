@@ -25,9 +25,9 @@ import MainStudent from "./pages/Student/main-student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
 import TestCardPage from "./pages/Test/test_card";
-import CreateFoodAdmin from "./pages/Admin/managefood-admin/create-food/create.food.admin";
-import ListFoodAdmin from "./pages/Admin/managefood-admin/list-food/list.food.admin";
-import EditFoodAdmin from "./pages/Admin/managefood-admin/edit-food/edit.food";
+import CreateFoodAdmin from "./pages/Admin/mangefood-admin/create-food/create.food.admin";
+import ListFoodAdmin from "./pages/Admin/mangefood-admin/list-food/list.food.admin";
+import EditFoodAdmin from "./pages/Admin/mangefood-admin/edit-food/edit.food";
 
 function App() {
   return (
