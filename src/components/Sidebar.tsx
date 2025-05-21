@@ -13,6 +13,7 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
+  CookingPot,
   
 } from "lucide-react";
 
@@ -82,6 +83,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, role }: SidebarProps) => {
       icon: <FileText size={24} />,
       text: "CRUD Example",
     },
+     
   ];
 
   const itemsToRender =
