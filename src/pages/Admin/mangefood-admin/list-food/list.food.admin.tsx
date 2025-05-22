@@ -6,19 +6,22 @@ import AddFoodButton from "./components/addfoodbutton";
 import { useNavigate } from "react-router-dom";
 
 const ListFoodAdmin = () => {
-
-
   const foodData = Array.from({ length: 15 }, (_, i) => ({
     name: `เมนูที่ ${i + 1}`,
     price: `50 บาท / กล่อง`,
     phone: `091-234-56${(i + 10).toString().slice(-2)}`,
   }));
 
-  const itemsPerPage = 5;
+  const [searchTerm, setSearchTerm] = useState(""); // ✅ เพิ่ม state สำหรับค้นหา
   const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-  const totalPages = Math.ceil(foodData.length / itemsPerPage);
-  const paginatedData = foodData.slice(
+  const filteredFoods = foodData.filter((food) =>
+    food.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredFoods.length / itemsPerPage);
+  const paginatedData = filteredFoods.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -28,7 +31,12 @@ const ListFoodAdmin = () => {
       <h1 className="text-center text-2xl font-bold mb-4">จัดการอาหาร</h1>
 
       <div className="flex justify-center items-center w-full mt-10">
-        <Searchbar />
+        <Searchbar
+          onSearch={(term) => {
+            setSearchTerm(term);
+            setCurrentPage(1); // ✅ รีเซ็ตหน้าเมื่อค้นหา
+          }}
+        />
       </div>
 
       <AddFoodButton />

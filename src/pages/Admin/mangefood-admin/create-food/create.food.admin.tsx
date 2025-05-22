@@ -45,7 +45,7 @@ const CreateFoodAdmin = () => {
                             </label>
                             <TextField
                                 type="text"
-                                placeholder="ชื่ออาหาร"
+                                placeholder="เบอร์โทร"
                                 className="w-2xl border border-gray-300 rounded px-3 py-2"
                             />
                         </div>
