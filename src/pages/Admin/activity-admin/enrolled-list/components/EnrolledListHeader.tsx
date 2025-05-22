@@ -35,7 +35,7 @@ export default function EnrolledListHeader({ activeTab, setActiveTab }: Enrolled
           }`}
           onClick={() => setActiveTab("summary")}
         >
-          สรุปกิจกรรม
+          สรุปผลกิจกรรม
         </button>
       </div>
     </div>

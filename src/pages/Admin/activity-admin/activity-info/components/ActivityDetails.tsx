@@ -89,14 +89,16 @@ export default function ActivityDetails({ activity }: Props) {
               {/* เว้นที่ว่าง */}
             </span>
           )}
-          
+
           <MapPin size={25} />
           {activity.location_type === "Onsite"
             ? formatRoom(activity.room)
             : "ไม่มีห้องสำหรับกิจกรรมนี้"}
         </div>
       </div>
-      <p className="mt-2 text-[14px] font-sans">{activity.description}</p>
+      <p className="mt-2 text-[14px] font-sans break-words overflow-hidden">
+        {activity.description}
+      </p>
     </>
   );
 }

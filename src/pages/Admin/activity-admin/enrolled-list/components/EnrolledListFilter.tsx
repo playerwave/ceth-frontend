@@ -27,7 +27,8 @@ export default function EnrolledListFilter({
         <User size={24} />
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex justify-center gap-4 w-full">
+
         {/* ฟิลเตอร์สาขา */}
         <div className="flex items-center gap-2">
           <button className="bg-blue-900 text-white px-4 py-1 rounded">สาขา</button>

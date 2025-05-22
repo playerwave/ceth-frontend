@@ -16,7 +16,9 @@ export default function EnrolledListTable({
   activity,
 }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<number | null>(
+    null
+  );
 
   const handleKickStudent = (studentId: number) => {
     setSelectedStudentId(studentId);
@@ -78,10 +80,10 @@ export default function EnrolledListTable({
                   <td className="p-3 text-left">{student.department}</td>
                   <td className="p-3 text-center">
                     <span
-                      className={`w-[110px] h-[30px] flex items-center justify-center rounded-md text-sm font-semibold border ${
+                      className={`w-[90px] h-[30px] flex items-center justify-center rounded-[10px] text-sm font-semibold ${
                         student.status === "normal"
-                          ? "text-green-700 bg-green-100 border-green-400"
-                          : "text-red-700 bg-red-100 border-red-400"
+                          ? "bg-green-500 text-white"
+                          : "bg-red-600 text-white"
                       }`}
                     >
                       {student.status === "normal" ? "ปกติ" : "เสี่ยง"}
@@ -113,7 +115,9 @@ export default function EnrolledListTable({
       <Dialog2
         open={dialogOpen}
         title="ยืนยันการเตะนิสิต"
-        message={`คุณแน่ใจหรือไม่ว่าต้องการเตะนิสิต ID ${selectedStudentId ?? ""} ออกจากกิจกรรม?`}
+        message={`คุณแน่ใจหรือไม่ว่าต้องการเตะนิสิต ID ${
+          selectedStudentId ?? ""
+        } ออกจากกิจกรรม?`}
         icon={<CircleAlert size={30} className="text-red-500" />}
         onClose={handleCloseDialog}
         onConfirm={handleConfirmKick}
