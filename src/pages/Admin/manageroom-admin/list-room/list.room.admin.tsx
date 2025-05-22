@@ -13,12 +13,15 @@ const ListRoomAdmin = () => {
   }));
 
   const floors = Array.from(new Set(roomData.map((r) => r.floor))).sort((a, b) => a - b);
-  const [floorFilter, setFloorFilter] = React.useState<number | 'all'>('all');
 
-  const filteredRooms =
-    floorFilter === 'all'
-      ? roomData
-      : roomData.filter((room) => room.floor === floorFilter);
+  const [floorFilter, setFloorFilter] = React.useState<number | 'all'>('all');
+  const [searchTerm, setSearchTerm] = React.useState(""); // ✅ state ใหม่
+
+  const filteredRooms = roomData.filter((room) => {
+    const matchesFloor = floorFilter === 'all' || room.floor === floorFilter;
+    const matchesSearch = room.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesFloor && matchesSearch;
+  });
 
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -33,7 +36,7 @@ const ListRoomAdmin = () => {
       <h1 className="text-center text-2xl font-bold mb-4">จัดการห้อง</h1>
 
       <div className="flex justify-center items-center w-full mt-10">
-        <Searchbar />
+        <Searchbar onSearch={setSearchTerm} /> {/* ✅ เพิ่ม onSearch */}
       </div>
 
       <RoomToolbar
@@ -54,5 +57,6 @@ const ListRoomAdmin = () => {
     </div>
   );
 };
+
 
 export default ListRoomAdmin;
