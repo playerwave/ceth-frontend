@@ -1,6 +1,6 @@
 import React from "react";
 
-interface Dialog1Props {
+interface Dialog2Props {
   open: boolean;
   title: string;
   message: string;
@@ -10,7 +10,7 @@ interface Dialog1Props {
   type?: "button" | "submit";
 }
 
-const Dialog2: React.FC<Dialog1Props> = ({
+const Dialog2: React.FC<Dialog2Props> = ({
   open,
   title,
   message,

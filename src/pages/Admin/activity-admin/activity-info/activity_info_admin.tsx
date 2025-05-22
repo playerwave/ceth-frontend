@@ -50,8 +50,10 @@ export default function ActivityInfoAdmin() {
                 : activity.registered_count
             }
             seat={activity.location_type === "Course" ? "-" : activity.seat}
-            onClickRegistered={() =>
-              navigate(`/enrolled_list_admin/${activity.id}`)
+            onClickRegistered={
+              activity.location_type === "Course"
+                ? undefined
+                : () => navigate(`/enrolled_list_admin/${activity.id}`)
             }
           />
 
@@ -71,7 +73,7 @@ export default function ActivityInfoAdmin() {
 
         <ActivityLink
           url="https://mooc.buu.ac.th/courses/course-v1:BUU+IF002+2024/course/"
-          label={`${activity.name}.com`}
+          label={`${activity.company_lecturer}.com`}
         />
 
         <ActivityFooter

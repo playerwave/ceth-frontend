@@ -17,8 +17,12 @@ export default function ActivityHeader({
     <div className="flex justify-between items-center">
       <h1 className="text-[35px] font-semibold font-sans">{name}</h1>
       <div
-        className="flex items-center text-[25px] gap-[4px] cursor-pointer"
-        onClick={onClickRegistered}
+        className={`flex items-center text-[25px] gap-[4px] ${
+          onClickRegistered ? "cursor-pointer" : "cursor-default text-gray-500"
+        }`}
+        onClick={() => {
+          if (onClickRegistered) onClickRegistered();
+        }}
       >
         {registeredCount === "-" ? (
           "-"
@@ -26,7 +30,7 @@ export default function ActivityHeader({
           <>
             {registeredCount}/{seat}
           </>
-        )}{" "}
+        )}
         <User size={40} />
       </div>
     </div>
