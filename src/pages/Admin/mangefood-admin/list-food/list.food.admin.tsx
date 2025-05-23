@@ -1,30 +1,30 @@
 import React, { useState } from "react";
 import Searchbar from "../../../../components/Searchbar";
 import FoodTable from "./components/foodtable";
-import Pagination from "./components/pagination";
 import AddFoodButton from "./components/addfoodbutton";
-import { useNavigate } from "react-router-dom";
 
 const ListFoodAdmin = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [minPrice, setMinPrice] = useState<number | "">("");
+  const [maxPrice, setMaxPrice] = useState<number | "">("");
   const foodData = Array.from({ length: 15 }, (_, i) => ({
     name: `เมนูที่ ${i + 1}`,
-    price: `50 บาท / กล่อง`,
+    price: 50 + (i * 5), // ตัวเลขราคา (เช่น 50, 55, 60 ...)
     phone: `091-234-56${(i + 10).toString().slice(-2)}`,
   }));
 
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ เพิ่ม state สำหรับค้นหา
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
 
-  const filteredFoods = foodData.filter((food) =>
-    food.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // กรองข้อมูลก่อนส่งให้ DataGrid
+  const filteredFoods = foodData.filter((food) => {
+    const matchName = food.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchMinPrice = minPrice === "" || food.price >= minPrice;
+    const matchMaxPrice = maxPrice === "" || food.price <= maxPrice;
+    return matchName && matchMinPrice && matchMaxPrice;
+  });
 
-  const totalPages = Math.ceil(filteredFoods.length / itemsPerPage);
-  const paginatedData = filteredFoods.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+
+  // ใน ListFoodAdmin
+
 
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-5">
@@ -34,25 +34,23 @@ const ListFoodAdmin = () => {
         <Searchbar
           onSearch={(term) => {
             setSearchTerm(term);
-            setCurrentPage(1); // ✅ รีเซ็ตหน้าเมื่อค้นหา
           }}
         />
       </div>
 
-      <AddFoodButton />
-
+      <AddFoodButton
+        onFilterPrice={(min, max) => {
+          setMinPrice(min);
+          setMaxPrice(max);
+        }}
+      />
       <div className="bg-white p-4 shadow-2xl rounded-lg mb-6 mt-10 h-120">
         <h2 className="text-left font-semibold text-black p-3 rounded">
           อาหารที่มีอยู่ในระบบ
         </h2>
 
-        <FoodTable data={paginatedData} />
-
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-        />
+        {/* ใช้ DataGrid Pagination ใน FoodTable เลย */}
+        <FoodTable data={filteredFoods} />
       </div>
     </div>
   );
