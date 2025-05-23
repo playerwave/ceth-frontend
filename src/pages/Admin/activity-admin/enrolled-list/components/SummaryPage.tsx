@@ -9,16 +9,11 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
+  LabelList,
 } from "recharts";
 import CustomCard from "../../../../../components/Card";
 import Button from "../../../../../components/Button";
-
-const barData = [
-  { name: "SE", year1: 5, year2: 3, year3: 9, year4: 3 },
-  { name: "AI", year1: 1, year2: 2, year3: 2, year4: 0 },
-  { name: "CS", year1: 6, year2: 5, year3: 11, year4: 4 },
-  { name: "IT", year1: 3, year2: 8, year3: 4, year4: 1 },
-];
+import { BarChart3 } from "lucide-react";
 
 const barColors = ["#6659FF", "#404CCC", "#89AFFF", "#D9D9D9"];
 
@@ -145,41 +140,66 @@ const feedbackData = [
   { comment: "พิธีกรหล่อมากค่ะ :)", department: "AI" },
 ];
 
-const ProgressBarRow = ({
-  label,
-  count,
-  total,
-  color,
-}: {
-  label: string;
-  count: number;
-  total: number;
-  color: string;
-}) => {
-  const percent = Math.round((count / total) * 100);
-  return (
-    <div className="mb-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: color }}
-          ></div>
-          <span className="text-sm">{label}</span>
-        </div>
-        <span className="text-gray-700 text-sm font-medium">
-          {count} คน ({percent}%)
-        </span>
-      </div>
-      <div className="w-full h-2 rounded-full bg-gray-200 mt-1">
-        <div
-          className="h-2 rounded-full"
-          style={{ width: `${percent}%`, backgroundColor: color }}
-        ></div>
-      </div>
-    </div>
-  );
-};
+const barData = [
+  {
+    name: "SE",
+    year1: 5,
+    year2: 3,
+    year3: 9,
+    year4: 3,
+    total: 17,
+    percent: "37.0%",
+  },
+  {
+    name: "AI",
+    year1: 1,
+    year2: 2,
+    year3: 2,
+    year4: 1,
+    total: 5,
+    percent: "10.9%",
+  },
+  {
+    name: "CS",
+    year1: 6,
+    year2: 5,
+    year3: 11,
+    year4: 4,
+    total: 18,
+    percent: "39.1%",
+  },
+  {
+    name: "IT",
+    year1: 3,
+    year2: 8,
+    year3: 4,
+    year4: 4,
+    total: 6,
+    percent: "13.0%",
+  },
+];
+
+const evaluationStatusData = [
+  {
+    label: "ทำแบบประเมินแล้ว",
+    count: 40,
+    total: 46,
+    barColor: "bg-green-400",
+  },
+  {
+    label: "ยังไม่ทำแบบประเมิน",
+    count: 6,
+    total: 46,
+    barColor: "bg-red-400",
+  },
+];
+
+const barLegend = [
+  { label: "ชั้นปี 1", count: 5, percent: "10.9%", color: "#6659FF" },
+  { label: "ชั้นปี 2", count: 11, percent: "23.9%", color: "#404CCC" },
+  { label: "ชั้นปี 3", count: 26, percent: "56.5%", color: "#89AFFF" },
+  { label: "ชั้นปี 4", count: 4, percent: "8.7%", color: "#D9D9D9" },
+];
 
 export default function SummaryPage() {
   return (
@@ -187,46 +207,80 @@ export default function SummaryPage() {
       {/* กราฟแท่ง + การเข้าร่วมกิจกรรม */}
       <div className="flex flex-col lg:flex-row gap-6">
         {/* กราฟแท่ง */}
-        <CustomCard className="w-full p-6">
+        <CustomCard className="w-[1000px] p-6 relative">
+          <button className="absolute top-4 right-4 p-2 bg-gray-100 rounded-xl hover:bg-gray-200">
+            <BarChart3 className="w-5 h-5 text-[#7a5fff]" />
+          </button>
           <h2 className="font-bold text-lg mb-4">
             จำนวนนิสิตที่ลงทะเบียนแยกตามสาขาและชั้นปี
           </h2>
 
           <div className="flex flex-col lg:flex-row justify-between gap-6">
             <div className="w-full lg:w-2/3 h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barData}>
-                  <XAxis dataKey="name" />
-                  <YAxis />
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={barData}
+                  barSize={20}
+                  barCategoryGap={0}
+                  barGap={0}
+                >
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: "#aab", fontSize: 16 }}
+                    axisLine={false} // ❌ เอาเส้นแกนล่างออก
+                    tickLine={false} // ❌ เอาเส้นแกนเล็กๆใต้ tick ออกด้วย
+                  />
+                  <YAxis hide />
                   <Tooltip />
-                  <Bar dataKey="year1" stackId="a" fill={barColors[0]} />
-                  <Bar dataKey="year2" stackId="a" fill={barColors[1]} />
-                  <Bar dataKey="year3" stackId="a" fill={barColors[2]} />
-                  <Bar dataKey="year4" stackId="a" fill={barColors[3]} />
+
+                  <Bar dataKey="year1" stackId="stack" fill="#7a5fff" />
+                  <Bar dataKey="year2" stackId="stack" fill="#365eff" />
+                  <Bar dataKey="year3" stackId="stack" fill="#8fd6ff" />
+                  <Bar
+                    dataKey="year4"
+                    stackId="stack"
+                    fill="#d9d9d9"
+                    radius={[10, 10, 0, 0]}
+                  >
+                    <LabelList
+                      dataKey="total"
+                      content={({ x, y, value, index }) => {
+                        const percent = barData[index].percent;
+                        return (
+                          <text
+                            x={x + 20}
+                            y={y - 10}
+                            textAnchor="middle"
+                            fill="#aab"
+                            fontSize={14}
+                          >
+                            {value} ({percent})
+                          </text>
+                        );
+                      }}
+                    />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
             <div className="lg:w-1/3 text-sm text-gray-700 space-y-1">
-              <p className="font-semibold">ชั้นปี</p>
-              <ul className="space-y-1">
-                <li>
-                  <span className="inline-block w-3 h-3 rounded-full bg-[#6659FF] mr-2" />
-                  ชั้นปี 1 : 5 คน (10.9%)
-                </li>
-                <li>
-                  <span className="inline-block w-3 h-3 rounded-full bg-[#404CCC] mr-2" />
-                  ชั้นปี 2 : 11 คน (23.9%)
-                </li>
-                <li>
-                  <span className="inline-block w-3 h-3 rounded-full bg-[#89AFFF] mr-2" />
-                  ชั้นปี 3 : 26 คน (56.5%)
-                </li>
-                <li>
-                  <span className="inline-block w-3 h-3 rounded-full bg-[#D9D9D9] mr-2" />
-                  ชั้นปี 4 : 4 คน (8.7%)
-                </li>
+             
+              <ul className="space-y-6">
+                {barLegend.map((item, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-center gap-2 text-sm text-gray-700"
+                  >
+                    <span
+                      className="inline-block w-3 h-3 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    {item.label} : {item.count} คน ({item.percent})
+                  </li>
+                ))}
               </ul>
+
               <p className="mt-4 text-gray-500">
                 จากผู้เข้าร่วมเต็มเวลาทั้งหมด 46 คน (100.0%)
               </p>
@@ -235,7 +289,7 @@ export default function SummaryPage() {
         </CustomCard>
 
         {/* การเข้าร่วม + สถานะนิสิต */}
-        <CustomCard className="p-6 w-full lg:max-w-[380px] space-y-6">
+        <CustomCard className="p-6 w-full lg:max-w-[400px] space-y-6">
           {/* การเข้าร่วมกิจกรรมของนิสิต */}
           <div>
             <h2 className="font-bold text-lg mb-2">
@@ -244,19 +298,27 @@ export default function SummaryPage() {
             {activityParticipation.map(({ label, count, total, color }) => {
               const percent = Math.round((count / total) * 100);
               return (
-                <div key={label} className="space-y-1 mb-2">
-                  <div className="flex justify-between">
-                    <span>{label}</span>
-                    <span className="text-sm text-gray-800">
-                      {count} คน ({percent}%)
-                    </span>
+                <div
+                  key={label}
+                  className="flex items-center text-sm gap-4 mb-2"
+                >
+                  {/* label */}
+                  <span className="w-[100px]">{label}</span>
+
+                  {/* progress bar */}
+                  <div className="flex-grow min-w-0">
+                    <div className="relative w-full h-2 rounded-full bg-gray-200">
+                      <div
+                        className="absolute top-0 left-0 h-2 rounded-full"
+                        style={{ width: `${percent}%`, backgroundColor: color }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-gray-200">
-                    <div
-                      className="h-2 rounded-full"
-                      style={{ width: `${percent}%`, backgroundColor: color }}
-                    ></div>
-                  </div>
+
+                  {/* count */}
+                  <span className="whitespace-nowrap font-medium">
+                    {count} คน ({percent}%)
+                  </span>
                 </div>
               );
             })}
@@ -267,21 +329,29 @@ export default function SummaryPage() {
           <div>
             <h2 className="font-bold text-lg mb-2">สถานะนิสิต</h2>
             {studentStatus.map(({ label, count, total, color }) => {
-              const percent = Math.round((count / total) * 100);
+              const percent = ((count / total) * 100).toFixed(1);
               return (
-                <div key={label} className="space-y-1 mb-2">
-                  <div className="flex justify-between">
-                    <span>{label}</span>
-                    <span className="text-sm text-gray-800">
-                      {count} คน ({percent}%)
-                    </span>
+                <div
+                  key={label}
+                  className="flex items-center text-sm gap-4 mb-2"
+                >
+                  {/* label */}
+                  <span className="w-[100px]">{label}</span>
+
+                  {/* progress bar */}
+                  <div className="flex-grow min-w-0">
+                    <div className="relative w-full h-2 rounded-full bg-gray-200">
+                      <div
+                        className="absolute top-0 left-0 h-2 rounded-full"
+                        style={{ width: `${percent}%`, backgroundColor: color }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-gray-200">
-                    <div
-                      className="h-2 rounded-full"
-                      style={{ width: `${percent}%`, backgroundColor: color }}
-                    ></div>
-                  </div>
+
+                  {/* count */}
+                  <span className="whitespace-nowrap font-medium">
+                    {count} คน ({percent}%)
+                  </span>
                 </div>
               );
             })}
@@ -313,7 +383,6 @@ export default function SummaryPage() {
                       cx="50%"
                       cy="50%"
                       outerRadius={90}
-                      label={(entry) => `${entry.value}%`}
                     >
                       {pieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -324,9 +393,9 @@ export default function SummaryPage() {
               </div>
 
               {/* Legend */}
-              <div className="text-sm text-gray-700 space-y-2">
+              <div className="text-sm text-gray-700">
                 {pieData.map(({ name, value, color }) => (
-                  <div key={name} className="flex items-center gap-2">
+                  <div key={name} className="flex items-center gap-2 mb-5">
                     <span
                       className="w-4 h-4 rounded-full"
                       style={{ backgroundColor: color }}
@@ -336,7 +405,7 @@ export default function SummaryPage() {
                     </span>
                   </div>
                 ))}
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-4 text-sm text-gray-500">
                   จากผู้ทำแบบประเมินทั้งหมด 40 คน
                 </p>
               </div>
@@ -347,38 +416,32 @@ export default function SummaryPage() {
           <CustomCard className="w-full lg:w-2/5">
             <h3 className="font-bold text-lg mb-4">การทำแบบประเมินของนิสิต</h3>
             <div className="space-y-4 text-sm">
-              {/* ทำแบบประเมินแล้ว */}
-              <div className="space-y-1">
-                <div className="flex justify-between">
-                  <span>ทำแบบประเมินแล้ว</span>
-                  <span className="text-green-600 font-medium">
-                    40 คน (87.0%)
-                  </span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-gray-200">
+              {evaluationStatusData.map(({ label, count, total, barColor }) => {
+                const percent = ((count / total) * 100).toFixed(1);
+                return (
                   <div
-                    className="h-2 rounded-full bg-green-400"
-                    style={{ width: "87%" }}
-                  ></div>
-                </div>
-              </div>
+                    key={label}
+                    className="flex items-center text-sm gap-4 mb-2"
+                  >
+                    <span className="w-[120px]">{label}</span>
 
-              {/* ยังไม่ทำแบบประเมิน */}
-              <div className="space-y-1">
-                <div className="flex justify-between">
-                  <span>ยังไม่ทำแบบประเมิน</span>
-                  <span className="text-red-500 font-medium">6 คน (13.0%)</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-gray-200">
-                  <div
-                    className="h-2 rounded-full bg-red-400"
-                    style={{ width: "13%" }}
-                  ></div>
-                </div>
-              </div>
+                    <div className="flex-grow min-w-0">
+                      <div className="relative w-full h-2 rounded-full bg-gray-200">
+                        <div
+                          className={`absolute top-0 left-0 h-2 rounded-full ${barColor}`}
+                          style={{ width: `${percent}%` }}
+                        ></div>
+                      </div>
+                    </div>
 
-              {/* สรุปจำนวนผู้เข้าร่วม */}
-              <p className="mt-2 text-sm text-gray-500">
+                    <span className="whitespace-nowrap font-medium text-black">
+                      {count} คน ({percent}%)
+                    </span>
+                  </div>
+                );
+              })}
+
+              <p className="text-gray-500 text-sm mt-2">
                 จากผู้เข้าร่วมเต็มเวลาทั้งหมด 46 คน (100.0%)
               </p>
             </div>
@@ -473,10 +536,56 @@ export default function SummaryPage() {
             </tbody>
           </table>
         </CustomCard>
-        <Button  onClick={() => window.history.back()}>
-        ← กลับ
-      </Button>
+        <Button onClick={() => window.history.back()}>← กลับ</Button>
       </div>
     </div>
   );
 }
+
+// import {
+//   BarChart, Bar, XAxis, YAxis, Tooltip, LabelList, ResponsiveContainer
+// } from 'recharts';
+
+// const data = [
+//   { name: 'SE', a: 5, b: 5, c: 7, total: 17, percent: '37.0%' },
+//   { name: 'AI', a: 2, b: 2, c: 1, total: 5, percent: '10.9%' },
+//   { name: 'CS', a: 3, b: 6, c: 9, total: 18, percent: '39.1%' },
+//   { name: 'IT', a: 2, b: 1, c: 3, total: 6, percent: '13.0%' },
+// ];
+
+// export default function RoundedTopStackedBar() {
+//   return (
+//     <ResponsiveContainer width="100%" height={300}>
+//       <BarChart data={data} barSize={20} barCategoryGap={10}>
+//         <XAxis dataKey="name" tick={{ fill: '#aab', fontSize: 16 }} />
+//         <YAxis hide />
+//         <Tooltip />
+
+//         {/* ล่างสุด ไม่มี radius */}
+//         <Bar dataKey="a" stackId="stack" fill="#7a5fff" />
+//         {/* ชั้นกลาง ไม่มี radius */}
+//         <Bar dataKey="b" stackId="stack" fill="#365eff" />
+//         {/* ชั้นบนสุด มี radius บน */}
+//         <Bar dataKey="c" stackId="stack" fill="#8fd6ff" radius={[10, 10, 0, 0]}>
+//           <LabelList
+//             dataKey="total"
+//             content={({ x, y, value, index }) => {
+//               const percent = data[index].percent;
+//               return (
+//                 <text
+//                   x={x + 20}
+//                   y={y - 10}
+//                   textAnchor="middle"
+//                   fill="#aab"
+//                   fontSize={14}
+//                 >
+//                   {value}({percent})
+//                 </text>
+//               );
+//             }}
+//           />
+//         </Bar>
+//       </BarChart>
+//     </ResponsiveContainer>
+//   );
+// }

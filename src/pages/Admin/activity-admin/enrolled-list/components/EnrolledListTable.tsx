@@ -115,7 +115,7 @@ export default function EnrolledListTable({
       <Dialog2
         open={dialogOpen}
         title="ยืนยันการเตะนิสิต"
-        message={`คุณแน่ใจหรือไม่ว่าต้องการเตะนิสิต ID ${
+        message={`คุณแน่ใจหรือไม่ว่าต้องการเตะนิสิต ${
           selectedStudentId ?? ""
         } ออกจากกิจกรรม?`}
         icon={<CircleAlert size={30} className="text-red-500" />}
