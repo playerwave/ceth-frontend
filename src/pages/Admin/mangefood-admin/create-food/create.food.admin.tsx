@@ -11,10 +11,10 @@ const CreateFoodAdmin = () => {
         <>
             <Box className="justify-items-center  ">
                 <div className={` w-320 mx-auto ml-2xl mt-30 mb-5 p-6 border bg-white border-gray-200 rounded-lg shadow-xl flex flex-col  h-200`}  >
-                    <h1 className="text-3xl font-bold mb-8">เพิ่มเมนูอาหาร</h1>
+                    <h1 className="text-3xl font-bold mb-5">เพิ่มเมนูอาหาร</h1>
                     <form className="space-y-6">
                         {/* ชื่ออาหาร */}
-                        <div className="grid mt-5">
+                        <div className="grid mt-8">
                             <label className="w-96 text-left font-semibold mb-1">
                                 ชื่ออาหาร <span className="text-red-500">*</span>
                             </label>
@@ -27,7 +27,7 @@ const CreateFoodAdmin = () => {
 
 
                         {/* ราคา */}
-                        <div className="grid  mt-5">
+                        <div className="grid  mt-8">
                             <label className="w-96 text-left font-semibold mb-1">
                                 ราคา <span className="text-red-500">*</span>
                             </label>
@@ -39,7 +39,7 @@ const CreateFoodAdmin = () => {
                         </div>
 
                         {/* เบอร์โทร */}
-                        <div className="grid mt-5">
+                        <div className="grid  mt-8">
                             <label className="w-96 text-left font-semibold mb-1">
                                 เบอร์โทร <span className="text-red-500">*</span>
                             </label>
