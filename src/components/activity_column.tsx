@@ -120,7 +120,8 @@ export const getActivityColumns = (
     {
       field: "date",
       headerName: "วันที่จัดกิจกรรม",
-      flex: 1,
+      minWidth: 190, // ✅ เพิ่มขนาดขั้นต่ำที่พอแสดงทั้งวันที่
+      flex: 0.5, // ✅ ขยายคอลัมน์แบบ responsive ได้
       sortable: true,
       renderCell: (params) => {
         const start = params.row.start_register;
@@ -150,6 +151,7 @@ export const getActivityColumns = (
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
               maxWidth: "100%",
+              minWidth: 120,
             }}
           >
             {isSameDay
