@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import React, { useState } from "react";
 import { Search } from "lucide-react";
 
 interface SearchBarProps {
@@ -43,7 +42,7 @@ const Searchbar: React.FC<SearchBarProps> = ({ onSearch }) => {
       />
       <button
         className="bg-[#1E3A8A] text-white p-2 rounded-full flex items-center justify-center w-10 h-10"
-        onClick={handleSearch} // ✅ ค้นหาเมื่อคลิกปุ่ม
+        onClick={handleSearch}
       >
         <Search size={20} />
       </button>

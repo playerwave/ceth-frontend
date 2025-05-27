@@ -1680,7 +1680,7 @@ const UpdateActivityAdmin: React.FC = () => {
                         <p className="text-xs text-gray-500  mt-1">Start</p>
                       </div>
 
-                      <span className="self-center font-semibold">-</span>
+                        <span className="self-center font-semibold">-</span>
 
                       {/* กรอกวันจบ */}
                       <div className="w-1/2">

@@ -25,9 +25,20 @@ interface ApiActivity {
   ac_not_attended_count?: number;
   ac_start_time?: Date;
   ac_end_time?: Date;
-  ac_image_data?: string;
+  ac_image_url?: string;
   ac_state: string;
   ac_normal_register: string;
+  ac_recieve_hours?: number;
+  ac_start_assessment?: Date;
+  ac_end_assessment?: Date;
+  assessment?: {
+    as_id: number;
+    as_name: string;
+    as_type: string;
+    as_description: string;
+    as_create_date: string;
+    as_last_update?: string;
+  } | null;
 }
 
 // ✅ อินเทอร์เฟซที่ React ใช้งาน
@@ -41,7 +52,7 @@ interface Activity {
   seat: string;
   food: string[];
   status: string;
-  location_type: "Online" | "Offline";
+  location_type: "Onsite" | "Online" | "Course";
   start_register: Date | null;
   end_register: Date | null;
   create_date: Date | null;
@@ -51,9 +62,21 @@ interface Activity {
   not_attended_count: number;
   start_time: Date | null;
   end_time: Date | null;
-  image_data: string;
+  image_url: string;
   state: string;
   normal_register: Date | null;
+  recieve_hours: number;
+  start_assessment: Date | null;
+  end_assessment: Date | null;
+  assessment_id: number | null;
+  assessment?: {
+    as_id: number;
+    as_name: string;
+    as_type: string;
+    as_description: string;
+    as_create_date: string;
+    as_last_update?: string;
+  } | null;
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -98,12 +121,12 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   name: apiData.ac_name || "ไม่ระบุชื่อ",
   company_lecturer: apiData.ac_company_lecturer || "ไม่ระบุวิทยากร",
   description: apiData.ac_description || "ไม่ระบุรายละเอียด",
-  type: apiData.ac_type === "HardSkill" ? "HardSkill" : "SoftSkill",
+  type: apiData.ac_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
   room: apiData.ac_room || "ไม่ระบุห้อง",
   seat: `${apiData.ac_seat}`,
   food: Array.isArray(apiData.ac_food) ? apiData.ac_food : [],
   status: apiData.ac_status.toLowerCase() === "public" ? "Public" : "Private",
-  location_type: apiData.ac_location_type === "Online" ? "Online" : "Offline",
+  location_type: apiData.ac_location_type,
 
   // ✅ แปลง `string` เป็น `Date`
   start_register: apiData.ac_start_register
@@ -122,10 +145,29 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
   not_attended_count: apiData.ac_not_attended_count ?? 0,
 
   // ✅ ใช้ Base64 หรือ Default รูปภาพ
-  image_data: apiData.ac_image_data || "/img/default.png",
+  image_url: apiData.ac_image_url || "/img/default.png",
   state: apiData.ac_state || "ไม่ระบุ",
   normal_register: apiData.ac_normal_register
     ? new Date(apiData.ac_normal_register)
+    : null,
+  recieve_hours: apiData.ac_recieve_hours || 0,
+  start_assessment: apiData.ac_start_assessment
+    ? new Date(apiData.ac_start_assessment)
+    : null,
+  end_assessment: apiData.ac_end_assessment
+    ? new Date(apiData.ac_end_assessment)
+    : null,
+
+  assessment: apiData.assessment
+    ? {
+        // ✅ เพิ่ม assessment object
+        as_id: apiData.assessment.as_id,
+        as_name: apiData.assessment.as_name,
+        as_type: apiData.assessment.as_type,
+        as_description: apiData.assessment.as_description,
+        as_create_date: apiData.assessment.as_create_date,
+        as_last_update: apiData.assessment.as_last_update,
+      }
     : null,
 });
 
@@ -137,39 +179,48 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activity: null,
   enrolledStudents: [],
 
-  fetchActivities: async (page: number = 1, limit: number = 10) => {
+  fetchActivities: async () => {
     set({ activityLoading: true, activityError: null });
 
     try {
-      console.log(
-        `🚀 Fetching data from API... (Page: ${page}, Limit: ${limit})`
-      ); // ✅ Log
+      const response = await axiosInstance.get(
+        "/admin/activity/get-activities"
+      );
+      console.log("✅ API Response:", response.data); // ตรวจสอบข้อมูลที่ได้จาก API
 
-      const { data } = await axiosInstance.get<{
-        activities: ApiActivity[];
-        total: number;
-        totalPages: number;
-        page: number;
-        limit: number;
-      }>(`/activity/get-activities?page=${page}&limit=${limit}`);
+      // ✅ แปลงโครงสร้างข้อมูลให้ตรงกับ React
+      const formattedActivities = response.data.map((a: ApiActivity) => ({
+        id: a.ac_id,
+        name: a.ac_name,
+        company_lecturer: a.ac_company_lecturer,
+        description: a.ac_description,
+        type: a.ac_type,
+        room: a.ac_room,
+        seat: a.ac_seat,
+        food: a.ac_food || [],
+        status: a.ac_status, // ✅ ตรงกับที่ใช้ใน UI
+        location_type: a.ac_location_type,
+        start_register: a.ac_start_register || null,
+        end_register: a.ac_end_register || null,
+        create_date: a.ac_create_date || null,
+        last_update: a.ac_last_update || null,
+        registered_count: a.ac_registered_count,
+        attended_count: a.ac_attended_count || 0,
+        not_attended_count: a.ac_not_attended_count || 0,
+        start_time: a.ac_start_time || null,
+        end_time: a.ac_end_time || null,
+        image_url: a.ac_image_url || "", // ✅ ใช้ชื่อให้ตรงกับ UI
+        state: a.ac_state,
+        normal_register: a.ac_normal_register,
+        recieve_hours: a.ac_recieve_hours || 0,
+        start_assessment: a.ac_start_assessment || null,
+        end_assessment: a.ac_end_assessment || null,
+      }));
 
-      console.log("✅ API Response:", data); // ✅ Log ค่า data ที่ได้
-
-      if (Array.isArray(data.activities) && data.activities.length > 0) {
-        const mappedActivities = data.activities.map(mapActivityData);
-        set({ activities: mappedActivities, activityLoading: false });
-        console.log("✅ อัปเดต activities:", mappedActivities);
-      } else {
-        console.warn("⚠️ API ส่งข้อมูลว่างเปล่า:", data);
-        set({ activities: [], activityLoading: false });
-      }
+      set({ activities: formattedActivities, activityLoading: false });
     } catch (error) {
-      const err = error as AxiosError<{ message: string }>;
-      const errorMessage =
-        err.response?.data?.message ?? "Error fetching activities";
-      set({ activityError: errorMessage, activityLoading: false });
-
-      console.error("❌ Error fetching activities:", err);
+      console.error("❌ Error fetching activities:", error);
+      set({ activityError: "ไม่สามารถโหลดกิจกรรมได้", activityLoading: false });
     }
   },
 
@@ -185,9 +236,12 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     console.log("📡 ค่าที่ส่งไป API:", { ac_name: searchName.trim() || "" });
 
     try {
-      const { data } = await axiosInstance.get(`/activity/searchActivity`, {
-        params: { ac_name: searchName.trim() || "" }, // ✅ เปลี่ยนให้ตรงกับ backend
-      });
+      const { data } = await axiosInstance.get(
+        `/admin/activity/searchActivity`,
+        {
+          params: { ac_name: searchName.trim() || "" }, // ✅ เปลี่ยนให้ตรงกับ backend
+        }
+      );
       set({ searchResults: data });
 
       console.log("🔍 ค้นหา API Response:", data);
@@ -214,7 +268,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     set({ activityLoading: true });
     try {
       const newStatus = currentStatus === "Public" ? "Private" : "Public";
-      await axiosInstance.patch(`/activity/adjustActivity/${id}`, {
+      await axiosInstance.patch(`/admin/activity/adjustActivity/${id}`, {
         ac_status: newStatus.toLowerCase(),
       });
       await get().fetchActivities();
@@ -223,57 +277,94 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
-  updateActivity: async (activity: Activity): Promise<void> => {
+  updateActivity: async (activity: ApiActivity): Promise<void> => {
     set({ activityLoading: true, activityError: null });
+
+    if (!activity.ac_id) {
+      console.error("❌ Error: Activity ID is missing!", activity);
+      return Promise.reject(new Error("Activity ID is required"));
+    }
 
     try {
       console.log("📡 Sending update request for activity:", activity);
 
-      // ✅ ตรวจสอบ `image_data` และแปลงเป็น Base64 ถ้าจำเป็น
-      let imageData: string | null = null;
-
-      if (activity.image_data instanceof File) {
-        console.log("📸 Detected File, converting to Base64...");
-        imageData = await convertFileToBase64(activity.image_data);
-      } else if (typeof activity.image_data === "string") {
-        imageData = activity.image_data.startsWith("data:image")
-          ? activity.image_data // ถ้ามี "data:image" อยู่แล้วใช้เลย
-          : `data:image/png;base64,${activity.image_data}`; // ถ้าไม่มีให้เติม prefix
-      }
-
       const updatedData = {
         ...activity,
-        ac_name: activity.name,
-        ac_company_lecturer: activity.company_lecturer,
-        ac_description: activity.description,
-        ac_type: activity.type,
-        ac_room: activity.room,
-        ac_seat: parseInt(activity.seat, 10),
-        ac_food: activity.food,
-        ac_status: activity.status,
-        ac_location_type: activity.location_type,
-        ac_state: activity.state,
-        ac_start_register: activity.start_register?.toISOString() || null,
-        ac_end_register: activity.end_register?.toISOString() || null,
-        ac_create_date: activity.create_date?.toISOString() || null,
+        ac_id: activity.ac_id,
+        ac_name: activity.ac_name,
+        ac_company_lecturer: activity.ac_company_lecturer,
+        ac_description: activity.ac_description,
+        ac_type: activity.ac_type,
+        ac_room: activity.ac_room,
+        ac_seat: parseInt(activity.ac_seat, 10),
+        ac_food: activity.ac_food,
+        ac_status: activity.ac_status,
+        ac_location_type: activity.ac_location_type,
+        ac_state: activity.ac_state,
+        ac_registered_count: activity.ac_registered_count,
+        ac_start_register:
+          activity.ac_start_register instanceof Date
+            ? activity.ac_start_register.toISOString()
+            : activity.ac_start_register
+            ? new Date(activity.ac_start_register).toISOString()
+            : null,
+        ac_end_register:
+          activity.ac_end_register instanceof Date
+            ? activity.ac_end_register.toISOString()
+            : activity.ac_end_register
+            ? new Date(activity.ac_end_register).toISOString()
+            : null,
+        ac_create_date:
+          activity.ac_create_date instanceof Date
+            ? activity.ac_create_date.toISOString()
+            : activity.ac_create_date
+            ? new Date(activity.ac_create_date).toISOString()
+            : null,
         ac_last_update: new Date().toISOString(),
-        ac_start_time: activity.start_time?.toISOString() || null,
-        ac_end_time: activity.end_time?.toISOString() || null,
-        ac_image_data: imageData, // ✅ ส่ง Base64 เต็มรูปแบบไปยัง Backend
-        ac_normal_register: activity.normal_register?.toISOString() || null,
+        ac_start_time:
+          activity.ac_start_time instanceof Date
+            ? activity.ac_start_time.toISOString()
+            : activity.ac_start_time
+            ? new Date(activity.ac_start_time).toISOString()
+            : null,
+        ac_end_time:
+          activity.ac_end_time instanceof Date
+            ? activity.ac_end_time.toISOString()
+            : activity.ac_end_time
+            ? new Date(activity.ac_end_time).toISOString()
+            : null,
+        ac_image_url: activity.ac_image_url,
+        ac_normal_register:
+          activity.ac_normal_register instanceof Date
+            ? activity.ac_normal_register.toISOString()
+            : activity.ac_normal_register
+            ? new Date(activity.ac_normal_register).toISOString()
+            : null,
+        ac_recieve_hours: activity.ac_recieve_hours,
+        ac_start_assessment:
+          activity.ac_start_assessment instanceof Date
+            ? activity.ac_start_assessment.toISOString()
+            : activity.ac_start_assessment
+            ? new Date(activity.ac_start_assessment).toISOString()
+            : null,
+        ac_end_assessment:
+          activity.ac_end_assessment instanceof Date
+            ? activity.ac_end_assessment.toISOString()
+            : activity.ac_end_assessment
+            ? new Date(activity.ac_end_assessment).toISOString()
+            : null,
       };
 
-      console.log("📸 Image Data Before Send:", updatedData.ac_image_data);
+      console.log("✅ Final Data Before Sending:", updatedData);
 
       await axiosInstance.put(
-        `/activity/update-activity/${activity.id}`,
+        `/admin/activity/update-activity/${activity.ac_id}`,
         updatedData
       );
 
       console.log("✅ Activity updated successfully!");
 
-      // ✅ โหลดข้อมูลใหม่หลังจากอัปเดต
-      await get().fetchActivity(activity.id);
+      await get().fetchActivity(activity.ac_id);
       set({ activityLoading: false });
     } catch (error: any) {
       console.error("❌ Error updating activity:", error);
@@ -301,7 +392,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       );
 
       const { data } = await axiosInstance.get<ApiActivity>(
-        `/activity/get-activity/${numericId}`
+        `/admin/activity/get-activity/${numericId}`
       );
 
       console.log("📡 API Response:", data);
@@ -330,8 +421,6 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       console.error("❌ Error fetching activity:", error);
 
       set({
-        activityError:
-          error.response?.data?.message || "Error fetching activity",
         activityError:
           error.response?.data?.message || "Error fetching activity",
         activityLoading: false,
