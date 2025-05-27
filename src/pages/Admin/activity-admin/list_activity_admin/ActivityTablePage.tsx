@@ -1,8 +1,9 @@
 // ✅ ActivityTablePage.tsx
 import { useState, useMemo } from "react";
-import TableRedesign from "../components/table_redesign";
-import CustomCard from "../components/Card";
-import { getActivityColumns } from "../components/activity_column";
+import TableRedesign from "../../../../components/Table_re";
+
+import CustomCard from "../../../../components/Card";
+import { getActivityColumns } from "../../../../components/activity_column";
 
 type Props = {
   rows1: any[];

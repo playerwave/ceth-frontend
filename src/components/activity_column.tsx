@@ -26,7 +26,18 @@ export const getActivityColumns = (
       width: 170,
       renderCell: (params) => {
         const companyLecturer = params.value ?? "ไม่มีชื่อ";
-        return <span>{companyLecturer}</span>;
+        return (
+          <Box
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: "100%",
+            }}
+          >
+            {companyLecturer}
+          </Box>
+        );
       },
     },
     {
@@ -34,7 +45,7 @@ export const getActivityColumns = (
       headerName: "ประเภท",
       width: 220,
       renderHeader: () => (
-        <Box display="flex" alignItems="center" gap={1}>
+        <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
           <Typography fontWeight={600} mr={1}>
             ประเภท
           </Typography>
@@ -91,10 +102,20 @@ export const getActivityColumns = (
       field: "name",
       headerName: "ชื่อกิจกรรม",
       width: 240,
-      renderCell: (params) =>
-        typeof params.value === "string" && params.value.length > 40
-          ? params.value.slice(0, 40) + "..."
-          : params.value ?? "-",
+      renderCell: (params) => (
+        <Box
+          sx={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            maxWidth: "100%",
+          }}
+        >
+          {typeof params.value === "string" && params.value.length > 40
+            ? params.value.slice(0, 40) + "..."
+            : params.value ?? "-"}
+        </Box>
+      ),
     },
     {
       field: "date",
@@ -123,20 +144,27 @@ export const getActivityColumns = (
         const isSameDay =
           new Date(start).toDateString() === new Date(end).toDateString();
         return (
-          <span>
+          <Box
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: "100%",
+            }}
+          >
             {isSameDay
               ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
                   end
                 )} น.`
               : `${formatDate(start)} - ${formatDate(end)}`}
-          </span>
+          </Box>
         );
       },
     },
     {
       field: "location_type",
       headerName: "สถานที่",
-      width: 90,
+      width: 120,
       renderHeader: () => (
         <Box display="flex" alignItems="center" gap={1}>
           <MapPin fontSize="small" />
@@ -149,7 +177,20 @@ export const getActivityColumns = (
           Course: <Album fontSize="small" />,
         };
         const value = params.value;
-        return map[value] ?? <span style={{ color: "gray" }}>ไม่ได้ระบุ</span>;
+        return (
+          map[value] ?? (
+            <Box
+              sx={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                maxWidth: "100%",
+              }}
+            >
+              ไม่ได้ระบุ
+            </Box>
+          )
+        );
       },
     },
     {

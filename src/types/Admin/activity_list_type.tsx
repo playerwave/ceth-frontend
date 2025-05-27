@@ -94,6 +94,7 @@ export interface ActivityState {
   activityLoading: boolean;
   activity: Activity | null;
   enrolledStudents: EnrolledStudent[];
+  mockActivities: Activity[];
   fetchActivities: () => Promise<void>;
   searchActivities: (query: string) => Promise<void>;
   updateActivityStatus: (

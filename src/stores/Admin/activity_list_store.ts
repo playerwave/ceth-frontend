@@ -51,6 +51,48 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
+  mockActivities: [
+    // <-- ประกาศเป็น property ธรรมดา (array)
+    {
+      id: 1,
+      name: "กิจกรรมที่ 111111111111111111111111111111111111111111111111111111111111111111111111111",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-06-01T12:00:00"),
+    },
+    {
+      id: 2,
+      name: "กิจกรรมที่ 2",
+      end_time: null,
+      end_assessment: new Date("2025-04-01T12:00:00"),
+    },
+    {
+      id: 3,
+      name: "กิจกรรมที่ 3",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-07-01T12:00:00"),
+    },
+    {
+      id: 4,
+      name: "กิจกรรมที่ 4",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-07-01T12:00:00"),
+    },
+    {
+      id: 5,
+      name: "กิจกรรมที่ 5",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+    },
+    {
+      id: 6,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+    },
+  ],
+
   fetchActivity: async (id: number | string): Promise<Activity | null> => {
     set({ activityLoading: true, activityError: null });
     try {
