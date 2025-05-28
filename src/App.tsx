@@ -162,8 +162,8 @@ import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 
 import Navbar from "./components/Navbar";
-import Login from "./pages/login";
-
+// import Login from "./pages/login";
+import Login from "./pages/Login/login";
 // Admin Pages
 import Main from "./pages/Admin/main_admin";
 import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin/list_activity_admin";
@@ -188,7 +188,7 @@ function App() {
       <Toaster position="bottom-right" richColors />
       <Routes>
         {/* ❌ Unauthenticated */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={    <Login />} />
 
         {/* ✅ Admin */}
         <Route
