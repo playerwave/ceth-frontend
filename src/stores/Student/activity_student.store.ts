@@ -93,15 +93,8 @@ interface EnrolledStudent {
 }
 
 interface ActivityState {
-  // activities: Activity[];
-  // enrolledActivities: Activity[];
-
-  // new
-  activitiesByUser: Record<string, Activity[]>;
-  enrolledActivitiesByUser: Record<string, Activity[]>;
-  getActivitiesByUser: (userId: string) => Activity[];
-  getEnrolledActivitiesByUser: (userId: string) => Activity[];
-
+  activities: Activity[];
+  enrolledActivities: Activity[];
   searchResults: Activity[] | null;
   activityError: string | null;
   activityLoading: boolean;
@@ -113,7 +106,7 @@ interface ActivityState {
   fetchEnrolledStudents: (id: number | string) => Promise<void>;
 }
 
-export const mapActivityData = (apiData: ApiActivity): Activity => ({
+const mapActivityData = (apiData: ApiActivity): Activity => ({
   id: apiData.ac_id.toString(),
   name: apiData.ac_name || "ไม่ระบุชื่อ",
   company_lecturer: apiData.ac_company_lecturer || "ไม่ระบุวิทยากร",
@@ -170,19 +163,12 @@ export const mapActivityData = (apiData: ApiActivity): Activity => ({
 });
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
-  // activities: [],
+  activities: [],
   searchResults: null,
   activityError: null,
   activityLoading: false,
   activity: null,
-  // enrolledActivities: [],
-
-  // new
-  activitiesByUser: {},
-  enrolledActivitiesByUser: {},
-  getActivitiesByUser: (userId) => get().activitiesByUser[userId] || [],
-  getEnrolledActivitiesByUser: (userId) =>
-    get().enrolledActivitiesByUser[userId] || [],
+  enrolledActivities: [],
 
   fetchStudentActivities: async (userId: string) => {
     set({ activityLoading: true, activityError: null });
@@ -221,14 +207,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         end_assessment: a.ac_end_assessment,
       }));
 
-      // set({ activities: formattedActivities, activityLoading: false });
-      set((state) => ({
-        activitiesByUser: {
-          ...state.activitiesByUser,
-          [userId]: formattedActivities,
-        },
-        activityLoading: false,
-      }));
+      set({ activities: formattedActivities, activityLoading: false });
     } catch (error) {
       console.error("❌ Error fetching student activities:", error);
       set({
@@ -333,10 +312,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       const mappedActivity = mapActivityData(data);
       console.log("✅ Mapped Activity:", mappedActivity);
 
-      const enrolledActivities = get().getEnrolledActivitiesByUser(
-        userId.toString()
-      );
-      // ✅ ดึงค่าจาก store
+      const enrolledActivities = get().enrolledActivities; // ✅ ดึงค่าจาก store
       console.log("📌 Enrolled Activities (All):", enrolledActivities);
 
       // ✅ ตรวจสอบว่ามีอย่างน้อย 2 ตัวหรือไม่ก่อน log
@@ -385,21 +361,16 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       console.log(
         `🚀 Fetching enrolled activities for student ID: ${studentId}`
       );
-      const { data } = await axiosInstance.get<ApiActivity[]>(
+      const { data } = await axiosInstance.get<Activity[]>(
         `/student/activity/get-enrolled-activities/${studentId}`
       );
 
-      const mappedActivities = data.map(mapActivityData);
-
       console.log("✅ Enrolled Activities API Response:", data);
 
-      set((state) => ({
-        enrolledActivitiesByUser: {
-          ...state.enrolledActivitiesByUser,
-          [studentId]: mappedActivities, // 👈 เก็บเป็น Activity[] ที่ map แล้ว
-        },
+      set({
+        enrolledActivities: data, // ✅ เก็บกิจกรรมที่นิสิตลงทะเบียนไว้
         activityLoading: false,
-      }));
+      });
     } catch (error) {
       const err = error as AxiosError<{ error: string }>;
       set({
