@@ -17,7 +17,7 @@
 //   color = "blue",
 //   width = "auto",
 //   type = "button", // ค่า default เป็น "button" เพื่อป้องกันการ submit
-//   onClick, 
+//   onClick,
 //   className,         // ✅ เพิ่มตรงนี้
 //   startIcon,
 // }) => {
@@ -61,8 +61,8 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({
   children,
-  bgColor = "#1E3A8A",         // ✅ สีพื้นหลัง default
-  textColor = "#FFFFFF",        // ✅ สี font default
+  bgColor = "#1E3A8A",
+  textColor = "#FFFFFF",
   width = "auto",
   type = "button",
   onClick,
@@ -74,12 +74,15 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       onClick={onClick}
       className={clsx(
-        "text-lg font-semibold px-6 py-2 shadow-md transition duration-200",
-        "rounded-[20px]", // ✅ ความโค้ง 20px
+        "font-semibold transition duration-200 shadow-md rounded-[20px]",
+        // ✅ responsive font
+        "text-[12px] sm:text-[13px] md:text-[14px] lg:text-[16px]",
+        // ✅ responsive padding
+        "px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 lg:px-6 lg:py-3",
         className
       )}
       style={{
-        width: width,
+        width,
         backgroundColor: bgColor,
         color: textColor,
       }}

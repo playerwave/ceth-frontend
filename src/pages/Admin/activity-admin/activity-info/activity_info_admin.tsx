@@ -40,7 +40,15 @@ export default function ActivityInfoAdmin() {
 
   return (
     <div className="justify-items-center">
-      <div className="w-320 h-230px mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm flex flex-col">
+      {/* <div className="w-320 h-230px mx-auto ml-5  bg-white p-8 border border-gray-200 rounded-lg shadow-sm flex flex-col"> */}
+      <div className="w-320 h-230px max-w-md
+                  mx-auto ml-2xl mt-5 mb-5 
+                bg-white p-5 md:p-10
+                  md:max-w-[700px]
+                  lg:max-w-7xl
+                  border border-gray-200 rounded-lg shadow-sm 
+                  flex flex-col
+                  overflow-hidden" >
         <div className="flex-grow overflow-auto">
           <ActivityHeader
             name={activity.name}
@@ -60,7 +68,6 @@ export default function ActivityInfoAdmin() {
           <ActivityImage imageUrl={activity.image_url} />
 
           <ActivityDetails activity={activity} />
-          <br />
 
           {activity.location_type === "Onsite" && (
             <FoodSelector
@@ -71,10 +78,12 @@ export default function ActivityInfoAdmin() {
         </div>
         <br />
 
-        <ActivityLink
-          url="https://mooc.buu.ac.th/courses/course-v1:BUU+IF002+2024/course/"
-          label={`${activity.company_lecturer}.com`}
-        />
+        {activity.location_type !== "Onsite" && (
+          <ActivityLink
+            url="https://mooc.buu.ac.th/courses/course-v1:BUU+IF002+2024/course/"
+            label={`${activity.company_lecturer}.com`}
+          />
+        )}
 
         <ActivityFooter
           startTime={activity.start_time}

@@ -17,7 +17,7 @@ function LocationTypeDisplay({ locationType }: { locationType: string }) {
 
   return (
     <span className="inline-flex items-center gap-1 pr-2 font-sans">
-      <IconComponent />
+      <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
       {label}
     </span>
   );
@@ -47,13 +47,26 @@ export default function ActivityDetails({ activity }: Props) {
 
   return (
     <>
-      <div className="flex items-center justify-between w-full mt-4">
-        <div className="flex items-center gap-2">
-          <p className="font-semibold text-[25px] font-sans">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-start lg:justify-between w-full gap-4 mt-4">
+        {/* ✅ ก้อนซ้าย */}
+        <div className="flex items-center gap-2 w-full lg:w-auto">
+          {/* 👇 ตัดชื่อยาว ๆ แล้วใส่ ... */}
+          <p
+            className="font-semibold text-[20px] lg:text-[22px] xl:text-[25px] font-sans truncate"
+            style={{
+              maxWidth: "100%", // รองรับ mobile
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              flexShrink: 1,
+            }}
+          >
             {activity.company_lecturer}
           </p>
+
+          {/* 👇 ไม่ให้โดนดันหลุดขอบ และไม่ขยายตามชื่อ */}
           <span
-            className="px-2 py-1 rounded ml-5"
+            className="px-2 py-1 rounded text-[14px] lg:text-[16px] xl:text-[18px] flex-shrink-0"
             style={{
               backgroundColor:
                 activity.type === "Hard Skill"
@@ -69,16 +82,17 @@ export default function ActivityDetails({ activity }: Props) {
             {activity.type}
           </span>
         </div>
-        <div className="flex items-center gap-1 font-[Sarabun]">
+
+        {/* ✅ ก้อนขวา */}
+        <div className="flex items-center gap-1 font-[Sarabun] w-full lg:w-auto justify-start lg:justify-end text-xs sm:text-sm md:text-base">
           <LocationTypeDisplay locationType={activity.location_type} />
 
           {activity.location_type !== "Course" ? (
             <>
-              <Hourglass size={25} /> ปิดลงทะเบียน{" "}
-              {formatDate(activity.end_register)}&nbsp;&nbsp;
+              <Hourglass className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+              ปิดลงทะเบียน {formatDate(activity.end_register)}&nbsp;&nbsp;
             </>
           ) : (
-            // ล็อคที่ว่าง เท่ากับข้อความ เพื่อไม่ให้ layout ขยับ
             <span
               style={{
                 display: "inline-flex",
@@ -90,13 +104,14 @@ export default function ActivityDetails({ activity }: Props) {
             </span>
           )}
 
-          <MapPin size={25} />
+          <MapPin className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
           {activity.location_type === "Onsite"
             ? formatRoom(activity.room)
             : "ไม่มีห้องสำหรับกิจกรรมนี้"}
         </div>
       </div>
-      <p className="mt-2 text-[14px] font-sans break-words overflow-hidden">
+
+      <p className="mt-2 text-xs sm:text-sm md:text-base font-sans break-words overflow-hidden">
         {activity.description}
       </p>
     </>

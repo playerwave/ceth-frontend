@@ -85,7 +85,7 @@
 //             Scan
 //           </Button>
 //         </div>
-        
+
 //         <Button width="120px" onClick={onEdit}>
 //           แก้ไข
 //         </Button>
@@ -185,36 +185,32 @@ export default function ActivityFooter({
 }: Props) {
   const isCourse = locationType === "Course";
   return (
-    <div className="flex justify-between items-center mt-1 text-[14px]">
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1 font-[Sarabun] font-semibold">
+    <div className="flex flex-wrap items-center justify-between gap-2 text-[14px] mt-1">
+      {/* ก้อนซ้าย: วันที่ + สถานะ */}
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-2 min-w-0 w-full lg:w-auto justify-start">
+        <div className="order-1 sm:order-1 flex items-center gap-1 ml-0 sm:ml-0 font-[Sarabun] font-semibold">
           <CalendarDays size={25} />
           {formatDateTimeRange(startTime, endTime)}
         </div>
 
-        <div className="flex items-center gap-1 ml-3 font-[Sarabun] font-semibold">
+        <div className="order-2 sm:order-2 flex items-center gap-1 font-[Sarabun] font-semibold">
           {getStateIcon(state)} {state}
         </div>
       </div>
 
-      <div className="flex justify-end gap-3">
+      {/* ก้อนขวา: ปุ่ม */}
+      <div className="flex flex-wrap gap-3 w-full lg:w-auto justify-between lg:justify-end">
         <Button width="120px" onClick={onBack}>
           ← กลับ
         </Button>
-
         <div className={isCourse ? "opacity-50 pointer-events-none" : ""}>
           <Button
             width="120px"
-            onClick={() => {
-              if (!isCourse) {
-                // logic scan
-              }
-            }}
+            onClick={() => !isCourse && console.log("Scan")}
           >
             Scan
           </Button>
         </div>
-
         <Button width="120px" onClick={onEdit}>
           แก้ไข
         </Button>
