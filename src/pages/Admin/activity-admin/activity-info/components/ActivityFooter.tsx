@@ -41,11 +41,11 @@ export default function ActivityFooter({
       </div>
 
       <div className="flex justify-end gap-3">
-        <Button color="blue" onClick={onBack}>
+        <Button onClick={onBack}>
           ← กลับ
         </Button>
-        <Button color="blue">QR Code</Button>
-        <Button color="blue" onClick={onEdit}>
+        <Button >QR Code</Button>
+        <Button onClick={onEdit}>
           แก้ไข
         </Button>
       </div>
