@@ -125,62 +125,63 @@ const EditFoodAdmin = () => {
             </Box>
 
             {/* Desktop */}
+              {/* Desktop & Laptop - Original Card Layout */}
             <Box className="hidden lg:block justify-items-center">
                 <div className="w-320 mx-auto ml-2xl mt-30 mb-5 p-6 border bg-white border-gray-200 rounded-lg shadow-xl flex flex-col h-200">
-                    {/* หัวข้อ + ปุ่มลบ */}
-                    <div className="flex justify-between items-center mb-6">
-                        <h1 className="text-4xl font-bold">แก้ไขเมนูอาหาร</h1>
+                     <div className="flex w-full mb-5">
+                        <h1 className="text-4xl font-bold text-center w-full ml-30">
+                            แก้ไขเมนูอาหาร
+                        </h1>
+
                         <button
                             type="button"
                             onClick={() => setOpen(true)}
-                            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center gap-2"
+                            className="bg-red-600 text-white w-36 h-10 rounded-lg hover:bg-red-700 items-center justify-center flex"
                         >
-                            <Trash2 size={18} /> ลบเมนูอาหาร
+                            <Trash2 /> ลบเมนูอาหาร
                         </button>
                     </div>
-
                     <form className="space-y-6">
                         {/* ชื่ออาหาร */}
-                        <div className="grid">
+                        <div className="grid mt-8">
                             <label className="w-96 text-left font-semibold mb-1">
                                 ชื่ออาหาร <span className="text-red-500">*</span>
                             </label>
                             <TextField
                                 type="text"
                                 placeholder="ชื่ออาหาร"
-                                fullWidth
-                                variant="outlined"
+                                className="w-2xl border border-gray-300 rounded px-3 py-2"
                             />
+
+                            
                         </div>
 
                         {/* ราคา */}
-                        <div className="grid">
+                        <div className="grid mt-8">
                             <label className="w-96 text-left font-semibold mb-1">
                                 ราคา <span className="text-red-500">*</span>
                             </label>
                             <TextField
                                 type="number"
                                 placeholder="ราคาของเมนูอาหาร"
-                                fullWidth
-                                variant="outlined"
+                                className="w-2xl border border-gray-300 rounded px-3 py-2"
                             />
                         </div>
 
                         {/* เบอร์โทร */}
-                        <div className="grid">
+                        <div className="grid mt-8">
                             <label className="w-96 text-left font-semibold mb-1">
                                 เบอร์โทร <span className="text-red-500">*</span>
                             </label>
                             <TextField
                                 type="tel"
                                 placeholder="เบอร์โทร"
-                                fullWidth
-                                variant="outlined"
+                                className="w-2xl border border-gray-300 rounded px-3 py-2"
                             />
                         </div>
 
                         {/* ปุ่ม */}
-                        <div className="flex justify-end gap-4 mt-8">
+                        <div className="col-span-2 flex justify-end gap-4 mt-75">
                             <Button
                                 type="button"
                                 color="red"
@@ -188,12 +189,15 @@ const EditFoodAdmin = () => {
                             >
                                 ยกเลิก
                             </Button>
-                            <Button type="submit">บันทึก</Button>
+                            <Button
+                                type="submit"
+                            >
+                                บันทึก
+                            </Button>
                         </div>
                     </form>
                 </div>
             </Box>
-
             {/* Dialog ลบ */}
             <DeleteConfirmDialog
                 open={open}
