@@ -20,6 +20,7 @@ export interface TableRedesignProps {
   columns: GridColDef[];
   rows: any[];
   title?: string;
+  initialPageSize?: number;
 }
 
 export default function TableRedesign({
@@ -28,6 +29,7 @@ export default function TableRedesign({
   columns,
   rows,
   title,
+  initialPageSize,
 }: TableRedesignProps) {
   const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
@@ -142,7 +144,9 @@ export default function TableRedesign({
             onRowClick={handleRowClick}
             pageSizeOptions={[5, 10, 20]}
             initialState={{
-              pagination: { paginationModel: { pageSize: 5, page: 0 } },
+              pagination: {
+                paginationModel: { pageSize: initialPageSize ?? 5, page: 0 },
+              },
             }}
             disableRowSelectionOnClick
             autoHeight={false}

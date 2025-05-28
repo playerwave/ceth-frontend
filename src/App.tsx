@@ -25,6 +25,9 @@ import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
 import TestCardPage from "./pages/Test/test_card";
 
+//visiter
+import Visiter from "./pages/Visiter/visiter";
+
 function App() {
   return (
     <>
@@ -142,6 +145,14 @@ function App() {
             element={
               <Navbar>
                 <ListActivityStudent />
+              </Navbar>
+            }
+          ></Route>
+          <Route
+            path="/visiter"
+            element={
+              <Navbar>
+                <Visiter />
               </Navbar>
             }
           ></Route>
