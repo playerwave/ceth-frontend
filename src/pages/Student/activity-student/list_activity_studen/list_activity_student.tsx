@@ -6,6 +6,8 @@ import Loading from "../../../../components/Loading";
 import SearchBar from "../../../../components/Searchbar";
 import { AlarmClockPlus, CopyPlus } from "lucide-react";
 import ActivityTablePageStuden from "./ActivityTablePageStuden";
+import CalculateDialog from "./components/CalculateDialog"; // ✅ import dialog
+import { student } from "../../../../stores/Student/studen"; // ✅ import mock student
 
 const ManageActivityStuden: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +25,7 @@ const ManageActivityStuden: React.FC = () => {
     "list"
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [openDialog, setOpenDialog] = useState(false); // ✅ state สำหรับ dialog
 
   useEffect(() => {
     fetchActivities();
@@ -55,7 +58,7 @@ const ManageActivityStuden: React.FC = () => {
         <SearchBar onSearch={handleSearch} />
       </div>
 
-      {/* Tabs + Add Button */}
+      {/* Tabs + Add/Calculate Button */}
       <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
         <div className="flex space-x-4">
           <button
@@ -95,7 +98,7 @@ const ManageActivityStuden: React.FC = () => {
             className="w-full md:w-auto max-w-xs sm:max-w-sm bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center justify-center gap-2 hover:brightness-90 transition"
             onClick={() =>
               activeTab === "recommend"
-                ? console.log("คำนวณกิจกรรมที่แนะนำ") // ใส่ฟังก์ชันจริงตรงนี้
+                ? setOpenDialog(true) // ✅ เปิด dialog
                 : navigate("/create-activity-admin", {
                     state: { reload: true },
                   })
@@ -128,15 +131,9 @@ const ManageActivityStuden: React.FC = () => {
           📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
         </p>
       ) : activeTab === "list" ? (
-        <ActivityTablePageStuden
-          rows1={activitiesStuden}
-          rows2={[]} // ✅ ให้มีค่าเริ่มต้น
-        />
+        <ActivityTablePageStuden rows1={activitiesStuden} rows2={[]} />
       ) : activeTab === "recommend" ? (
-        <ActivityTablePageStuden
-          rows1={[]} // ✅ ไม่ใช้ก็ส่ง [] ไป
-          rows2={activitiesStudenRecommend}
-        />
+        <ActivityTablePageStuden rows1={[]} rows2={activitiesStudenRecommend} />
       ) : (
         <div className="text-center text-gray-500 p-6">
           <h2 className="text-xl font-semibold">
@@ -144,6 +141,14 @@ const ManageActivityStuden: React.FC = () => {
           </h2>
         </div>
       )}
+
+      {/* ✅ Dialog */}
+      <CalculateDialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        currentSkillHours={student.currentSkill}
+        selectedActivities={student.selectedActivities}
+      />
     </div>
   );
 };
