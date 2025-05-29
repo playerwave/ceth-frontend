@@ -17,7 +17,7 @@
 //   color = "blue",
 //   width = "auto",
 //   type = "button", // ค่า default เป็น "button" เพื่อป้องกันการ submit
-//   onClick,
+//   onClick, 
 //   className,         // ✅ เพิ่มตรงนี้
 //   startIcon,
 // }) => {

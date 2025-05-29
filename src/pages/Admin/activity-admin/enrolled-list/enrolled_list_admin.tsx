@@ -109,7 +109,7 @@ import EnrolledListHeader from "./components/EnrolledListHeader";
 import EnrolledListFilter from "./components/EnrolledListFilter";
 import EnrolledListTable from "./components/EnrolledListTable";
 import EnrolledListFooter from "./components/EnrolledListFooter";
-import SummaryPage from "./components/SummaryPage";
+import SummaryPage from "../summary/SummaryPage";
 
 export default function EnrolledListAdmin() {
   const { id } = useParams<{ id: string }>();
@@ -140,7 +140,7 @@ export default function EnrolledListAdmin() {
   const [activeTab, setActiveTab] = useState<"list" | "summary">("list");
 
   return (
-    <div className="p-6 w-340 h-230 mx-auto">
+    <div className="p-4 mx-auto">
       {/* Header (ชื่อเรื่อง + ปุ่ม Tab) */}
       <EnrolledListHeader activeTab={activeTab} setActiveTab={setActiveTab} />
 
