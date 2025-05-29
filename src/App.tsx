@@ -1,63 +1,54 @@
 import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
-
-import { useEffect } from "react";
 
 //import components
 import Navbar from "./components/Navbar";
-import Loading from "./components/Loading";
-
-//import authStore
-import { useAuthStore } from "./stores/auth.store";
 
 //import login
 import Login from "./pages/login";
 
 //import pages Admin
 import Main from "./pages/Admin/main_admin";
-import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin";
+import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin/list_activity_admin";
+import TestCreate from "./pages/Test/test_create";
+import CreateActivityAdmin from "./pages/Admin/activity-admin/create-activity/create_activity_admin";
+import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity-info/activity_info_admin";
+import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled-list/enrolled_list_admin";
+
+import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 // import Crud_Test from "./pages/Test/crud_test";
-import ManageActivityStudent from "./pages/Student/activity-student/activity_info_student";
+
+//import pages Student
+import MainStudent from "./pages/Student/main-student/main_student";
+import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
+import ListActivityStudent from "./pages/Student/activity-student/list_activity_studen/list_activity_student";
+import TestCardPage from "./pages/Test/test_card";
+
+//visiter
+import Visiter from "./pages/Visiter/visiter";
 
 function App() {
-  const checkAuth = useAuthStore((state) => state.checkAuth);
-  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
-
-  useEffect(() => {
-    checkAuth(); // ✅ โหลดข้อมูลผู้ใช้ตอนเปิดเว็บหรือ refresh
-  }, [checkAuth]);
-
-  if (isCheckingAuth) {
-    return (
-      <div className="h-screen flex justify-center items-center">
-        <Loading /> {/* หรือ loading spinner ที่คุณมี */}
-      </div>
-    );
-  }
-
   return (
     <>
       <Toaster position="bottom-right" richColors />
       <div>
         {/* Un Authenticate Routes */}
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
         {/* Admin Routes */}
         <Routes>
           <Route
-            path="/main-admin"
+            path="/"
             element={
-              <ProtectedRoute>
-                <Navbar>
-                  <Main />
-                </Navbar>
-              </ProtectedRoute>
+              <Navbar>
+                <Main />
+              </Navbar>
             }
           />
           <Route
-            path="/List-activity-admin"
+            path="/list-activity-admin"
             element={
               <Navbar>
                 <ListActivityAdmin />
@@ -65,23 +56,70 @@ function App() {
             }
           ></Route>
           <Route
-            path="/List-activity-student"
+            path="/activity-info-admin/:id"
             element={
               <Navbar>
-                <ManageActivityStudent />
+                <ActivityInfoAdmin />
               </Navbar>
             }
-          ></Route>
-          {/* <Route
-            path="/crud-test"
+          />
+          <Route
+            path="/enrolled_list_admin/:id"
             element={
-              <ProtectedRoute>
-                <Navbar>
-                  <TestCreate />
-                </Navbar>
-              </ProtectedRoute>
+              <Navbar>
+                <EnrolledListAdmin />
+              </Navbar>
             }
-          ></Route> */}
+          />
+          <Route
+            path="/activity-info-admin"
+            element={
+              <Navbar>
+                <ActivityInfoAdmin />
+              </Navbar>
+            }
+          />
+          <Route
+            path="/create-activity-admin"
+            element={
+              <Navbar>
+                <CreateActivityAdmin />
+              </Navbar>
+            }
+          />
+          <Route
+            path="/update-activity-admin"
+            element={
+              <Navbar>
+                <UpdateActivityAdmin />
+              </Navbar>
+            }
+          />
+          <Route
+            path="/enrolled_list_admin/:id"
+            element={
+              <Navbar>
+                <EnrolledListAdmin />
+              </Navbar>
+            }
+          />
+          <Route
+            path="/test_create"
+            element={
+              <Navbar>
+                <TestCreate />
+              </Navbar>
+            }
+          />
+
+          <Route
+            path="/test-card"
+            element={
+              <Navbar>
+                <TestCardPage />
+              </Navbar>
+            }
+          />
         </Routes>
 
         {/* Student Routes */}
@@ -89,31 +127,33 @@ function App() {
           <Route
             path="/main-student"
             element={
-              <ProtectedRoute>
-                <Navbar>
-                  <MainStudent />
-                </Navbar>
-              </ProtectedRoute>
+              <Navbar>
+                <MainStudent />
+              </Navbar>
             }
           />
           <Route
             path="/activity-info-student"
             element={
-              <ProtectedRoute>
-                <Navbar>
-                  <ActivityInfoStudent />
-                </Navbar>
-              </ProtectedRoute>
+              <Navbar>
+                <ActivityInfoStudent />
+              </Navbar>
             }
           />
           <Route
             path="/list-activity-student"
             element={
-              <ProtectedRoute>
-                <Navbar>
-                  <ListActivityStudent />
-                </Navbar>
-              </ProtectedRoute>
+              <Navbar>
+                <ListActivityStudent />
+              </Navbar>
+            }
+          ></Route>
+          <Route
+            path="/visiter"
+            element={
+              <Navbar>
+                <Visiter />
+              </Navbar>
             }
           ></Route>
         </Routes>
