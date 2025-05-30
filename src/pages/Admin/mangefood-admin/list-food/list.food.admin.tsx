@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Searchbar from "../../../../components/Searchbar";
+import Searchbar from "../list-food/components/Searchbar";
 import FoodTable from "./components/foodtable";
 import AddFoodButton from "./components/addfoodbutton";
 
@@ -50,7 +50,9 @@ const ListFoodAdmin = () => {
         </h2>
 
         {/* ใช้ DataGrid Pagination ใน FoodTable เลย */}
-        <FoodTable data={filteredFoods} />
+       
+          <FoodTable data={filteredFoods} />
+       
       </div>
     </div>
   );

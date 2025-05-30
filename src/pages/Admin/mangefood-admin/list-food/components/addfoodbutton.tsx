@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CopyPlus } from "lucide-react";
+import { CopyPlus, Filter } from "lucide-react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 
 interface AddFoodButtonProps {
@@ -21,23 +21,40 @@ const AddFoodButton: React.FC<AddFoodButtonProps> = ({ onFilterPrice }) => {
   const handleCloseDialog = () => setOpenDialog(false);
 
   return (
-    <div className="flex justify-end gap-4 mt-7">
-      <button
-        onClick={handleOpenDialog}
-        className="ml-4 px-4 py-2 bg-blue-800 text-white font-medium rounded-xl hover:bg-blue-900 gap-2 flex items-center"
-      >
-        กรองช่วงราคา
-      </button>
+    <div className="flex flex-row flex-wrap justify-center sm:justify-end gap-3 mt-4 md:mt-7">
 
+      {/* ปุ่มเพิ่มอาหาร */}
       <button
         onClick={() => navigate("/create-food")}
-        className="ml-4 px-4 py-2 bg-blue-800 text-white font-medium rounded-xl hover:bg-blue-900 w-35 gap-2 flex items-center"
+        className="flex-1 sm:flex-none px-3 py-2 text-sm bg-blue-800 text-white rounded-lg hover:bg-blue-900 gap-1 flex items-center justify-center min-w-[100px]"
       >
-        เพิ่มอาหาร
-        <CopyPlus />
+        <span className="md:hidden">เพิ่มอาหาร</span>
+        <span className="hidden md:inline">เพิ่มอาหาร</span>
+        <CopyPlus className="w-4 h-4" />
       </button>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
+      {/* ปุ่มกรองราคา */}
+      <button
+        onClick={handleOpenDialog}
+        className="flex-1 sm:flex-none px-3 py-2 text-sm bg-blue-800 text-white rounded-lg hover:bg-blue-900 gap-1 flex items-center justify-center min-w-[100px]"
+      >
+       
+        <span>กรองราคา</span>
+      </button>
+
+      {/* Dialog - ปรับให้ responsive */}
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          style: {
+            margin: '16px',
+            width: 'calc(100% - 32px)',
+          }
+        }}
+      >
         <DialogTitle>กรองช่วงราคา</DialogTitle>
         <DialogContent>
           <TextField
@@ -64,13 +81,17 @@ const AddFoodButton: React.FC<AddFoodButtonProps> = ({ onFilterPrice }) => {
             }
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>ยกเลิก</Button>
+        <DialogActions className="p-4">
+          <Button onClick={handleCloseDialog} className="flex-1">
+            ยกเลิก
+          </Button>
           <Button
             onClick={() => {
               onFilterPrice(minPrice, maxPrice);
               handleCloseDialog();
             }}
+            className="flex-1"
+            variant="contained"
           >
             ตกลง
           </Button>
