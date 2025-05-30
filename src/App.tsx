@@ -181,6 +181,7 @@ import ListActivityStudent from "./pages/Student/activity-student/list_activity_
 
 // Test
 import TestCardPage from "./pages/Test/test_card";
+import ActivityInfoVisitor from "./pages/visitor/activity-info/activity_info_visitor";
 
 function App() {
   return (
@@ -282,6 +283,16 @@ function App() {
             </Navbar>
           }
         />
+
+        {/* ✅ Visitor */}
+        <Route
+            path="/activity-info-visitor"
+            element={
+              <Navbar>
+                <ActivityInfoVisitor />
+              </Navbar>
+            }
+          />
       </Routes>
     </>
   );
