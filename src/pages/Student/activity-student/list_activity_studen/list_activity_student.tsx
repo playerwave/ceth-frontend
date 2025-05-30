@@ -37,14 +37,28 @@ const ManageActivityStuden: React.FC = () => {
     (a) => a.status === "Public"
   );
 
-  const activitiesStudenRecommend = mockActivities.filter(
-    (a) => a.status === "Public"
-  );
+  const activitiesStudenRecommend = mockActivities.filter((a) => {
+    const term = searchTerm.toLowerCase().trim();
+    const name = a.name?.toLowerCase().trim() || "";
+    return (
+      a.status === "Public" && a.recommend === "yes" && name.includes(term)
+    );
+  });
+
+  const handleTabChange = (tab: "list" | "calendar" | "recommend") => {
+    setActiveTab(tab);
+    setSearchTerm(""); // ✅ เคลียร์ search ทันที
+    if (tab === "list") {
+      fetchActivities(); // ✅ ดึงใหม่จาก backend
+    }
+  };
 
   const handleSearch = (term: string) => {
-    if (term.trim() === searchTerm.trim()) return;
     setSearchTerm(term);
-    searchActivities(term);
+    if (activeTab === "list") {
+      searchActivities(term);
+    }
+    // recommend ไม่ search API เพราะใช้ mock filter
   };
 
   return (
@@ -55,7 +69,7 @@ const ManageActivityStuden: React.FC = () => {
 
       {/* Search bar */}
       <div className="flex justify-center w-full mb-4">
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar onSearch={handleSearch} value={searchTerm} />
       </div>
 
       {/* Tabs + Add/Calculate Button */}
@@ -67,7 +81,7 @@ const ManageActivityStuden: React.FC = () => {
                 ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
                 : "text-gray-500"
             }`}
-            onClick={() => setActiveTab("list")}
+            onClick={() => handleTabChange("list")}
           >
             ลิสต์
           </button>
@@ -77,7 +91,7 @@ const ManageActivityStuden: React.FC = () => {
                 ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
                 : "text-gray-500"
             }`}
-            onClick={() => setActiveTab("calendar")}
+            onClick={() => handleTabChange("calendar")}
           >
             ปฏิทิน
           </button>
@@ -87,7 +101,7 @@ const ManageActivityStuden: React.FC = () => {
                 ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
                 : "text-gray-500"
             }`}
-            onClick={() => setActiveTab("recommend")}
+            onClick={() => handleTabChange("recommend")}
           >
             กิจกรรมที่แนะนำให้ลงทะเบียน
           </button>
@@ -126,7 +140,12 @@ const ManageActivityStuden: React.FC = () => {
         <p className="text-center text-red-500 p-4">
           ❌ เกิดข้อผิดพลาด: {activityError}
         </p>
-      ) : displayedActivities.length === 0 ? (
+      ) : activeTab === "list" && displayedActivities.length === 0 ? (
+        <p className="text-center text-gray-500 p-4">
+          📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
+        </p>
+      ) : activeTab === "recommend" &&
+        activitiesStudenRecommend.length === 0 ? (
         <p className="text-center text-gray-500 p-4">
           📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
         </p>
@@ -146,7 +165,10 @@ const ManageActivityStuden: React.FC = () => {
       <CalculateDialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
-        currentSkillHours={student.currentSkill}
+        currentSkillHours={{
+          hard: student.hard_hours,
+          soft: student.soft_hours,
+        }}
         selectedActivities={student.selectedActivities}
       />
     </div>

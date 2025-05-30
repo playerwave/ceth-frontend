@@ -125,7 +125,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       id: 9,
       company_lecturer:
         "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
-      name: "กิจกรรมที่ 6",
+      name: "กิจกรรมที่ 44",
       end_time: new Date("2025-05-20T12:00:00"),
       end_assessment: new Date("2025-08-01T12:00:00"),
       status: "Public",
@@ -144,7 +144,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       id: 11,
       company_lecturer:
         "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
-      name: "กิจกรรมที่ 6",
+      name: "กิจกรรมที่ 55",
       end_time: new Date("2025-05-20T12:00:00"),
       end_assessment: new Date("2025-08-01T12:00:00"),
       status: "Public",
@@ -172,7 +172,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       id: 14,
       company_lecturer:
         "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
-      name: "กิจกรรมที่ 6",
+      name: "กิจกรรมที่ 77",
       end_time: new Date("2025-05-20T12:00:00"),
       end_assessment: new Date("2025-08-01T12:00:00"),
       status: "Public",

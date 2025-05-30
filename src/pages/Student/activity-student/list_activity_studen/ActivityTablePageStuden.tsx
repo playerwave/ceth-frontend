@@ -9,6 +9,7 @@ type Props = {
 };
 
 const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
+  console.log("rows2:", rows2); // ✅ เพิ่มชั่วคราว
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
   const handleTypeChange = (type: string) => {
@@ -40,7 +41,7 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
         enableTypeFilter: true,
         handleTypeChange,
         selectedTypes,
-        includeRecommend: true,
+        includeRecommend: false,
       }),
     [selectedTypes]
   );
