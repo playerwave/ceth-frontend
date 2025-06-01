@@ -29,7 +29,10 @@ export const mapTransformedActivity = (activity: any) => ({
   location_type: activity.ac_location_type,
   registered_count: activity.ac_registered_count,
   not_attended_count: activity.ac_not_attended_count,
-  seat: activity.ac_seat, // ✅ เพิ่ม
+  seat: activity.ac_seat,
+  start_assessment: activity.ac_start_assessment,
+  end_assessment: activity.ac_end_assessment,
+
 });
 
 

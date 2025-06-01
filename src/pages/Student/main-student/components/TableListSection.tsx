@@ -47,7 +47,7 @@
 // import { Typography } from "@mui/material";
 // import Loading from "../../../../components/Loading";
 // import CustomCard from "../../../../components/Card";
-// import TableRedesign from "./table_redesign"; // ✅ import ใหม่
+// import TableListRow from "./table_redesign"; // ✅ import ใหม่
 // import { getActivityColumns } from "./activity_column"; // ✅ ปรับ path ให้ถูก
 // import { MainActivity } from "../../../../types/Student/type_main_activity_student";
 
@@ -86,7 +86,7 @@
 //       ) : enrolledActivities.length === 0 ? (
 //         <p className="text-center text-gray-500 p-4">📍 ไม่พบกิจกรรม</p>
 //       ) : (
-//         <TableRedesign
+//         <TableListRow
 //           columns={columns}
 //           rows={transformedActivities}
 //           height={500}
@@ -103,8 +103,8 @@ import React, { useState } from "react";
 import { Typography } from "@mui/material";
 import Loading from "../../../../components/Loading";
 import CustomCard from "../../../../components/Card";
-import TableRedesign from "./TableListRow";
-import { getActivityColumns } from "./TableListColumn";
+import TableListRow from "./TableListRow";
+import { getTableListColumn } from "./TableListColumn";
 import { mapTransformedActivity } from "../util/mapTransformedActivity";
 import { MainActivity } from "../../../../types/Student/type_main_activity_student";
 
@@ -136,7 +136,7 @@ const TableActivitySection: React.FC<TableActivitySectionProps> = ({
     .map(mapTransformedActivity);
 
   // ✅ 3. เพิ่ม props เข้า columns
-  const columns = getActivityColumns({
+  const columns = getTableListColumn({
     enableTypeFilter: true,
     selectedTypes,
     handleTypeChange,
@@ -159,7 +159,7 @@ const TableActivitySection: React.FC<TableActivitySectionProps> = ({
       ) : enrolledActivities.length === 0 ? (
         <p className="text-center text-gray-500 p-4">📍 ไม่พบกิจกรรม</p>
       ) : (
-        <TableRedesign columns={columns} rows={rows} />
+        <TableListRow columns={columns} rows={rows} />
       )}
     </CustomCard>
   );

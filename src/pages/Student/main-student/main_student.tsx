@@ -133,6 +133,7 @@ import BarChartSection from "../main-student/components/BarChartSection";
 import TableActivitySection from "../main-student/components/TableListSection";
 import PendingEvaluation from "../main-student/components/PendingEvaluation";
 import ActivityTabs from "../main-student/components/ActivityTabs"; // ✅ Tabs
+import TablePendingEvaluation from "./components/TablePendingEvaluation";
 
 const MainStudent = () => {
   const [searchId, setSearchId] = useState("");
@@ -151,90 +152,6 @@ const MainStudent = () => {
     fetchEnrolledActivities(userId);
   }, []);
 
-  const mockPendingActivities = [
-  {
-    id: 1,
-    company: "Clicknext",
-    type: "Soft Skill",
-    name: "อบรมการทำงานเป็นทีมอย่างมืออาชีพ",
-    endDate: "2025-06-01T13:00:00",
-    registered: "50/50",
-  },
-  {
-    id: 2,
-    company: "SCG",
-    type: "Hard Skill",
-    name: "เวิร์กช็อปเขียนโปรแกรม IoT",
-    endDate: "2025-06-10T16:00:00",
-    registered: "35/40",
-  },
-  {
-    id: 3,
-    company: "Google Thailand",
-    type: "Soft Skill",
-    name: "พัฒนาทักษะการสื่อสารเพื่อ Presentation",
-    endDate: "2025-05-30T09:30:00",
-    registered: "60/60",
-  },
-  {
-    id: 4,
-    company: "Bitkub",
-    type: "Hard Skill",
-    name: "เรียนรู้การลงทุน Crypto เบื้องต้น",
-    endDate: "2025-06-05T14:00:00",
-    registered: "20/25",
-  },
-  {
-    id: 5,
-    company: "Workpoint",
-    type: "Soft Skill",
-    name: "คิดอย่างสร้างสรรค์ในยุคดิจิทัล",
-    endDate: "2025-06-15T10:00:00",
-    registered: "45/50",
-  },
-  {
-    id: 6,
-    company: "Tesla",
-    type: "Hard Skill",
-    name: "พื้นฐานการสร้างรถยนต์ไฟฟ้า",
-    endDate: "2025-06-08T15:00:00",
-    registered: "10/15",
-  },
-  {
-    id: 7,
-    company: "LINE",
-    type: "Soft Skill",
-    name: "ทักษะการทำงานในองค์กรญี่ปุ่น",
-    endDate: "2025-05-29T13:00:00",
-    registered: "40/40",
-  },
-  {
-    id: 8,
-    company: "Apple",
-    type: "Hard Skill",
-    name: "ออกแบบ UX/UI ให้โดนใจผู้ใช้",
-    endDate: "2025-06-12T14:00:00",
-    registered: "30/35",
-  },
-  {
-    id: 9,
-    company: "Accenture",
-    type: "Soft Skill",
-    name: "ทักษะผู้นำในโลกแห่งอนาคต",
-    endDate: "2025-06-18T11:00:00",
-    registered: "25/30",
-  },
-  {
-    id: 10,
-    company: "Amazon Web Services",
-    type: "Hard Skill",
-    name: "Cloud Computing สำหรับมือใหม่",
-    endDate: "2025-06-20T16:00:00",
-    registered: "18/20",
-  },
-];
-  
-
   const transformedActivities = enrolledActivities
     .filter((act) => act.ac_status === "Public")
     .map((act) => ({
@@ -249,20 +166,6 @@ const MainStudent = () => {
       registered_count: act.ac_registered_count,
     }));
 
-  const pendingEvaluationData = enrolledActivities
-    .filter(
-      (act) =>
-        act.ac_status === "Public" &&
-        act.ac_evaluation_status === "NotEvaluated"
-    )
-    .map((act, index) => ({
-      id: index + 1,
-      company: act.ac_company_lecturer || "ไม่ระบุ",
-      type: act.ac_type === "Hard Skill" ? "Hard Skill" : "Soft Skill",
-      name: act.ac_name,
-      endDate: act.ac_end_evaluation_time || act.ac_end_time,
-      registered: `${act.ac_registered_count}/${act.ac_seat}`,
-    }));
 
   return (
     <Box className="justify-items-center">
@@ -294,7 +197,12 @@ const MainStudent = () => {
               transformedActivities={transformedActivities}
             />
           ) : (
-            <PendingEvaluation data={mockPendingActivities} />
+            <TablePendingEvaluation
+              activityLoading={activityLoading}
+              activityError={activityError}
+              enrolledActivities={enrolledActivities}
+              transformedActivities={transformedActivities}
+            />
 
           )}
         </div>

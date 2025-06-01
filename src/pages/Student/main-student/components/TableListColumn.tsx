@@ -17,7 +17,7 @@
 //   handleTypeChange?: (type: string) => void; // ✅ เพิ่ม
 // };
 
-// export const getActivityColumns = (
+// export const getTableListColumn = (
 //   options: ColumnOptions = {}
 // ): GridColDef[] => {
 //   const columns: GridColDef[] = [
@@ -346,7 +346,7 @@ type ColumnOptions = {
   handleTypeChange?: (type: string) => void;
 };
 
-export const getActivityColumns = (
+export const getTableListColumn = (
   options: ColumnOptions = {}
 ): GridColDef[] => {
   const columns: GridColDef[] = [

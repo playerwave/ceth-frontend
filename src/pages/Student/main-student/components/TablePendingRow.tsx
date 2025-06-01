@@ -1,4 +1,4 @@
-// ✅ TableListRow.tsx
+// ✅ TablePendingRow.tsx
 import { DataGrid, GridColDef, GridEventListener } from "@mui/x-data-grid";
 import {
   Box,
@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { MapPin, ChevronDown } from "lucide-react"; // เพิ่มไอคอน ChevronDown
 
-export interface TableListRowProps {
+export interface TablePendingRowProps {
   height?: number | string;
   width?: number | string;
   borderRadius?: number | string;
@@ -23,14 +23,14 @@ export interface TableListRowProps {
   initialPageSize?: number;
 }
 
-export default function TableListRow({
+export default function TablePendingRow({
   height = 500,
   width = "100%",
   columns,
   rows,
   title,
   initialPageSize,
-}: TableListRowProps) {
+}: TablePendingRowProps) {
   const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
 
