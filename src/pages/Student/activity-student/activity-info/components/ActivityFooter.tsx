@@ -1,8 +1,9 @@
 // import { useState } from "react";
 // import { toast } from "sonner";
 // import Button from "../../../../../components/Button";
-// import { Calendar, CalendarDays, Clock, Play } from "lucide-react";
+// import { CalendarDays, Clock, Play } from "lucide-react";
 // import ConfirmModal from "./ConfirmModal";
+// import Dialog1 from "../../../../../components/Dialog1"; // ✅ import Dialog1
 
 // interface Props {
 //   activity: any;
@@ -27,6 +28,7 @@
 // }: Props) {
 //   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
 //   const [isUnEnrollModalOpen, setIsUnEnrollModalOpen] = useState(false);
+//   const [conflictDialogOpen, setConflictDialogOpen] = useState(false); // ✅ state สำหรับ Dialog1
 
 //   const handleEnroll = async () => {
 //     const userId = 8;
@@ -64,9 +66,7 @@
 //     });
 
 //     if (hasTimeConflict) {
-//       toast.error(
-//         "ไม่สามารถลงทะเบียนได้: เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว"
-//       );
+//       setConflictDialogOpen(true); // ✅ แสดง dialog แทน toast
 //       return;
 //     }
 
@@ -113,7 +113,7 @@
 //   return (
 //     <>
 //       <ConfirmModal
-//         activity={activity} // ✅ ส่งเข้าไป
+//         activity={activity}
 //         isEnrolled={isEnrolled}
 //         isEnrollModalOpen={isEnrollModalOpen}
 //         setIsEnrollModalOpen={setIsEnrollModalOpen}
@@ -124,14 +124,23 @@
 //         onConfirmUnenroll={handleUnenroll}
 //       />
 
+//       <Dialog1
+//   open={conflictDialogOpen}
+//   onClose={() => {
+//     setConflictDialogOpen(false);
+//     setIsEnrollModalOpen(false); // หรือ setIsUnEnrollModalOpen(false) ตาม context
+//   }}
+//   title="ไม่สามารถลงทะเบียนได้"
+//   message="เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว"
+// />
+
 //       <div className="flex flex-wrap items-center justify-between gap-2 text-[14px] mt-1">
 //         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto font-[Sarabun] font-semibold">
 //           <div className="flex items-center gap-1 font-[Sarabun] font-semibold">
 //             <Clock size={25} />
 //             {activity.start_time
 //               ? formatTime(new Date(activity.start_time))
-//               : "ไม่ระบุ"}{" "}
-//             -{" "}
+//               : "ไม่ระบุ"} -
 //             {activity.end_time
 //               ? formatTime(new Date(activity.end_time))
 //               : "ไม่ระบุ"}
@@ -200,7 +209,8 @@ export default function ActivityFooter({
 }: Props) {
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [isUnEnrollModalOpen, setIsUnEnrollModalOpen] = useState(false);
-  const [conflictDialogOpen, setConflictDialogOpen] = useState(false); // ✅ state สำหรับ Dialog1
+  const [conflictDialogOpen, setConflictDialogOpen] = useState(false); // ✅ กรณีเวลา conflict
+  const [unenrollFailDialogOpen, setUnenrollFailDialogOpen] = useState(false); // ✅ กรณียกเลิกไม่ได้
 
   const handleEnroll = async () => {
     const userId = 8;
@@ -238,7 +248,7 @@ export default function ActivityFooter({
     });
 
     if (hasTimeConflict) {
-      setConflictDialogOpen(true); // ✅ แสดง dialog แทน toast
+      setConflictDialogOpen(true);
       return;
     }
 
@@ -253,6 +263,15 @@ export default function ActivityFooter({
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
+
+    const now = new Date().getTime();
+    const endRegister = new Date(activity.end_register).getTime();
+
+    if (now > endRegister) {
+      setUnenrollFailDialogOpen(true); // ✅ แสดง dialog กรณีเลยเวลา
+      return;
+    }
+
     await unenrollActivity(userId, activity.id);
     setIsEnrolled(false);
     navigate("/main-student");
@@ -263,12 +282,9 @@ export default function ActivityFooter({
     let minutes = date.getMinutes();
     const ampm = hours >= 12 ? "PM" : "AM";
     const displayHours = hours % 12 || 12;
-
     const formattedHours =
       displayHours === 12 ? "12" : displayHours.toString().padStart(2, "0");
-
     const formattedMinutes = minutes.toString().padStart(2, "0");
-
     return `${formattedHours}:${formattedMinutes} ${ampm}`;
   };
 
@@ -296,16 +312,27 @@ export default function ActivityFooter({
         onConfirmUnenroll={handleUnenroll}
       />
 
+      {/* ⛔ เวลาทับซ้อน */}
       <Dialog1
-  open={conflictDialogOpen}
-  onClose={() => {
-    setConflictDialogOpen(false);
-    setIsEnrollModalOpen(false); // หรือ setIsUnEnrollModalOpen(false) ตาม context
-  }}
-  title="ไม่สามารถลงทะเบียนได้"
-  message="เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว"
-/>
+        open={conflictDialogOpen}
+        onClose={() => {
+          setConflictDialogOpen(false);
+          setIsEnrollModalOpen(false);
+        }}
+        title="ไม่สามารถลงทะเบียนได้"
+        message="เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว"
+      />
 
+      {/* ⛔ เลยเวลาแล้ว */}
+      <Dialog1
+        open={unenrollFailDialogOpen}
+        onClose={() => {
+          setUnenrollFailDialogOpen(false); // ปิด Dialog1 ตัวนี้
+          setIsUnEnrollModalOpen(false); // ปิด ConfirmModal ที่อาจค้างอยู่
+        }}
+        title="ไม่สามารถยกเลิกลงทะเบียนกิจกรรมได้"
+        message="เนื่องจากกิจกรรมนี้ถึงเวลาปิดให้ลงทะเบียนแล้ว กรุณาติดต่ออาจารย์"
+      />
 
       <div className="flex flex-wrap items-center justify-between gap-2 text-[14px] mt-1">
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto font-[Sarabun] font-semibold">
@@ -313,7 +340,8 @@ export default function ActivityFooter({
             <Clock size={25} />
             {activity.start_time
               ? formatTime(new Date(activity.start_time))
-              : "ไม่ระบุ"} -
+              : "ไม่ระบุ"}{" "}
+            -{" "}
             {activity.end_time
               ? formatTime(new Date(activity.end_time))
               : "ไม่ระบุ"}
@@ -338,7 +366,18 @@ export default function ActivityFooter({
           <Button onClick={() => window.history.back()}>← กลับ</Button>
 
           {isEnrolled ? (
-            <Button bgColor="red" onClick={() => setIsUnEnrollModalOpen(true)}>
+            <Button
+              bgColor="red"
+              onClick={() => {
+                const now = new Date().getTime();
+                const endRegister = new Date(activity.end_register).getTime();
+                if (now > endRegister) {
+                  setUnenrollFailDialogOpen(true); // ⛔ ขึ้น dialog เลย
+                } else {
+                  setIsUnEnrollModalOpen(true); // ✅ ปกติ เปิดยืนยัน
+                }
+              }}
+            >
               ยกเลิกลงทะเบียน
             </Button>
           ) : (
