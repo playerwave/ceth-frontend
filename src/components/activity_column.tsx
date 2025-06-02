@@ -166,7 +166,7 @@ export const getActivityColumns = (
     {
       field: "location_type",
       headerName: "สถานที่",
-      width: 120,
+      width: 90,
       renderHeader: () => (
         <Box display="flex" alignItems="center" gap={1}>
           <MapPin fontSize="small" />

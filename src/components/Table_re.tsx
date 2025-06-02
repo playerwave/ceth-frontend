@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { MapPin, ChevronDown } from "lucide-react"; // เพิ่มไอคอน ChevronDown
+import { MapPin } from "lucide-react"; // เพิ่มไอคอน ChevronDown
 
 export interface TableRedesignProps {
   height?: number | string;
@@ -147,6 +147,7 @@ export default function TableRedesign({
             disableRowSelectionOnClick
             autoHeight={false}
             sx={{
+              tableLayout: "fixed",
               border: "none",
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: "#1E3A8A",
