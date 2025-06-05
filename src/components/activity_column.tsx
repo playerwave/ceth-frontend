@@ -7,6 +7,8 @@ import {
   School as SchoolLucide,
   User,
 } from "lucide-react";
+import { Switch } from "@mui/material";
+import { Activity } from "../types/Admin/activity_list_type";
 
 // 👉 type ที่สามารถใช้ปรับรูปแบบคอลัมน์ได้
 type ColumnOptions = {
@@ -14,6 +16,7 @@ type ColumnOptions = {
   includeStatus?: boolean;
   selectedTypes?: string[]; // ✅ เพิ่ม
   handleTypeChange?: (type: string) => void; // ✅ เพิ่ม
+  handleStatusToggle?: (row: Activity) => void;
 };
 
 export const getActivityColumns = (
@@ -217,15 +220,21 @@ export const getActivityColumns = (
     columns.push({
       field: "status",
       headerName: "สถานะ",
-      width: 100,
+      width: 140,
       renderCell: (params) => {
         const isPublic = params.value === "Public";
+
+        const handleToggle = () => {
+          console.log("✅ CLICK TOGGLE"); // จะต้องเห็นใน console
+          options.handleStatusToggle?.(params.row); // เปิด Dialog
+        };
+
         return (
           <Box
-            onClick={() => console.log("toggle")}
             sx={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "space-between",
               bgcolor: isPublic ? "#22c55e" : "#ef4444",
               color: "white",
               px: 1,
@@ -233,38 +242,32 @@ export const getActivityColumns = (
               borderRadius: "9999px",
               fontSize: 12,
               fontWeight: 600,
-              gap: 1.2,
-              minWidth: "80px",
-              justifyContent: "space-between",
-              cursor: "pointer",
-              height: 23,
+              minWidth: "100px",
+              height: 30,
             }}
           >
-            {isPublic ? (
-              <>
-                {params.value}
-                <Box
-                  sx={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: "50%",
-                    bgcolor: "white",
-                  }}
-                />
-              </>
-            ) : (
-              <>
-                <Box
-                  sx={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: "50%",
-                    bgcolor: "white",
-                  }}
-                />
-                {params.value}
-              </>
-            )}
+            <Typography sx={{ fontSize: "0.75rem", fontWeight: 600 }}>
+              {isPublic ? "Public" : "Private"}
+            </Typography>
+            <Switch
+              size="small"
+              checked={isPublic}
+              onClick={(e) => e.stopPropagation()} // 🛑 ป้องกัน row click
+              onChange={(e) => {
+                e.preventDefault(); // ❗ สำคัญมาก
+                e.stopPropagation();
+                handleToggle(); // ✅ เปิด dialog
+              }}
+              sx={{
+                "& .MuiSwitch-switchBase.Mui-checked": {
+                  color: "white",
+                },
+                "& .MuiSwitch-track": {
+                  bgcolor: "white",
+                  opacity: 0.3,
+                },
+              }}
+            />
           </Box>
         );
       },

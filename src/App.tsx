@@ -2,40 +2,37 @@ import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 
-//import components
+// Components
 import Navbar from "./components/Navbar";
 
-//import login
+// Login
 import Login from "./pages/login";
 
-//import pages Admin
+// Pages Admin
 import Main from "./pages/Admin/main_admin";
-import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin/list_activity_admin";
+import ManageActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin/list_activity_admin";
 import TestCreate from "./pages/Test/test_create";
 import CreateActivityAdmin from "./pages/Admin/activity-admin/create-activity/create_activity_admin";
 import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity-info/activity_info_admin";
 import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled-list/enrolled_list_admin";
-
 import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
-// import Crud_Test from "./pages/Test/crud_test";
+import TestCardPage from "./pages/Test/test_card";
 
-//import pages Student
+// Pages Student
 import MainStudent from "./pages/Student/main-student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
-import TestCardPage from "./pages/Test/test_card";
 
 function App() {
   return (
     <>
       <Toaster position="bottom-right" richColors />
       <div>
-        {/* Un Authenticate Routes */}
         <Routes>
+          {/* ✅ Unauthenticated */}
           <Route path="/login" element={<Login />} />
-        </Routes>
-        {/* Admin Routes */}
-        <Routes>
+
+          {/* ✅ Admin */}
           <Route
             path="/"
             element={
@@ -48,12 +45,12 @@ function App() {
             path="/list-activity-admin"
             element={
               <Navbar>
-                <ListActivityAdmin />
+                <ManageActivityAdmin />
               </Navbar>
             }
-          ></Route>
+          />
           <Route
-            path="/activity-info-admin/:id"
+            path="/activity-info-admin"
             element={
               <Navbar>
                 <ActivityInfoAdmin />
@@ -61,15 +58,7 @@ function App() {
             }
           />
           <Route
-            path="/enrolled_list_admin/:id"
-            element={
-              <Navbar>
-                <EnrolledListAdmin />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/activity-info-admin"
+            path="/activity-info-admin/:id"
             element={
               <Navbar>
                 <ActivityInfoAdmin />
@@ -108,7 +97,6 @@ function App() {
               </Navbar>
             }
           />
-
           <Route
             path="/test-card"
             element={
@@ -117,10 +105,8 @@ function App() {
               </Navbar>
             }
           />
-        </Routes>
 
-        {/* Student Routes */}
-        <Routes>
+          {/* ✅ Student */}
           <Route
             path="/main-student"
             element={
@@ -144,7 +130,7 @@ function App() {
                 <ListActivityStudent />
               </Navbar>
             }
-          ></Route>
+          />
         </Routes>
       </div>
     </>

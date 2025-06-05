@@ -20,6 +20,7 @@ export interface TableRedesignProps {
   columns: GridColDef[];
   rows: any[];
   title?: string;
+  handleStatusToggle?: (row: Activity) => void; // ✅ เพิ่มตรงนี้
 }
 
 export default function TableRedesign({
@@ -132,8 +133,8 @@ export default function TableRedesign({
       >
         <Box
           sx={{
-            minWidth: "100%",
-            width: "max-content",
+            width: "100%",
+            minWidth: 0,
           }}
         >
           <DataGrid
