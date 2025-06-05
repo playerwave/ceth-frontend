@@ -1,5 +1,5 @@
 import React from 'react';
-import Searchbar from '../../../../components/Searchbar';
+import Searchbar from '../list-room/components/Searchbar';
 import RoomToolbar from './components/toolbar';
 import RoomTable from './components/roomtable';
 
