@@ -66,8 +66,6 @@
 //       registered_count: act.ac_registered_count,
 //     }));
 
-
-
 //   return (
 //     <Box className="justify-items-center">
 //       <div className="w-345 mx-auto ml-2xl mb-5 p-4 min-h-screen flex flex-col">
@@ -75,13 +73,13 @@
 //         <div className="mt-16 ml-10 flex flex-col lg:flex-row justify-between items-center ">
 //           {/* Soft Skill & Hard Skill */}
 //           <div className="flex flex-col gap-4 w-[300px]">
-         
+
 //             <SoftHardSkillCards />
 //           </div>
 
 //           {/* Graph */}
 //           <div className="flex-grow flex justify-center">
-          
+
 //             <BarChartSection />
 
 //           </div>
@@ -107,9 +105,8 @@
 //           <p>(ใช้ทดสอบดึงข้อมูลกิจกรรมของนิสิต)</p>
 //         </div> */}
 
-
 //         <div >
-         
+
 //           <TableActivitySection
 //             activityLoading={activityLoading}
 //             activityError={activityError}
@@ -131,13 +128,14 @@ import { useMainActivityStore } from "../../../stores/Student/store_main_activit
 import SoftHardSkillCards from "../main-student/components/SoftHardSkillCards";
 import BarChartSection from "../main-student/components/BarChartSection";
 import TableActivitySection from "../main-student/components/TableListSection";
-import PendingEvaluation from "../main-student/components/PendingEvaluation";
 import ActivityTabs from "../main-student/components/ActivityTabs"; // ✅ Tabs
 import TablePendingEvaluation from "./components/TablePendingEvaluation";
 
 const MainStudent = () => {
   const [searchId, setSearchId] = useState("");
-  const [activeTab, setActiveTab] = useState<"enrolled" | "pendingEvaluation">("enrolled"); // ✅ Tab state
+  const [activeTab, setActiveTab] = useState<"enrolled" | "pendingEvaluation">(
+    "enrolled"
+  ); // ✅ Tab state
 
   const {
     fetchEnrolledActivities,
@@ -166,29 +164,41 @@ const MainStudent = () => {
       registered_count: act.ac_registered_count,
     }));
 
-
   return (
     <Box className="justify-items-center">
-      <div className="w-345 mx-auto ml-2xl mb-5 p-4 min-h-screen flex flex-col">
-        <h1 className="text-3xl font-bold text-center">หน้าหลัก</h1>
+      <div className="w-full max-w-[1400px] mx-auto mb-5 px-4 sm:px-6 py-4 min-h-screen flex flex-col">
+        <h1 className="text-3xl font-bold text-center mb-6">หน้าหลัก</h1>
 
         {/* Section: Soft/Hard Skill & Graph */}
-        <div className="mt-16 ml-10 flex flex-col lg:flex-row justify-between items-center">
-          <div className="flex flex-col gap-4 w-[300px]">
+        {/* <div className="mt-1 flex flex-col lg:flex-row justify-center lg:justify-between items-center gap-6">
+          <div className="flex flex-col gap-4 w-full max-w-[300px]">
             <SoftHardSkillCards />
           </div>
-          <div className="flex-grow flex justify-center">
+
+          <div className="w-full flex justify-center">
+            <BarChartSection />
+          </div>
+        </div> */}
+
+        <div className="flex flex-col lg:flex-row gap-6 w-full">
+          {/* ซ้าย: Soft/Hard Skill */}
+          <div className="flex flex-row lg:flex-col gap-4 w-full lg:w-[300px]">
+            <SoftHardSkillCards />
+          </div>
+
+          {/* ขวา: กราฟขยายได้ */}
+          <div className="flex-grow">
             <BarChartSection />
           </div>
         </div>
-        <br />
-        <br />
 
         {/* Tabs */}
-        <ActivityTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div className="mt-10">
+          <ActivityTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
 
         {/* Tab Content */}
-        <div className="flex gap-6 text-lg mt-2 ml-10">
+        <div className="flex flex-col gap-6 text-lg mt-4">
           {activeTab === "enrolled" ? (
             <TableActivitySection
               activityLoading={activityLoading}
@@ -203,7 +213,6 @@ const MainStudent = () => {
               enrolledActivities={enrolledActivities}
               transformedActivities={transformedActivities}
             />
-
           )}
         </div>
       </div>
