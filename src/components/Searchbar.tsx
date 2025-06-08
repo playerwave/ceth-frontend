@@ -14,11 +14,7 @@ const Searchbar: React.FC<SearchBarProps> = ({ onSearch }) => {
   };
 
   // ✅ รองรับการกด Enter เพื่อค้นหา
-<<<<<<< HEAD
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-=======
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
->>>>>>> b18dec3 (add recomend activity (no store))
     if (event.key === "Enter") {
       handleSearch();
     }
@@ -36,8 +32,7 @@ const Searchbar: React.FC<SearchBarProps> = ({ onSearch }) => {
         placeholder="Search ..."
         className="flex-1 bg-transparent outline-none text-gray-600 placeholder-gray-400 px-2"
         value={searchTerm}
-<<<<<<< HEAD
-        onKeyDown={handleKeyDown}
+        onKeyDown={handleKeyPress}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <button
