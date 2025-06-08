@@ -157,16 +157,16 @@ export default function ActivityFooter({
         </div>
 
         <div className="flex justify-end gap-3">
-          <Button onClick={() => window.history.back()}>
+          <Button color="blue" onClick={() => window.history.back()}>
             ← กลับ
           </Button>
 
           {isEnrolled ? (
-            <Button bgColor="red" onClick={() => setIsUnEnrollModalOpen(true)}>
+            <Button color="red" onClick={() => setIsUnEnrollModalOpen(true)}>
               ยกเลิกลงทะเบียน
             </Button>
           ) : (
-            <Button onClick={() => setIsEnrollModalOpen(true)}>
+            <Button color="blue" onClick={() => setIsEnrollModalOpen(true)}>
               ลงทะเบียน
             </Button>
           )}

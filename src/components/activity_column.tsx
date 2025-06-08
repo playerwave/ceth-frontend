@@ -7,6 +7,8 @@ import {
   School as SchoolLucide,
   User,
 } from "lucide-react";
+import { Switch } from "@mui/material";
+import { Activity } from "../types/Admin/activity_list_type";
 
 // 👉 type ที่สามารถใช้ปรับรูปแบบคอลัมน์ได้
 type ColumnOptions = {
@@ -14,6 +16,7 @@ type ColumnOptions = {
   includeStatus?: boolean;
   selectedTypes?: string[]; // ✅ เพิ่ม
   handleTypeChange?: (type: string) => void; // ✅ เพิ่ม
+  handleStatusToggle?: (row: Activity) => void;
 };
 
 export const getActivityColumns = (
@@ -26,7 +29,18 @@ export const getActivityColumns = (
       width: 170,
       renderCell: (params) => {
         const companyLecturer = params.value ?? "ไม่มีชื่อ";
-        return <span>{companyLecturer}</span>;
+        return (
+          <Box
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: "100%",
+            }}
+          >
+            {companyLecturer}
+          </Box>
+        );
       },
     },
     {
@@ -34,7 +48,7 @@ export const getActivityColumns = (
       headerName: "ประเภท",
       width: 220,
       renderHeader: () => (
-        <Box display="flex" alignItems="center" gap={1}>
+        <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
           <Typography fontWeight={600} mr={1}>
             ประเภท
           </Typography>
@@ -91,15 +105,26 @@ export const getActivityColumns = (
       field: "name",
       headerName: "ชื่อกิจกรรม",
       width: 240,
-      renderCell: (params) =>
-        typeof params.value === "string" && params.value.length > 40
-          ? params.value.slice(0, 40) + "..."
-          : params.value ?? "-",
+      renderCell: (params) => (
+        <Box
+          sx={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            maxWidth: "100%",
+          }}
+        >
+          {typeof params.value === "string" && params.value.length > 40
+            ? params.value.slice(0, 40) + "..."
+            : params.value ?? "-"}
+        </Box>
+      ),
     },
     {
       field: "date",
       headerName: "วันที่จัดกิจกรรม",
-      flex: 1,
+      minWidth: 190, // ✅ เพิ่มขนาดขั้นต่ำที่พอแสดงทั้งวันที่
+      flex: 0.5, // ✅ ขยายคอลัมน์แบบ responsive ได้
       sortable: true,
       renderCell: (params) => {
         const start = params.row.start_register;
@@ -123,20 +148,28 @@ export const getActivityColumns = (
         const isSameDay =
           new Date(start).toDateString() === new Date(end).toDateString();
         return (
-          <span>
+          <Box
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: "100%",
+              minWidth: 120,
+            }}
+          >
             {isSameDay
               ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
                   end
                 )} น.`
               : `${formatDate(start)} - ${formatDate(end)}`}
-          </span>
+          </Box>
         );
       },
     },
     {
       field: "location_type",
       headerName: "สถานที่",
-      width: 90,
+      width: 120,
       renderHeader: () => (
         <Box display="flex" alignItems="center" gap={1}>
           <MapPin fontSize="small" />
@@ -149,7 +182,20 @@ export const getActivityColumns = (
           Course: <Album fontSize="small" />,
         };
         const value = params.value;
-        return map[value] ?? <span style={{ color: "gray" }}>ไม่ได้ระบุ</span>;
+        return (
+          map[value] ?? (
+            <Box
+              sx={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                maxWidth: "100%",
+              }}
+            >
+              ไม่ได้ระบุ
+            </Box>
+          )
+        );
       },
     },
     {
@@ -174,15 +220,21 @@ export const getActivityColumns = (
     columns.push({
       field: "status",
       headerName: "สถานะ",
-      width: 100,
+      width: 140,
       renderCell: (params) => {
         const isPublic = params.value === "Public";
+
+        const handleToggle = () => {
+          console.log("✅ CLICK TOGGLE"); // จะต้องเห็นใน console
+          options.handleStatusToggle?.(params.row); // เปิด Dialog
+        };
+
         return (
           <Box
-            onClick={() => console.log("toggle")}
             sx={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "space-between",
               bgcolor: isPublic ? "#22c55e" : "#ef4444",
               color: "white",
               px: 1,
@@ -190,38 +242,32 @@ export const getActivityColumns = (
               borderRadius: "9999px",
               fontSize: 12,
               fontWeight: 600,
-              gap: 1.2,
-              minWidth: "80px",
-              justifyContent: "space-between",
-              cursor: "pointer",
-              height: 23,
+              minWidth: "100px",
+              height: 30,
             }}
           >
-            {isPublic ? (
-              <>
-                {params.value}
-                <Box
-                  sx={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: "50%",
-                    bgcolor: "white",
-                  }}
-                />
-              </>
-            ) : (
-              <>
-                <Box
-                  sx={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: "50%",
-                    bgcolor: "white",
-                  }}
-                />
-                {params.value}
-              </>
-            )}
+            <Typography sx={{ fontSize: "0.75rem", fontWeight: 600 }}>
+              {isPublic ? "Public" : "Private"}
+            </Typography>
+            <Switch
+              size="small"
+              checked={isPublic}
+              onClick={(e) => e.stopPropagation()} // 🛑 ป้องกัน row click
+              onChange={(e) => {
+                e.preventDefault(); // ❗ สำคัญมาก
+                e.stopPropagation();
+                handleToggle(); // ✅ เปิด dialog
+              }}
+              sx={{
+                "& .MuiSwitch-switchBase.Mui-checked": {
+                  color: "white",
+                },
+                "& .MuiSwitch-track": {
+                  bgcolor: "white",
+                  opacity: 0.3,
+                },
+              }}
+            />
           </Box>
         );
       },
