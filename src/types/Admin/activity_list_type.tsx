@@ -47,10 +47,7 @@ export interface Activity {
   food: string[];
   status: string;
   location_type: "Onsite" | "Online" | "Course";
-<<<<<<< HEAD
   date: string | null;
-=======
->>>>>>> 479485fc736f097c34d732b1d3337cc61cb44b04
   start_register: Date | null;
   end_register: Date | null;
   create_date: Date | null;
