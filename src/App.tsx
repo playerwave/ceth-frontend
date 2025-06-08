@@ -202,11 +202,119 @@ import MainStudent from "./pages/Student/main-student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
 import TestCardPage from "./pages/Test/test_card";
+import ActivityInfoVisitor from "./pages/visitor/activity-info/activity_info_visitor";
 
 function App() {
   return (
     <>
       <Toaster position="bottom-right" richColors />
+      <Routes>
+        {/* ❌ Unauthenticated */}
+        <Route path="/login" element={<Login />} />
+
+        {/* ✅ Admin */}
+        <Route
+          path="/"
+          element={
+            <Navbar>
+              <Main />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/list-activity-admin"
+          element={
+            <Navbar>
+              <ListActivityAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/activity-info-admin/:id"
+          element={
+            <Navbar>
+              <ActivityInfoAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/enrolled_list_admin/:id"
+          element={
+            <Navbar>
+              <EnrolledListAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/create-activity-admin"
+          element={
+            <Navbar>
+              <CreateActivityAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/update-activity-admin"
+          element={
+            <Navbar>
+              <UpdateActivityAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/test_create"
+          element={
+            <Navbar>
+              <TestCreate />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/test-card"
+          element={
+            <Navbar>
+              <TestCardPage />
+            </Navbar>
+          }
+        />
+       
+
+        {/* ✅ Student */}
+        <Route
+          path="/main-student"
+          element={
+            <Navbar>
+              <MainStudent />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/activity-info-student"
+          element={
+            <Navbar>
+              <ActivityInfoStudent />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/list-activity-student"
+          element={
+            <Navbar>
+              <ListActivityStudent />
+            </Navbar>
+          }
+        />
+
+        {/* ✅ Visitor */}
+        <Route
+            path="/activity-info-visitor"
+            element={
+              <Navbar>
+                <ActivityInfoVisitor />
+              </Navbar>
+            }
+          />
+      </Routes>
       <div>
         {/* Un Authenticate Routes */}
         <Routes>
