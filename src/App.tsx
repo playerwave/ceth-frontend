@@ -181,20 +181,21 @@ import ListActivityStudent from "./pages/Student/activity-student/list_activity_
 
 // Test
 import TestCardPage from "./pages/Test/test_card";
-import CreateRoomAdmin from "./pages/Admin/manageroom-admin/create-room/create.room.admin"; 
-import ListRoomAdmin from "./pages/Admin/manageroom-admin/list-room/list.room.admin";
-import EditRoomAdmin from "./pages/Admin/manageroom-admin/edit-room/edit.room.admin";
+import CreateFoodAdmin from "./pages/Admin/mangefood-admin/create-food/create.food.admin";
+import ListFoodAdmin from "./pages/Admin/mangefood-admin/list-food/list.food.admin";
+import EditFoodAdmin from "./pages/Admin/mangefood-admin/edit-food/edit.food";
 
 function App() {
   return (
     <>
       <Toaster position="bottom-right" richColors />
       <div>
+        {/* Un Authenticate Routes */}
         <Routes>
-          {/* ✅ Unauthenticated */}
           <Route path="/login" element={<Login />} />
-
-          {/* ✅ Admin */}
+        </Routes>
+        {/* Admin Routes */}
+        <Routes>
           <Route
             path="/"
             element={
@@ -204,15 +205,15 @@ function App() {
             }
           />
           <Route
-            path="/manage-activity-admin"
+            path="/list-activity-admin"
             element={
               <Navbar>
-                <ManageActivityAdmin />
+                <ListActivityAdmin />
               </Navbar>
             }
-          />
+          ></Route>
           <Route
-            path="/activity-info-admin"
+            path="/activity-info-admin/:id"
             element={
               <Navbar>
                 <ActivityInfoAdmin />
@@ -220,7 +221,15 @@ function App() {
             }
           />
           <Route
-            path="/activity-info-admin/:id"
+            path="/enrolled_list_admin/:id"
+            element={
+              <Navbar>
+                <EnrolledListAdmin />
+              </Navbar>
+            }
+          />
+          <Route
+            path="/activity-info-admin"
             element={
               <Navbar>
                 <ActivityInfoAdmin />
@@ -262,28 +271,28 @@ function App() {
 
 
           <Route
-            path="/create-room"
+            path="/create-food"
             element={
               <Navbar>
-                <CreateRoomAdmin />
+                <CreateFoodAdmin />
               </Navbar>
             }
           />
 
           <Route
-            path="/list-room"
+            path="/list-food"
             element={
               <Navbar>
-                <ListRoomAdmin />
+                <ListFoodAdmin />
               </Navbar>
             }
           />
 
  <Route
-            path="/edit-room"
+            path="/edit-food"
             element={
               <Navbar>
-                <EditRoomAdmin />
+                <EditFoodAdmin />
               </Navbar>
             }
           />
@@ -296,10 +305,12 @@ function App() {
               </Navbar>
             }
           />
+        </Routes>
 
-          {/* ✅ Student */}
+        {/* Student Routes */}
+        <Routes>
           <Route
-            path="/activity-info-admin"
+            path="/main-student"
             element={
               <Navbar>
                 <MainStudent />
@@ -321,7 +332,7 @@ function App() {
                 <ListActivityStudent />
               </Navbar>
             }
-          />
+          ></Route>
         </Routes>
       </div>
     </>
