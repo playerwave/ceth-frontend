@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { MapPin } from "lucide-react"; // เพิ่มไอคอน ChevronDown
+import { MapPin, ChevronDown } from "lucide-react"; // เพิ่มไอคอน ChevronDown
 
 export interface TableRedesignProps {
   height?: number | string;
@@ -20,7 +20,7 @@ export interface TableRedesignProps {
   columns: GridColDef[];
   rows: any[];
   title?: string;
-  handleStatusToggle?: (row: Activity) => void; // ✅ เพิ่มตรงนี้
+  initialPageSize?: number;
 }
 
 export default function TableRedesign({
@@ -29,6 +29,7 @@ export default function TableRedesign({
   columns,
   rows,
   title,
+  initialPageSize,
 }: TableRedesignProps) {
   const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
@@ -133,8 +134,8 @@ export default function TableRedesign({
       >
         <Box
           sx={{
-            width: "100%",
-            minWidth: 0,
+            minWidth: "100%",
+            width: "max-content",
           }}
         >
           <DataGrid
@@ -143,12 +144,13 @@ export default function TableRedesign({
             onRowClick={handleRowClick}
             pageSizeOptions={[5, 10, 20]}
             initialState={{
-              pagination: { paginationModel: { pageSize: 5, page: 0 } },
+              pagination: {
+                paginationModel: { pageSize: initialPageSize ?? 5, page: 0 },
+              },
             }}
             disableRowSelectionOnClick
             autoHeight={false}
             sx={{
-              tableLayout: "fixed",
               border: "none",
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: "#1E3A8A",

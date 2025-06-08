@@ -7,7 +7,6 @@ import ActivityImage from "./components/ActivityImage";
 import ActivityDetails from "./components/ActivityDetails";
 import FoodSelector from "./components/FoodSelector";
 import ActivityFooter from "./components/ActivityFooter";
-import ActivityLink from "./components/ActivityUrl";
 
 export default function ActivityInfoAdmin() {
   const { id: paramId } = useParams();
@@ -40,56 +39,29 @@ export default function ActivityInfoAdmin() {
 
   return (
     <div className="justify-items-center">
-      {/* <div className="w-320 h-230px mx-auto ml-5  bg-white p-8 border border-gray-200 rounded-lg shadow-sm flex flex-col"> */}
-      <div className="w-320 h-230px max-w-md
-                  mx-auto ml-2xl mt-5 mb-5 
-                bg-white p-5 md:p-10
-                  md:max-w-[700px]
-                  lg:max-w-7xl
-                  border border-gray-200 rounded-lg shadow-sm 
-                  flex flex-col
-                  overflow-hidden" >
-        <div className="flex-grow overflow-auto">
-          <ActivityHeader
-            name={activity.name}
-            registeredCount={
-              activity.location_type === "Course"
-                ? "-"
-                : activity.registered_count
-            }
-            seat={activity.location_type === "Course" ? "-" : activity.seat}
-            onClickRegistered={
-              activity.location_type === "Course"
-                ? undefined
-                : () => navigate(`/enrolled_list_admin/${activity.id}`)
-            }
-          />
+      <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
+        <ActivityHeader
+          name={activity.name}
+          registeredCount={activity.registered_count}
+          seat={activity.seat}
+          onClickRegistered={() =>
+            navigate(`/enrolled_list_admin/${activity.id}`)
+          }
+        />
 
-          <ActivityImage imageUrl={activity.image_url} />
+        <ActivityImage imageUrl={activity.image_url} />
 
-          <ActivityDetails activity={activity} />
+        <ActivityDetails activity={activity} />
 
-          {activity.location_type === "Onsite" && (
-            <FoodSelector
-              foodList={activity.food}
-              locationType={activity.location_type}
-            />
-          )}
-        </div>
-        <br />
-
-        {activity.location_type !== "Onsite" && (
-          <ActivityLink
-            url="https://mooc.buu.ac.th/courses/course-v1:BUU+IF002+2024/course/"
-            label={`${activity.company_lecturer}.com`}
-          />
-        )}
+        <FoodSelector
+          foodList={activity.food}
+          locationType={activity.location_type}
+        />
 
         <ActivityFooter
           startTime={activity.start_time}
           endTime={activity.end_time}
           state={activity.state}
-          locationType={activity.location_type} // ส่งค่าเพิ่ม
           onBack={() =>
             navigate("/list-activity-admin", { state: { reload: true } })
           }

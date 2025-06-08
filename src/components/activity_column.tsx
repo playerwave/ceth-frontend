@@ -13,6 +13,7 @@ type ColumnOptions = {
   enableTypeFilter?: boolean;
   includeStatus?: boolean;
   selectedTypes?: string[]; // ✅ เพิ่ม
+  includeRecommend?: boolean;
   handleTypeChange?: (type: string) => void; // ✅ เพิ่ม
 };
 
@@ -26,7 +27,18 @@ export const getActivityColumns = (
       width: 170,
       renderCell: (params) => {
         const companyLecturer = params.value ?? "ไม่มีชื่อ";
-        return <span>{companyLecturer}</span>;
+        return (
+          <Box
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: "100%",
+            }}
+          >
+            {companyLecturer}
+          </Box>
+        );
       },
     },
     {
@@ -34,7 +46,7 @@ export const getActivityColumns = (
       headerName: "ประเภท",
       width: 220,
       renderHeader: () => (
-        <Box display="flex" alignItems="center" gap={1}>
+        <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
           <Typography fontWeight={600} mr={1}>
             ประเภท
           </Typography>
@@ -91,15 +103,26 @@ export const getActivityColumns = (
       field: "name",
       headerName: "ชื่อกิจกรรม",
       width: 240,
-      renderCell: (params) =>
-        typeof params.value === "string" && params.value.length > 40
-          ? params.value.slice(0, 40) + "..."
-          : params.value ?? "-",
+      renderCell: (params) => (
+        <Box
+          sx={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            maxWidth: "100%",
+          }}
+        >
+          {typeof params.value === "string" && params.value.length > 40
+            ? params.value.slice(0, 40) + "..."
+            : params.value ?? "-"}
+        </Box>
+      ),
     },
     {
       field: "date",
       headerName: "วันที่จัดกิจกรรม",
-      flex: 1,
+      minWidth: 190, // ✅ เพิ่มขนาดขั้นต่ำที่พอแสดงทั้งวันที่
+      flex: 0.5, // ✅ ขยายคอลัมน์แบบ responsive ได้
       sortable: true,
       renderCell: (params) => {
         const start = params.row.start_register;
@@ -123,20 +146,28 @@ export const getActivityColumns = (
         const isSameDay =
           new Date(start).toDateString() === new Date(end).toDateString();
         return (
-          <span>
+          <Box
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: "100%",
+              minWidth: 120,
+            }}
+          >
             {isSameDay
               ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
                   end
                 )} น.`
               : `${formatDate(start)} - ${formatDate(end)}`}
-          </span>
+          </Box>
         );
       },
     },
     {
       field: "location_type",
       headerName: "สถานที่",
-      width: 90,
+      width: 120,
       renderHeader: () => (
         <Box display="flex" alignItems="center" gap={1}>
           <MapPin fontSize="small" />
@@ -149,7 +180,20 @@ export const getActivityColumns = (
           Course: <Album fontSize="small" />,
         };
         const value = params.value;
-        return map[value] ?? <span style={{ color: "gray" }}>ไม่ได้ระบุ</span>;
+        return (
+          map[value] ?? (
+            <Box
+              sx={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                maxWidth: "100%",
+              }}
+            >
+              ไม่ได้ระบุ
+            </Box>
+          )
+        );
       },
     },
     {
@@ -222,6 +266,60 @@ export const getActivityColumns = (
                 {params.value}
               </>
             )}
+          </Box>
+        );
+      },
+    });
+  }
+
+  if (options.includeRecommend) {
+    columns.push({
+      field: "recommend",
+      headerName: "",
+      width: 100,
+      //ปิด sort
+      sortable: false,
+      renderCell: (params) => {
+        const isRecommended =
+          params.value === "yes" || params.value === "Public";
+
+        return (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            <Box
+              sx={{
+                width: 20,
+                height: 20,
+                borderRadius: "4px",
+                bgcolor: "#AAFFAA", // ✅ พื้นหลังเขียวอ่อนเสมอ
+                border: "2px solid #00FF00", // ✅ กรอบเขียว
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {isRecommended && (
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
+            </Box>
           </Box>
         );
       },

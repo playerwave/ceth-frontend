@@ -47,6 +47,7 @@ export interface Activity {
   food: string[];
   status: string;
   location_type: "Onsite" | "Online" | "Course";
+  date: string | null;
   start_register: Date | null;
   end_register: Date | null;
   create_date: Date | null;
@@ -71,6 +72,7 @@ export interface Activity {
     as_create_date: string;
     as_last_update?: string;
   } | null;
+  recommend: string;
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -93,6 +95,7 @@ export interface ActivityState {
   activityLoading: boolean;
   activity: Activity | null;
   enrolledStudents: EnrolledStudent[];
+  mockActivities: Activity[];
   fetchActivities: () => Promise<void>;
   searchActivities: (query: string) => Promise<void>;
   updateActivityStatus: (

@@ -51,6 +51,210 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
+<<<<<<< HEAD
+=======
+  mockActivities: [
+    // <-- ประกาศเป็น property ธรรมดา (array)
+    {
+      id: 1,
+      name: "กิจกรรมที่ 111111111111111111111111111111111111111111111111111111111111111111111111111",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-06-01T12:00:00"),
+      type: "Hard Skill",
+      recommend: "yes",
+    },
+    {
+      id: 2,
+      name: "กิจกรรมที่ 2",
+      end_time: null,
+      end_assessment: new Date("2025-04-01T12:00:00"),
+      status: "Public",
+      type: "Soft Skill",
+    },
+    {
+      id: 3,
+      name: "กิจกรรมที่ 3",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-07-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 4,
+      name: "กิจกรรมที่ 4",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-07-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 5,
+      name: "กิจกรรมที่ 5",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+      type: "Hard Skill",
+      location_type: "Course",
+    },
+    {
+      id: 6,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+      location_type: "Online",
+    },
+    {
+      id: 7,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+      location_type: "Onsite",
+    },
+    {
+      id: 8,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 9,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 44",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+      recommend: "yes",
+    },
+    {
+      id: 10,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 11,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 55",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+      recommend: "yes",
+    },
+    {
+      id: 12,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 13,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 14,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 77",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+      recommend: "yes",
+    },
+    {
+      id: 15,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 16,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 17,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 18,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 19,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 20,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 21,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+    {
+      id: 22,
+      company_lecturer:
+        "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+      name: "กิจกรรมที่ 6",
+      end_time: new Date("2025-05-20T12:00:00"),
+      end_assessment: new Date("2025-08-01T12:00:00"),
+      status: "Public",
+    },
+  ],
+
+>>>>>>> 22dcad8d6e1f85fa1dd8833a829d7c2436520b2b
   fetchActivity: async (id: number | string): Promise<Activity | null> => {
     set({ activityLoading: true, activityError: null });
     try {

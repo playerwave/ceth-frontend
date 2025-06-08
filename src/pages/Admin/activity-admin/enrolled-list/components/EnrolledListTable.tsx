@@ -1,12 +1,8 @@
-import React, { useState } from "react";
-import Dialog2 from "../../../../../components/Dialog2";
-import { CircleAlert } from "lucide-react";
-
 interface Props {
   activityLoading: boolean;
   enrolledStudents: any[];
-  filteredStudents: any[];
-  activity: any;
+  filteredStudents: any[]; // เพิ่ม filteredStudents มาจากคอมโพเนนต์หลัก
+  activity: any; // ข้อมูลกิจกรรมที่ส่งมาเพื่อเช็คประเภท location
 }
 
 export default function EnrolledListTable({
@@ -15,113 +11,73 @@ export default function EnrolledListTable({
   filteredStudents,
   activity,
 }: Props) {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedStudentId, setSelectedStudentId] = useState<number | null>(
-    null
-  );
-
-  const handleKickStudent = (studentId: number) => {
-    setSelectedStudentId(studentId);
-    setDialogOpen(true);
-  };
-
-  const handleConfirmKick = () => {
-    console.log("กำลังจะเตะนิสิต ID:", selectedStudentId);
-    setDialogOpen(false);
-    setSelectedStudentId(null);
-  };
-
-  const handleCloseDialog = () => {
-    setDialogOpen(false);
-    setSelectedStudentId(null);
-  };
-
   return (
-    <>
-      <div className="overflow-x-auto max-h-[400px] rounded-lg">
-        <table className="w-full border-spacing-0 table-auto">
-          <thead className="bg-blue-900 text-white sticky top-0 z-10 rounded-lg">
+    <div className="overflow-x-auto max-h-[400px] rounded-lg">
+      <table className="w-full border-spacing-0 table-auto">
+        <thead className="bg-blue-900 text-white sticky top-0 z-10 rounded-lg">
+          <tr>
+            <th className="p-3 text-left w-[120px] rounded-tl-lg rounded-bl-lg">
+              รหัสนิสิต
+            </th>
+            <th className="p-3 text-left w-[200px]">ชื่อ-นามสกุล</th>
+            <th className="p-3 text-left w-[120px]">สาขา</th>
+            <th className="p-3 text-center w-[120px]">สถานะ</th>
+            <th className="p-3 text-center w-[120px]">อาหาร</th>
+            <th className="p-3 text-center w-[120px]">ลงชื่อเข้า</th>
+            <th className="p-3 text-center w-[120px]">ลงชื่อออก</th>
+            <th className="p-3 text-center w-[120px] rounded-tr-lg rounded-br-lg">
+              ทำแบบประเมิน
+            </th>
+          </tr>
+        </thead>
+
+        {/* เนื้อหาตาราง */}
+        <tbody className="bg-white">
+          {activityLoading ? (
             <tr>
-              <th className="p-3 text-left w-[120px] rounded-tl-lg rounded-bl-lg">
-                รหัสนิสิต
-              </th>
-              <th className="p-3 text-left w-[200px]">ชื่อ-นามสกุล</th>
-              <th className="p-3 text-left w-[120px]">สาขา</th>
-              <th className="p-3 text-center w-[120px]">สถานะ</th>
-              <th className="p-3 text-center w-[120px]">อาหาร</th>
-              <th className="p-3 text-center w-[120px]">ลงชื่อเข้า</th>
-              <th className="p-3 text-center w-[120px]">ลงชื่อออก</th>
-              <th className="p-3 text-center w-[200px]">ทำแบบประเมิน</th>
-              <th className="p-3 text-center w-[120px] rounded-tr-lg rounded-br-lg"></th>
+              <td colSpan={8} className="text-center p-4">
+                กำลังโหลดข้อมูล...
+              </td>
             </tr>
-          </thead>
-
-          <tbody className="bg-white">
-            {activityLoading ? (
-              <tr>
-                <td colSpan={9} className="text-center p-4">
-                  กำลังโหลดข้อมูล...
+          ) : enrolledStudents.length === 0 ? (
+            <tr>
+              <td colSpan={8} className="text-center p-4">
+                ไม่มีข้อมูลนิสิตที่ลงทะเบียน
+              </td>
+            </tr>
+          ) : (
+            filteredStudents.map((student) => (
+              <tr
+                key={student.id}
+                className="border-b border-gray-300 hover:bg-gray-100"
+              >
+                <td className="p-3 text-left">{student.id}</td>
+                <td className="p-3 text-left">{student.name}</td>
+                <td className="p-3 text-left">{student.department}</td>
+                <td className="p-3 text-center">
+                  <span
+                    className={`w-[110px] h-[30px] flex items-center justify-center rounded-md text-sm font-semibold border ${
+                      student.status === "normal"
+                        ? "text-green-700 bg-green-100 border-green-400"
+                        : "text-red-700 bg-red-100 border-red-400"
+                    }`}
+                  >
+                    {student.status === "normal" ? "ปกติ" : "เสี่ยง"}
+                  </span>
                 </td>
-              </tr>
-            ) : enrolledStudents.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="text-center p-4">
-                  ไม่มีข้อมูลนิสิตที่ลงทะเบียน
+                <td className="p-3 text-center">
+                  {activity?.location_type !== "Onsite"
+                    ? "-"
+                    : student.selectedfood}
                 </td>
+                <td className="p-3 text-center">{student.checkIn}</td>
+                <td className="p-3 text-center">{student.checkOut}</td>
+                <td className="p-3 text-center">{student.evaluated}</td>
               </tr>
-            ) : (
-              filteredStudents.map((student) => (
-                <tr
-                  key={student.id}
-                  className="border-b border-gray-300 hover:bg-gray-100"
-                >
-                  <td className="p-3 text-left">{student.id}</td>
-                  <td className="p-3 text-left">{student.name}</td>
-                  <td className="p-3 text-left">{student.department}</td>
-                  <td className="p-3 text-center">
-                    <span
-                      className={`w-[90px] h-[30px] flex items-center justify-center rounded-[10px] text-sm font-semibold ${
-                        student.status === "normal"
-                          ? "bg-green-500 text-white"
-                          : "bg-red-600 text-white"
-                      }`}
-                    >
-                      {student.status === "normal" ? "ปกติ" : "เสี่ยง"}
-                    </span>
-                  </td>
-                  <td className="p-3 text-center">
-                    {activity?.location_type !== "Onsite"
-                      ? "-"
-                      : student.selectedfood}
-                  </td>
-                  <td className="p-3 text-center">{student.checkIn}</td>
-                  <td className="p-3 text-center">{student.checkOut}</td>
-                  <td className="p-3 text-center">{student.evaluated}</td>
-                  <td className="p-3 text-center">
-                    <button
-                      className="bg-red-600 text-white px-3 py-1 hover:bg-red-700 transition rounded-[20px]"
-                      onClick={() => handleKickStudent(student.id)}
-                    >
-                      เตะ
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <Dialog2
-        open={dialogOpen}
-        title="ยืนยันการเตะนิสิต"
-        message={`คุณแน่ใจหรือไม่ว่าต้องการเตะนิสิต ${
-          selectedStudentId ?? ""
-        } ออกจากกิจกรรม?`}
-        icon={<CircleAlert size={30} className="text-red-500" />}
-        onClose={handleCloseDialog}
-        onConfirm={handleConfirmKick}
-      />
-    </>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
