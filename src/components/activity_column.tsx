@@ -7,11 +7,6 @@ import {
   School as SchoolLucide,
   User,
 } from "lucide-react";
-<<<<<<< HEAD
-import { Switch } from "@mui/material";
-import { Activity } from "../types/Admin/activity_list_type";
-=======
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
 
 // 👉 type ที่สามารถใช้ปรับรูปแบบคอลัมน์ได้
 type ColumnOptions = {
@@ -19,10 +14,6 @@ type ColumnOptions = {
   includeStatus?: boolean;
   selectedTypes?: string[]; // ✅ เพิ่ม
   handleTypeChange?: (type: string) => void; // ✅ เพิ่ม
-<<<<<<< HEAD
-  handleStatusToggle?: (row: Activity) => void;
-=======
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
 };
 
 export const getActivityColumns = (
@@ -35,22 +26,7 @@ export const getActivityColumns = (
       width: 170,
       renderCell: (params) => {
         const companyLecturer = params.value ?? "ไม่มีชื่อ";
-<<<<<<< HEAD
-        return (
-          <Box
-            sx={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              maxWidth: "100%",
-            }}
-          >
-            {companyLecturer}
-          </Box>
-        );
-=======
         return <span>{companyLecturer}</span>;
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
       },
     },
     {
@@ -58,11 +34,7 @@ export const getActivityColumns = (
       headerName: "ประเภท",
       width: 220,
       renderHeader: () => (
-<<<<<<< HEAD
-        <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
-=======
         <Box display="flex" alignItems="center" gap={1}>
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
           <Typography fontWeight={600} mr={1}>
             ประเภท
           </Typography>
@@ -119,37 +91,15 @@ export const getActivityColumns = (
       field: "name",
       headerName: "ชื่อกิจกรรม",
       width: 240,
-<<<<<<< HEAD
-      renderCell: (params) => (
-        <Box
-          sx={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            maxWidth: "100%",
-          }}
-        >
-          {typeof params.value === "string" && params.value.length > 40
-            ? params.value.slice(0, 40) + "..."
-            : params.value ?? "-"}
-        </Box>
-      ),
-=======
       renderCell: (params) =>
         typeof params.value === "string" && params.value.length > 40
           ? params.value.slice(0, 40) + "..."
           : params.value ?? "-",
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
     },
     {
       field: "date",
       headerName: "วันที่จัดกิจกรรม",
-<<<<<<< HEAD
-      minWidth: 190, // ✅ เพิ่มขนาดขั้นต่ำที่พอแสดงทั้งวันที่
-      flex: 0.5, // ✅ ขยายคอลัมน์แบบ responsive ได้
-=======
       flex: 1,
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
       sortable: true,
       renderCell: (params) => {
         const start = params.row.start_register;
@@ -173,40 +123,20 @@ export const getActivityColumns = (
         const isSameDay =
           new Date(start).toDateString() === new Date(end).toDateString();
         return (
-<<<<<<< HEAD
-          <Box
-            sx={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              maxWidth: "100%",
-              minWidth: 120,
-            }}
-          >
-=======
           <span>
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
             {isSameDay
               ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
                   end
                 )} น.`
               : `${formatDate(start)} - ${formatDate(end)}`}
-<<<<<<< HEAD
-          </Box>
-=======
           </span>
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
         );
       },
     },
     {
       field: "location_type",
       headerName: "สถานที่",
-<<<<<<< HEAD
-      width: 120,
-=======
       width: 90,
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
       renderHeader: () => (
         <Box display="flex" alignItems="center" gap={1}>
           <MapPin fontSize="small" />
@@ -219,24 +149,7 @@ export const getActivityColumns = (
           Course: <Album fontSize="small" />,
         };
         const value = params.value;
-<<<<<<< HEAD
-        return (
-          map[value] ?? (
-            <Box
-              sx={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                maxWidth: "100%",
-              }}
-            >
-              ไม่ได้ระบุ
-            </Box>
-          )
-        );
-=======
         return map[value] ?? <span style={{ color: "gray" }}>ไม่ได้ระบุ</span>;
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
       },
     },
     {
@@ -261,23 +174,6 @@ export const getActivityColumns = (
     columns.push({
       field: "status",
       headerName: "สถานะ",
-<<<<<<< HEAD
-      width: 140,
-      renderCell: (params) => {
-        const isPublic = params.value === "Public";
-
-        const handleToggle = () => {
-          console.log("✅ CLICK TOGGLE"); // จะต้องเห็นใน console
-          options.handleStatusToggle?.(params.row); // เปิด Dialog
-        };
-
-        return (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-=======
       width: 100,
       renderCell: (params) => {
         const isPublic = params.value === "Public";
@@ -287,7 +183,6 @@ export const getActivityColumns = (
             sx={{
               display: "flex",
               alignItems: "center",
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
               bgcolor: isPublic ? "#22c55e" : "#ef4444",
               color: "white",
               px: 1,
@@ -295,34 +190,6 @@ export const getActivityColumns = (
               borderRadius: "9999px",
               fontSize: 12,
               fontWeight: 600,
-<<<<<<< HEAD
-              minWidth: "100px",
-              height: 30,
-            }}
-          >
-            <Typography sx={{ fontSize: "0.75rem", fontWeight: 600 }}>
-              {isPublic ? "Public" : "Private"}
-            </Typography>
-            <Switch
-              size="small"
-              checked={isPublic}
-              onClick={(e) => e.stopPropagation()} // 🛑 ป้องกัน row click
-              onChange={(e) => {
-                e.preventDefault(); // ❗ สำคัญมาก
-                e.stopPropagation();
-                handleToggle(); // ✅ เปิด dialog
-              }}
-              sx={{
-                "& .MuiSwitch-switchBase.Mui-checked": {
-                  color: "white",
-                },
-                "& .MuiSwitch-track": {
-                  bgcolor: "white",
-                  opacity: 0.3,
-                },
-              }}
-            />
-=======
               gap: 1.2,
               minWidth: "80px",
               justifyContent: "space-between",
@@ -355,7 +222,6 @@ export const getActivityColumns = (
                 {params.value}
               </>
             )}
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
           </Box>
         );
       },
