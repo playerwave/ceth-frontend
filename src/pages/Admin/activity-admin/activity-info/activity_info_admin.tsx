@@ -7,10 +7,7 @@ import ActivityImage from "./components/ActivityImage";
 import ActivityDetails from "./components/ActivityDetails";
 import FoodSelector from "./components/FoodSelector";
 import ActivityFooter from "./components/ActivityFooter";
-<<<<<<< HEAD
-=======
 import ActivityLink from "./components/ActivityUrl";
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
 
 export default function ActivityInfoAdmin() {
   const { id: paramId } = useParams();
@@ -43,26 +40,6 @@ export default function ActivityInfoAdmin() {
 
   return (
     <div className="justify-items-center">
-<<<<<<< HEAD
-      <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
-        <ActivityHeader
-          name={activity.name}
-          registeredCount={activity.registered_count}
-          seat={activity.seat}
-          onClickRegistered={() =>
-            navigate(`/enrolled_list_admin/${activity.id}`)
-          }
-        />
-
-        <ActivityImage imageUrl={activity.image_url} />
-
-        <ActivityDetails activity={activity} />
-
-        <FoodSelector
-          foodList={activity.food}
-          locationType={activity.location_type}
-        />
-=======
       {/* <div className="w-320 h-230px mx-auto ml-5  bg-white p-8 border border-gray-200 rounded-lg shadow-sm flex flex-col"> */}
       <div className="w-320 h-230px max-w-md
                   mx-auto ml-2xl mt-5 mb-5 
@@ -107,16 +84,12 @@ export default function ActivityInfoAdmin() {
             label={`${activity.company_lecturer}.com`}
           />
         )}
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
 
         <ActivityFooter
           startTime={activity.start_time}
           endTime={activity.end_time}
           state={activity.state}
-<<<<<<< HEAD
-=======
           locationType={activity.location_type} // ส่งค่าเพิ่ม
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
           onBack={() =>
             navigate("/list-activity-admin", { state: { reload: true } })
           }

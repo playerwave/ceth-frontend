@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 // import { useEffect, useState } from "react";
 // import { useParams, useNavigate } from "react-router-dom";
 // import { useActivityStore } from "../../../../stores/Admin/store_activity_info_admin";
@@ -102,7 +100,6 @@
 //   );
 // }
 
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useActivityStore } from "../../../../stores/Admin/store_activity_info_admin";
@@ -112,10 +109,7 @@ import EnrolledListHeader from "./components/EnrolledListHeader";
 import EnrolledListFilter from "./components/EnrolledListFilter";
 import EnrolledListTable from "./components/EnrolledListTable";
 import EnrolledListFooter from "./components/EnrolledListFooter";
-<<<<<<< HEAD
-=======
 import SummaryPage from "../summary/SummaryPage";
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
 
 export default function EnrolledListAdmin() {
   const { id } = useParams<{ id: string }>();
@@ -143,33 +137,6 @@ export default function EnrolledListAdmin() {
   const filteredStudents = enrolledStudents.filter((student) => {
     return true; // ใส่เงื่อนไขฟิลเตอร์ถ้าต้องการ
   });
-<<<<<<< HEAD
-
-  return (
-    <div className="p-6 w-320 h-230 mx-auto">
-      {/* ส่งข้อมูลกิจกรรมไปยัง EnrolledListFilter */}
-      <EnrolledListHeader />
-
-      <div className="p-0 w-full h-[510px] border border-gray-300 shadow-md rounded-lg flex flex-col">
-        <EnrolledListFilter
-          selectedDepartments={selectedDepartments}
-          setSelectedDepartments={setSelectedDepartments}
-          selectedStatus={selectedStatus}
-          setSelectedStatus={setSelectedStatus}
-          activity={activity} // ส่งข้อมูลกิจกรรมไปยัง EnrolledListFilter
-        />
-
-        <div className="p-0 w-full h-[510px] border border-gray-300 shadow-md rounded-lg flex flex-col">
-          <EnrolledListTable
-            activityLoading={activityLoading}
-            enrolledStudents={filteredStudents}
-            filteredStudents={filteredStudents} // ส่ง filteredStudents ให้ Table
-            activity={activity} // ส่ง activity ให้ Table
-          />
-
-          <EnrolledListFooter />
-        </div>
-=======
   const [activeTab, setActiveTab] = useState<"list" | "summary">("list");
 
   return (
@@ -200,7 +167,6 @@ export default function EnrolledListAdmin() {
           </div>
         )}
         {activeTab === "summary" && <SummaryPage />}
->>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
       </div>
     </div>
   );
