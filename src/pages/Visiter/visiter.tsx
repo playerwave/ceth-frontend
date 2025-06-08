@@ -7,10 +7,10 @@ import ActivityTablePage from "./ActivityTablePageVIsiter";
 
 const ManageActivityAdmin: React.FC = () => {
   const {
-    activities,
-    searchResults,
+    //activities,
+    //searchResults,
     fetchActivities,
-    searchActivities,
+    //searchActivities,
     activityLoading,
     activityError,
     mockActivities,
@@ -23,16 +23,33 @@ const ManageActivityAdmin: React.FC = () => {
     fetchActivities();
   }, [fetchActivities]);
 
-  const displayedActivities = searchResults ?? activities;
+  // const displayedActivities = searchResults ?? activities;
 
   const activitiesForVisiter = mockActivities.filter(
     (a) => a.status === "Public"
   );
 
+  // const handleSearch = (term: string) => {
+  //   if (term.trim() === searchTerm.trim()) return;
+  //   setSearchTerm(term);
+  //   searchActivities(term);
+  // };
+  const displayedActivities = activitiesForVisiter.filter((a) => {
+    const lowerSearch = searchTerm.trim().toLowerCase();
+
+    return (
+      a.name?.toLowerCase().normalize("NFC").includes(lowerSearch) ||
+      a.id?.toString().includes(lowerSearch)
+    );
+  });
+
   const handleSearch = (term: string) => {
-    if (term.trim() === searchTerm.trim()) return;
+    console.log("searchTerm:", searchTerm);
+    console.log(
+      "filtered:",
+      displayedActivities.map((a) => a.name)
+    );
     setSearchTerm(term);
-    searchActivities(term);
   };
 
   return (
@@ -76,7 +93,7 @@ const ManageActivityAdmin: React.FC = () => {
           📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
         </p>
       ) : activeTab === "list" ? (
-        <ActivityTablePage rows1={activitiesForVisiter} />
+        <ActivityTablePage rows1={displayedActivities} />
       ) : null}
     </div>
   );

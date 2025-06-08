@@ -13,8 +13,7 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
-  CookingPot,
-
+  StickyNote,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -29,6 +28,11 @@ const Sidebar = ({ isCollapsed, toggleSidebar, role }: SidebarProps) => {
   };
 
   const commonItems = [
+    {
+      to: role === "admin" ? "/" : "/visiter",
+      icon: <StickyNote size={24} />,
+      text: "หน้าเยี่ยมชม",
+    },
     {
       to: role === "admin" ? "/" : "/main-student",
       icon: <Home size={24} />,
@@ -87,7 +91,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar, role }: SidebarProps) => {
   ];
 
   const itemsToRender =
-    role === "admin" ? [...commonItems.slice(0, 2), ...adminOnlyItems, ...commonItems.slice(2)] : commonItems;
+    role === "admin"
+      ? [...commonItems.slice(0, 2), ...adminOnlyItems, ...commonItems.slice(2)]
+      : commonItems;
 
   return (
     <div
@@ -149,8 +155,11 @@ const SidebarItem = ({
     >
       <span className="flex-shrink-0">{icon}</span>
       <span
-        className={`transition-all duration-300 whitespace-nowrap ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto ml-3"
-          }`}
+        className={`transition-all duration-300 whitespace-nowrap ${
+          collapsed
+            ? "opacity-0 w-0 overflow-hidden"
+            : "opacity-100 w-auto ml-3"
+        }`}
       >
         {text}
       </span>
