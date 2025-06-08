@@ -163,10 +163,8 @@ import { Toaster } from "sonner";
 
 //import components
 import Navbar from "./components/Navbar";
-
-//import login
-import Login from "./pages/login";
-
+// import Login from "./pages/login";
+import Login from "./pages/Login/login";
 // Admin Pages
 import Main from "./pages/Admin/main_admin";
 import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin/list_activity_admin";
@@ -189,125 +187,103 @@ function App() {
   return (
     <>
       <Toaster position="bottom-right" richColors />
-      <div>
-        {/* Un Authenticate Routes */}
-        <Routes>
-          <Route path="/login" element={<Login />} />
-        </Routes>
-        {/* Admin Routes */}
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Navbar>
-                <Main />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/list-activity-admin"
-            element={
-              <Navbar>
-                <ListActivityAdmin />
-              </Navbar>
-            }
-          ></Route>
-          <Route
-            path="/activity-info-admin/:id"
-            element={
-              <Navbar>
-                <ActivityInfoAdmin />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/enrolled_list_admin/:id"
-            element={
-              <Navbar>
-                <EnrolledListAdmin />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/activity-info-admin"
-            element={
-              <Navbar>
-                <ActivityInfoAdmin />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/create-activity-admin"
-            element={
-              <Navbar>
-                <CreateActivityAdmin />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/update-activity-admin"
-            element={
-              <Navbar>
-                <UpdateActivityAdmin />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/enrolled_list_admin/:id"
-            element={
-              <Navbar>
-                <EnrolledListAdmin />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/test_create"
-            element={
-              <Navbar>
-                <TestCreate />
-              </Navbar>
-            }
-          />
+      <Routes>
+        {/* ❌ Unauthenticated */}
+        <Route path="/login" element={    <Login />} />
 
+        {/* ✅ Admin */}
+        <Route
+          path="/"
+          element={
+            <Navbar>
+              <Main />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/list-activity-admin"
+          element={
+            <Navbar>
+              <ListActivityAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/activity-info-admin/:id"
+          element={
+            <Navbar>
+              <ActivityInfoAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/enrolled_list_admin/:id"
+          element={
+            <Navbar>
+              <EnrolledListAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/create-activity-admin"
+          element={
+            <Navbar>
+              <CreateActivityAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/update-activity-admin"
+          element={
+            <Navbar>
+              <UpdateActivityAdmin />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/test_create"
+          element={
+            <Navbar>
+              <TestCreate />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/test-card"
+          element={
+            <Navbar>
+              <TestCardPage />
+            </Navbar>
+          }
+        />
+       
 
-          <Route
-            path="/test-card"
-            element={
-              <Navbar>
-                <TestCardPage />
-              </Navbar>
-            }
-          />
-        </Routes>
-
-        {/* Student Routes */}
-        <Routes>
-          <Route
-            path="/main-student"
-            element={
-              <Navbar>
-                <MainStudent />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/activity-info-student"
-            element={
-              <Navbar>
-                <ActivityInfoStudent />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/list-activity-student"
-            element={
-              <Navbar>
-                <ListActivityStudent />
-              </Navbar>
-            }
-          ></Route>
-        </Routes>
-      </div>
+        {/* ✅ Student */}
+        <Route
+          path="/main-student"
+          element={
+            <Navbar>
+              <MainStudent />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/activity-info-student"
+          element={
+            <Navbar>
+              <ActivityInfoStudent />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/list-activity-student"
+          element={
+            <Navbar>
+              <ListActivityStudent />
+            </Navbar>
+          }
+        />
+      </Routes>
     </>
   );
 }
