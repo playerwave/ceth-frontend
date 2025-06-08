@@ -1,9 +1,4 @@
 import { useState, useEffect } from "react";
-<<<<<<< HEAD
-import Sidebar from "./Sidebar"; // ใช้ไฟล์เดียวแทน admin/student
-
-const Navbar = ({ children }) => {
-=======
 import { useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { Menu, X } from "lucide-react";
@@ -12,15 +7,10 @@ const Navbar = ({ children }) => {
   const location = useLocation();
 
   // เก็บสถานะย่อ Sidebar ไว้ใน localStorage เฉพาะ desktop
->>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
   const [isCollapsed, setIsCollapsed] = useState(
     () => localStorage.getItem("sidebarCollapsed") === "true"
   );
 
-<<<<<<< HEAD
-  const [role, setRole] = useState<"student" | "admin">("student");
-
-=======
   // เก็บ role ใน state ธรรมดา (ไม่ใช้ localStorage)
   const [role, setRole] = useState<"student" | "admin">("student");
 
@@ -50,7 +40,6 @@ const Navbar = ({ children }) => {
   }, [location.pathname]);
 
   // บันทึกสถานะ Sidebar เฉพาะ desktop
->>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
   useEffect(() => {
     if (!isMobile) {
       localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
@@ -73,40 +62,6 @@ const Navbar = ({ children }) => {
   const showSidebarCollapsed = !isMobile && isCollapsed;
 
   return (
-<<<<<<< HEAD
-    <div className="flex w-full h-full overflow-x-hidden">
-      {/* Navbar (ติดขอบบน) */}
-      <div className="fixed top-0 left-0 w-full bg-[#1E3A8A] text-white h-[80px] p-4 z-50 flex justify-between items-center">
-        <h1 className="text-2xl">Burapha University</h1>
-        <button
-          onClick={() => setRole(role === "admin" ? "student" : "admin")}
-          className="bg-white text-[#1E3A8A] px-4 py-2 rounded"
-        >
-          สลับเป็น {role === "admin" ? "Student" : "Admin"}
-          <br />
-          (สำหรับการทดสอบเท่านั้น)
-        </button>
-      </div>
-
-      {/* Sidebar */}
-      <div
-        className={`fixed top-[80px] left-0 ${
-          isCollapsed ? "w-[80px]" : "w-[280px]"
-        } h-[calc(100vh-80px)] z-50 transition-all duration-300`}
-      >
-        <Sidebar
-          isCollapsed={isCollapsed}
-          toggleSidebar={() => setIsCollapsed(!isCollapsed)}
-          role={role}
-        />
-      </div>
-
-      {/* Content */}
-      <div
-        className={`flex-grow min-h-screen transition-all duration-300 ${
-          isCollapsed ? "ml-[80px]" : "ml-[280px]"
-        } mt-[80px] overflow-x-hidden`}
-=======
     <div className="flex">
       {/* Navbar ด้านบน */}
       <div className="fixed top-0 left-0 w-full bg-[#1E3A8A] text-white h-[80px] p-4 z-50 flex justify-between items-center">
@@ -174,7 +129,6 @@ const Navbar = ({ children }) => {
           marginLeft: isMobile ? 0 : showSidebarCollapsed ? "80px" : "280px",
           marginTop: "80px",
         }}
->>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
       >
         {children}
       </div>

@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-import React from "react";
-import { Card } from "@mui/material";
-import Table from "../../../../components/Student/table";
-import Loading from "../../../../components/Loading";
-=======
 // import React from "react";
 // import { Card, Typography } from "@mui/material";
 // import Table from "../../../../components/Student/table";
@@ -112,7 +106,6 @@ import CustomCard from "../../../../components/Card";
 import TableListRow from "./TableListRow";
 import { getTableListColumn } from "./TableListColumn";
 import { mapTransformedActivity } from "../util/mapTransformedActivity";
->>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
 import { MainActivity } from "../../../../types/Student/type_main_activity_student";
 
 interface TableActivitySectionProps {
@@ -126,43 +119,6 @@ const TableActivitySection: React.FC<TableActivitySectionProps> = ({
   activityLoading,
   activityError,
   enrolledActivities,
-<<<<<<< HEAD
-  transformedActivities,
-}) => {
-  return (
-    <div className="flex justify-center mt-4 lg:mt-6">
-      <Card
-        sx={{
-          p: 5,
-          width: "95%",
-          maxWidth: "1310px",
-          height: "auto",
-          minHeight: "500px",
-          boxShadow: 10,
-          borderRadius: 3,
-          backgroundColor: "#fff",
-        }}
-        className="ml-4 mt-5"
-      >
-        <h1 className="text-xl font-semibold">ลิสต์กิจกรรมของฉัน</h1>
-
-        {activityLoading ? (
-          <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-50 backdrop-blur-md z-40">
-            <Loading />
-          </div>
-        ) : activityError ? (
-          <p className="text-center text-red-500 p-4">
-            ❌ เกิดข้อผิดพลาด: {activityError}
-          </p>
-        ) : enrolledActivities.length === 0 ? (
-          <p className="text-center text-gray-500 p-4">📍 ไม่พบกิจกรรม
-          </p>
-        ) : (
-          <Table title="" data={transformedActivities} />
-        )}
-      </Card>
-    </div>
-=======
 }) => {
   // ✅ 1. กรองประเภทด้วย useState
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -206,12 +162,7 @@ const TableActivitySection: React.FC<TableActivitySectionProps> = ({
         <TableListRow columns={columns} rows={rows} />
       )}
     </CustomCard>
->>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
   );
 };
 
 export default TableActivitySection;
-<<<<<<< HEAD
-=======
-
->>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
