@@ -51,6 +51,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
+<<<<<<< HEAD
   mockActivities: [
     // <-- ประกาศเป็น property ธรรมดา (array)
     {
@@ -252,6 +253,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     },
   ],
 
+=======
+>>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
   fetchActivity: async (id: number | string): Promise<Activity | null> => {
     set({ activityLoading: true, activityError: null });
     try {

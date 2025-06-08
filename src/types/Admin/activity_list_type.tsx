@@ -72,7 +72,10 @@ export interface Activity {
     as_create_date: string;
     as_last_update?: string;
   } | null;
+<<<<<<< HEAD
   recommend: string;
+=======
+>>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
@@ -95,7 +98,10 @@ export interface ActivityState {
   activityLoading: boolean;
   activity: Activity | null;
   enrolledStudents: EnrolledStudent[];
+<<<<<<< HEAD
   mockActivities: Activity[];
+=======
+>>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
   fetchActivities: () => Promise<void>;
   searchActivities: (query: string) => Promise<void>;
   updateActivityStatus: (

@@ -26,6 +26,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   },
 
   searchActivities: async (searchName: string) => {
+<<<<<<< HEAD
   const trimmed = searchName.trim();
 
   if (!trimmed) {
@@ -54,6 +55,26 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   }
 };
 
+=======
+    if (!searchName.trim()) {
+      await get().fetchStudentActivities("1"); // กำหนด userId ให้ถูกต้อง
+      set({ searchResults: null });
+      return;
+    }
+
+    set({ activityLoading: true, activityError: null });
+    try {
+      const searchResults = await activityService.searchActivities(searchName);
+      set({ searchResults, activityLoading: false });
+    } catch (error) {
+      console.error("❌ Error searching activities:", error);
+      set({
+        activityError: "ไม่สามารถค้นหากิจกรรมได้",
+        activityLoading: false,
+      });
+    }
+  },
+>>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
 
   fetchActivity: async (id: number | string, userId: number) => {
     set({ activityLoading: true, activityError: null });

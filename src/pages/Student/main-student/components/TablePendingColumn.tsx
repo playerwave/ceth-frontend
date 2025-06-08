@@ -8,15 +8,14 @@ import {
   User,
 } from "lucide-react";
 
-// 👉 type ที่สามารถใช้ปรับรูปแบบคอลัมน์ได้
 type ColumnOptions = {
   enableTypeFilter?: boolean;
   includeStatus?: boolean;
-  selectedTypes?: string[]; // ✅ เพิ่ม
-  handleTypeChange?: (type: string) => void; // ✅ เพิ่ม
+  selectedTypes?: string[];
+  handleTypeChange?: (type: string) => void;
 };
 
-export const getActivityColumns = (
+export const getTablePendingColumn = (
   options: ColumnOptions = {}
 ): GridColDef[] => {
   const columns: GridColDef[] = [
@@ -24,44 +23,61 @@ export const getActivityColumns = (
       field: "company_lecturer",
       headerName: "ชื่อบริษัท/วิทยากร",
       width: 170,
-      renderCell: (params) => {
-        const companyLecturer = params.value ?? "ไม่มีชื่อ";
-        return <span>{companyLecturer}</span>;
-      },
+      renderCell: (params) => (
+        <span
+          title={params.value}
+          style={{
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            display: "inline-block",
+            width: "100%",
+          }}
+        >
+          {params.value ?? "ไม่มีชื่อ"}
+        </span>
+      ),
     },
     {
       field: "type",
       headerName: "ประเภท",
+      sortable: false,
       width: 220,
-      renderHeader: () => (
-        <Box display="flex" alignItems="center" gap={1}>
-          <Typography fontWeight={600} mr={1}>
-            ประเภท
-          </Typography>
-          <Checkbox
-            size="small"
-            checked={options.selectedTypes?.includes("Hard Skill") ?? false}
-            onChange={() => options.handleTypeChange?.("Hard Skill")}
-            sx={{
-              color: "#F3D9B1",
-              "&.Mui-checked": { color: "#F3D9B1" },
-              bgcolor: "#1E3A8A",
-              borderRadius: "4px",
-            }}
-          />
-          <Checkbox
-            size="small"
-            checked={options.selectedTypes?.includes("Soft Skill") ?? false}
-            onChange={() => options.handleTypeChange?.("Soft Skill")}
-            sx={{
-              color: "#E9D5FF",
-              "&.Mui-checked": { color: "#E9D5FF" },
-              bgcolor: "#1E3A8A",
-              borderRadius: "4px",
-            }}
-          />
-        </Box>
-      ),
+      renderHeader: () => {
+        if (!options.enableTypeFilter) {
+          return <Typography fontWeight={600}>ประเภท</Typography>;
+        }
+
+        return (
+          <Box display="flex" alignItems="center" gap={1}>
+            <Typography fontWeight={600} mr={1}>
+              ประเภท
+            </Typography>
+            <Checkbox
+              size="small"
+              checked={options.selectedTypes?.includes("Hard Skill") ?? false}
+              onChange={() => options.handleTypeChange?.("Hard Skill")}
+              sx={{
+                color: "#F3D9B1",
+                "&.Mui-checked": { color: "#F3D9B1" },
+                bgcolor: "#1E3A8A",
+                borderRadius: "4px",
+              }}
+            />
+            <Checkbox
+              size="small"
+              checked={options.selectedTypes?.includes("Soft Skill") ?? false}
+              onChange={() => options.handleTypeChange?.("Soft Skill")}
+              sx={{
+                color: "#E9D5FF",
+                "&.Mui-checked": { color: "#E9D5FF" },
+                bgcolor: "#1E3A8A",
+                borderRadius: "4px",
+              }}
+            />
+          </Box>
+        );
+      },
       renderCell: (params) => {
         const value = params.value ?? "ไม่ได้ระบุ";
         return (
@@ -70,17 +86,17 @@ export const getActivityColumns = (
             size="small"
             sx={{
               backgroundColor:
-                value === "ไม่ได้ระบุ"
-                  ? "transparent"
-                  : value === "Hard Skill"
+                value === "Hard Skill"
                   ? "#FFF4CC"
-                  : "#EDE7F6",
+                  : value === "Soft Skill"
+                  ? "#EDE7F6"
+                  : "transparent",
               color:
                 value === "Hard Skill"
                   ? "#FBBF24"
-                  : value === "ไม่ได้ระบุ"
-                  ? "black"
-                  : "#5E35B1",
+                  : value === "Soft Skill"
+                  ? "#5E35B1"
+                  : "black",
               fontWeight: "bold",
             }}
           />
@@ -91,20 +107,31 @@ export const getActivityColumns = (
       field: "name",
       headerName: "ชื่อกิจกรรม",
       width: 240,
-      renderCell: (params) =>
-        typeof params.value === "string" && params.value.length > 40
-          ? params.value.slice(0, 40) + "..."
-          : params.value ?? "-",
+      renderCell: (params) => (
+        <span
+          title={params.value}
+          style={{
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            display: "inline-block",
+            width: "100%",
+          }}
+        >
+          {params.value ?? "-"}
+        </span>
+      ),
     },
     {
-      field: "date",
-      headerName: "วันที่จัดกิจกรรม",
+      field: "end_assessment",
+      headerName: "วันที่ปิดทำแบบประเมิน",
       flex: 1,
       sortable: true,
       renderCell: (params) => {
-        const start = params.row.start_register;
-        const end = params.row.end_register;
+        const start = params.row.start_assessment;
+        const end = params.row.end_assessment;
         if (!start || !end) return <span>ยังไม่ได้กำหนด</span>;
+
         const formatDate = (dateStr: string) => {
           const date = new Date(dateStr);
           return date.toLocaleDateString("th-TH", {
@@ -120,15 +147,32 @@ export const getActivityColumns = (
             .toString()
             .padStart(2, "0")}`;
         };
+
         const isSameDay =
           new Date(start).toDateString() === new Date(end).toDateString();
+
+        const now = new Date();
+        const isExpired = now > new Date(end); // ✅ เช็กว่าหมดเขตหรือยัง
+
+        const displayText = isSameDay
+          ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
+              end
+            )} น.`
+          : `${formatDate(start)} - ${formatDate(end)}`;
+
         return (
-          <span>
-            {isSameDay
-              ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
-                  end
-                )} น.`
-              : `${formatDate(start)} - ${formatDate(end)}`}
+          <span
+            title={displayText}
+            style={{
+              color: isExpired ? "#dc2626" : "inherit", // ✅ สีแดงถ้าหมดเขต
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              display: "inline-block",
+              width: "100%",
+            }}
+          >
+            {displayText}
           </span>
         );
       },
@@ -148,8 +192,9 @@ export const getActivityColumns = (
           Online: <HouseWifi fontSize="small" />,
           Course: <Album fontSize="small" />,
         };
-        const value = params.value;
-        return map[value] ?? <span style={{ color: "gray" }}>ไม่ได้ระบุ</span>;
+        return (
+          map[params.value] ?? <span style={{ color: "gray" }}>ไม่ได้ระบุ</span>
+        );
       },
     },
     {
@@ -157,11 +202,11 @@ export const getActivityColumns = (
       headerName: "ที่นั่ง",
       width: 100,
       renderCell: (params) => {
-        const total = params.row.registered_count;
-        const absent = params.row.not_attended_count;
-        return total != null && absent != null ? (
+        const total = params.row.seat; // ✅ แก้จาก registered_count → seat
+        const registered = params.row.registered_count;
+        return total != null && registered != null ? (
           <Box display="flex" alignItems="center" gap={1}>
-            {absent}/{total} <User />
+            {registered}/{total} <User />
           </Box>
         ) : (
           <span>-</span>

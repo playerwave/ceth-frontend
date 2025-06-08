@@ -49,6 +49,7 @@ import clsx from "clsx";
 
 interface ButtonProps {
   children: React.ReactNode;
+<<<<<<< HEAD
   color?: "blue" | "red" | "white"; // รองรับสีที่กำหนด
   width?: string; // รองรับ width เช่น "200px", "100%", "w-40" (Tailwind)
   type?: "button" | "submit" | "reset"; // รองรับ type ของ button
@@ -56,6 +57,16 @@ interface ButtonProps {
   className?: string; // ✅ เพิ่ม className
   startIcon?: React.ReactNode; // ✅ เพิ่ม startIcon
   variant?: "contained" | "text" | "outlined"; // ✅ ต้องมีบรรทัดนี้
+=======
+  bgColor?: string; // ✅ สีพื้นหลังของปุ่ม (กำหนดแบบ custom ได้ เช่น "#1E3A8A")
+  textColor?: string; // ✅ สีของข้อความ
+  width?: string; // เช่น "200px", "100%" หรือไม่ใส่ (auto)
+  type?: "button" | "submit" | "reset";
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  className?: string;
+  startIcon?: React.ReactNode;
+  variant?: "contained" | "text" | "outlined";
+>>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -63,9 +74,15 @@ const Button: React.FC<ButtonProps> = ({
   bgColor = "#1E3A8A",
   textColor = "#FFFFFF",
   width = "auto",
+<<<<<<< HEAD
   type = "button", // ค่า default เป็น "button" เพื่อป้องกันการ submit
   onClick, 
   className,         // ✅ เพิ่มตรงนี้
+=======
+  type = "button",
+  onClick,
+  className,
+>>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
   startIcon,
 }) => {
   return (
@@ -73,6 +90,7 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       onClick={onClick}
       className={clsx(
+<<<<<<< HEAD
         "text-white text-lg font-semibold px-6 py-2 rounded-full shadow-md transition duration-200",
         {
           "bg-[#1E3A8A] hover:bg-[#162E6F]": color === "blue",
@@ -81,6 +99,14 @@ const Button: React.FC<ButtonProps> = ({
             color === "white",
         },
         className // ✅ เพิ่ม className จาก props
+=======
+        "font-semibold transition duration-200 shadow-md rounded-[20px]",
+        // ✅ responsive font
+        "text-[12px] sm:text-[13px] md:text-[14px] lg:text-[16px]",
+        // ✅ responsive padding
+        "px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 lg:px-6 lg:py-3",
+        className
+>>>>>>> 2d3a72fd0b30ee0fcde9a173e70a2ab8635a1f34
       )}
       style={{
         width,

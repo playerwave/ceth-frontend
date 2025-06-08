@@ -73,7 +73,6 @@ export interface Activity {
     as_last_update?: string;
   } | null;
   selected_food: string | null;
-  recommend: string;
 }
 
 // ✅ อินเทอร์เฟซสำหรับข้อมูลนิสิตที่ลงทะเบียน
