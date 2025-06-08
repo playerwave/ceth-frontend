@@ -168,7 +168,6 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activityLoading: false,
   activity: null,
   enrolledActivities: [],
-  recommendedActivities: [],
 
   fetchStudentActivities: async (userId: string) => {
     set({ activityLoading: true, activityError: null });

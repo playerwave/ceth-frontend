@@ -161,29 +161,29 @@ import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 
+//import components
 import Navbar from "./components/Navbar";
+
+//import login
 import Login from "./pages/login";
 
 // Admin Pages
 import Main from "./pages/Admin/main_admin";
-import ManageActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin/list_activity_admin";
+import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin/list_activity_admin";
 import TestCreate from "./pages/Test/test_create";
 import CreateActivityAdmin from "./pages/Admin/activity-admin/create-activity/create_activity_admin";
 import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity-info/activity_info_admin";
 import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled-list/enrolled_list_admin";
-import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 
-// Student Pages
+import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
+// import Crud_Test from "./pages/Test/crud_test";
+
+
+//import pages Student
 import MainStudent from "./pages/Student/main-student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
-
-
-// Test
 import TestCardPage from "./pages/Test/test_card";
-import CreateFoodAdmin from "./pages/Admin/mangefood-admin/create-food/create.food.admin";
-import ListFoodAdmin from "./pages/Admin/mangefood-admin/list-food/list.food.admin";
-import EditFoodAdmin from "./pages/Admin/mangefood-admin/edit-food/edit.food";
 
 function App() {
   return (
@@ -269,33 +269,6 @@ function App() {
             }
           />
 
-
-          <Route
-            path="/create-food"
-            element={
-              <Navbar>
-                <CreateFoodAdmin />
-              </Navbar>
-            }
-          />
-
-          <Route
-            path="/list-food"
-            element={
-              <Navbar>
-                <ListFoodAdmin />
-              </Navbar>
-            }
-          />
-
- <Route
-            path="/edit-food"
-            element={
-              <Navbar>
-                <EditFoodAdmin />
-              </Navbar>
-            }
-          />
 
           <Route
             path="/test-card"

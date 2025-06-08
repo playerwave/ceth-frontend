@@ -27,11 +27,39 @@ export default function EnrolledListFilter({
         <User size={24} />
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex justify-center gap-4 w-full">
+
         {/* ฟิลเตอร์สาขา */}
         <div className="flex items-center gap-2">
           <button className="bg-blue-900 text-white px-4 py-1 rounded">สาขา</button>
           {["SE", "AI", "CS", "IT"].map((dept) => (
+            <FormControlLabel
+              key={dept}
+              control={
+                <Checkbox
+                  checked={selectedDepartments.includes(dept)}
+                  onChange={() =>
+                    setSelectedDepartments((prev) =>
+                      prev.includes(dept)
+                        ? prev.filter((d) => d !== dept)
+                        : [...prev, dept]
+                    )
+                  }
+                  sx={{
+                    color: "#757575",
+                    "&.Mui-checked": { color: "#2196F3" },
+                  }}
+                />
+              }
+              label={dept}
+            />
+          ))}
+        </div>
+
+        {/* ฟิลเตอร์ชั้นปี */}
+        <div className="flex items-center gap-2">
+          <button className="bg-blue-900 text-white px-4 py-1 rounded">ชั้นปี</button>
+          {["1", "2", "3", "4"].map((dept) => (
             <FormControlLabel
               key={dept}
               control={

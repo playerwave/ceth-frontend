@@ -1,10 +1,22 @@
 import { create } from "zustand";
+<<<<<<< HEAD
 import { ActivityState, Activity } from "../../types/Admin/activity_list_type";
 import {
   fetchActivities as fetchActivitiesService,
   searchActivities as searchActivitiesService,
   fetchActivity as fetchActivityService,
 } from "../../service/Admin/activity_list_service";
+=======
+import { ActivityState } from "../../types/Admin/activity_list_type";
+import { Activity } from "../../types/Student/activity_list_studen_type";
+
+// 🔁 import service ที่คุณสร้างไว้
+import {
+  fetchActivities as fetchActivitiesService,
+  fetchActivity as fetchActivityService,
+  searchActivities as searchActivitiesService,
+} from "../../service/Admin/activity_list_service"; // ✅ << ปรับ path ให้ตรง
+>>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
   activities: [],
@@ -12,6 +24,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activityError: null,
   activityLoading: false,
   activity: null,
+<<<<<<< HEAD
   enrolledStudents: [],
 
   mockActivities: [
@@ -181,11 +194,18 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       assessment: null,
     },
   ],
+=======
+  enrolledActivities: [],
+>>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
 
   fetchActivities: async () => {
     set({ activityLoading: true, activityError: null });
     try {
+<<<<<<< HEAD
       const activities = await fetchActivitiesService("yourUserId");
+=======
+      const activities = await fetchActivitiesService("yourUserId"); // ✅ ใส่ userId ถ้า service ต้องการ
+>>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
       set({ activities, activityLoading: false });
     } catch (error) {
       console.error("❌ Error fetching activities:", error);
@@ -216,17 +236,27 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
+<<<<<<< HEAD
   fetchActivity: async (id: number | string) => {
     set({ activityLoading: true, activityError: null });
     try {
       const activity = await fetchActivityService(id);
       set({ activity, activityLoading: false });
+=======
+  fetchActivity: async (id: number | string): Promise<Activity | null> => {
+    set({ activityLoading: true, activityError: null });
+    try {
+      const activity = await fetchActivityService(id, "yourUserId");
+      set({ activity, activityLoading: false });
+      return activity;
+>>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
     } catch (error) {
       console.error("❌ Error fetching activity:", error);
       set({
         activityError: "ไม่สามารถโหลดกิจกรรมนี้ได้",
         activityLoading: false,
       });
+<<<<<<< HEAD
     }
   },
 
@@ -273,4 +303,9 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   setMockActivities: (activities: Activity[]) => {
     set({ mockActivities: activities });
   },
+=======
+      return null;
+    }
+  },
+>>>>>>> 4c8b22d56c55abbf22dfae39e77e0dda7526dc4e
 }));

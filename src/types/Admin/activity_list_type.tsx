@@ -47,7 +47,6 @@ export interface Activity {
   food: string[];
   status: string;
   location_type: "Onsite" | "Online" | "Course";
-  date: string | null;
   start_register: Date | null;
   end_register: Date | null;
   create_date: Date | null;
@@ -64,9 +63,6 @@ export interface Activity {
   start_assessment: Date | null;
   end_assessment: Date | null;
   assessment_id: number | null;
-  register_start_normal: Date | null;
-  requiredFieldsFilled: boolean | null;
-  activity_state: string;
   assessment?: {
     as_id: number;
     as_name: string;
@@ -97,9 +93,6 @@ export interface ActivityState {
   activityLoading: boolean;
   activity: Activity | null;
   enrolledStudents: EnrolledStudent[];
-  mockActivities: Activity[];
-  handleStatusToggle?: (row: Activity) => void | Promise<void>; // ✅ แก้ตรงนี้ฃ
-  setMockActivities: (activities: Activity[]) => void;
   fetchActivities: () => Promise<void>;
   searchActivities: (query: string) => Promise<void>;
   updateActivityStatus: (
