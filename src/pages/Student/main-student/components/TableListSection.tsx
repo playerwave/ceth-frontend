@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import React from "react";
 // import { Card, Typography } from "@mui/material";
 // import Table from "../../../../components/Student/table";
@@ -106,6 +107,12 @@ import CustomCard from "../../../../components/Card";
 import TableListRow from "./TableListRow";
 import { getTableListColumn } from "./TableListColumn";
 import { mapTransformedActivity } from "../util/mapTransformedActivity";
+=======
+import React from "react";
+import { Card } from "@mui/material";
+import Table from "../../../../components/Student/table";
+import Loading from "../../../../components/Loading";
+>>>>>>> 479485fc736f097c34d732b1d3337cc61cb44b04
 import { MainActivity } from "../../../../types/Student/type_main_activity_student";
 
 interface TableActivitySectionProps {
@@ -119,6 +126,7 @@ const TableActivitySection: React.FC<TableActivitySectionProps> = ({
   activityLoading,
   activityError,
   enrolledActivities,
+<<<<<<< HEAD
 }) => {
   // ✅ 1. กรองประเภทด้วย useState
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -162,6 +170,43 @@ const TableActivitySection: React.FC<TableActivitySectionProps> = ({
         <TableListRow columns={columns} rows={rows} />
       )}
     </CustomCard>
+=======
+  transformedActivities,
+}) => {
+  return (
+    <div className="flex justify-center mt-4 lg:mt-6">
+      <Card
+        sx={{
+          p: 5,
+          width: "95%",
+          maxWidth: "1310px",
+          height: "auto",
+          minHeight: "500px",
+          boxShadow: 10,
+          borderRadius: 3,
+          backgroundColor: "#fff",
+        }}
+        className="ml-4 mt-5"
+      >
+        <h1 className="text-xl font-semibold">ลิสต์กิจกรรมของฉัน</h1>
+
+        {activityLoading ? (
+          <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-50 backdrop-blur-md z-40">
+            <Loading />
+          </div>
+        ) : activityError ? (
+          <p className="text-center text-red-500 p-4">
+            ❌ เกิดข้อผิดพลาด: {activityError}
+          </p>
+        ) : enrolledActivities.length === 0 ? (
+          <p className="text-center text-gray-500 p-4">📍 ไม่พบกิจกรรม
+          </p>
+        ) : (
+          <Table title="" data={transformedActivities} />
+        )}
+      </Card>
+    </div>
+>>>>>>> 479485fc736f097c34d732b1d3337cc61cb44b04
   );
 };
 
