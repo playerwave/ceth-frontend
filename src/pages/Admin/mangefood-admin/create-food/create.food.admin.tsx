@@ -8,7 +8,7 @@ const CreateFoodAdmin = () => {
     return (
         <>
             {/* Mobile & iPad - Fixed Layout */}
-            <Box className="block lg:hidden h-screen bg-white flex flex-col">
+            <Box className="flex lg:hidden h-screen bg-white flex-col">
 
                 {/* Scrollable Container */}
                <div className="flex-1 overflow-y-auto">
@@ -153,7 +153,7 @@ const CreateFoodAdmin = () => {
                         <div className="col-span-2 flex justify-end gap-4 mt-75">
                             <Button
                                 type="button"
-                                color="red"
+                                bgColor="red"
                                 onClick={() => navigate('/list-food')}
                             >
                                 ยกเลิก

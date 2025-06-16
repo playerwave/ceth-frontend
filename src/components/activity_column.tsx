@@ -8,12 +8,16 @@ import {
   User,
 } from "lucide-react";
 
+import { Activity } from "../types/Admin/activity_list_type"; // ปรับเส้นทางให้ตรงกับที่เก็บ Activity
+
 // 👉 type ที่สามารถใช้ปรับรูปแบบคอลัมน์ได้
 type ColumnOptions = {
   enableTypeFilter?: boolean;
   includeStatus?: boolean;
   selectedTypes?: string[]; // ✅ เพิ่ม
   handleTypeChange?: (type: string) => void; // ✅ เพิ่ม
+  handleStatusToggle?: (row: Activity & { source: "mock" | "real" }) => void;
+  includeRecommend?: boolean;
 };
 
 export const getActivityColumns = (
@@ -171,13 +175,13 @@ export const getActivityColumns = (
   ];
 
   if (options.includeStatus) {
-    columns.push({
-      field: "status",
-      headerName: "สถานะ",
-      width: 100,
-      renderCell: (params) => {
-        const isPublic = params.value === "Public";
-        return (
+  columns.push({
+    field: "status",
+    headerName: "สถานะ",
+    width: 100,
+    renderCell: (params) => {
+      const isPublic = params.value === "Public";
+      return (
           <Box
             onClick={() => console.log("toggle")}
             sx={{

@@ -23,7 +23,6 @@ export interface ApiActivity {
   ac_state: string;
   ac_normal_register: string;
   ac_recieve_hours?: number;
-  ac_recommend?: "no" | "yes";
   ac_start_assessment?: Date;
   ac_end_assessment?: Date;
   assessment?: {
@@ -47,8 +46,8 @@ export interface Activity {
   seat: string;
   food: string[];
   status: string;
-  recommend: 'yes' | 'no',
   location_type: "Onsite" | "Online" | "Course";
+  date: string | null;
   start_register: Date | null;
   end_register: Date | null;
   create_date: Date | null;
@@ -65,6 +64,9 @@ export interface Activity {
   start_assessment: Date | null;
   end_assessment: Date | null;
   assessment_id: number | null;
+  register_start_normal: Date | null;
+  requiredFieldsFilled: boolean | null;
+  activity_state: string;
   assessment?: {
     as_id: number;
     as_name: string;
@@ -95,6 +97,9 @@ export interface ActivityState {
   activityLoading: boolean;
   activity: Activity | null;
   enrolledStudents: EnrolledStudent[];
+  mockActivities: Activity[];
+  handleStatusToggle?: (row: Activity) => void | Promise<void>; // ✅ แก้ตรงนี้ฃ
+  setMockActivities: (activities: Activity[]) => void;
   fetchActivities: () => Promise<void>;
   searchActivities: (query: string) => Promise<void>;
   updateActivityStatus: (
@@ -102,8 +107,7 @@ export interface ActivityState {
     currentStatus: "Public" | "Private"
   ) => Promise<void>;
   updateActivity: (activity: Activity) => Promise<void>;
-  fetchActivity: (id: string | number, userId: string) => Promise<void>; // หรือ Promise<Activity | null> ถ้าคุณ return
-
+  fetchActivity: (id: number | string) => Promise<void>;
   fetchEnrolledStudents: (id: number | string) => Promise<void>;
   createActivity: (activity: ApiActivity) => Promise<void>;
 }

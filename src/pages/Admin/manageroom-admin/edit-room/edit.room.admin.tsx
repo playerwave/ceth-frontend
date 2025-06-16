@@ -22,7 +22,7 @@ const EditRoomAdmin = () => {
     return (
         <>
             {/* 📱 Mobile Layout */}
-            <Box className="block lg:hidden h-screen bg-white flex flex-col">
+            <Box className="lg:hidden h-screen bg-white flex flex-col">
               
                     <div className="p-4 pb-[120px]">
                         <h2 className="text-xl font-bold mb-4 text-gray-800 text-center">แก้ไขเมนูอาหาร</h2>

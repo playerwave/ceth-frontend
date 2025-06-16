@@ -41,6 +41,7 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
         enableTypeFilter: true,
         handleTypeChange,
         selectedTypes,
+        includeRecommend: false,
       }),
     [selectedTypes]
   );

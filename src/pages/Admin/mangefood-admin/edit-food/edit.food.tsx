@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Box, TextField } from "@mui/material";
 import Button from "../../../../components/Button";
 import { Trash2 } from 'lucide-react';
@@ -17,7 +17,7 @@ const EditFoodAdmin = () => {
     return (
         <>
             {/* Mobile & Tablet */}
-            <Box className="block lg:hidden bg-white flex flex-col" sx={{ height: '100dvh' }}>
+            <Box className="flex lg:hidden bg-white flex-col" sx={{ height: '100dvh' }}>
                 <div className="flex-1 overflow-y-auto">
                     <div className="p-4 pb-[120px]">
                         <h2 className="text-xl font-bold mb-4 text-gray-800 text-center">แก้ไขเมนูอาหาร</h2>
@@ -184,7 +184,7 @@ const EditFoodAdmin = () => {
                         <div className="col-span-2 flex justify-end gap-4 mt-75">
                             <Button
                                 type="button"
-                                color="red"
+                                bgColor="red"
                                 onClick={() => navigate('/list-food')}
                             >
                                 ยกเลิก

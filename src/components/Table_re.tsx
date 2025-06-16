@@ -11,7 +11,11 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { MapPin, ChevronDown } from "lucide-react"; // เพิ่มไอคอน ChevronDown
+import { MapPin } from "lucide-react"; // เพิ่มไอคอน ChevronDown
+
+import Button from "./Button"; // ปรับเส้นทางให้ตรงกับที่เก็บ Button
+
+import { Activity } from "../types/Admin/activity_list_type"; // ปรับเส้นทางให้ตรงกับที่เก็บ Activity
 
 export interface TableRedesignProps {
   height?: number | string;
@@ -21,6 +25,8 @@ export interface TableRedesignProps {
   rows: any[];
   title?: string;
   initialPageSize?: number;
+
+  handleStatusToggle?: (row: ActivityWithSource) => void;
 }
 
 export default function TableRedesign({
@@ -30,6 +36,8 @@ export default function TableRedesign({
   rows,
   title,
   initialPageSize,
+  handleStatusToggle,
+  
 }: TableRedesignProps) {
   const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
@@ -112,6 +120,27 @@ export default function TableRedesign({
     }
     return col;
   });
+
+  if (handleStatusToggle) {
+  columnsWithDropdown.push({
+    field: "toggleStatus",
+    headerName: "เปลี่ยนสถานะ",
+    width: 150,
+    renderCell: (params) => (
+      <Button
+        variant="outlined"
+        onClick={() => handleStatusToggle(params.row)}
+      >
+        {params.row.status === "Public" ? "ปิด" : "เปิด"}
+      </Button>
+    ),
+    sortable: false,
+    filterable: false,
+    align: "center",
+    headerAlign: "center",
+  });
+}
+
 
   return (
     <Box sx={{ mb: 4 }}>

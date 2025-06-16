@@ -9,8 +9,6 @@ import ActivityTablePageStuden from "./ActivityTablePageStuden";
 import CalculateDialog from "./components/CalulateDialog"; // ✅ import dialog
 import { student } from "../../../../stores/Student/studen"; // ✅ import mock student
 
-import { mockActivities } from "../../../../stores/mock/mockActivities";
-
 const ManageActivityStuden: React.FC = () => {
   const navigate = useNavigate();
   const {
@@ -20,6 +18,7 @@ const ManageActivityStuden: React.FC = () => {
     searchActivities,
     activityLoading,
     activityError,
+    mockActivities,
   } = useActivityStore();
 
   const [activeTab, setActiveTab] = useState<"list" | "calendar" | "recommend">(

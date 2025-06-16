@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 interface Food {
   name: string;
-  price: string;
+  price: number;
   phone: string;
 }
 
