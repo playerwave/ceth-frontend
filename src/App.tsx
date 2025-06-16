@@ -159,7 +159,6 @@
 
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
-import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 
 
@@ -172,32 +171,20 @@ import Login from "./pages/login";
 // Admin Pages
 import Main from "./pages/Admin/main_admin";
 import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin/list_activity_admin";
-import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin/list_activity_admin";
-import TestCreate from "./pages/Test/test_create";
+// import TestCreate from "./pages/Test/test_create";
 import CreateActivityAdmin from "./pages/Admin/activity-admin/create-activity/create_activity_admin";
 import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity-info/activity_info_admin";
 import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled-list/enrolled_list_admin";
-import CreateActivityAdmin from "./pages/Admin/activity-admin/create-activity/create_activity_admin";
-import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity-info/activity_info_admin";
-import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled-list/enrolled_list_admin";
-
-import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
-
-// Student Pages
-import MainStudent from "./pages/Student/main-student/main_student";
-import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
-import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
+// import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 
 
-// Test
-import TestCardPage from "./pages/Test/test_card";
 
 //visiter
 import Visiter from "./pages/Visiter/visiter";
 // import Crud_Test from "./pages/Test/crud_test";
 
 
-//import pages Student
+// Student pages
 import MainStudent from "./pages/Student/main-student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
@@ -253,22 +240,14 @@ function App() {
             </Navbar>
           }
         />
-        <Route
+        {/* <Route
           path="/update-activity-admin"
           element={
             <Navbar>
               <UpdateActivityAdmin />
             </Navbar>
           }
-        />
-        <Route
-          path="/test_create"
-          element={
-            <Navbar>
-              <TestCreate />
-            </Navbar>
-          }
-        />
+        /> */}
         <Route
           path="/test-card"
           element={
@@ -325,11 +304,7 @@ function App() {
         <Routes>
           <Route
             path="/"
-            path="/"
             element={
-              <Navbar>
-                <Main />
-              </Navbar>
               <Navbar>
                 <Main />
               </Navbar>
@@ -341,9 +316,6 @@ function App() {
               <Navbar>
                 <ListActivityAdmin />
               </Navbar>
-              <Navbar>
-                <ListActivityAdmin />
-              </Navbar>
             }
           ></Route>
           <Route
@@ -352,17 +324,11 @@ function App() {
               <Navbar>
                 <ActivityInfoAdmin />
               </Navbar>
-              <Navbar>
-                <ActivityInfoAdmin />
-              </Navbar>
             }
           />
           <Route
             path="/enrolled_list_admin/:id"
             element={
-              <Navbar>
-                <EnrolledListAdmin />
-              </Navbar>
               <Navbar>
                 <EnrolledListAdmin />
               </Navbar>
@@ -374,9 +340,6 @@ function App() {
               <Navbar>
                 <ActivityInfoAdmin />
               </Navbar>
-              <Navbar>
-                <ActivityInfoAdmin />
-              </Navbar>
             }
           />
           <Route
@@ -385,38 +348,21 @@ function App() {
               <Navbar>
                 <CreateActivityAdmin />
               </Navbar>
-              <Navbar>
-                <CreateActivityAdmin />
-              </Navbar>
             }
           />
-          <Route
+          {/* <Route
             path="/update-activity-admin"
             element={
               <Navbar>
                 <UpdateActivityAdmin />
               </Navbar>
-              <Navbar>
-                <UpdateActivityAdmin />
-              </Navbar>
             }
-          />
+          /> */}
           <Route
             path="/enrolled_list_admin/:id"
             element={
               <Navbar>
                 <EnrolledListAdmin />
-              </Navbar>
-              <Navbar>
-                <EnrolledListAdmin />
-              </Navbar>
-            }
-          />
-          <Route
-            path="/test_create"
-            element={
-              <Navbar>
-                <TestCreate />
               </Navbar>
             }
           />
@@ -426,9 +372,6 @@ function App() {
             element={
               <Navbar>
                 <TestCardPage />
-              </Navbar>
-              <Navbar>
-                <TestCreate />
               </Navbar>
             }
           />
@@ -452,17 +395,11 @@ function App() {
               <Navbar>
                 <MainStudent />
               </Navbar>
-              <Navbar>
-                <MainStudent />
-              </Navbar>
             }
           />
           <Route
             path="/activity-info-student"
             element={
-              <Navbar>
-                <ActivityInfoStudent />
-              </Navbar>
               <Navbar>
                 <ActivityInfoStudent />
               </Navbar>
@@ -481,9 +418,6 @@ function App() {
             element={
               <Navbar>
                 <Visiter />
-              </Navbar>
-              <Navbar>
-                <ListActivityStudent />
               </Navbar>
             }
           ></Route>

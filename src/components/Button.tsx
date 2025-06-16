@@ -62,18 +62,9 @@
 
 import React from "react";
 import clsx from "clsx";
-import clsx from "clsx";
 
 interface ButtonProps {
   children: React.ReactNode;
-  bgColor?: string; // ✅ สีพื้นหลังของปุ่ม (กำหนดแบบ custom ได้ เช่น "#1E3A8A")
-  textColor?: string; // ✅ สีของข้อความ
-  width?: string; // เช่น "200px", "100%" หรือไม่ใส่ (auto)
-  type?: "button" | "submit" | "reset";
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  className?: string;
-  startIcon?: React.ReactNode;
-  variant?: "contained" | "text" | "outlined";
   bgColor?: string; // ✅ สีพื้นหลังของปุ่ม (กำหนดแบบ custom ได้ เช่น "#1E3A8A")
   textColor?: string; // ✅ สีของข้อความ
   width?: string; // เช่น "200px", "100%" หรือไม่ใส่ (auto)
@@ -88,21 +79,14 @@ const Button: React.FC<ButtonProps> = ({
   children,
   bgColor = "#1E3A8A",
   textColor = "#FFFFFF",
-  bgColor = "#1E3A8A",
-  textColor = "#FFFFFF",
   width = "auto",
   type = "button",
-  type = "button",
   onClick,
-  className,
-  startIcon,
   className,
   startIcon,
 }) => {
   return (
     <button
-      type={type}
-      onClick={onClick}
       type={type}
       onClick={onClick}
       className={clsx(
@@ -111,7 +95,6 @@ const Button: React.FC<ButtonProps> = ({
         "text-[12px] sm:text-[13px] md:text-[14px] lg:text-[16px]",
         // ✅ responsive padding
         "px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 lg:px-6 lg:py-3",
-        className
         "font-semibold transition duration-200 shadow-md rounded-[20px]",
         // ✅ responsive font
         "text-[12px] sm:text-[13px] md:text-[14px] lg:text-[16px]",
@@ -119,13 +102,6 @@ const Button: React.FC<ButtonProps> = ({
         "px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 lg:px-6 lg:py-3",
         className
       )}
-      style={{
-        width,
-        backgroundColor: bgColor,
-        color: textColor,
-      }}
-    >
-      {startIcon && <span className="mr-2">{startIcon}</span>}
       style={{
         width,
         backgroundColor: bgColor,

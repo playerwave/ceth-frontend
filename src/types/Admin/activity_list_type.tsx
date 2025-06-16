@@ -23,6 +23,7 @@ export interface ApiActivity {
   ac_state: string;
   ac_normal_register: string;
   ac_recieve_hours?: number;
+  ac_recommend?: "no" | "yes";
   ac_start_assessment?: Date;
   ac_end_assessment?: Date;
   assessment?: {
@@ -46,8 +47,8 @@ export interface Activity {
   seat: string;
   food: string[];
   status: string;
+  recommend: 'yes' | 'no',
   location_type: "Onsite" | "Online" | "Course";
-  date: string | null;
   start_register: Date | null;
   end_register: Date | null;
   create_date: Date | null;
@@ -101,7 +102,8 @@ export interface ActivityState {
     currentStatus: "Public" | "Private"
   ) => Promise<void>;
   updateActivity: (activity: Activity) => Promise<void>;
-  fetchActivity: (id: number | string) => Promise<void>;
+  fetchActivity: (id: string | number, userId: string) => Promise<void>; // หรือ Promise<Activity | null> ถ้าคุณ return
+
   fetchEnrolledStudents: (id: number | string) => Promise<void>;
   createActivity: (activity: ApiActivity) => Promise<void>;
 }

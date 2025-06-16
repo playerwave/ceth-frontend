@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+// import { Typography } from "@mui/material";
 import {
   Album,
   CalendarDays,
@@ -19,7 +19,8 @@ function LocationTypeDisplay({ locationType }: { locationType: string }) {
     Online: HouseWifi,
   };
 
-  const IconComponent = iconMap[locationType] ?? HouseWifi;
+  // const IconComponent = iconMap[locationType] ?? HouseWifi;
+   const IconComponent = iconMap[locationType as keyof typeof iconMap] ?? HouseWifi;
   const label = locationType;
 
   return (

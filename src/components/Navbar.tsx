@@ -3,7 +3,13 @@ import { useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { Menu, X } from "lucide-react";
 
-const Navbar = ({ children }) => {
+import { ReactNode } from "react";
+
+type NavbarProps = {
+  children: ReactNode;
+};
+
+const Navbar = ({ children }: NavbarProps) => {
   const location = useLocation();
 
   // เก็บสถานะย่อ Sidebar ไว้ใน localStorage เฉพาะ desktop

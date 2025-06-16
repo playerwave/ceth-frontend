@@ -1,4 +1,4 @@
-import { Activity } from "../components/table";
+import { Activity } from "./table";
 
 interface TableHeaderProps {
   handleSort: (key: keyof Activity) => void;
@@ -11,7 +11,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
 }) => {
   const columns: { key: keyof Activity; label: string; sortable: boolean }[] = [
     {
-      key: "conpany_lecturer_name",
+      key: "company_lecturer",
       label: "ชื่อวิทยากร/ชื่อบริษัท",
       sortable: true,
     },
