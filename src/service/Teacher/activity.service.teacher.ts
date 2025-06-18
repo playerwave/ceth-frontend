@@ -14,6 +14,7 @@ export const getActivityById = async (id: number): Promise<Activity> => {
   const response = await axiosInstance.get<Activity>(`/admin/activity/${id}`);
   return response.data;
 };
+//------------------------------------------------------------------s
 
 //--------------------- Create Activity ----------------------------
 export const createActivity = async (payload: Partial<Activity>) => {

@@ -45,6 +45,7 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   //--------------------- Create Activity -------------------------
   //สร้างกิจกรรมใหม่
   createActivity: async (activityData) => {
+    console.log("📤 createActivity payload:", activityData);
     set({ loading: true, error: null });
     try {
       await activityService.createActivity(activityData);
@@ -61,6 +62,8 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   //--------------------- Fetch Activities -------------------------
   //ดึงรายการกิจกรรมทั้งหมดของสำหรับอาจารย์
   fetchActivities: async () => {
+    console.log("📥 Fetching all activities for teacher...");
+
     set({ loading: true, error: null });
     try {
       const data = await activityService.fetchAllActivities();
@@ -73,7 +76,9 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   },
   //----------------------------------------------------------------
 
+  //--------------------- Select Activity -------------------------
   selectActivity: async (id: number) => {
+    console.log("📥 Selecting activity with ID:", id);
     set({ loading: true });
     try {
       const activity = await activityService.getActivityById(id);
@@ -84,10 +89,14 @@ export const useActivityStore = create<ActivityStore>((set) => ({
       set({ loading: false });
     }
   },
+  //----------------------------------------------------------------
 
   clearSelectedActivity: () => set({ selectedActivity: null }),
+  //----------------------------------------------------------------
 
+  //--------------------- Search Activities -------------------------
   searchActivities: async (searchName: string) => {
+    console.log("🔍 Searching activities with name:", searchName);
     if (!searchName.trim()) {
       await useActivityStore.getState().fetchActivities();
       set({ searchResults: null });
@@ -105,8 +114,12 @@ export const useActivityStore = create<ActivityStore>((set) => ({
       set({ activityLoading: false });
     }
   },
+  //----------------------------------------------------------------
 
+  //--------------------- Fetch Activity ---------------------------
   fetchActivity: async (id: number) => {
+    console.log("📥 Fetching activity with ID:", id);
+
     set({ activityLoading: true, activityError: null });
     try {
       const activity = await activityService.getActivityById(id);
@@ -118,8 +131,12 @@ export const useActivityStore = create<ActivityStore>((set) => ({
       set({ activityLoading: false });
     }
   },
+  //----------------------------------------------------------------
 
+  //--------------------- Fetch ErolledStudent ---------------------
   fetchEnrolledStudents: async (id: number) => {
+    console.log("📥 Fetching enrolled students for activity ID:", id);
+
     try {
       const students = await activityService.fetchEnrolledStudents(id);
       set({ enrolledStudents: students });
@@ -127,6 +144,7 @@ export const useActivityStore = create<ActivityStore>((set) => ({
       console.error("❌ Error fetching enrolled students:", error);
     }
   },
+  //----------------------------------------------------------------
 
   // updateActivity: async (activity: Activity) => {
   //   try {
