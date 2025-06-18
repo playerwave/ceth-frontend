@@ -22,12 +22,36 @@ export const createActivity = async (payload: Partial<Activity>) => {
 };
 //------------------------------------------------------------------
 
+//--------------------- Search Activities --------------------------
+export const searchActivities = async (
+  searchName: string
+): Promise<Activity[]> => {
+  const response = await axiosInstance.get<Activity[]>(
+    `/admin/activity/search?name=${encodeURIComponent(searchName)}`
+  );
+  return response.data;
+};
+//------------------------------------------------------------------
+
+//--------------------- Fetch Enrolled Students --------------------
+export const fetchEnrolledStudents = async (
+  activityId: number
+): Promise<any[]> => {
+  const response = await axiosInstance.get<any[]>(
+    `/admin/activity/${activityId}/students`
+  );
+  return response.data;
+};
+//------------------------------------------------------------------
+
 //--------------------- Export Service -----------------------------
 // เป็นนการทำ Object literal เพื่อรวมฟังก์ชันทั้งหมดที่เกี่ยวข้องกกับ activity
 const activityService = {
   fetchAllActivities,
   getActivityById,
   createActivity,
+  searchActivities,
+  fetchEnrolledStudents,
 };
 //------------------------------------------------------------------
 
