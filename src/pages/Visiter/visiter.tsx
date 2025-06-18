@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useActivityStore } from "../../stores/Admin/activity_list_store";
+import { useActivityStore } from "../../stores/Teacher/activity_list_store";
 
 import Loading from "../../components/Loading";
 import SearchBar from "../../components/Searchbar";

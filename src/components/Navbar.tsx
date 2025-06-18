@@ -68,7 +68,7 @@ const Navbar = ({ children }: NavbarProps) => {
   const showSidebarCollapsed = !isMobile && isCollapsed;
 
   return (
-    <div className="flex">
+    <>
       {/* Navbar ด้านบน */}
       <div className="fixed top-0 left-0 w-full bg-[#1E3A8A] text-white h-[80px] p-4 z-50 flex justify-between items-center">
         <div className="flex items-center gap-4">
@@ -102,6 +102,7 @@ const Navbar = ({ children }: NavbarProps) => {
             isCollapsed={showSidebarCollapsed}
             toggleSidebar={() => setIsCollapsed(!isCollapsed)}
             role={role}
+            
           />
         </div>
       )}
@@ -129,7 +130,7 @@ const Navbar = ({ children }: NavbarProps) => {
 
 
       {/* เนื้อหาหลัก */}
-      <div
+      {/* <div
         className="flex-grow min-h-screen transition-all duration-300"
         style={{
           marginLeft: isMobile ? 0 : showSidebarCollapsed ? "80px" : "280px",
@@ -137,8 +138,15 @@ const Navbar = ({ children }: NavbarProps) => {
         }}
       >
         {children}
-      </div>
-    </div>
+      </div> */}
+
+<div
+  className="flex-grow min-h-screen transition-all duration-300"
+  style={{ marginTop: "80px" }}
+>
+  {children}
+</div>
+    </>
   );
 };
 

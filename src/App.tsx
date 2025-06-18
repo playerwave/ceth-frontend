@@ -169,18 +169,18 @@ import Navbar from "./components/Navbar";
 import Login from "./pages/login";
 
 // Admin Pages
-import Main from "./pages/Admin/main_admin";
-import ListActivityAdmin from "./pages/Admin/activity-admin/list_activity_admin/list_activity_admin";
+import Main from "./pages/Teacher/main_teacher";
+import ListActivityAdmin from "./pages/Teacher/manage-activity-teacher/list_activity_admin/list_activity_admin";
 // import TestCreate from "./pages/Test/test_create";
-import CreateActivityAdmin from "./pages/Admin/activity-admin/create-activity/create_activity_admin";
-import ActivityInfoAdmin from "./pages/Admin/activity-admin/activity-info/activity_info_admin";
-import EnrolledListAdmin from "./pages/Admin/activity-admin/enrolled-list/enrolled_list_admin";
+import CreateActivityAdmin from "./pages/Teacher/manage-activity-teacher/create-activity/create_activity_admin";
+import ActivityInfoAdmin from "./pages/Teacher/manage-activity-teacher/activity-info/activity_info_admin";
+import EnrolledListAdmin from "./pages/Teacher/manage-activity-teacher/enrolled-list/enrolled_list_admin";
 // import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 
 
 
 //visiter
-import Visiter from "./pages/Visiter/visiter";
+// import Visiter from "./pages/Visiter/visiter";
 // import Crud_Test from "./pages/Test/crud_test";
 
 

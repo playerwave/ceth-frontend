@@ -43,7 +43,7 @@ export interface Activity {
   description: string;
   type: "Hard Skill" | "Soft Skill";
   room: string;
-  seat: string;
+  seat: number;
   food: string[];
   status: string;
   location_type: "Onsite" | "Online" | "Course";
