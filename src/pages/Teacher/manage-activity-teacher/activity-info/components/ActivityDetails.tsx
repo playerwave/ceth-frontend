@@ -14,8 +14,7 @@ function LocationTypeDisplay({ locationType }: { locationType: string }) {
     Online: HouseWifi,
   };
 
-  const IconComponent =
-    iconMap[locationType as LocationType] ?? HouseWifi;
+  const IconComponent = iconMap[locationType as LocationType] ?? HouseWifi;
   const label = locationType;
 
   return (

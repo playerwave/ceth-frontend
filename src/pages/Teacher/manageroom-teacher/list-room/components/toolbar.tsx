@@ -1,15 +1,19 @@
-import React from 'react';
-import { Landmark } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import FloorDropdown from './floordropdown';
+import React from "react";
+import { Landmark } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import FloorDropdown from "./floordropdown";
 
 interface Props {
   floors: number[];
-  floorFilter: number | 'all';
-  setFloorFilter: (val: number | 'all') => void;
+  floorFilter: number | "all";
+  setFloorFilter: (val: number | "all") => void;
 }
 
-const RoomToolbar: React.FC<Props> = ({ floors, floorFilter, setFloorFilter }) => {
+const RoomToolbar: React.FC<Props> = ({
+  floors,
+  floorFilter,
+  setFloorFilter,
+}) => {
   const navigate = useNavigate();
 
   return (
@@ -20,7 +24,7 @@ const RoomToolbar: React.FC<Props> = ({ floors, floorFilter, setFloorFilter }) =
         setFloorFilter={setFloorFilter}
       />
       <button
-        onClick={() => navigate('/create-room')}
+        onClick={() => navigate("/create-room")}
         className="px-4 py-2 bg-blue-800 text-white font-medium rounded-xl hover:bg-blue-900 flex gap-2 items-center"
       >
         เพิ่มห้อง

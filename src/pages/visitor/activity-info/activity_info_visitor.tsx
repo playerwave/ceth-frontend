@@ -45,7 +45,7 @@ export default function ActivityInfoVisitor() {
     if (enrolledActivities.length === 0) return;
 
     const isUserEnrolled = enrolledActivities.some(
-      (act) => Number(act.ac_id) === Number(id)
+      (act) => Number(act.ac_id) === Number(id),
     );
 
     setIsEnrolled(isUserEnrolled);

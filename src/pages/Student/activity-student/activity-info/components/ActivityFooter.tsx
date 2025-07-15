@@ -23,7 +23,7 @@ export default function ActivityFooter({
   setIsEnrolled,
   navigate,
   enrolledActivities,
-  selectedFood,  // รับ selectedFood จาก props
+  selectedFood, // รับ selectedFood จาก props
 }: Props) {
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [isUnEnrollModalOpen, setIsUnEnrollModalOpen] = useState(false);
@@ -69,7 +69,7 @@ export default function ActivityFooter({
 
     if (hasTimeConflict) {
       toast.error(
-        "ไม่สามารถลงทะเบียนได้: เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว"
+        "ไม่สามารถลงทะเบียนได้: เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว",
       );
       return;
     }
@@ -92,18 +92,16 @@ export default function ActivityFooter({
     navigate("/main-student");
   };
 
-  const formatTime = (date: Date) => {
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12; // แปลง 0 เป็น 12
-    minutes = minutes.toString().padStart(2, "0"); // เติม 0 ข้างหน้า ถ้าจำนวนน้อยกว่า 10
-    return `${hours}:${minutes} ${ampm}`;
-  };
+  const formatTime = (date: Date): string =>
+    new Intl.DateTimeFormat("th-TH", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(date);
 
   return (
     <>
-       {/* Modal สำหรับยืนยันการลงทะเบียน */}
+      {/* Modal สำหรับยืนยันการลงทะเบียน */}
       {isEnrolled ? (
         <ConfirmDialog
           isOpen={isUnEnrollModalOpen}
@@ -115,7 +113,7 @@ export default function ActivityFooter({
                           day: "2-digit",
                           month: "long",
                           year: "numeric",
-                        }
+                        },
                       ).format(activity.end_register)})`}
           onCancel={() => setIsUnEnrollModalOpen(false)}
           onConfirm={handleUnenroll}
@@ -131,7 +129,7 @@ export default function ActivityFooter({
                           day: "2-digit",
                           month: "long",
                           year: "numeric",
-                        }
+                        },
                       ).format(activity.end_register)})`}
           onCancel={() => setIsEnrollModalOpen(false)}
           onConfirm={handleEnroll}
@@ -157,9 +155,7 @@ export default function ActivityFooter({
         </div>
 
         <div className="flex justify-end gap-3">
-          <Button onClick={() => window.history.back()}>
-            ← กลับ
-          </Button>
+          <Button onClick={() => window.history.back()}>← กลับ</Button>
 
           {isEnrolled ? (
             <Button bgColor="red" onClick={() => setIsUnEnrollModalOpen(true)}>

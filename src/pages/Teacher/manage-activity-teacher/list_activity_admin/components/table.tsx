@@ -107,7 +107,7 @@ export type Activity = {
   name: string;
   company_lecturer: string;
   description: string;
-  type: "Hard Skill" | "Soft Skill";
+  type: "Hard" | "Soft";
   start_time: Date;
   seat: number;
   status: "Public" | "Private";
@@ -128,9 +128,9 @@ const Table: React.FC<TableProps> = ({ title, data = [] }) => {
     direction: "asc",
   });
 
-  const [selectedTypes, setSelectedTypes] = useState<
-    Set<"Hard Skill" | "Soft Skill">
-  >(new Set());
+  const [selectedTypes, setSelectedTypes] = useState<Set<"Hard" | "Soft">>(
+    new Set(),
+  );
 
   const handleSort = (key: keyof Activity) => {
     setSortConfig((prev) => ({
@@ -139,7 +139,7 @@ const Table: React.FC<TableProps> = ({ title, data = [] }) => {
     }));
   };
 
-  const handleCheckboxChange = (type: "Hard Skill" | "Soft Skill") => {
+  const handleCheckboxChange = (type: "Hard" | "Soft") => {
     setSelectedTypes((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(type)) {

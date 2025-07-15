@@ -50,9 +50,10 @@ const FoodTable: React.FC<Props> = ({ data }) => {
           "& .MuiTablePagination-root, & .MuiTablePagination-toolbar": {
             color: "#000000 !important",
           },
-          "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-            color: "#000000 !important",
-          },
+          "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+            {
+              color: "#000000 !important",
+            },
           "& .MuiSelect-select, & .MuiSvgIcon-root.MuiSelect-icon": {
             color: "#000000 !important",
           },

@@ -15,10 +15,10 @@ interface ActivityStore {
   searchActivities?: (searchName: string) => Promise<void>;
   fetchActivity?: (id: number) => Promise<void>;
   fetchEnrolledStudents?: (id: number) => Promise<void>;
-  updateActivity?: (activity: Activity) => Promise<void>;
-  updateActivityStatus?: (
+  updateActivity: (activity: Activity) => Promise<void>;
+  updateActivityStatus: (
     id: string,
-    status: "Public" | "Private"
+    status: "Public" | "Private",
   ) => Promise<void>;
   setMockActivities?: (activities: Activity[]) => void;
 
@@ -68,6 +68,7 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     try {
       const data = await activityService.fetchAllActivities();
       set({ activities: data });
+      console.log("teacher fetchActivities: ", data);
     } catch (err) {
       set({ error: "Failed to fetch activities" });
     } finally {
@@ -146,14 +147,16 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   },
   //----------------------------------------------------------------
 
-  // updateActivity: async (activity: Activity) => {
-  //   try {
-  //     await activityService.updateActivity(activity);
-  //     await useActivityStore.getState().fetchActivities();
-  //   } catch (error) {
-  //     console.error("❌ Error updating activity:", error);
-  //   }
-  // },
+  //--------------------- updateActivity ---------------------------
+  updateActivity: async (activity: Activity) => {
+    try {
+      await activityService.updateActivity(activity);
+      await useActivityStore.getState().fetchActivities();
+    } catch (error) {
+      console.error("❌ Error updating activity:", error);
+    }
+  },
+  //----------------------------------------------------------------
 
   // updateActivityStatus: async (id: string, status: "Public" | "Private") => {
   //   try {
@@ -169,4 +172,22 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   //     console.error("❌ Error updating status:", error);
   //   }
   // },
+
+  //--------------------- updateActivityStatus -----------------------
+  updateActivityStatus: async (id: string, status: "Public" | "Private") => {
+    try {
+      console.log("🔄 Updating activity status:", { id, status });
+
+      // เรียก service ที่อัปเดตสถานะใน backend
+      await activityService.updateActivityStatus(id, status);
+
+      // โหลดรายการกิจกรรมใหม่
+      const updatedList = await activityService.fetchAllActivities();
+      set({ activities: updatedList });
+    } catch (error) {
+      console.error("❌ Error updating activity status:", error);
+      set({ error: "ไม่สามารถอัปเดตสถานะกิจกรรมได้" });
+    }
+  },
+  //----------------------------------------------------------------
 }));

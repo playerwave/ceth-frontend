@@ -55,7 +55,7 @@ export const useActivityStore = create<ActivityState>((set) => ({
     try {
       console.log(`📡 Calling API: /activity/get-activity/${id}`);
       const { data } = await axiosInstance.get<{ activity: Activity }>(
-        `/activity/get-activity/${id}`
+        `/activity/get-activity/${id}`,
       );
       console.log("📌 API Response Data:", data);
       set({ activity: data.activity, isLoading: false });
@@ -73,7 +73,11 @@ export const useActivityStore = create<ActivityState>((set) => ({
   fetchEnrolledStudents: async (id) => {
     if (!id || isNaN(id)) {
       console.error("❌ Invalid Activity ID:", id);
-      set({ error: "Invalid Activity ID", isLoading: false, enrolledStudents: [] });
+      set({
+        error: "Invalid Activity ID",
+        isLoading: false,
+        enrolledStudents: [],
+      });
       return;
     }
 
@@ -82,14 +86,15 @@ export const useActivityStore = create<ActivityState>((set) => ({
     try {
       console.log(`📡 Calling API: /activity/get-enrolled/${id}`);
       const { data } = await axiosInstance.get<{ users?: EnrolledStudent[] }>( // ✅ เปลี่ยนจาก enrolledStudents เป็น users
-        `/activity/get-enrolled/${id}`
+        `/activity/get-enrolled/${id}`,
       );
       console.log("📌 API Response Data:", data);
       set({ enrolledStudents: data?.users || [], isLoading: false }); // ✅ ใช้ data?.users || [] เพื่อป้องกัน undefined
     } catch (error: any) {
       console.error("❌ API Error:", error);
       set({
-        error: error.response?.data?.message || "Error fetching enrolled students",
+        error:
+          error.response?.data?.message || "Error fetching enrolled students",
         isLoading: false,
         enrolledStudents: [], // ✅ ป้องกัน undefined
       });

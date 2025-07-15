@@ -20,7 +20,8 @@ function LocationTypeDisplay({ locationType }: { locationType: string }) {
   };
 
   // const IconComponent = iconMap[locationType] ?? HouseWifi;
-   const IconComponent = iconMap[locationType as keyof typeof iconMap] ?? HouseWifi;
+  const IconComponent =
+    iconMap[locationType as keyof typeof iconMap] ?? HouseWifi;
   const label = locationType;
 
   return (

@@ -9,7 +9,11 @@ interface Props {
   setIsModalOpen: (open: boolean) => void;
 }
 
-const ActionButtonsSection: React.FC<Props> = ({ formStatus, isModalOpen, setIsModalOpen }) => {
+const ActionButtonsSection: React.FC<Props> = ({
+  formStatus,
+  isModalOpen,
+  setIsModalOpen,
+}) => {
   const navigate = useNavigate();
 
   return (
@@ -25,7 +29,13 @@ const ActionButtonsSection: React.FC<Props> = ({ formStatus, isModalOpen, setIsM
 
       <div className="mt-auto flex justify-end items-center space-x-4 px-6">
         {/* ปุ่มยกเลิก */}
-        <Button type="button" color="red" onClick={() => navigate("/list-activity-admin")}>ยกเลิก</Button>
+        <Button
+          type="button"
+          color="red"
+          onClick={() => navigate("/list-activity-admin")}
+        >
+          ยกเลิก
+        </Button>
 
         {/* ปุ่มสร้าง / ร่าง */}
         {formStatus === "Public" ? (

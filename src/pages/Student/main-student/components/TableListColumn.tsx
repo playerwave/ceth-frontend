@@ -347,7 +347,7 @@ type ColumnOptions = {
 };
 
 export const getTableListColumn = (
-  options: ColumnOptions = {}
+  options: ColumnOptions = {},
 ): GridColDef[] => {
   const columns: GridColDef[] = [
     {
@@ -420,14 +420,14 @@ export const getTableListColumn = (
                 value === "Hard Skill"
                   ? "#FFF4CC"
                   : value === "Soft Skill"
-                  ? "#EDE7F6"
-                  : "transparent",
+                    ? "#EDE7F6"
+                    : "transparent",
               color:
                 value === "Hard Skill"
                   ? "#FBBF24"
                   : value === "Soft Skill"
-                  ? "#5E35B1"
-                  : "black",
+                    ? "#5E35B1"
+                    : "black",
               fontWeight: "bold",
             }}
           />
@@ -485,7 +485,7 @@ export const getTableListColumn = (
           <span>
             {isSameDay
               ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
-                  end
+                  end,
                 )} น.`
               : `${formatDate(start)} - ${formatDate(end)}`}
           </span>

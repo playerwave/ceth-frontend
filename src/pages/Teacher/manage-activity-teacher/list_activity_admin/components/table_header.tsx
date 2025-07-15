@@ -99,7 +99,7 @@ import { Checkbox, FormControlLabel } from "@mui/material";
 interface TableHeaderProps {
   handleSort: (key: keyof Activity) => void;
   sortConfig?: { key: keyof Activity | null; direction: "asc" | "desc" };
-  setFilterType: (type: "HardSkill" | "SoftSkill") => void;
+  setFilterType: (type: "Hard" | "Soft") => void;
 }
 
 const TableHeader: React.FC<TableHeaderProps> = ({
@@ -109,7 +109,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({
 }) => {
   const columns: { key: keyof Activity; label: string; sortable: boolean }[] = [
     {
-      key: "company_lecturer_name",
+      key: "company_lecturer",
       label: "ชื่อวิทยากร/ชื่อบริษัท",
       sortable: false,
     },
@@ -142,10 +142,10 @@ const TableHeader: React.FC<TableHeaderProps> = ({
             {col.key === "type" ? (
               <div className="flex items-center justify-center">
                 <label className="ml-5">ประเภท</label>
-                <FormControlLabel
+                {/* <FormControlLabel
                   control={
                     <Checkbox
-                      onChange={() => setFilterType("Hard Skill")}
+                      onChange={() => setFilterType("Hard")}
                       sx={{
                         color: "#F5DEB3", // สีเหลืองอ่อน
                         "&.Mui-checked": {
@@ -155,12 +155,27 @@ const TableHeader: React.FC<TableHeaderProps> = ({
                     />
                   }
                   sx={{ marginLeft: 1 }}
-                />
-
+                /> */}
                 <FormControlLabel
                   control={
                     <Checkbox
-                      onChange={() => setFilterType("Soft Skill")}
+                      onChange={() => setFilterType("Hard")}
+                      sx={{
+                        color: "#F5DEB3",
+                        "&.Mui-checked": {
+                          color: "#F5DEB3",
+                        },
+                      }}
+                    />
+                  }
+                  label="" // ✅ เพิ่ม label ที่นี่
+                  sx={{ marginLeft: 1 }}
+                />
+
+                {/* <FormControlLabel
+                  control={
+                    <Checkbox
+                      onChange={() => setFilterType("Soft")}
                       sx={{
                         color: "#D3C3F7", // สีม่วงอ่อน
                         "&.Mui-checked": {
@@ -170,6 +185,22 @@ const TableHeader: React.FC<TableHeaderProps> = ({
                     />
                   }
                   sx={{ marginRight: 1 }}
+                /> */}
+
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      onChange={() => setFilterType("Soft")}
+                      sx={{
+                        color: "#D3C3F7",
+                        "&.Mui-checked": {
+                          color: "#D3C3F7",
+                        },
+                      }}
+                    />
+                  }
+                  label="" // ✅ เพิ่ม label ที่นี่
+                  sx={{ marginLeft: 1 }}
                 />
               </div>
             ) : (

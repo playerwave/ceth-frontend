@@ -265,7 +265,6 @@ export default function SummaryPage() {
             </div>
 
             <div className="lg:w-1/3 text-sm text-gray-700 space-y-1">
-             
               <ul className="space-y-6">
                 {barLegend.map((item, idx) => (
                   <li

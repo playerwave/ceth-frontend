@@ -24,14 +24,16 @@ const TablePendingEvaluation: React.FC<TablePendingEvaluationProps> = ({
 
   const handleTypeChange = (type: string) => {
     setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
   // ✅ 2. กรองกิจกรรมที่ยังไม่จบ + ตามประเภท ((เงื่อนไขอะแหละ))
   const rows = enrolledActivities
     .filter((a) => a.ac_state === "Enrolled" || a.ac_state === "Not Start")
-    .filter((a) => selectedTypes.length === 0 || selectedTypes.includes(a.ac_type))
+    .filter(
+      (a) => selectedTypes.length === 0 || selectedTypes.includes(a.ac_type),
+    )
     .map(mapTransformedActivity);
 
   // ✅ 3. เพิ่ม props เข้า columns

@@ -6,7 +6,10 @@ interface Props {
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const ImageUploadSection: React.FC<Props> = ({ previewImage, handleFileChange }) => {
+const ImageUploadSection: React.FC<Props> = ({
+  previewImage,
+  handleFileChange,
+}) => {
   return (
     <div className="mt-10">
       <label className="font-semibold">แนบไฟล์ :</label>

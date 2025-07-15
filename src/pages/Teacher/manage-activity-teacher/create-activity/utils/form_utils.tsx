@@ -7,7 +7,7 @@ import { toast } from "sonner";
 // };
 
 export const convertToDate = (
-  value: string | null | undefined
+  value: string | null | undefined,
 ): Date | undefined => {
   if (value && value.trim() !== "") {
     const date = new Date(value);
@@ -15,7 +15,6 @@ export const convertToDate = (
   }
   return undefined;
 };
-
 
 // export const handleChange = (
 //   e: React.ChangeEvent<any> | SelectChangeEvent,
@@ -40,8 +39,10 @@ export const convertToDate = (
 // };
 
 export const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent,
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>
+  e:
+    | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    | SelectChangeEvent,
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>,
 ) => {
   const { name, value } = e.target;
   setFormData((prev: FormData) => ({
@@ -50,11 +51,10 @@ export const handleChange = (
   }));
 };
 
-
 export const handleDateTimeChange = (
   name: string,
   newValue: Dayjs | null,
-  setFormData: React.Dispatch<React.SetStateAction<any>>
+  setFormData: React.Dispatch<React.SetStateAction<any>>,
 ) => {
   setFormData((prev: any) => ({
     ...prev,
@@ -81,7 +81,7 @@ export const handleDateTimeChange = (
 export const handleFileChange = <T extends Record<string, unknown>>(
   e: React.ChangeEvent<HTMLInputElement>,
   setFormData: React.Dispatch<React.SetStateAction<T>>,
-  setPreviewImage: (url: string | null) => void
+  setPreviewImage: (url: string | null) => void,
 ) => {
   if (e.target.files && e.target.files.length > 0) {
     const file = e.target.files[0];
@@ -99,7 +99,6 @@ export const handleFileChange = <T extends Record<string, unknown>>(
   }
 };
 
-
 export const validateForm = (formData: any, setErrors: any): boolean => {
   const newErrors: Record<string, string> = {};
 
@@ -107,7 +106,10 @@ export const validateForm = (formData: any, setErrors: any): boolean => {
     if (!formData.ac_name || formData.ac_name.length < 4) {
       newErrors.ac_name = "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร";
     }
-    if (!formData.ac_company_lecturer || formData.ac_company_lecturer.length < 4) {
+    if (
+      !formData.ac_company_lecturer ||
+      formData.ac_company_lecturer.length < 4
+    ) {
       newErrors.ac_company_lecturer = "ต้องมีอย่างน้อย 4 ตัวอักษร";
     }
     if (!formData.ac_type) {
@@ -126,21 +128,28 @@ export const validateForm = (formData: any, setErrors: any): boolean => {
       formData.ac_location_type === "Course" &&
       (!formData.ac_recieve_hours || Number(formData.ac_recieve_hours) <= 0)
     ) {
-      newErrors.ac_recieve_hours = "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0";
+      newErrors.ac_recieve_hours =
+        "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0";
     }
     if (
       formData.ac_start_assessment &&
       formData.ac_start_time &&
-      dayjs(formData.ac_start_assessment).isBefore(dayjs(formData.ac_start_time))
+      dayjs(formData.ac_start_assessment).isBefore(
+        dayjs(formData.ac_start_time),
+      )
     ) {
-      newErrors.ac_start_assessment = "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม";
+      newErrors.ac_start_assessment =
+        "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม";
     }
     if (
       formData.ac_end_assessment &&
       formData.ac_start_assessment &&
-      dayjs(formData.ac_end_assessment).isBefore(dayjs(formData.ac_start_assessment))
+      dayjs(formData.ac_end_assessment).isBefore(
+        dayjs(formData.ac_start_assessment),
+      )
     ) {
-      newErrors.ac_end_assessment = "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน";
+      newErrors.ac_end_assessment =
+        "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน";
     }
   }
 

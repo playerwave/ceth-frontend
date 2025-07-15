@@ -2,23 +2,15 @@ import { useState, useMemo, useCallback } from "react";
 import TableRedesign from "../../../../components/Table_re";
 import CustomCard from "../../../../components/Card";
 import { getActivityColumns } from "../../../../components/activity_column";
-import { Activity } from "../../../../types/Admin/activity_list_type";
+import { Activity } from "../../../../types/model";
 
-// ✅ เพิ่ม MUI Dialog
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-} from "@mui/material";
+import Dialog2 from "../../../../components/Dialog2";
 
 type Props = {
-  rows1: (Activity & { source: "mock" | "real" })[];
-  rows2: (Activity & { source: "mock" | "real" })[];
-  rows3: (Activity & { source: "mock" | "real" })[];
-  handleStatusToggle: (row: Activity & { source: "mock" | "real" }) => void;
+  rows1: Activity[];
+  rows2: Activity[];
+  rows3: Activity[];
+  handleStatusToggle: (row: Activity) => void;
 
   setDialog: React.Dispatch<
     React.SetStateAction<{
@@ -37,12 +29,12 @@ const ActivityTablePage = ({
 }: Props) => {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedRow, setSelectedRow] = useState<(Activity & { source: "mock" | "real" }) | null>(null);
+  const [selectedRow, setSelectedRow] = useState<Activity | null>(null);
   const [, setPreviewChecked] = useState<boolean | null>(null); // เพิ่ม preview
 
   const handleTypeChange = (type: string) => {
     setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
@@ -51,20 +43,11 @@ const ActivityTablePage = ({
     return rows.filter((row) => selectedTypes.includes(row.type));
   };
 
-  // const handleConfirmStatusChange = useCallback((row: Activity) => {
-  //   setSelectedRow(row);
-  //   setPreviewChecked(row.status === "Public");
-  //   setOpenDialog(true);
-  // }, []);
-  const handleConfirmStatusChange = useCallback(
-  (row: Activity & { source: "mock" | "real" }) => {
+  const handleConfirmStatusChange = useCallback((row: Activity) => {
     setSelectedRow(row);
-    setPreviewChecked(row.status === "Public");
+    setPreviewChecked(row.activity_status === "Public");
     setOpenDialog(true);
-  },
-  []
-);
-
+  }, []);
 
   const confirmToggle = () => {
     if (selectedRow) {
@@ -83,7 +66,7 @@ const ActivityTablePage = ({
         selectedTypes,
         handleStatusToggle: handleConfirmStatusChange,
       }),
-    [selectedTypes, handleConfirmStatusChange]
+    [selectedTypes, handleConfirmStatusChange],
   );
 
   const activityColumnsWithoutStatus = useMemo(
@@ -94,7 +77,7 @@ const ActivityTablePage = ({
         handleTypeChange,
         selectedTypes,
       }),
-    [selectedTypes]
+    [selectedTypes],
   );
 
   return (
@@ -135,63 +118,28 @@ const ActivityTablePage = ({
           borderRadius={14}
         />
       </CustomCard>
-
-      {/* ✅ Dialog ยืนยัน */}
-      <Dialog
+      <Dialog2
         open={openDialog}
         onClose={() => setOpenDialog(false)}
-        PaperProps={{
-          sx: {
-            border: "2px solid #1E3A8A",
-            borderRadius: "12px",
-            boxShadow: 6,
-            maxWidth: 500, // ✅ จำกัดความกว้าง
-            width: "100%", // ✅ เต็มความกว้างที่จำกัด
-          },
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: "bold", px: 5 }}>
-          เปลี่ยนสถานะของกิจกรรม
-        </DialogTitle>
-
-        <DialogContent>
-          <Typography
-            color="text.secondary"
-            sx={{
-              px: 5,
-              wordBreak: "break-word", // ✅ ตัดคำให้อัตโนมัติ
-              whiteSpace: "normal", // ✅ ให้ขึ้นบรรทัดใหม่ได้
-            }}
-          >
+        onConfirm={confirmToggle}
+        title="เปลี่ยนสถานะของกิจกรรม"
+        message={
+          <>
             คุณแน่ใจหรือไม่ที่ต้องการเปลี่ยนสถานะของกิจกรรม{" "}
-            <Typography component="span">“{selectedRow?.name}”</Typography> จาก{" "}
-            <Typography component="span" color="text.secondary">
-              {selectedRow?.status}
-            </Typography>{" "}
+            <span className="font-semibold">
+              “{selectedRow?.activity_name}”
+            </span>{" "}
+            จาก{" "}
+            <span className="text-gray-700">
+              {selectedRow?.activity_status}
+            </span>{" "}
             เป็น{" "}
-            <Typography component="span" color="text.secondary">
-              {selectedRow?.status === "Public" ? "Private" : "Public"}
-            </Typography>
-          </Typography>
-        </DialogContent>
-
-        <DialogActions sx={{ backgroundColor: "rgba(0, 0, 0, 0.04)" }}>
-          <Button onClick={() => setOpenDialog(false)} color="error">
-            Cancel
-          </Button>
-          <Button
-            onClick={confirmToggle}
-            variant="contained"
-            sx={{
-              backgroundColor: "#1E3A8A",
-              color: "#fff",
-              "&:hover": { backgroundColor: "#173f7f" },
-            }}
-          >
-            CONFIRM
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <span className="text-gray-700">
+              {selectedRow?.activity_status === "Public" ? "Private" : "Public"}
+            </span>
+          </>
+        }
+      />
     </div>
   );
 };

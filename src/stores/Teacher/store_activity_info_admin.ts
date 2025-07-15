@@ -1,6 +1,10 @@
 import { create } from "zustand";
-import type { ActivityState, ApiActivity, Activity } from "../../types/Admin/type_activity_info_admin";
-import { fetchActivityById }from "../../services/Admin/service_activity_info_admin";
+import type {
+  ActivityState,
+  ApiActivity,
+  Activity,
+} from "../../types/Admin/type_activity_info_admin";
+import { fetchActivityById } from "../../services(old)/Admin/service_activity_info_admin";
 
 // ✅ mapActivityData ยังอยู่ใน store ตามที่คุณต้องการ
 const mapActivityData = (apiData: ApiActivity): Activity => ({
@@ -58,7 +62,6 @@ const mapActivityData = (apiData: ApiActivity): Activity => ({
     : null,
 });
 
-
 export const useActivityStore = create<ActivityState>((set, get) => ({
   activities: [],
   searchResults: null,
@@ -76,7 +79,8 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     } catch (error: any) {
       console.error("❌ Error fetching activity:", error);
       set({
-        activityError: error.response?.data?.message || "เกิดข้อผิดพลาดในการโหลดกิจกรรม",
+        activityError:
+          error.response?.data?.message || "เกิดข้อผิดพลาดในการโหลดกิจกรรม",
         activityLoading: false,
       });
     }

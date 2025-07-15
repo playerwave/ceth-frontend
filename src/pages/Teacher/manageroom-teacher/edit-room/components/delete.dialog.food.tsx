@@ -39,12 +39,12 @@ const DeleteConfirmDialog: React.FC<Props> = ({ open, onClose, onConfirm }) => {
         <DialogContentText className="text-gray-700 mb-2">
           คุณแน่ใจหรือไม่ที่ต้องการลบห้องนี้
         </DialogContentText>
-      <DialogContentText style={{ color: '#dc2626'}}>
-  ลบแล้วไม่สามารถกู้คืนห้องได้ *
-</DialogContentText>
+        <DialogContentText style={{ color: "#dc2626" }}>
+          ลบแล้วไม่สามารถกู้คืนห้องได้ *
+        </DialogContentText>
       </DialogContent>
 
-      <DialogActions >
+      <DialogActions>
         <MuiButton onClick={onClose} sx={{ color: "#1976d2" }}>
           Cancel
         </MuiButton>

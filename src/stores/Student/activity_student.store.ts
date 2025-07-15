@@ -408,7 +408,7 @@
 
 //   adviceActivities: async (userId: number) => {
 //     set({ activityLoading: true, activityError: null });
-  
+
 //     try {
 //       const res = await axiosInstance.get(`/student/activity/advice-activity/${userId}`);
 //       const mapped = res.data.map(mapActivityData);

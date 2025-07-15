@@ -104,7 +104,7 @@ export interface ActivityState {
   searchActivities: (query: string) => Promise<void>;
   updateActivityStatus: (
     id: string,
-    currentStatus: "Public" | "Private"
+    currentStatus: "Public" | "Private",
   ) => Promise<void>;
   updateActivity: (activity: Activity) => Promise<void>;
   fetchActivity: (id: number | string) => Promise<void>;

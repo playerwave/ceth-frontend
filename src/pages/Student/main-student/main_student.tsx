@@ -134,7 +134,7 @@ import TablePendingEvaluation from "./components/TablePendingEvaluation";
 const MainStudent = () => {
   const [searchId, setSearchId] = useState("");
   const [activeTab, setActiveTab] = useState<"enrolled" | "pendingEvaluation">(
-    "enrolled"
+    "enrolled",
   ); // ✅ Tab state
 
   const {

@@ -14,9 +14,7 @@ export interface MainActivity {
   ac_state: "Enrolled" | "Not Start" | "Ended"; // ✅ เพิ่มฟิลด์นี้
   ac_start_assessment: Date | null;
   ac_end_assessment: Date | null;
-
 }
-
 
 export interface MainActivityState {
   enrolledActivities: MainActivity[];

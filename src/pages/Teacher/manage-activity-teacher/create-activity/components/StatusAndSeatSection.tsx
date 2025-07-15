@@ -60,9 +60,7 @@ const StatusAndSeatSection: React.FC<Props> = ({
             }
           }}
           error={Number(seatCapacity) < 0}
-          helperText={
-            Number(seatCapacity) < 0 ? "❌ กรุณาใส่จำนวนที่นั่ง" : ""
-          }
+          helperText={Number(seatCapacity) < 0 ? "❌ กรุณาใส่จำนวนที่นั่ง" : ""}
           disabled={selectedRoom !== ""} // ✅ ปิดการแก้ไขถ้ามีการเลือกห้องแล้ว
           sx={{ height: "56px" }}
         />

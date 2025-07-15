@@ -11,11 +11,17 @@ interface Props {
   setFormData: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const ActivityTimeSection: React.FC<Props> = ({ formData, handleDateTimeChange, setFormData }) => {
+const ActivityTimeSection: React.FC<Props> = ({
+  formData,
+  handleDateTimeChange,
+  setFormData,
+}) => {
   return (
     <div className="grid grid-cols-1 gap-2 w-full mt-10">
       <div>
-        <label className="block font-semibold">วันและเวลาการดำเนินการกิจกรรม *</label>
+        <label className="block font-semibold">
+          วันและเวลาการดำเนินการกิจกรรม *
+        </label>
         <div className="flex space-x-2 w-full">
           {/* Start */}
           <div className="w-1/2">
@@ -24,8 +30,14 @@ const ActivityTimeSection: React.FC<Props> = ({ formData, handleDateTimeChange, 
                 <DateTimePicker
                   className="w-77.5"
                   minDate={dayjs(formData.ac_end_register)}
-                  value={formData.ac_start_time ? dayjs(formData.ac_start_time) : null}
-                  onChange={(newValue) => handleDateTimeChange("ac_start_time", newValue)}
+                  value={
+                    formData.ac_start_time
+                      ? dayjs(formData.ac_start_time)
+                      : null
+                  }
+                  onChange={(newValue) =>
+                    handleDateTimeChange("ac_start_time", newValue)
+                  }
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },
@@ -33,19 +45,28 @@ const ActivityTimeSection: React.FC<Props> = ({ formData, handleDateTimeChange, 
                         formData.ac_status !== "Private" &&
                         formData.ac_start_time &&
                         ((formData.ac_end_register &&
-                          dayjs(formData.ac_start_time).isBefore(dayjs(formData.ac_end_register))) ||
+                          dayjs(formData.ac_start_time).isBefore(
+                            dayjs(formData.ac_end_register),
+                          )) ||
                           (formData.ac_normal_register &&
-                            dayjs(formData.ac_start_time).isBefore(dayjs(formData.ac_normal_register))))
+                            dayjs(formData.ac_start_time).isBefore(
+                              dayjs(formData.ac_normal_register),
+                            )))
                       ),
                       helperText:
-                        formData.ac_status !== "Private" && formData.ac_start_time
+                        formData.ac_status !== "Private" &&
+                        formData.ac_start_time
                           ? formData.ac_end_register &&
-                            dayjs(formData.ac_start_time).isBefore(dayjs(formData.ac_end_register))
+                            dayjs(formData.ac_start_time).isBefore(
+                              dayjs(formData.ac_end_register),
+                            )
                             ? "❌ วันและเวลาการดำเนินกิจกรรมต้องมากกว่าวันที่ปิดลงทะเบียน"
                             : formData.ac_normal_register &&
-                              dayjs(formData.ac_start_time).isBefore(dayjs(formData.ac_normal_register))
-                            ? "❌ วันและเวลาการดำเนินกิจกรรมต้องอยู่หลังวันที่เปิดให้นิสิตสถานะ normal ลงทะเบียน"
-                            : ""
+                                dayjs(formData.ac_start_time).isBefore(
+                                  dayjs(formData.ac_normal_register),
+                                )
+                              ? "❌ วันและเวลาการดำเนินกิจกรรมต้องอยู่หลังวันที่เปิดให้นิสิตสถานะ normal ลงทะเบียน"
+                              : ""
                           : "",
                     },
                   }}
@@ -64,8 +85,12 @@ const ActivityTimeSection: React.FC<Props> = ({ formData, handleDateTimeChange, 
                 <DateTimePicker
                   className="w-77.5"
                   minDate={dayjs(formData.ac_start_time)}
-                  value={formData.ac_end_time ? dayjs(formData.ac_end_time) : null}
-                  onChange={(newValue) => handleDateTimeChange("ac_end_time", newValue)}
+                  value={
+                    formData.ac_end_time ? dayjs(formData.ac_end_time) : null
+                  }
+                  onChange={(newValue) =>
+                    handleDateTimeChange("ac_end_time", newValue)
+                  }
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },
@@ -73,23 +98,35 @@ const ActivityTimeSection: React.FC<Props> = ({ formData, handleDateTimeChange, 
                         formData.ac_status !== "Private" &&
                         formData.ac_end_time &&
                         ((formData.ac_start_time &&
-                          dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_start_time))) ||
+                          dayjs(formData.ac_end_time).isBefore(
+                            dayjs(formData.ac_start_time),
+                          )) ||
                           (formData.ac_normal_register &&
-                            dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_normal_register))) ||
+                            dayjs(formData.ac_end_time).isBefore(
+                              dayjs(formData.ac_normal_register),
+                            )) ||
                           (formData.ac_end_register &&
-                            dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_end_register)))),
+                            dayjs(formData.ac_end_time).isBefore(
+                              dayjs(formData.ac_end_register),
+                            ))),
                       helperText:
                         formData.ac_status !== "Private" && formData.ac_end_time
                           ? formData.ac_start_time &&
-                            dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_start_time))
+                            dayjs(formData.ac_end_time).isBefore(
+                              dayjs(formData.ac_start_time),
+                            )
                             ? "❌ วันที่ หรือ เวลาต้องมากกว่าช่วงเริ่มต้น"
                             : formData.ac_normal_register &&
-                              dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_normal_register))
-                            ? "❌ วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาที่เปิดให้นิสิตที่มีสถานะ"
-                            : formData.ac_end_register &&
-                              dayjs(formData.ac_end_time).isBefore(dayjs(formData.ac_end_register))
-                            ? "❌ วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาปิดการลงทะเบียน"
-                            : ""
+                                dayjs(formData.ac_end_time).isBefore(
+                                  dayjs(formData.ac_normal_register),
+                                )
+                              ? "❌ วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาที่เปิดให้นิสิตที่มีสถานะ"
+                              : formData.ac_end_register &&
+                                  dayjs(formData.ac_end_time).isBefore(
+                                    dayjs(formData.ac_end_register),
+                                  )
+                                ? "❌ วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาปิดการลงทะเบียน"
+                                : ""
                           : "",
                     },
                   }}
@@ -113,7 +150,11 @@ const ActivityTimeSection: React.FC<Props> = ({ formData, handleDateTimeChange, 
             formData.ac_location_type !== "Course" &&
             formData.ac_start_time &&
             formData.ac_end_time
-              ? dayjs(formData.ac_end_time).diff(dayjs(formData.ac_start_time), "hour", true)
+              ? dayjs(formData.ac_end_time).diff(
+                  dayjs(formData.ac_start_time),
+                  "hour",
+                  true,
+                )
               : formData.ac_recieve_hours || ""
           }
           className="w-full"
@@ -129,12 +170,14 @@ const ActivityTimeSection: React.FC<Props> = ({ formData, handleDateTimeChange, 
           error={
             formData.ac_status === "Public" &&
             formData.ac_location_type === "Course" &&
-            (!formData.ac_recieve_hours || Number(formData.ac_recieve_hours) <= 0)
+            (!formData.ac_recieve_hours ||
+              Number(formData.ac_recieve_hours) <= 0)
           }
           helperText={
             formData.ac_status === "Public" &&
             formData.ac_location_type === "Course" &&
-            (!formData.ac_recieve_hours || Number(formData.ac_recieve_hours) <= 0)
+            (!formData.ac_recieve_hours ||
+              Number(formData.ac_recieve_hours) <= 0)
               ? "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0"
               : ""
           }

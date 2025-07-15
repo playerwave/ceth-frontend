@@ -19,7 +19,6 @@
 // import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 // // import Crud_Test from "./pages/Test/crud_test";
 
-
 // //import pages Student
 // import MainStudent from "./pages/Student/main-student/main_student";
 // import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
@@ -110,7 +109,6 @@
 //             }
 //           />
 
-
 //           <Route
 //             path="/test-card"
 //             element={
@@ -155,18 +153,16 @@
 
 // export default App;
 
-
-
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 
-
 //import components
 import Navbar from "./components/Navbar";
 
-//import login
+//import auth
 import Login from "./pages/login";
+import ProtectedRoute from "./components/Wrapper/ProtectedRoute";
 
 // Admin Pages
 import Main from "./pages/Teacher/main_teacher";
@@ -177,19 +173,17 @@ import ActivityInfoAdmin from "./pages/Teacher/manage-activity-teacher/activity-
 import EnrolledListAdmin from "./pages/Teacher/manage-activity-teacher/enrolled-list/enrolled_list_admin";
 // import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 
-
-
 //visiter
 // import Visiter from "./pages/Visiter/visiter";
 // import Crud_Test from "./pages/Test/crud_test";
 
-
 // Student pages
 import MainStudent from "./pages/Student/main-student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
-import ListActivityStudent from "./pages/Student/activity-student/list_activity_admin/list_activity_student";
+import ListActivityStudent from "./pages/Student/activity-student/list_activity_studen/list_activity_student";
 import TestCardPage from "./pages/Test/test_card";
 import ActivityInfoVisitor from "./pages/visitor/activity-info/activity_info_visitor";
+
 
 function App() {
   return (
@@ -203,41 +197,51 @@ function App() {
         <Route
           path="/"
           element={
+            <ProtectedRoute>
             <Navbar>
               <Main />
             </Navbar>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/list-activity-admin"
           element={
+            <ProtectedRoute>
             <Navbar>
               <ListActivityAdmin />
             </Navbar>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/activity-info-admin/:id"
           element={
+            <ProtectedRoute>
             <Navbar>
               <ActivityInfoAdmin />
             </Navbar>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/enrolled_list_admin/:id"
           element={
+            <ProtectedRoute>
             <Navbar>
               <EnrolledListAdmin />
             </Navbar>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/create-activity-admin"
           element={
+            <ProtectedRoute>
             <Navbar>
               <CreateActivityAdmin />
             </Navbar>
+            </ProtectedRoute>
           }
         />
         {/* <Route
@@ -256,43 +260,57 @@ function App() {
             </Navbar>
           }
         />
-       
 
         {/* ✅ Student */}
         <Route
           path="/main-student"
           element={
+            <ProtectedRoute>
             <Navbar>
               <MainStudent />
             </Navbar>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/activity-info-student"
           element={
+            <ProtectedRoute>
             <Navbar>
               <ActivityInfoStudent />
             </Navbar>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/list-activity-student"
           element={
+            <ProtectedRoute>
             <Navbar>
               <ListActivityStudent />
             </Navbar>
+            </ProtectedRoute>
           }
         />
 
         {/* ✅ Visitor */}
         <Route
-            path="/activity-info-visitor"
-            element={
-              <Navbar>
-                <ActivityInfoVisitor />
-              </Navbar>
-            }
-          />
+          path="/activity-info-visitor"
+          element={
+            
+            <Navbar>
+              <ActivityInfoVisitor />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/activity-list-visitor"
+          element={
+            <Navbar>
+              <ActivityInfoVisitor />
+            </Navbar>
+          }
+        />
       </Routes>
     </>
   );

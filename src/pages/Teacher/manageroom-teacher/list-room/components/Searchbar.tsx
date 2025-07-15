@@ -21,12 +21,13 @@ const Searchbar: React.FC<SearchBarProps> = ({ onSearch }) => {
   };
 
   return (
-    <div className="flex items-center bg-white rounded-full 
+    <div
+      className="flex items-center bg-white rounded-full 
     shadow-2xl shadow-gray-400 drop-shadow-lg 
     hover:shadow-[0_10px_30px_rgba(0,0,0,0.25)] transition-all duration-300 
     w-full max-w-[300px] sm:max-w-[500px] md:max-w-[700px] lg:max-w-[900px] 
-    px-3 md:px-4 py-2">
-      
+    px-3 md:px-4 py-2"
+    >
       {/* Input ค้นหา */}
       <input
         type="text"

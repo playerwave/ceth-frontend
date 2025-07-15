@@ -44,7 +44,7 @@ export default function ActivityInfoStudent() {
     if (enrolledActivities.length === 0) return;
 
     const isUserEnrolled = enrolledActivities.some(
-      (act) => Number(act.ac_id) === Number(id)
+      (act) => Number(act.ac_id) === Number(id),
     );
 
     setIsEnrolled(isUserEnrolled);
@@ -79,7 +79,7 @@ export default function ActivityInfoStudent() {
           setIsEnrolled={setIsEnrolled}
           navigate={navigate}
           enrolledActivities={enrolledActivities}
-          selectedFood={selectedFood}  // ส่ง selectedFood ไปที่ ActivityFooter
+          selectedFood={selectedFood} // ส่ง selectedFood ไปที่ ActivityFooter
         />
       </div>
     </div>

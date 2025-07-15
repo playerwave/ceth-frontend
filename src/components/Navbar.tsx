@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { Menu, X } from "lucide-react";
+import { useAuthStore } from "../stores/Visitor/auth.store";
 
 import { ReactNode } from "react";
 
@@ -11,14 +12,19 @@ type NavbarProps = {
 
 const Navbar = ({ children }: NavbarProps) => {
   const location = useLocation();
+  const { user } = useAuthStore();
 
   // เก็บสถานะย่อ Sidebar ไว้ใน localStorage เฉพาะ desktop
   const [isCollapsed, setIsCollapsed] = useState(
-    () => localStorage.getItem("sidebarCollapsed") === "true"
+    () => localStorage.getItem("sidebarCollapsed") === "true",
   );
 
   // เก็บ role ใน state ธรรมดา (ไม่ใช้ localStorage)
-  const [role, setRole] = useState<"student" | "admin">("student");
+  // const [role, setRole] = useState<"student" | "admin">("student");
+
+const role: "student" | "admin" =
+  user?.role === "Student" ? "student" : "admin";
+
 
   // ตรวจสอบขนาดหน้าจอ ตั้งแต่โหลดแรก
   const [isMobile, setIsMobile] = useState(() => {
@@ -59,11 +65,6 @@ const Navbar = ({ children }: NavbarProps) => {
     }
   }, [isMobile]);
 
-  // ฟังก์ชันสลับ role แบบธรรมดา
-  const toggleRole = () => {
-    setRole((prev) => (prev === "admin" ? "student" : "admin"));
-  };
-
   // แสดง Sidebar ย่อเฉพาะ desktop เท่านั้น
   const showSidebarCollapsed = !isMobile && isCollapsed;
 
@@ -82,28 +83,31 @@ const Navbar = ({ children }: NavbarProps) => {
           )}
           <h1 className="text-2xl font-bold">Burapha University</h1>
         </div>
-        <button
-          onClick={toggleRole}
-          className="bg-white text-[#1E3A8A] px-4 py-2 rounded text-sm"
-        >
-          สลับเป็น {role === "admin" ? "Student" : "Admin"}
-          <br />
-          (ทดสอบ)
-        </button>
+        <div>
+          user: {user?.username || "Guest"}  
+        </div>
+        
       </div>
 
       {/* Sidebar สำหรับ Desktop */}
       {!isMobile && (
         <div
-          className={`fixed top-[80px] left-0 ${showSidebarCollapsed ? "w-[80px]" : "w-[280px]"
-            } h-[calc(100vh-80px)] z-40 transition-all duration-300`}
+          className={`fixed top-[80px] left-0 ${
+            showSidebarCollapsed ? "w-[80px]" : "w-[280px]"
+          } h-[calc(100vh-80px)] z-40 transition-all duration-300`}
         >
-          <Sidebar
+          {/* <Sidebar
             isCollapsed={showSidebarCollapsed}
             toggleSidebar={() => setIsCollapsed(!isCollapsed)}
             role={role}
-            
-          />
+          /> */}
+
+          <Sidebar
+  isCollapsed={showSidebarCollapsed}
+  toggleSidebar={() => setIsCollapsed(!isCollapsed)}
+  role={role}
+/>
+
         </div>
       )}
 
@@ -114,7 +118,6 @@ const Navbar = ({ children }: NavbarProps) => {
           <div
             onClick={() => setMobileMenuOpen(false)}
             className="fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-black/40 z-40"
-
           />
 
           {/* Sidebar overlay ทับบนเนื้อหา */}
@@ -128,25 +131,24 @@ const Navbar = ({ children }: NavbarProps) => {
         </>
       )}
 
-
-      {/* เนื้อหาหลัก */}
-      {/* <div
-        className="flex-grow min-h-screen transition-all duration-300"
-        style={{
-          marginLeft: isMobile ? 0 : showSidebarCollapsed ? "80px" : "280px",
-          marginTop: "80px",
-        }}
+      <div
+        className="flex-grow min-h-screen transition-all duration-300 pt-[40px]"
+        style={{ marginTop: "60px" }}
       >
+        {children}
+      </div>
+
+      {/* <div
+  className={`flex-grow transition-all duration-300 min-h-screen pt-[88px] ${
+    !isMobile ? (showSidebarCollapsed ? "pl-[80px]" : "pl-[280px]") : "pl-0"
+  }`}
+>
         {children}
       </div> */}
 
-<div
-  className="flex-grow min-h-screen transition-all duration-300"
-  style={{ marginTop: "80px" }}
->
-  {children}
-</div>
-    </>
+
+    </> 
+    
   );
 };
 

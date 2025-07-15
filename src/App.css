@@ -6,6 +6,7 @@
   align-items: center; /* จัดให้อยู่กลางแนวตั้ง */
   justify-content: space-between; /* แบ่งพื้นที่ระหว่างซ้าย-ขวา */
 }
+
 /* #root {
   max-width: 1280px;
   margin: 0 auto;

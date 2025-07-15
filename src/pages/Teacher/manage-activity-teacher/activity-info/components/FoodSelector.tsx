@@ -8,7 +8,9 @@ interface Props {
 
 export default function FoodSelector({ foodList = [], locationType }: Props) {
   const noFood =
-    locationType !== "Onsite" || !Array.isArray(foodList) || foodList.length === 0;
+    locationType !== "Onsite" ||
+    !Array.isArray(foodList) ||
+    foodList.length === 0;
 
   return (
     <div className="mt-4">

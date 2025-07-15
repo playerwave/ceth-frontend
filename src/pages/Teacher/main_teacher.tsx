@@ -1,7 +1,7 @@
 const main_admin = () => {
   return (
     <div>
-      <h1>Main Admin</h1>
+      <h1 className="font-pt-sans">Main Admin</h1>
     </div>
   );
 };

@@ -8,7 +8,7 @@ import {
   User,
 } from "lucide-react";
 
-import { Activity } from "../types/Admin/activity_list_type"; // ปรับเส้นทางให้ตรงกับที่เก็บ Activity
+import { Activity } from "../types/model"; // ปรับเส้นทางให้ตรงกับที่เก็บ Activity
 
 // 👉 type ที่สามารถใช้ปรับรูปแบบคอลัมน์ได้
 type ColumnOptions = {
@@ -16,12 +16,12 @@ type ColumnOptions = {
   includeStatus?: boolean;
   selectedTypes?: string[]; // ✅ เพิ่ม
   handleTypeChange?: (type: string) => void; // ✅ เพิ่ม
-  handleStatusToggle?: (row: Activity & { source: "mock" | "real" }) => void;
+  handleStatusToggle?: (row: Activity) => void;
   includeRecommend?: boolean;
 };
 
 export const getActivityColumns = (
-  options: ColumnOptions = {}
+  options: ColumnOptions = {},
 ): GridColDef[] => {
   const columns: GridColDef[] = [
     {
@@ -77,14 +77,14 @@ export const getActivityColumns = (
                 value === "ไม่ได้ระบุ"
                   ? "transparent"
                   : value === "Hard Skill"
-                  ? "#FFF4CC"
-                  : "#EDE7F6",
+                    ? "#FFF4CC"
+                    : "#EDE7F6",
               color:
                 value === "Hard Skill"
                   ? "#FBBF24"
                   : value === "ไม่ได้ระบุ"
-                  ? "black"
-                  : "#5E35B1",
+                    ? "black"
+                    : "#5E35B1",
               fontWeight: "bold",
             }}
           />
@@ -98,7 +98,7 @@ export const getActivityColumns = (
       renderCell: (params) =>
         typeof params.value === "string" && params.value.length > 40
           ? params.value.slice(0, 40) + "..."
-          : params.value ?? "-",
+          : (params.value ?? "-"),
     },
     {
       field: "date",
@@ -130,7 +130,7 @@ export const getActivityColumns = (
           <span>
             {isSameDay
               ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
-                  end
+                  end,
                 )} น.`
               : `${formatDate(start)} - ${formatDate(end)}`}
           </span>
@@ -175,13 +175,13 @@ export const getActivityColumns = (
   ];
 
   if (options.includeStatus) {
-  columns.push({
-    field: "status",
-    headerName: "สถานะ",
-    width: 100,
-    renderCell: (params) => {
-      const isPublic = params.value === "Public";
-      return (
+    columns.push({
+      field: "status",
+      headerName: "สถานะ",
+      width: 100,
+      renderCell: (params) => {
+        const isPublic = params.value === "Public";
+        return (
           <Box
             onClick={() => console.log("toggle")}
             sx={{

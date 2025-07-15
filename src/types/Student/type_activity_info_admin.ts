@@ -92,9 +92,16 @@ export interface ActivityState {
   activity: Activity | null;
   enrolledStudents: EnrolledStudent[];
   fetchActivities: () => Promise<void>;
-  fetchActivity: (id: number | string, userId: number) => Promise<Activity | null>;
+  fetchActivity: (
+    id: number | string,
+    userId: number,
+  ) => Promise<Activity | null>;
   fetchEnrolledStudents: (id: number | string) => Promise<void>;
-  enrollActivity: (userId: string, activityId: number, food?: string) => Promise<void>;
+  enrollActivity: (
+    userId: string,
+    activityId: number,
+    food?: string,
+  ) => Promise<void>;
   fetchStudentActivities: (userId: string) => Promise<void>;
   fetchEnrolledActivities: (studentId: string) => Promise<void>;
   unenrollActivity: (userId: number, activityId: number) => Promise<void>;

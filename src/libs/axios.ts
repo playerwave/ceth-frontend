@@ -26,7 +26,7 @@ axiosInstance.interceptors.request.use(
   (error) => {
     console.error("❌ [Request Error]", error);
     return Promise.reject(error);
-  }
+  },
 );
 
 // Interceptors for logging responses (comment ถ้าเป็นตอนที่ขึ้น production)
@@ -46,7 +46,7 @@ axiosInstance.interceptors.response.use(
       data: error.response?.data,
     });
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

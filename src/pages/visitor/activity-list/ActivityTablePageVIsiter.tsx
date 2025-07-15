@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import TableRedesign from "../../components/Table_re";
-import CustomCard from "../../components/Card";
-import { getActivityColumns } from "../../components/activity_column";
+import TableRedesign from "../../../components/Table_re";
+import CustomCard from "../../../components/Card";
+import { getActivityColumns } from "../../../components/activity_column";
 
 type Props = {
   rows1: any[];
@@ -12,7 +12,7 @@ const ActivityTablePageVisitor = ({ rows1 }: Props) => {
 
   const handleTypeChange = (type: string) => {
     setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
@@ -29,7 +29,7 @@ const ActivityTablePageVisitor = ({ rows1 }: Props) => {
         handleTypeChange,
         selectedTypes,
       }),
-    [selectedTypes]
+    [selectedTypes],
   );
 
   return (

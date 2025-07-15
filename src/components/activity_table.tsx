@@ -15,7 +15,7 @@ const ActivityTablePage = ({ rows1, rows2, rows3 }: Props) => {
 
   const handleTypeChange = (type: string) => {
     setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
@@ -32,7 +32,7 @@ const ActivityTablePage = ({ rows1, rows2, rows3 }: Props) => {
         handleTypeChange,
         selectedTypes,
       }),
-    [selectedTypes]
+    [selectedTypes],
   );
 
   const activityColumnsWithoutStatus = useMemo(
@@ -43,7 +43,7 @@ const ActivityTablePage = ({ rows1, rows2, rows3 }: Props) => {
         handleTypeChange,
         selectedTypes,
       }),
-    [selectedTypes]
+    [selectedTypes],
   );
 
   return (

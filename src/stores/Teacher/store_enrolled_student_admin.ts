@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { fetchEnrolledStudentsByActivityId } from "../../services/Admin/service_enrolled_student_admin";
+import { fetchEnrolledStudentsByActivityId } from "../../services(old)/Admin/service_enrolled_student_admin";
 import type { EnrolledStudent } from "../../types/Admin/type_enrolled_list_admin";
 
 export const useEnrolledStudentStore = create<{
@@ -8,7 +8,6 @@ export const useEnrolledStudentStore = create<{
   enrolledError: string | null;
   fetchEnrolledStudents: (activityId: number) => Promise<void>;
 }>((set) => {
-
   // map function อยู่ในนี้เลย
   const mapEnrolledStudentData = (raw: any): EnrolledStudent => ({
     id: raw.studentid,
@@ -34,7 +33,11 @@ export const useEnrolledStudentStore = create<{
         set({ enrolledStudents: mapped, enrolledLoading: false });
       } catch (error) {
         console.error("❌ Error fetching enrolled students:", error);
-        set({ enrolledStudents: [], enrolledLoading: false, enrolledError: "โหลดข้อมูลนิสิตล้มเหลว" });
+        set({
+          enrolledStudents: [],
+          enrolledLoading: false,
+          enrolledError: "โหลดข้อมูลนิสิตล้มเหลว",
+        });
       }
     },
   };

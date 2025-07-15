@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react'; // หรือใช้ <span> 👁️ แทนถ้าไม่ติดตั้ง icon lib
+import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react"; // หรือใช้ <span> 👁️ แทนถ้าไม่ติดตั้ง icon lib
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,8 +13,12 @@ const Login = () => {
       </div>
 
       <div className="w-full max-w-[500px] min-h-[600px] bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-lg">
-        <h1 className="text-white text-3xl font-bold text-center mb-2">Burapha University</h1>
-        <h2 className="text-white mt-10 text-3xl font-semibold mb-6 px-10 text-left">Login</h2>
+        <h1 className="text-white text-3xl font-bold text-center mb-2">
+          Burapha University
+        </h1>
+        <h2 className="text-white mt-10 text-3xl font-semibold mb-6 px-10 text-left">
+          Login
+        </h2>
 
         <form className="px-10">
           <label className="text-white block mb-1">Student ID</label>
@@ -36,7 +40,11 @@ const Login = () => {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-6 transform -translate-y-1/2 text-gray-600 cursor-pointer"
             >
-              {showPassword ? <EyeOff   className="text-gray-400" size={20} /> : <Eye className="text-gray-400"  size={20} />}
+              {showPassword ? (
+                <EyeOff className="text-gray-400" size={20} />
+              ) : (
+                <Eye className="text-gray-400" size={20} />
+              )}
             </button>
           </div>
 

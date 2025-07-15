@@ -8,7 +8,7 @@ interface Props {
 
 const DescriptionSection: React.FC<Props> = ({ formData, handleChange }) => {
   return (
-    <div className="mt-5" >
+    <div className="mt-5">
       <br />
       <label className="block font-semibold w-50">คำอธิบายกิจกรรม</label>
       <TextField

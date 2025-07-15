@@ -104,7 +104,7 @@
 
 import { Activity } from "./table";
 import { useNavigate } from "react-router-dom";
-import { useActivityStore } from "../../../../../stores/Teacher/activity_list_store";
+import { useActivityStore } from "../../../../../stores/Teacher/activity.store.teacher";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 
@@ -145,17 +145,17 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
           className="px-2 py-1 rounded"
           style={{
             backgroundColor:
-              act.type === "Hard Skill"
+              act.type === "Hard"
                 ? "rgba(255, 174, 0, 0.2)"
-                : act.type === "Soft Skill"
-                ? "rgba(9, 0, 255, 0.2)"
-                : "#rgba(128, 128, 128, 0.2)",
+                : act.type === "Soft"
+                  ? "rgba(9, 0, 255, 0.2)"
+                  : "#rgba(128, 128, 128, 0.2)",
             color:
-              act.type === "Hard Skill"
+              act.type === "Hard"
                 ? "#FFAE00"
-                : act.type === "Soft Skill"
-                ? "#0900FF"
-                : "B0B0B0",
+                : act.type === "Soft"
+                  ? "#0900FF"
+                  : "B0B0B0",
             minWidth: "100px",
             display: "inline-block",
           }}

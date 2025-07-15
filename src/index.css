@@ -1,16 +1,10 @@
+@font-face {
+  font-family: pt-sans;
+  src: url("../src/assets/fonts/PTSans-Regular.ttf");
+}
+
 @import "tailwindcss";
 
-@layer utilities {
-  @keyframes spinner-fade {
-    0% {
-      background-color: #1e3a8a;
-    }
-    100% {
-      background-color: transparent;
-    }
-  }
-
-  .animate-spinner-fade {
-    animation: spinner-fade 1s infinite linear;
-  }
+@theme{
+  --font-pt-sans: pt-sans;
 }

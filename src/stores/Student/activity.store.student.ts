@@ -1,7 +1,7 @@
 // src/stores/activityStore.ts
 import { create } from "zustand";
-import { ActivityState } from "../../types/Student/activity_list_studen_type";
-import * as activityService from "../../service/Studen/activity_list_service";
+import { ActivityState } from "../state/activity.state";
+import * as activityService from "../../service/Student/activity.service.student";
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
   activities: [],
@@ -10,11 +10,12 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activityLoading: false,
   activity: null,
   enrolledActivities: [],
+  recommendedIds: [],
 
-  fetchStudentActivities: async (userId: string) => {
+  fetchStudentActivities: async (userId: number) => {
     set({ activityLoading: true, activityError: null });
     try {
-      const activities = await activityService.fetchStudentActivities(userId);
+      const activities = await activityService.fetchActivities(userId);
       set({ activities, activityLoading: false });
     } catch (error) {
       console.error("❌ Error fetching student activities:", error);
@@ -27,7 +28,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   searchActivities: async (searchName: string) => {
     if (!searchName.trim()) {
-      await get().fetchStudentActivities("1"); // กำหนด userId ให้ถูกต้อง
+      await get().fetchStudentActivities(1); // กำหนด userId ให้ถูกต้อง
       set({ searchResults: null });
       return;
     }
@@ -43,6 +44,11 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         activityLoading: false,
       });
     }
+  },
+
+  fetchRecommended: async (userId: number) => {
+    const ids = await activityService.fetchRecommendedIds(userId);
+    set({ recommendedIds: ids });
   },
 
   fetchActivity: async (id: number | string, userId: number) => {

@@ -9,22 +9,21 @@ const ListFoodAdmin = () => {
   const [maxPrice, setMaxPrice] = useState<number | "">("");
   const foodData = Array.from({ length: 15 }, (_, i) => ({
     name: `เมนูที่ ${i + 1}`,
-    price: 50 + (i * 5), // ตัวเลขราคา (เช่น 50, 55, 60 ...)
+    price: 50 + i * 5, // ตัวเลขราคา (เช่น 50, 55, 60 ...)
     phone: `091-234-56${(i + 10).toString().slice(-2)}`,
   }));
 
-
   // กรองข้อมูลก่อนส่งให้ DataGrid
   const filteredFoods = foodData.filter((food) => {
-    const matchName = food.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchName = food.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     const matchMinPrice = minPrice === "" || food.price >= minPrice;
     const matchMaxPrice = maxPrice === "" || food.price <= maxPrice;
     return matchName && matchMinPrice && matchMaxPrice;
   });
 
-
   // ใน ListFoodAdmin
-
 
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-5">
@@ -50,9 +49,8 @@ const ListFoodAdmin = () => {
         </h2>
 
         {/* ใช้ DataGrid Pagination ใน FoodTable เลย */}
-       
-          <FoodTable data={filteredFoods} />
-       
+
+        <FoodTable data={filteredFoods} />
       </div>
     </div>
   );

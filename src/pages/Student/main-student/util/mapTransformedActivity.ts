@@ -32,9 +32,4 @@ export const mapTransformedActivity = (activity: any) => ({
   seat: activity.ac_seat,
   start_assessment: activity.ac_start_assessment,
   end_assessment: activity.ac_end_assessment,
-
 });
-
-
-
-

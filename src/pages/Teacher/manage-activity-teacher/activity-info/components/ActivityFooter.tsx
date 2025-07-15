@@ -140,7 +140,7 @@ const formatTime = (dateInput?: string | Date | null) => {
 
 const formatDateTimeRange = (
   startTime?: string | Date | null,
-  endTime?: string | Date | null
+  endTime?: string | Date | null,
 ) => {
   if (!startTime && !endTime) return "ไม่ระบุ";
 

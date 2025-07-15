@@ -95,8 +95,8 @@ const crud_test = () => {
             {loading
               ? "Processing..."
               : editingUser
-              ? "Update User"
-              : "Create User"}
+                ? "Update User"
+                : "Create User"}
           </button>
         </form>
       </div>

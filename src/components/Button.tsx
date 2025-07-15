@@ -24,7 +24,7 @@
 //   color = "blue",
 //   width = "auto",
 //   type = "button", // ค่า default เป็น "button" เพื่อป้องกันการ submit
-//   onClick, 
+//   onClick,
 //   className,         // ✅ เพิ่มตรงนี้
 //   startIcon,
 // }) => {
@@ -100,7 +100,7 @@ const Button: React.FC<ButtonProps> = ({
         "text-[12px] sm:text-[13px] md:text-[14px] lg:text-[16px]",
         // ✅ responsive padding
         "px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 lg:px-6 lg:py-3",
-        className
+        className,
       )}
       style={{
         width,

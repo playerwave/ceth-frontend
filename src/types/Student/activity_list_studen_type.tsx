@@ -100,6 +100,6 @@ export interface ActivityState {
   searchActivities: (searchName: string) => Promise<void>;
   fetchActivity: (
     id: number | string,
-    userId: number
+    userId: number,
   ) => Promise<Activity | null>;
 }

@@ -18,7 +18,6 @@ export default function EnrolledListFilter({
 }: Props) {
   return (
     <div className="flex justify-between items-center p-4">
-
       {/* ข้อมูลจำนวนผู้ลงทะเบียน */}
       <div className="flex items-center gap-2 text-lg font-semibold">
         {activity
@@ -30,7 +29,9 @@ export default function EnrolledListFilter({
       <div className="flex gap-4">
         {/* ฟิลเตอร์สาขา */}
         <div className="flex items-center gap-2">
-          <button className="bg-blue-900 text-white px-4 py-1 rounded">สาขา</button>
+          <button className="bg-blue-900 text-white px-4 py-1 rounded">
+            สาขา
+          </button>
           {["SE", "AI", "CS", "IT"].map((dept) => (
             <FormControlLabel
               key={dept}
@@ -41,7 +42,7 @@ export default function EnrolledListFilter({
                     setSelectedDepartments((prev) =>
                       prev.includes(dept)
                         ? prev.filter((d) => d !== dept)
-                        : [...prev, dept]
+                        : [...prev, dept],
                     )
                   }
                   sx={{
@@ -57,7 +58,9 @@ export default function EnrolledListFilter({
 
         {/* ฟิลเตอร์สถานะ */}
         <div className="flex items-center gap-2">
-          <button className="bg-blue-900 text-white px-4 py-1 rounded">สถานะ</button>
+          <button className="bg-blue-900 text-white px-4 py-1 rounded">
+            สถานะ
+          </button>
           {["normal", "risk"].map((status) => (
             <FormControlLabel
               key={status}
@@ -68,7 +71,7 @@ export default function EnrolledListFilter({
                     setSelectedStatus((prev) =>
                       prev.includes(status)
                         ? prev.filter((s) => s !== status)
-                        : [...prev, status]
+                        : [...prev, status],
                     )
                   }
                   sx={{

@@ -25,7 +25,6 @@ import { SelectChangeEvent } from "@mui/material"; // ✅ นำเข้า Sel
 import { useActivityStore } from "../../../../stores/Teacher/store_create_activity";
 import type { FormData } from "../../../../types/Admin/type_create_activity_admin";
 
-
 import {
   handleChange,
   // handleDateTimeChange,
@@ -47,7 +46,6 @@ import ImageUploadSection from "./components/ImageUploadSection";
 import ActionButtonsSection from "./components/ActionButtonsSection";
 import DescriptionSection from "./components/DescriptionSection";
 import StatusAndSeatSection from "./components/StatusAndSeatSection";
-
 
 const CreateActivityAdmin: React.FC = () => {
   const { createActivity, activityLoading } = useActivityStore(); //
@@ -120,13 +118,13 @@ const CreateActivityAdmin: React.FC = () => {
 
     // ✅ ค้นหา `capacity` ของห้องที่เลือก
     const selectedRoomObj = IfBuildingRoom[selectedFloor]?.find(
-      (room) => room.name === event.target.value
+      (room) => room.name === event.target.value,
     );
 
     const newSeatCapacity = selectedRoomObj ? selectedRoomObj.capacity : "";
 
     setSeatCapacity(newSeatCapacity === "" ? "" : String(newSeatCapacity));
- // ✅ อัปเดตจำนวนที่นั่ง
+    // ✅ อัปเดตจำนวนที่นั่ง
 
     setFormData((prev) => ({
       ...prev,
@@ -136,7 +134,6 @@ const CreateActivityAdmin: React.FC = () => {
   };
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-
 
   const uploadImageToCloudinary = async (file: File) => {
     if (!file || !file.type.startsWith("image/")) {
@@ -152,7 +149,7 @@ const CreateActivityAdmin: React.FC = () => {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
 
     if (!response.ok) {
@@ -176,7 +173,6 @@ const CreateActivityAdmin: React.FC = () => {
       return;
     }
 
-
     let imageUrl = "";
     if (formData.ac_image_url instanceof File) {
       imageUrl = await uploadImageToCloudinary(formData.ac_image_url);
@@ -198,15 +194,14 @@ const CreateActivityAdmin: React.FC = () => {
     }
 
     if (!formData.ac_start_register) {
-  toast.error("กรุณาเลือกวันเวลาเริ่มลงทะเบียน");
-  return;
-}
+      toast.error("กรุณาเลือกวันเวลาเริ่มลงทะเบียน");
+      return;
+    }
 
     let startRegister = dayjs(formData.ac_start_register ?? "").toDate();
-if (formData.ac_status == "Public") {
-  startRegister = new Date(); // ไม่ต้องใช้ dayjs ก็ได้
-}
-
+    if (formData.ac_status == "Public") {
+      startRegister = new Date(); // ไม่ต้องใช้ dayjs ก็ได้
+    }
 
     const activityData: ApiActivity = {
       ...formData,
@@ -217,10 +212,11 @@ if (formData.ac_status == "Public") {
       ac_state: "Not Start",
       ac_seat: parseInt(seatCapacity),
       ac_image_url: imageUrl, // ✅ ใช้ URL ของรูปภาพจาก Cloudinary
-      ac_normal_register: convertToDate(formData.ac_normal_register)?.toISOString() ?? "",
-ac_end_register: convertToDate(formData.ac_end_register),
-ac_start_assessment: convertToDate(formData.ac_start_assessment),
-ac_end_assessment: convertToDate(formData.ac_end_assessment),
+      ac_normal_register:
+        convertToDate(formData.ac_normal_register)?.toISOString() ?? "",
+      ac_end_register: convertToDate(formData.ac_end_register),
+      ac_start_assessment: convertToDate(formData.ac_start_assessment),
+      ac_end_assessment: convertToDate(formData.ac_end_assessment),
       assessment_id: formData.assessment_id
         ? Number(formData.assessment_id)
         : null,
@@ -298,7 +294,6 @@ ac_end_assessment: convertToDate(formData.ac_end_assessment),
     console.log("Assessments:", assessments); // ✅ ตรวจสอบว่า assessments มีค่าหรือไม่
   }, [assessments]);
 
-
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleFormChange = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
@@ -322,7 +317,6 @@ ac_end_assessment: convertToDate(formData.ac_end_assessment),
             <h1 className="text-4xl font-bold mb-11">สร้างกิจกรรมสหกิจ</h1>
             <form onSubmit={handleSubmit} className="space-y-10 flex-grow">
               <div>
-
                 {/* แถวแรก: ชื่อกิจกรรม + วันเวลาปิด/เปิดลงทะเบียน */}
                 <div className="flex space-x-6  ">
                   <ActivityInfoSection
@@ -333,12 +327,10 @@ ac_end_assessment: convertToDate(formData.ac_end_assessment),
                     formData={formData}
                     handleDateTimeChange={handleDateTimeChange}
                   />
-
                 </div>
 
                 {/* แถวสอง: คำอธิบาย + วันเวลาการดำเนินกิจกรรม + จำนวนชั่วโมง */}
                 <div className="flex space-x-6 ">
-
                   <DescriptionSection
                     formData={formData}
                     handleChange={handleFormChange}
@@ -351,13 +343,9 @@ ac_end_assessment: convertToDate(formData.ac_end_assessment),
                   />
                 </div>
 
-
-
-
                 <TypeAndLocationSection
                   formData={formData}
-                   handleChange={(e) => handleChange(e, setFormData)}
-
+                  handleChange={(e) => handleChange(e, setFormData)}
                   setSelectedFloor={setSelectedFloor}
                   setSelectedRoom={setSelectedRoom}
                   setSeatCapacity={setSeatCapacity}
@@ -404,11 +392,8 @@ ac_end_assessment: convertToDate(formData.ac_end_assessment),
                   isModalOpen={isModalOpen}
                   setIsModalOpen={setIsModalOpen}
                 />
-
               </div>
             </form>
-
-
           </div>
         </Box>
       )}
@@ -417,5 +402,3 @@ ac_end_assessment: convertToDate(formData.ac_end_assessment),
 };
 
 export default CreateActivityAdmin;
-
-

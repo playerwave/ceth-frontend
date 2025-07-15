@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CopyPlus, Filter } from "lucide-react";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+} from "@mui/material";
 
 interface AddFoodButtonProps {
   onFilterPrice: (min: number | "", max: number | "") => void;
@@ -22,7 +29,6 @@ const AddFoodButton: React.FC<AddFoodButtonProps> = ({ onFilterPrice }) => {
 
   return (
     <div className="flex flex-row flex-wrap justify-center sm:justify-end gap-3 mt-4 md:mt-7">
-
       {/* ปุ่มเพิ่มอาหาร */}
       <button
         onClick={() => navigate("/create-food")}
@@ -38,7 +44,6 @@ const AddFoodButton: React.FC<AddFoodButtonProps> = ({ onFilterPrice }) => {
         onClick={handleOpenDialog}
         className="flex-1 sm:flex-none px-3 py-2 text-sm bg-blue-800 text-white rounded-lg hover:bg-blue-900 gap-1 flex items-center justify-center min-w-[100px]"
       >
-       
         <span>กรองราคา</span>
       </button>
 
@@ -50,9 +55,9 @@ const AddFoodButton: React.FC<AddFoodButtonProps> = ({ onFilterPrice }) => {
         maxWidth="sm"
         PaperProps={{
           style: {
-            margin: '16px',
-            width: 'calc(100% - 32px)',
-          }
+            margin: "16px",
+            width: "calc(100% - 32px)",
+          },
         }}
       >
         <DialogTitle>กรองช่วงราคา</DialogTitle>

@@ -14,7 +14,7 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
 
   const handleTypeChange = (type: string) => {
     setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
@@ -31,7 +31,7 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
         handleTypeChange,
         selectedTypes,
       }),
-    [selectedTypes]
+    [selectedTypes],
   );
 
   const activityColumnsWithRecommend = useMemo(
@@ -43,7 +43,7 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
         selectedTypes,
         includeRecommend: false,
       }),
-    [selectedTypes]
+    [selectedTypes],
   );
 
   return (

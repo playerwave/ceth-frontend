@@ -66,7 +66,7 @@ export default function ActivityFooter({
 
     if (hasTimeConflict) {
       toast.error(
-        "ไม่สามารถลงทะเบียนได้: เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว"
+        "ไม่สามารถลงทะเบียนได้: เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว",
       );
       return;
     }
@@ -102,9 +102,7 @@ export default function ActivityFooter({
           open={showLoginDialog}
           title="ยังไม่ได้เข้าสู่ระบบ"
           message={
-            <>
-              คุณยังไม่ได้เข้าสู่ระบบกรุณาเข้าสู่ระบบก่อนลงทะเบียนกิจกรรม
-            </>
+            <>คุณยังไม่ได้เข้าสู่ระบบกรุณาเข้าสู่ระบบก่อนลงทะเบียนกิจกรรม</>
           }
           onClose={() => setShowLoginDialog(false)}
           onConfirm={() => navigate("/login")}
@@ -133,7 +131,7 @@ export default function ActivityFooter({
             {activity.start_time &&
               activity.end_time &&
               `${formatDateTime(
-                new Date(activity.start_time)
+                new Date(activity.start_time),
               )} - ${formatDateTime(new Date(activity.end_time))}`}
           </div>
         </div>

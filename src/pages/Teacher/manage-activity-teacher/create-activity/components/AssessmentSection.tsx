@@ -31,9 +31,7 @@ const AssessmentSection: React.FC<Props> = ({
           displayEmpty
           renderValue={(selected) => {
             if (!selected) return "เลือกเเบบประเมิน";
-            return (
-              assessments.find((a) => a.as_id === selected)?.as_name || ""
-            );
+            return assessments.find((a) => a.as_id === selected)?.as_name || "";
           }}
         >
           <MenuItem disabled value="">
@@ -79,11 +77,11 @@ const AssessmentSection: React.FC<Props> = ({
                         formData.ac_start_assessment &&
                         ((formData.ac_start_time &&
                           dayjs(formData.ac_start_assessment).isBefore(
-                            dayjs(formData.ac_start_time)
+                            dayjs(formData.ac_start_time),
                           )) ||
                           (formData.ac_end_assessment &&
                             dayjs(formData.ac_start_assessment).isAfter(
-                              dayjs(formData.ac_end_assessment)
+                              dayjs(formData.ac_end_assessment),
                             )))
                       ),
                       helperText:
@@ -91,15 +89,15 @@ const AssessmentSection: React.FC<Props> = ({
                         formData.ac_start_assessment
                           ? formData.ac_start_time &&
                             dayjs(formData.ac_start_assessment).isBefore(
-                              dayjs(formData.ac_start_time)
+                              dayjs(formData.ac_start_time),
                             )
                             ? "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม"
                             : formData.ac_end_assessment &&
-                              dayjs(formData.ac_start_assessment).isAfter(
-                                dayjs(formData.ac_end_assessment)
-                              )
-                            ? "❌ วันเปิดประเมินต้องอยู่ก่อนวันปิดประเมิน"
-                            : ""
+                                dayjs(formData.ac_start_assessment).isAfter(
+                                  dayjs(formData.ac_end_assessment),
+                                )
+                              ? "❌ วันเปิดประเมินต้องอยู่ก่อนวันปิดประเมิน"
+                              : ""
                           : "",
                     },
                   }}
@@ -134,14 +132,14 @@ const AssessmentSection: React.FC<Props> = ({
                         formData.ac_end_assessment &&
                         formData.ac_start_assessment &&
                         dayjs(formData.ac_end_assessment).isBefore(
-                          dayjs(formData.ac_start_assessment)
+                          dayjs(formData.ac_start_assessment),
                         ),
                       helperText:
                         formData.ac_status === "Public" &&
                         formData.ac_end_assessment &&
                         formData.ac_start_assessment &&
                         dayjs(formData.ac_end_assessment).isBefore(
-                          dayjs(formData.ac_start_assessment)
+                          dayjs(formData.ac_start_assessment),
                         )
                           ? "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน"
                           : "",

@@ -2,27 +2,25 @@
 
 import { create } from "zustand";
 import { MainActivityState } from "../../types/Student/type_main_activity_student";
-import { fetchEnrolledActivitiesAPI } from "../../services/Student/service_main_activity_student";
+import { fetchEnrolledActivitiesAPI } from "../../services(old)/Student/service_main_activity_student";
 
 export const useMainActivityStore = create<MainActivityState>((set) => ({
-    enrolledActivities: [],
-    activityLoading: false,
-    activityError: null,
+  enrolledActivities: [],
+  activityLoading: false,
+  activityError: null,
 
-    fetchEnrolledActivities: async (userId: string) => {
-        set({ activityLoading: true, activityError: null });
-        try {
-            const activities = await fetchEnrolledActivitiesAPI(userId);
-            set({ enrolledActivities: activities });
-        } catch (error: any) {
-            set({ activityError: error.message || "เกิดข้อผิดพลาด", enrolledActivities: [] });
-        } finally {
-            set({ activityLoading: false });
-        }
+  fetchEnrolledActivities: async (userId: string) => {
+    set({ activityLoading: true, activityError: null });
+    try {
+      const activities = await fetchEnrolledActivitiesAPI(userId);
+      set({ enrolledActivities: activities });
+    } catch (error: any) {
+      set({
+        activityError: error.message || "เกิดข้อผิดพลาด",
+        enrolledActivities: [],
+      });
+    } finally {
+      set({ activityLoading: false });
     }
-    ,
-
-
-
-
+  },
 }));

@@ -7,12 +7,7 @@ import {
   Button,
 } from "@mui/material";
 
-interface Activity {
-  id: number;
-  name: string;
-  hours: number;
-  type: "Hard Skill" | "Soft Skill";
-}
+import { Activity } from "../../../../../types/model";
 
 interface Props {
   open: boolean;
@@ -31,12 +26,12 @@ export default function CalculateDialog({
   selectedActivities,
 }: Props) {
   const totalHard = selectedActivities
-    .filter((a) => a.type === "Hard Skill")
-    .reduce((sum, a) => sum + a.hours, 0);
+    .filter((a) => a.type === "Hard")
+    .reduce((sum, a) => sum + a.recieve_hours, 0);
 
   const totalSoft = selectedActivities
-    .filter((a) => a.type === "Soft Skill")
-    .reduce((sum, a) => sum + a.hours, 0);
+    .filter((a) => a.type === "Soft")
+    .reduce((sum, a) => sum + a.recieve_hours, 0);
 
   return (
     <Dialog
@@ -124,15 +119,15 @@ export default function CalculateDialog({
                   textOverflow: "ellipsis",
                 }}
               >
-                {a.name}
+                {a.activity_name}
               </Typography>
 
               <Typography
                 fontSize={14}
                 fontWeight="bold"
-                color={a.type === "Hard Skill" ? "#f59e0b" : "#3b82f6"}
+                color={a.type === "Hard" ? "#f59e0b" : "#3b82f6"}
               >
-                + {a.hours} ชั่วโมง ({a.type})
+                + {a.recieve_hours} ชั่วโมง ({a.type})
               </Typography>
             </Box>
           ))}
