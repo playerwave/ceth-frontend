@@ -1,8 +1,9 @@
 // components/AdminActivityForm/DescriptionSection.tsx
 import { TextField } from "@mui/material";
+import { CreateActivityForm } from "../create_activity_admin";
 
 interface Props {
-  formData: any;
+  formData: CreateActivityForm;
   handleChange: (e: React.ChangeEvent<any>) => void;
 }
 
@@ -13,7 +14,7 @@ const DescriptionSection: React.FC<Props> = ({ formData, handleChange }) => {
       <label className="block font-semibold w-50">คำอธิบายกิจกรรม</label>
       <TextField
         name="ac_description"
-        value={formData.ac_description}
+        value={formData.description}
         onChange={handleChange}
         multiline
         rows={6}

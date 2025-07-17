@@ -169,8 +169,8 @@ import Main from "./pages/Teacher/main_teacher";
 import ListActivityAdmin from "./pages/Teacher/manage-activity-teacher/list_activity_admin/list_activity_admin";
 // import TestCreate from "./pages/Test/test_create";
 import CreateActivityAdmin from "./pages/Teacher/manage-activity-teacher/create-activity/create_activity_admin";
-import ActivityInfoAdmin from "./pages/Teacher/manage-activity-teacher/activity-info/activity_info_admin";
-import EnrolledListAdmin from "./pages/Teacher/manage-activity-teacher/enrolled-list/enrolled_list_admin";
+// import ActivityInfoAdmin from "./pages/Teacher/manage-activity-teacher/activity-info/activity_info_admin";
+// import EnrolledListAdmin from "./pages/Teacher/manage-activity-teacher/enrolled-list/enrolled_list_admin";
 // import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
 
 //visiter
@@ -214,7 +214,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/activity-info-admin/:id"
           element={
             <ProtectedRoute>
@@ -233,7 +233,7 @@ function App() {
             </Navbar>
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="/create-activity-admin"
           element={

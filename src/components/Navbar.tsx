@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { Menu, X } from "lucide-react";
 import { useAuthStore } from "../stores/Visitor/auth.store";
+import { useNavigate } from "react-router-dom";
 
 import { ReactNode } from "react";
 
@@ -12,7 +13,8 @@ type NavbarProps = {
 
 const Navbar = ({ children }: NavbarProps) => {
   const location = useLocation();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
 
   // เก็บสถานะย่อ Sidebar ไว้ใน localStorage เฉพาะ desktop
   const [isCollapsed, setIsCollapsed] = useState(
@@ -81,12 +83,53 @@ const role: "student" | "admin" =
               {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           )}
-          <h1 className="text-2xl font-bold">Burapha University</h1>
+          <h1 className="text-2xl font-bold ml-10">Burapha University</h1>
         </div>
-        <div>
-          user: {user?.username || "Guest"}  
-        </div>
-        
+        {/* <div className="flex flex-col items-start gap-1 p-2 border rounded-md bg-white shadow-sm">
+      <div className="text-sm text-gray-700 font-semibold">
+        {user?.username}
+      </div>
+      <div className="text-xs text-gray-500">
+         {user?.role || "ไม่ระบุ"}
+      </div>
+    </div> */}
+        {/* {isAuthenticated && user ? (
+  <div className="flex flex-col items-start gap-1 p-2 border rounded-md  shadow-sm">
+    <div className="text-sm text-white-700 font-semibold">
+      {user.username}
+    </div>
+    <div className="text-xs text-white-500">
+      {user.role || "ไม่ระบุ"}
+    </div>
+  </div>
+) : (
+  <button
+    onClick={() => navigate("/login")}
+    className="px-4 py-1 text-sm rounded-md bg-white text-blue-700 hover:bg-blue-100 transition"
+  >
+    เข้าสู่ระบบ
+  </button>
+)} */}
+
+{isAuthenticated && user ? (
+  <div className="flex flex-col items-start gap-1 mr-15">
+    <div className="text-base text-white font-semibold">
+      {user.username}
+    </div>
+    <div className="text-sm text-white">
+      {user.role || "ไม่ระบุ"}
+    </div>
+  </div>
+) : (
+  <button
+    onClick={() => navigate("/login")}
+    className="px-4 py-1 text-sm rounded-md bg-white text-blue-700 hover:bg-blue-100 transition"
+  >
+    เข้าสู่ระบบ
+  </button>
+)}
+
+
       </div>
 
       {/* Sidebar สำหรับ Desktop */}

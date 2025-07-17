@@ -1,9 +1,10 @@
 // components/AdminActivityForm/TypeAndLocationSection.tsx
 import { MenuItem, Select } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
+import { CreateActivityForm } from "../create_activity_admin";
 
 interface Props {
-  formData: any;
+  formData: CreateActivityForm;
   handleChange: (e: React.ChangeEvent<any> | SelectChangeEvent) => void;
   setSelectedFloor: (val: string) => void;
   setSelectedRoom: (val: string) => void;
@@ -23,9 +24,9 @@ const TypeAndLocationSection: React.FC<Props> = ({
       <div className="w-140">
         <label className="block font-semibold">ประเภท *</label>
         <Select
-          labelId="ac_type-label"
-          name="ac_type"
-          value={formData.ac_type}
+          labelId="type-label"
+          name="type"
+          value={formData.type}
           onChange={handleChange}
           className="rounded w-full"
           displayEmpty
@@ -57,10 +58,10 @@ const TypeAndLocationSection: React.FC<Props> = ({
       {/* ประเภทสถานที่ */}
       <div className="w-76">
         <label className="block font-semibold">ประเภทสถานที่จัดกิจกรรม *</label>
-        <Select
+        {/* <Select
           labelId="ac_location_type-label"
           name="ac_location_type"
-          value={formData.ac_location_type}
+          value={formData.event_format}
           onChange={(e) => {
             handleChange(e); // อัปเดต formData ปกติ
             if (e.target.value !== "Onsite") {
@@ -80,6 +81,31 @@ const TypeAndLocationSection: React.FC<Props> = ({
           <MenuItem value="Onsite">Onsite</MenuItem>
           <MenuItem value="Course">Course</MenuItem>
         </Select>
+         */}
+
+         <Select
+  labelId="event_format-label"
+  name="event_format" // ✅ ตรงกับ formData
+  value={formData.event_format}
+  onChange={(e) => {
+    handleChange(e);
+    if (e.target.value !== "Onsite") {
+      setSelectedFloor("");
+      setSelectedRoom("");
+      setSeatCapacity("");
+    }
+  }}
+  className="rounded w-full"
+  sx={{
+    height: "56px",
+    "& .MuiSelect-select": { padding: "8px" },
+  }}
+>
+  <MenuItem value="Online">Online</MenuItem>
+  <MenuItem value="Onsite">Onsite</MenuItem>
+  <MenuItem value="Course">Course</MenuItem>
+</Select>
+
       </div>
     </div>
   );

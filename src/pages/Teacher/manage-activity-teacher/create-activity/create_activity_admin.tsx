@@ -1,81 +1,74 @@
-import React, { useState, useEffect } from "react";
-// import { ImagePlus } from "lucide-react";
-// import { useActivityStore } from "../../../stores/Admin/activity_store"; // ✅ นำเข้า Zustand Store
-import { useAssessmentStore } from "../../../../stores/Teacher/assessment_store";
-// import Button from "../../../../components/Button";
+import React, { useState, useEffect, useRef } from "react";
+// import { useAssessmentStore } from "../../../../stores/Teacher/assessment_store";
 import Loading from "../../../../components/Loading";
-// import { Activity } from "../../../../stores/Admin/activity_list_store";
-import { ApiActivity } from "../../../../types/Admin/activity_list_type";
 import { useNavigate } from "react-router-dom";
-// import { auto } from "@cloudinary/url-gen/actions/resize";
-// import { autoGravity } from "@cloudinary/url-gen/qualifiers/gravity";
-// import { AdvancedImage } from "@cloudinary/react";
-// import ConfirmDialog from "../../../components/ConfirmDialog";
 import { toast } from "sonner";
-// import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { Dayjs } from "dayjs";
 import dayjs from "dayjs";
-// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { Box } from "@mui/material";
 // import { Delete, Add } from "@mui/icons-material";
 import { SelectChangeEvent } from "@mui/material"; // ✅ นำเข้า SelectChangeEvent
-import { useActivityStore } from "../../../../stores/Teacher/store_create_activity";
-import type { FormData } from "../../../../types/Admin/type_create_activity_admin";
+import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
+import { Activity } from "../../../../types/model";
+import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 
 import {
   handleChange,
-  // handleDateTimeChange,
-  // handleFileChange,
   validateForm,
-  convertToDate,
+  // convertToDate,
 } from "./utils/form_utils"; // หรือเปลี่ยน path ให้ตรงกับตำแหน่งจริง
 import { handleDateTimeChange as handleDateTimeChangeBase } from "./utils/form_utils";
-// import { handleChange as baseHandleChange } from "./utils/form_utils";
+
 import { handleChange as formHandleChange } from "./utils/form_utils";
 import ActivityInfoSection from "./components/ActivityInfoSection";
 import RegisterPeriodSection from "./components/RegisterPeriodSection";
 import ActivityTimeSection from "./components/ActivityTimeSection";
 import TypeAndLocationSection from "./components/TypeAndLocationSection";
 import RoomSelectionSection from "./components/RoomSelectionSection";
-import FoodMenuSection from "./components/FoodMenuSection";
-import AssessmentSection from "./components/AssessmentSection";
+// import FoodMenuSection from "./components/FoodMenuSection";
+
+import FoodMultiSelect from "./components/FoodMultiSelection"; // ✅ ใช้ FoodMultiSelect แทน FoodMenuSection
+// import AssessmentSection from "./components/AssessmentSection";
 import ImageUploadSection from "./components/ImageUploadSection";
 import ActionButtonsSection from "./components/ActionButtonsSection";
 import DescriptionSection from "./components/DescriptionSection";
 import StatusAndSeatSection from "./components/StatusAndSeatSection";
+export interface CreateActivityForm extends Partial<Activity> {
+  selectedFoods: number[];
+}
 
 const CreateActivityAdmin: React.FC = () => {
   const { createActivity, activityLoading } = useActivityStore(); //
-  const [formData, setFormData] = useState<FormData>({
-    ac_id: null,
-    ac_name: "",
-    assessment_id: null,
-    ac_company_lecturer: "",
-    ac_description: "",
-    ac_type: "",
-    ac_room: "",
-    ac_seat: null,
-    ac_food: [],
-    ac_status: "Private",
-    ac_location_type: "Onsite",
-    ac_state: "",
-    ac_start_register: "",
-    ac_end_register: "",
-    ac_create_date: "",
-    ac_last_update: "",
-    ac_registered_count: 0,
-    ac_attended_count: 0,
-    ac_not_attended_count: 0,
-    ac_start_time: "",
-    ac_end_time: "",
-    ac_image_url: null,
-    ac_normal_register: "",
-    ac_start_assessment: "",
-    ac_end_assessment: "",
-  });
+  const savedFoods = JSON.parse(localStorage.getItem("selectedFoods") || "[]");
+  const [formData, setFormData] = useState<CreateActivityForm>({
+  activity_id: undefined,
+  activity_name: "",
+  presenter_company_name: "",
+  description: "",
+  type: "Soft",
+  seat: undefined,
+  recieve_hours: 0,
+  event_format: "Onsite",
+  activity_status: "Private",
+  activity_state: "Not Start",
+  create_activity_date: "",
+  last_update_activity_date: "",
+  start_register_date: "",
+  special_start_register_date: "",
+  end_register_date: "",
+  start_activity_date: "",
+  end_activity_date: "",
+  image_url: "",
+  assessment_id: undefined,
+  room_id: undefined,
+  start_assessment: "",
+  end_assessment: "",
+  status: "Active",
+  url: "",
+  selectedFoods: savedFoods,
+});
+
+
 
   const IfBuildingRoom: Record<string, { name: string; capacity: number }[]> = {
     "3": [
@@ -101,11 +94,20 @@ const CreateActivityAdmin: React.FC = () => {
   };
 
   const navigate = useNavigate();
-  const { assessments, fetchAssessments } = useAssessmentStore();
+  // const { assessments, fetchAssessments } = useAssessmentStore();
+  const foods = useFoodStore((state) => state.foods); // ✅ ต้องมีตรงนี้ก่อน
+  const fetchFoods = useFoodStore((state) => state.fetchFoods);
+
+useEffect(() => {
+  fetchFoods(); // ✅ เรียก API หรือโหลดรายการอาหาร
+}, []);
+
 
   const [selectedFloor, setSelectedFloor] = useState<string>("");
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [seatCapacity, setSeatCapacity] = useState<string>(""); // ✅ เก็บจำนวนที่นั่งของห้องที่เลือก
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleFloorChange = (event: SelectChangeEvent) => {
     setSelectedFloor(event.target.value);
@@ -173,60 +175,39 @@ const CreateActivityAdmin: React.FC = () => {
       return;
     }
 
-    let imageUrl = "";
-    if (formData.ac_image_url instanceof File) {
-      imageUrl = await uploadImageToCloudinary(formData.ac_image_url);
+    if (imageFile) {
+      await uploadImageToCloudinary(imageFile);
     }
 
-    let acRecieveHours = formData.ac_recieve_hours
-      ? Number(formData.ac_recieve_hours)
+    let acRecieveHours = formData.recieve_hours
+      ? Number(formData.recieve_hours)
       : 0;
 
     if (
-      formData.ac_location_type !== "Course" &&
-      formData.ac_start_time &&
-      formData.ac_end_time
+      formData.event_format !== "Course" &&
+      formData.start_activity_date &&
+      formData.end_activity_date
     ) {
-      const start = dayjs(formData.ac_start_time);
-      const end = dayjs(formData.ac_end_time);
+      const start = dayjs(formData.start_activity_date);
+      const end = dayjs(formData.end_activity_date);
       const duration = end.diff(start, "hour", true); // ✅ คำนวณเป็นชั่วโมง (รวมเศษทศนิยม)
       acRecieveHours = duration > 0 ? duration : 0; // ✅ ป้องกันค่าติดลบ
     }
 
-    if (!formData.ac_start_register) {
+    if (!formData.start_register_date) {
       toast.error("กรุณาเลือกวันเวลาเริ่มลงทะเบียน");
       return;
     }
 
-    let startRegister = dayjs(formData.ac_start_register ?? "").toDate();
-    if (formData.ac_status == "Public") {
+    let startRegister = dayjs(formData.start_register_date ?? "").toDate();
+    if (formData.activity_status == "Public") {
       startRegister = new Date(); // ไม่ต้องใช้ dayjs ก็ได้
     }
 
-    const activityData: ApiActivity = {
-      ...formData,
-      ac_create_date: new Date(),
-      ac_last_update: new Date(),
-      ac_start_register: startRegister,
-      ac_recieve_hours: acRecieveHours,
-      ac_state: "Not Start",
-      ac_seat: parseInt(seatCapacity),
-      ac_image_url: imageUrl, // ✅ ใช้ URL ของรูปภาพจาก Cloudinary
-      ac_normal_register:
-        convertToDate(formData.ac_normal_register)?.toISOString() ?? "",
-      ac_end_register: convertToDate(formData.ac_end_register),
-      ac_start_assessment: convertToDate(formData.ac_start_assessment),
-      ac_end_assessment: convertToDate(formData.ac_end_assessment),
-      assessment_id: formData.assessment_id
-        ? Number(formData.assessment_id)
-        : null,
-      ac_food: [...(formData.ac_food ?? [])],
-    };
-
-    console.log("🚀 Data ที่ส่งไป store:", activityData);
+    console.log("🚀 Data ที่ส่งไป store:", formData);
 
     try {
-      await createActivity(activityData);
+      await createActivity(formData);
       navigate("/list-activity-admin");
     } catch (error) {
       console.error("❌ Error creating activity:", error);
@@ -234,27 +215,64 @@ const CreateActivityAdmin: React.FC = () => {
     }
   };
 
-  const addFoodOption = () => {
-    setFormData((prev) => ({
-      ...prev,
-      ac_food: [
-        ...(prev.ac_food ?? []),
-        `เมนู ${prev.ac_food?.length ?? 0 + 1}`,
-      ],
-    }));
-  };
+  // const addFoodOption = () => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     ac_food: [
+  //       ...(prev.selectedFoods ?? []),
+  //       `เมนู ${prev.selectedFoods?.length ?? 0 + 1}`,
+  //     ],
+  //   }));
+  // };
+
+
+  function addFoodOption() {
+  setFormData((prev) => ({
+    ...prev,
+    selectedFoods: [...prev.selectedFoods, 0], // ✅ เพิ่มค่า food_id เช่น 0
+  }));
+}
+
+const hasAdded = useRef(false);
+
+useEffect(() => {
+   if (
+    formData.event_format === "Onsite" &&
+    foods.length > 0 &&
+    formData.selectedFoods.length === 0 &&
+    savedFoods.length === 0 && // ✅ ป้องกัน restore เมนูเดียวหลัง refresh
+    !hasAdded.current
+  ) {
+    hasAdded.current = true;
+    addFoodOption();
+  }
+}, [formData.event_format, foods, formData.selectedFoods]);
+
+useEffect(() => {
+  if (formData.selectedFoods.length > 0) {
+    localStorage.setItem("selectedFoods", JSON.stringify(formData.selectedFoods));
+  }
+}, [formData.selectedFoods]);
+
+
+
 
   // ฟังก์ชันแก้ไขเมนูอาหาร
-  const updateFoodOption = (index: number, newValue: string) => {
-    const updatedFoodOptions = [...(formData.ac_food ?? [])];
-    updatedFoodOptions[index] = newValue;
-    setFormData((prev) => ({ ...prev, ac_food: updatedFoodOptions }));
-  };
+
+  const updateFoodOption = (index: number, newFoodId: number) => {
+  const updated = [...formData.selectedFoods];
+  updated[index] = newFoodId;
+  setFormData((prev) => ({
+    ...prev,
+    selectedFoods: updated,
+  }));
+};
+
 
   // ฟังก์ชันลบเมนูอาหาร
   const removeFoodOption = (index: number) => {
-    const updatedFoodOptions = formData.ac_food?.filter((_, i) => i !== index);
-    setFormData((prev) => ({ ...prev, ac_food: updatedFoodOptions }));
+    const updatedFoodOptions = formData.selectedFoods?.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, selectedFoods: updatedFoodOptions }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -285,16 +303,14 @@ const CreateActivityAdmin: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    console.log("Fetching assessments..."); // ✅ ตรวจสอบว่า useEffect ทำงาน
-    fetchAssessments();
-  }, []);
+  // useEffect(() => {
+  //   console.log("Fetching assessments..."); // ✅ ตรวจสอบว่า useEffect ทำงาน
+  //   fetchAssessments();
+  // }, []);
 
-  useEffect(() => {
-    console.log("Assessments:", assessments); // ✅ ตรวจสอบว่า assessments มีค่าหรือไม่
-  }, [assessments]);
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  // useEffect(() => {
+  //   console.log("Assessments:", assessments); // ✅ ตรวจสอบว่า assessments มีค่าหรือไม่
+  // }, [assessments]);
 
   const handleFormChange = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
     formHandleChange(e, setFormData);
@@ -368,19 +384,34 @@ const CreateActivityAdmin: React.FC = () => {
                   selectedRoom={selectedRoom}
                 />
 
-                <FoodMenuSection
+                {/* <FoodMenuSection
                   formData={formData}
                   addFoodOption={addFoodOption}
                   removeFoodOption={removeFoodOption}
                   updateFoodOption={updateFoodOption}
-                />
+                /> */}
 
-                <AssessmentSection
+<div className="mt-6 max-w-xl w-full">
+  <label className="block font-semibold">อาหาร *</label>
+                <FoodMultiSelect
+  foods={foods}
+  selectedFoodIds={formData.selectedFoods}
+  setSelectedFoodIds={(newIds) => {
+  localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
+  setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
+}}
+
+/>
+</div>
+
+                
+
+                {/* <AssessmentSection
                   formData={formData}
                   assessments={assessments}
                   handleChange={handleFormChange}
                   handleDateTimeChange={handleDateTimeChange}
-                />
+                /> */}
 
                 <ImageUploadSection
                   previewImage={previewImage}
@@ -388,11 +419,12 @@ const CreateActivityAdmin: React.FC = () => {
                 />
 
                 <ActionButtonsSection
-                  formStatus={formData.ac_status}
+                  formStatus={formData.activity_status ?? "Private"}
                   isModalOpen={isModalOpen}
                   setIsModalOpen={setIsModalOpen}
                 />
               </div>
+              
             </form>
           </div>
         </Box>

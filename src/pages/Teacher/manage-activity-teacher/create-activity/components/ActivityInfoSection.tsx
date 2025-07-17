@@ -1,8 +1,10 @@
 // components/AdminActivityForm/ActivityInfoSection.tsx
 import { TextField } from "@mui/material";
+import { CreateActivityForm } from "../create_activity_admin";
+
 
 interface Props {
-  formData: any;
+  formData: CreateActivityForm;
   handleChange: (e: React.ChangeEvent<any>) => void;
 }
 
@@ -15,18 +17,18 @@ const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange }) => {
           id="ac_name"
           name="ac_name"
           placeholder="ชื่อกิจกรรม"
-          value={formData.ac_name}
+          value={formData.activity_name}
           className="w-full"
           onChange={handleChange}
           error={
-            formData.ac_status !== "Private" &&
-            formData.ac_name.length > 0 &&
-            formData.ac_name.length < 4
+            formData.activity_status !== "Private" &&
+            (formData.activity_name?.length ?? 0) > 0 &&
+            (formData.activity_name?.length ?? 0) < 4
           }
           helperText={
-            formData.ac_status !== "Private" &&
-            formData.ac_name.length > 0 &&
-            formData.ac_name.length < 4
+            formData.activity_status !== "Private" &&
+            (formData.activity_name?.length ?? 0) > 0 &&
+            (formData.activity_name?.length ?? 0) < 4
               ? "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร"
               : ""
           }
@@ -40,18 +42,18 @@ const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange }) => {
           id="ac_company_lecturer"
           name="ac_company_lecturer"
           placeholder="ชื่อบริษัท หรือ วิทยากร ที่มาอบรม"
-          value={formData.ac_company_lecturer}
+          value={formData.presenter_company_name}
           className="w-full"
           onChange={handleChange}
           error={
-            formData.ac_status !== "Private" &&
-            formData.ac_company_lecturer.length > 0 &&
-            formData.ac_company_lecturer.length < 4
+            formData.activity_status !== "Private" &&
+            (formData.presenter_company_name?.length ?? 0) > 0 &&
+            (formData.presenter_company_name?.length ?? 0) < 4
           }
           helperText={
-            formData.ac_status !== "Private" &&
-            formData.ac_company_lecturer.length > 0 &&
-            formData.ac_company_lecturer.length < 4
+            formData.activity_status !== "Private" &&
+            (formData.presenter_company_name?.length ?? 0) > 0 &&
+            (formData.presenter_company_name?.length ?? 0) < 4
               ? "ต้องมีอย่างน้อย 4 ตัวอักษร"
               : ""
           }

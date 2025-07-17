@@ -1,8 +1,9 @@
 // components/AdminActivityForm/RoomSelectionSection.tsx
 import { MenuItem, Select } from "@mui/material";
+import { CreateActivityForm } from "../create_activity_admin";
 
 interface Props {
-  formData: any;
+  formData: CreateActivityForm;
   selectedFloor: string;
   selectedRoom: string;
   IfBuildingRoom: Record<string, { name: string; capacity: number }[]>;
@@ -28,7 +29,7 @@ const RoomSelectionSection: React.FC<Props> = ({
           value={selectedFloor}
           onChange={handleFloorChange}
           className="rounded p-2 w-full"
-          disabled={formData.ac_location_type !== "Onsite"}
+          disabled={formData.event_format !== "Onsite"}
           sx={{
             height: "56px",
             "& .MuiSelect-select": { padding: "8px" },
@@ -51,11 +52,11 @@ const RoomSelectionSection: React.FC<Props> = ({
           value={selectedRoom}
           onChange={handleRoomChange}
           className={`rounded p-2 w-full ${
-            !selectedFloor || formData.ac_location_type !== "Onsite"
+            !selectedFloor || formData.event_format !== "Onsite"
               ? "cursor-not-allowed"
               : ""
           }`}
-          disabled={formData.ac_location_type !== "Onsite" || !selectedFloor}
+          disabled={formData.event_format !== "Onsite" || !selectedFloor}
           sx={{
             height: "56px",
             "& .MuiSelect-select": { padding: "8px" },

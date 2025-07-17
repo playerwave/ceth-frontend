@@ -2,9 +2,10 @@
 import { MenuItem, Select, TextField } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
+import { CreateActivityForm } from "../create_activity_admin";
 
 interface Props {
-  formData: any;
+  formData: CreateActivityForm;
   seatCapacity: number | string;
   handleChange: (e: React.ChangeEvent<any> | SelectChangeEvent) => void;
   // setSeatCapacity: (value: number | string) => void;
@@ -28,7 +29,7 @@ const StatusAndSeatSection: React.FC<Props> = ({
         <Select
           labelId="ac_status"
           name="ac_status"
-          value={formData.ac_status}
+          value={formData.activity_status}
           onChange={handleChange}
           className="rounded w-50"
           sx={{

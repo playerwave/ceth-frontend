@@ -38,18 +38,30 @@ export const convertToDate = (
 //   }));
 // };
 
-export const handleChange = (
-  e:
-    | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    | SelectChangeEvent,
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>,
-) => {
+// export const handleChange = (
+//   e:
+//     | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+//     | SelectChangeEvent,
+//   setFormData: React.Dispatch<React.SetStateAction<FormData>>,
+// ) => {
+//   const { name, value } = e.target;
+//   setFormData((prev: FormData) => ({
+//     ...prev,
+//     [name]: value,
+//   }));
+// };
+
+export function handleChange<T>(
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent,
+  setFormData: React.Dispatch<React.SetStateAction<T>>
+) {
   const { name, value } = e.target;
-  setFormData((prev: FormData) => ({
+  setFormData((prev) => ({
     ...prev,
     [name]: value,
   }));
-};
+}
+
 
 export const handleDateTimeChange = (
   name: string,

@@ -31,7 +31,7 @@ const ActionButtonsSection: React.FC<Props> = ({
         {/* ปุ่มยกเลิก */}
         <Button
           type="button"
-          color="red"
+          bgColor="red"
           onClick={() => navigate("/list-activity-admin")}
         >
           ยกเลิก
@@ -44,7 +44,7 @@ const ActionButtonsSection: React.FC<Props> = ({
               setIsModalOpen(true);
               console.log("clicked");
             }}
-            color="blue"
+            bgColor="blue"
           >
             สร้าง
           </Button>
@@ -53,7 +53,7 @@ const ActionButtonsSection: React.FC<Props> = ({
             onClick={() => {
               console.log("clicked");
             }}
-            color="blue"
+            bgColor="blue"
             type="submit"
           >
             ร่าง
