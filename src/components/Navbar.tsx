@@ -145,7 +145,7 @@ const role: "student" | "admin" =
       </div>
 
       {/* Sidebar สำหรับ Desktop */}
-      {/* {!isMobile && (
+      {!isMobile && !isVisitorPath && (
         <div
           className={`fixed top-[80px] left-0 ${
             showSidebarCollapsed ? "w-[80px]" : "w-[280px]"
@@ -159,7 +159,7 @@ const role: "student" | "admin" =
 />
 
         </div>
-      )} */}
+      )}
 
       {isMobile && mobileMenuOpen && !isVisitorPath && (
   <>

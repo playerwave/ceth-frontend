@@ -171,7 +171,7 @@ import ListActivityAdmin from "./pages/Teacher/manage-activity-teacher/list_acti
 import CreateActivityAdmin from "./pages/Teacher/manage-activity-teacher/create-activity/create_activity_admin";
 import ActivityInfoAdmin from "./pages/Teacher/manage-activity-teacher/activity-info/activity_info_admin";
 // import EnrolledListAdmin from "./pages/Teacher/manage-activity-teacher/enrolled-list/enrolled_list_admin";
-// import UpdateActivityAdmin from "./pages/Teacher/manage-activity-teacher/create-activity/update_activity_admin";
+import UpdateActivityAdmin from "./pages/Teacher/manage-activity-teacher/create-activity/update_activity_admin";
 
 //visiter
 // import Visiter from "./pages/Visiter/visiter";
@@ -247,7 +247,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/update-activity-admin"
           element={
             <ProtectedRoute>
@@ -256,7 +256,7 @@ function App() {
             </Navbar>
             </ProtectedRoute>
           }
-        /> */}
+        />
         <Route
           path="/test-card"
           element={

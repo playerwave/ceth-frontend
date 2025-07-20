@@ -47,7 +47,7 @@ const handleLogout = async () => {
   try {
     await useAuthStore.getState().logout();
     toast.success("ออกจากระบบสำเร็จ");
-    navigate("/login");
+    navigate("/activity-list-visitor");
   } catch (error) {
     toast.error("ออกจากระบบไม่สำเร็จ");
     console.error("Logout error:", error);
