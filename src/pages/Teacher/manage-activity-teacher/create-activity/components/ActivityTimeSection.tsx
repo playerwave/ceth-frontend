@@ -71,6 +71,7 @@ const ActivityTimeSection: React.FC<Props> = ({
                           : "",
                     },
                   }}
+                  disabled={!formData.end_register_date}
                 />
               </LocalizationProvider>
             </div>
@@ -110,18 +111,7 @@ const ActivityTimeSection: React.FC<Props> = ({
                       //       dayjs(formData.end_activity_date).isBefore(
                       //         dayjs(formData.end_register_date),
                       //       ))),
-                      error: !!(
-  formData.activity_status !== "Private" &&
-  formData.end_activity_date &&
-  ((formData.start_activity_date &&
-    dayjs(formData.end_activity_date).isBefore(dayjs(formData.start_activity_date))) ||
-    (formData.start_register_date &&
-      dayjs(formData.end_activity_date).isBefore(dayjs(formData.start_register_date))) ||
-    (formData.end_register_date &&
-      dayjs(formData.end_activity_date).isBefore(dayjs(formData.end_register_date)))
-  )
-),
-
+                      
                       helperText:
                         formData.activity_status !== "Private" && formData.end_activity_date
                           ? formData.start_activity_date &&
@@ -143,6 +133,7 @@ const ActivityTimeSection: React.FC<Props> = ({
                           : "",
                     },
                   }}
+                  disabled={!formData.start_activity_date}
                 />
               </LocalizationProvider>
             </div>
@@ -196,6 +187,7 @@ const ActivityTimeSection: React.FC<Props> = ({
           }
           disabled={formData.event_format !== "Course"}
           sx={{ height: "56px" }}
+          
         />
       </div>
     </div>

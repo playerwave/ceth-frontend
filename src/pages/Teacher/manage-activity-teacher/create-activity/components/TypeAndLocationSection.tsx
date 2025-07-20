@@ -21,7 +21,7 @@ const TypeAndLocationSection: React.FC<Props> = ({
   return (
     <div className="flex space-x-6 items-center mt-6">
       {/* ประเภทกิจกรรม */}
-      <div className="w-140">
+      {/* <div className="w-140">
         <label className="block font-semibold">ประเภท *</label>
         <Select
           labelId="type-label"
@@ -53,7 +53,7 @@ const TypeAndLocationSection: React.FC<Props> = ({
             ชั่วโมงทักษะทางวิชาการ (Hard Skill)
           </MenuItem>
         </Select>
-      </div>
+      </div> */}
 
       {/* ประเภทสถานที่ */}
       <div className="w-76">

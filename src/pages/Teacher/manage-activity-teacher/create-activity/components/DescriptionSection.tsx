@@ -13,21 +13,33 @@ const DescriptionSection: React.FC<Props> = ({ formData, handleChange }) => {
       <br />
       <label className="block font-semibold w-50">คำอธิบายกิจกรรม</label>
       <TextField
-        name="ac_description"
+        name="description"
         value={formData.description}
         onChange={handleChange}
         multiline
         rows={6}
         variant="outlined"
         fullWidth
+        // sx={{
+        //   width: "35rem",
+        //   height: "100%",
+        //   mb: 2,
+        //   "& .MuiOutlinedInput-root": {
+        //     borderRadius: "0.375rem",
+        //     borderColor: "#9D9D9D",
+        //   },
+        // }}
         sx={{
-          width: "35rem",
-          mb: 2,
-          "& .MuiOutlinedInput-root": {
-            borderRadius: "0.375rem",
-            borderColor: "#9D9D9D",
-          },
-        }}
+    width: "35rem",
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "0.375rem",
+      borderColor: "#9D9D9D",
+      alignItems: "start",
+    },
+    "& .MuiInputBase-inputMultiline": {
+      minHeight: "42px", // ✅ ตั้งความสูง textarea
+    },
+  }}
         placeholder="รายละเอียดกิจกรรม หรือ คำอธิบาย"
         required
       />

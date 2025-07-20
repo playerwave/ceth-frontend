@@ -1,5 +1,5 @@
 // src/types/api/activity.api.ts
-
+import { ActivityFood } from "../../types/model";
 /**
  * ปรับ interface ให้ตรงกับ shape ของ model.Activity
  */
@@ -36,4 +36,5 @@ export interface ApiActivity {
   room_id: number;
   start_assessment: string | null;
   end_assessment: string | null;
+  foods: ActivityFood[];
 }

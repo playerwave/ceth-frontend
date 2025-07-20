@@ -41,10 +41,13 @@ export default function TableRedesign({
   const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
 
-  const handleRowClick: GridEventListener<"rowClick"> = (params) => {
-    const id = params.row.id;
-    if (id) navigate("/activity-info-admin", { state: { id } });
-  };
+ const handleRowClick: GridEventListener<"rowClick"> = (params) => {
+  const id = params.row.activity_id;
+  if (id) {
+    navigate(`/activity-info-admin/${id}`); // ✅ ใช้ path parameter
+  }
+};
+
 
   const handleLocationChange = (event: SelectChangeEvent) => {
     setLocationFilter(event.target.value);

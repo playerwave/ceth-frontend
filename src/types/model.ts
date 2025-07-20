@@ -14,7 +14,7 @@ export interface Activity {
   end_register_date: string;
   start_activity_date: string;
   end_activity_date: string;
-  image_url: string;
+  image_url: string | File;
   activity_status: "Private" | "Public";
   activity_state:
     | "Not Start"
@@ -32,6 +32,7 @@ export interface Activity {
   room_id: number;
   start_assessment: string | null;
   end_assessment: string | null;
+  foods: ActivityFood[];
 }
 
 //-----------------------------------------------------------------------------

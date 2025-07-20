@@ -13,12 +13,12 @@ interface ActivityStore {
   createActivity: (activity: Partial<Activity>) => Promise<void>;
 
   searchActivities?: (searchName: string) => Promise<void>;
-  fetchActivity?: (id: number) => Promise<void>;
+  fetchActivity: (id: number) => Promise<void>;
   fetchEnrolledStudents?: (id: number) => Promise<void>;
   updateActivity: (activity: Activity) => Promise<void>;
   updateActivityStatus: (
     id: string,
-    status: "Public" | "Private",
+    status: "Public" | "Private"
   ) => Promise<void>;
   setMockActivities?: (activities: Activity[]) => void;
 
@@ -188,6 +188,23 @@ export const useActivityStore = create<ActivityStore>((set) => ({
       console.error("❌ Error updating activity status:", error);
       set({ error: "ไม่สามารถอัปเดตสถานะกิจกรรมได้" });
     }
+  },
+  //----------------------------------------------------------------
+
+  //--------------------- addFoodToActivity -----------------------
+  addFoodToActivity: async (activity_id: number, food_id: number) => {
+    await activityService.addFoodToActivity(activity_id, food_id);
+    await useActivityStore.getState().fetchActivity(activity_id);
+    //----------------------------------------------------------------
+  },
+
+  //--------------------- addFoodToActivity -----------------------
+  removeFoodFromActivity: async (
+    activity_food_id: number,
+    activity_id: number
+  ) => {
+    await activityService.removeFoodFromActivity(activity_food_id);
+    await useActivityStore.getState().fetchActivity(activity_id);
   },
   //----------------------------------------------------------------
 }));

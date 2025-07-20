@@ -2,14 +2,14 @@ import { User } from "lucide-react";
 
 interface Props {
   name: string;
-  registeredCount: number;
-  seat: string;
+  // registeredCount: number;
+  seat: number;
   onClickRegistered: () => void;
 }
 
 export default function ActivityHeader({
   name,
-  registeredCount,
+  // registeredCount,
   seat,
   onClickRegistered,
 }: Props) {
@@ -20,7 +20,7 @@ export default function ActivityHeader({
         className="flex items-center text-[25px] gap-[4px] cursor-pointer"
         onClick={onClickRegistered}
       >
-        {registeredCount}/{seat} <User size={40} />
+        0/{seat} <User size={40} />
       </div>
     </div>
   );

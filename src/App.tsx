@@ -169,9 +169,9 @@ import Main from "./pages/Teacher/main_teacher";
 import ListActivityAdmin from "./pages/Teacher/manage-activity-teacher/list_activity_admin/list_activity_admin";
 // import TestCreate from "./pages/Test/test_create";
 import CreateActivityAdmin from "./pages/Teacher/manage-activity-teacher/create-activity/create_activity_admin";
-// import ActivityInfoAdmin from "./pages/Teacher/manage-activity-teacher/activity-info/activity_info_admin";
+import ActivityInfoAdmin from "./pages/Teacher/manage-activity-teacher/activity-info/activity_info_admin";
 // import EnrolledListAdmin from "./pages/Teacher/manage-activity-teacher/enrolled-list/enrolled_list_admin";
-// import UpdateActivityAdmin from "./pages/Admin/activity-admin/update_activity_admin";
+// import UpdateActivityAdmin from "./pages/Teacher/manage-activity-teacher/create-activity/update_activity_admin";
 
 //visiter
 // import Visiter from "./pages/Visiter/visiter";
@@ -182,6 +182,9 @@ import MainStudent from "./pages/Student/main-student/main_student";
 import ActivityInfoStudent from "./pages/Student/activity-student/activity-info/activity_info_student";
 import ListActivityStudent from "./pages/Student/activity-student/list_activity_studen/list_activity_student";
 import TestCardPage from "./pages/Test/test_card";
+
+//Visitor pages
+import ActivityListVisitor from "./pages/visitor/activity-list/visiter";
 import ActivityInfoVisitor from "./pages/visitor/activity-info/activity_info_visitor";
 
 
@@ -214,7 +217,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/activity-info-admin/:id"
           element={
             <ProtectedRoute>
@@ -224,7 +227,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/enrolled_list_admin/:id"
           element={
             <ProtectedRoute>
@@ -247,14 +250,17 @@ function App() {
         {/* <Route
           path="/update-activity-admin"
           element={
+            <ProtectedRoute>
             <Navbar>
               <UpdateActivityAdmin />
             </Navbar>
+            </ProtectedRoute>
           }
         /> */}
         <Route
           path="/test-card"
           element={
+            
             <Navbar>
               <TestCardPage />
             </Navbar>
@@ -307,7 +313,7 @@ function App() {
           path="/activity-list-visitor"
           element={
             <Navbar>
-              <ActivityInfoVisitor />
+              <ActivityListVisitor />
             </Navbar>
           }
         />

@@ -57,7 +57,7 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
 
   if (!isAuthenticated || !user) {
     
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/activity-list-visitor" replace />;
   }
 
   // ✅ แยกตาม path ที่เข้าว่าใช้ role อะไร

@@ -40,7 +40,7 @@ const FoodMultiSelect: React.FC<Props> = ({
       )}
     //   sx={{ minWidth: 300 }}
     sx={{
-  minWidth: 300,
+  minWidth: 564,
   maxWidth: 56, // ✅ หรือ 100% ถ้ามี parent คุมความกว้าง
   width: "100%", // ✅ เพื่อให้ responsive ตาม container
 }}

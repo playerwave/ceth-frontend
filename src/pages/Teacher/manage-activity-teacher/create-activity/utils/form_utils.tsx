@@ -17,28 +17,6 @@ export const convertToDate = (
 };
 
 // export const handleChange = (
-//   e: React.ChangeEvent<any> | SelectChangeEvent,
-//   setFormData: React.Dispatch<React.SetStateAction<any>>
-// ) => {
-//   const { name, value } = e.target;
-//   setFormData((prev) => ({
-//     ...prev,
-//     [name]: value,
-//   }));
-// };
-
-// export const handleChange = (
-//   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent,
-//   setFormData: React.Dispatch<React.SetStateAction<FormData>>
-// ) => {
-//   const { name, value } = e.target;
-//   setFormData((prev) => ({
-//     ...prev,
-//     [name]: value,
-//   }));
-// };
-
-// export const handleChange = (
 //   e:
 //     | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 //     | SelectChangeEvent,
@@ -51,16 +29,30 @@ export const convertToDate = (
 //   }));
 // };
 
-export function handleChange<T>(
+
+
+// export function handleChange<T>(
+//   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent,
+//   setFormData: React.Dispatch<React.SetStateAction<T>>
+// ) {
+//   const { name, value } = e.target;
+//   setFormData((prev) => ({
+//     ...prev,
+//     [name]: value,
+//   }));
+// }
+
+export function handleChange<T extends Record<string, any>>(
   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent,
   setFormData: React.Dispatch<React.SetStateAction<T>>
 ) {
-  const { name, value } = e.target;
+  const { name, value } = e.target as { name: keyof T; value: any };
   setFormData((prev) => ({
     ...prev,
     [name]: value,
   }));
 }
+
 
 
 export const handleDateTimeChange = (

@@ -1,11 +1,11 @@
 // components/AdminActivityForm/ActivityInfoSection.tsx
-import { TextField } from "@mui/material";
+import { TextField, SelectChangeEvent } from "@mui/material";
 import { CreateActivityForm } from "../create_activity_admin";
 
 
 interface Props {
   formData: CreateActivityForm;
-  handleChange: (e: React.ChangeEvent<any>) => void;
+  handleChange: (e: React.ChangeEvent<any> | SelectChangeEvent) => void;
 }
 
 const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange }) => {
@@ -14,8 +14,7 @@ const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange }) => {
       <div className="flex flex-col w-140">
         <label className="block font-semibold mb-1">ชื่อกิจกรรม *</label>
         <TextField
-          id="ac_name"
-          name="ac_name"
+          name="activity_name"
           placeholder="ชื่อกิจกรรม"
           value={formData.activity_name}
           className="w-full"
@@ -39,8 +38,7 @@ const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange }) => {
       <div className="flex flex-col w-140 mt-2">
         <label className="block font-semibold mb-1">ชื่อบริษัท/วิทยากร *</label>
         <TextField
-          id="ac_company_lecturer"
-          name="ac_company_lecturer"
+          name="presenter_company_name"
           placeholder="ชื่อบริษัท หรือ วิทยากร ที่มาอบรม"
           value={formData.presenter_company_name}
           className="w-full"

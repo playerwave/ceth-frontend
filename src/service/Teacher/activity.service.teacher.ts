@@ -8,7 +8,7 @@ const TEACHER_ACTIVITY_PATH = "/teacher/activity";
 //--------------------- Fetch Activities -------------------------
 export const fetchAllActivities = async (): Promise<Activity[]> => {
   const response = await axiosInstance.get<Activity[]>(
-    `${TEACHER_ACTIVITY_PATH}/get-activities`,
+    `${TEACHER_ACTIVITY_PATH}/get-activities`
   );
   return response.data;
 };
@@ -17,7 +17,7 @@ export const fetchAllActivities = async (): Promise<Activity[]> => {
 //--------------------- Get Activity By Id -------------------------
 export const getActivityById = async (id: number): Promise<Activity> => {
   const response = await axiosInstance.get<Activity>(
-    `${TEACHER_ACTIVITY_PATH}/${id}`,
+    `${TEACHER_ACTIVITY_PATH}/get-activity/${id}`
   );
   return response.data;
 };
@@ -25,9 +25,11 @@ export const getActivityById = async (id: number): Promise<Activity> => {
 
 //--------------------- Create Activity ----------------------------
 export const createActivity = async (payload: Partial<Activity>) => {
+  console.log("📤 Creating activity with payload:", payload);
+
   const response = await axiosInstance.post(
     `${TEACHER_ACTIVITY_PATH}/create-activity`,
-    payload,
+    payload
   );
   return response.data;
 };
@@ -35,10 +37,10 @@ export const createActivity = async (payload: Partial<Activity>) => {
 
 //--------------------- Search Activities --------------------------
 export const searchActivities = async (
-  searchName: string,
+  searchName: string
 ): Promise<Activity[]> => {
   const response = await axiosInstance.get<Activity[]>(
-    `${TEACHER_ACTIVITY_PATH}/search?name=${encodeURIComponent(searchName)}`,
+    `${TEACHER_ACTIVITY_PATH}/search?name=${encodeURIComponent(searchName)}`
   );
   return response.data;
 };
@@ -46,10 +48,10 @@ export const searchActivities = async (
 
 //--------------------- Fetch Enrolled Students --------------------
 export const fetchEnrolledStudents = async (
-  activityId: number,
+  activityId: number
 ): Promise<any[]> => {
   const response = await axiosInstance.get<any[]>(
-    `${TEACHER_ACTIVITY_PATH}/${activityId}/students`,
+    `${TEACHER_ACTIVITY_PATH}/${activityId}/students`
   );
   return response.data;
 };
@@ -58,7 +60,7 @@ export const fetchEnrolledStudents = async (
 //--------------------- Update Activity Status ---------------------
 export const updateActivityStatus = async (
   id: string,
-  status: "Public" | "Private",
+  status: "Public" | "Private"
 ): Promise<void> => {
   await axiosInstance.put(`${TEACHER_ACTIVITY_PATH}/update-activity/${id}`, {
     status,
@@ -74,7 +76,27 @@ export const updateActivity = async (activity: Activity): Promise<void> => {
     {
       ...activity,
       last_update: new Date(),
-    },
+    }
+  );
+};
+//------------------------------------------------------------------
+
+//--------------------- addFoodToActivity ----------------------------
+export const addFoodToActivity = async (
+  activity_id: number,
+  food_id: number
+) => {
+  return axiosInstance.post(`/teacher/activity/${activity_id}/add-food`, {
+    food_id,
+  });
+};
+//------------------------------------------------------------------
+
+//--------------------- removeFoodFromActivity ----------------------------
+
+export const removeFoodFromActivity = async (activity_food_id: number) => {
+  return axiosInstance.delete(
+    `/teacher/activity/remove-food/${activity_food_id}`
   );
 };
 //------------------------------------------------------------------
@@ -89,6 +111,8 @@ const activityService = {
   fetchEnrolledStudents,
   updateActivityStatus,
   updateActivity,
+  addFoodToActivity,
+  removeFoodFromActivity,
 };
 //------------------------------------------------------------------
 

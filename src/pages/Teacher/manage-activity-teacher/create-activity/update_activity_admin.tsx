@@ -11,7 +11,6 @@ import { SelectChangeEvent } from "@mui/material"; // ✅ นำเข้า Sel
 import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
 import { Activity } from "../../../../types/model";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
-import { useRoomStore } from "../../../../stores/Teacher/room.store";
 
 import {
   handleChange,
@@ -39,7 +38,7 @@ export interface CreateActivityForm extends Partial<Activity> {
   selectedFoods: number[];
 }
 
-const CreateActivityAdmin: React.FC = () => {
+const UpdateActivityAdmin: React.FC = () => {
   const { createActivity, activityLoading } = useActivityStore(); //
   const savedFoods = JSON.parse(localStorage.getItem("selectedFoods") || "[]");
   const [formData, setFormData] = useState<CreateActivityForm>({
@@ -72,38 +71,33 @@ const CreateActivityAdmin: React.FC = () => {
 
 
 
-  // const IfBuildingRoom: Record<string, { name: string; capacity: number }[]> = {
-  //   "3": [
-  //     { name: "IF-3M210", capacity: 210 }, // ห้องบรรยาย
-  //     { name: "IF-3C01", capacity: 55 }, // ห้องปฏิบัติการ
-  //     { name: "IF-3C02", capacity: 55 },
-  //     { name: "IF-3C03", capacity: 55 },
-  //     { name: "IF-3C04", capacity: 55 },
-  //   ],
-  //   "4": [
-  //     { name: "IF-4M210", capacity: 210 }, // ห้องบรรยาย
-  //     { name: "IF-4C01", capacity: 55 }, // ห้องปฏิบัติการ
-  //     { name: "IF-4C02", capacity: 55 },
-  //     { name: "IF-4C03", capacity: 55 },
-  //     { name: "IF-4C04", capacity: 55 },
-  //   ],
-  //   "5": [
-  //     { name: "IF-5M210", capacity: 210 }, // ห้องบรรยาย
-  //   ],
-  //   "11": [
-  //     { name: "IF-11M280", capacity: 280 }, // ห้องบรรยาย
-  //   ],
-  // };
+  const IfBuildingRoom: Record<string, { name: string; capacity: number }[]> = {
+    "3": [
+      { name: "IF-3M210", capacity: 210 }, // ห้องบรรยาย
+      { name: "IF-3C01", capacity: 55 }, // ห้องปฏิบัติการ
+      { name: "IF-3C02", capacity: 55 },
+      { name: "IF-3C03", capacity: 55 },
+      { name: "IF-3C04", capacity: 55 },
+    ],
+    "4": [
+      { name: "IF-4M210", capacity: 210 }, // ห้องบรรยาย
+      { name: "IF-4C01", capacity: 55 }, // ห้องปฏิบัติการ
+      { name: "IF-4C02", capacity: 55 },
+      { name: "IF-4C03", capacity: 55 },
+      { name: "IF-4C04", capacity: 55 },
+    ],
+    "5": [
+      { name: "IF-5M210", capacity: 210 }, // ห้องบรรยาย
+    ],
+    "11": [
+      { name: "IF-11M280", capacity: 280 }, // ห้องบรรยาย
+    ],
+  };
 
   const navigate = useNavigate();
   const { assessments, fetchAssessments } = useAssessmentStore();
   const foods = useFoodStore((state) => state.foods); // ✅ ต้องมีตรงนี้ก่อน
   const fetchFoods = useFoodStore((state) => state.fetchFoods);
-  const { rooms, fetchRooms } = useRoomStore();
-
-useEffect(() => {
-  fetchRooms(); // ✅ โหลดข้อมูลห้องเมื่อ component mount
-}, []);
 
 useEffect(() => {
   fetchFoods(); // ✅ เรียก API หรือโหลดรายการอาหาร
@@ -121,62 +115,31 @@ useEffect(() => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
-
-  const filteredRooms = rooms.filter((r) => r.floor === selectedFloor);
-
-
-  // const handleFloorChange = (event: SelectChangeEvent) => {
-  //   setSelectedFloor(event.target.value);
-  //   setSelectedRoom(""); // ✅ รีเซ็ตห้องเมื่อเปลี่ยนชั้น
-  //   setSeatCapacity(""); // ✅ รีเซ็ตที่นั่งเมื่อเปลี่ยนชั้น
-  // };
-
-  // const handleRoomChange = (event: SelectChangeEvent) => {
-  //   setSelectedRoom(event.target.value);
-
-  //   // ✅ ค้นหา `capacity` ของห้องที่เลือก
-  //   const selectedRoomObj = IfBuildingRoom[selectedFloor]?.find(
-  //     (room) => room.name === event.target.value,
-  //   );
-
-  //   const newSeatCapacity = selectedRoomObj ? selectedRoomObj.capacity : "";
-
-  //   setSeatCapacity(newSeatCapacity === "" ? "" : String(newSeatCapacity));
-  //   // ✅ อัปเดตจำนวนที่นั่ง
-
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     ac_room: event.target.value, // ✅ บันทึกห้องที่เลือก
-  //     ac_seat: newSeatCapacity.toString(), // ✅ บันทึกจำนวนที่นั่ง
-  //   }));
-  // };
-
   const handleFloorChange = (event: SelectChangeEvent) => {
-  setSelectedFloor(event.target.value);
-  setSelectedRoom("");
-  setSeatCapacity("");
-};
+    setSelectedFloor(event.target.value);
+    setSelectedRoom(""); // ✅ รีเซ็ตห้องเมื่อเปลี่ยนชั้น
+    setSeatCapacity(""); // ✅ รีเซ็ตที่นั่งเมื่อเปลี่ยนชั้น
+  };
 
-const handleRoomChange = (event: SelectChangeEvent) => {
-  const roomName = event.target.value;
-  setSelectedRoom(roomName);
+  const handleRoomChange = (event: SelectChangeEvent) => {
+    setSelectedRoom(event.target.value);
 
-  const selectedRoomObj = filteredRooms.find((r) => r.room_name === roomName);
-  const newSeatCapacity = selectedRoomObj?.seat_number ?? "";
+    // ✅ ค้นหา `capacity` ของห้องที่เลือก
+    const selectedRoomObj = IfBuildingRoom[selectedFloor]?.find(
+      (room) => room.name === event.target.value,
+    );
 
-  setSeatCapacity(newSeatCapacity.toString());
+    const newSeatCapacity = selectedRoomObj ? selectedRoomObj.capacity : "";
 
-  setFormData((prev) => ({
-    ...prev,
-    room_id: selectedRoomObj?.room_id,
-    seat: typeof newSeatCapacity === "string"
-      ? parseInt(newSeatCapacity)
-      : newSeatCapacity, // ✅ แปลงให้เป็น number
-  }));
-};
+    setSeatCapacity(newSeatCapacity === "" ? "" : String(newSeatCapacity));
+    // ✅ อัปเดตจำนวนที่นั่ง
 
-
+    setFormData((prev) => ({
+      ...prev,
+      ac_room: event.target.value, // ✅ บันทึกห้องที่เลือก
+      ac_seat: newSeatCapacity.toString(), // ✅ บันทึกจำนวนที่นั่ง
+    }));
+  };
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
@@ -442,7 +405,7 @@ useEffect(() => {
                   formData={formData}
                   selectedFloor={selectedFloor}
                   selectedRoom={selectedRoom}
-                  rooms={rooms}
+                  IfBuildingRoom={IfBuildingRoom}
                   handleFloorChange={handleFloorChange}
                   handleRoomChange={handleRoomChange}
                   handleChange={handleFormChange}
@@ -508,4 +471,4 @@ useEffect(() => {
   );
 };
 
-export default CreateActivityAdmin;
+export default UpdateActivityAdmin;
