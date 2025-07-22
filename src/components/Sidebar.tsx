@@ -1,45 +1,51 @@
+//import react
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+
+//import dependecies
+import {toast} from "sonner";
 import {
   Home,
   BookA,
-  History,
   ClipboardList,
-  Users,
-  BadgeCheck,
-  Settings,
-  LogOut,
   ChevronLeft,
   ChevronRight,
-  StickyNote,
+  LogOut,
+  Utensils,
+  School,
+  BadgeCheck,
+  Users,
+  History
 } from "lucide-react";
+
+//import store
 import { useAuthStore } from "../stores/Visitor/auth.store";
 import { useNavigate } from "react-router-dom";
-import {toast} from "sonner";
+
+//import route
+import { activityRoutes } from "../routes/activity.route";
+import {foodRoutes} from "../routes/food.route"
+import { roomRoutes } from "../routes/room.route";
+import {activityHistoryRoutes} from "../routes/activity-history.route"
+import {assessmentRoutes} from "../routes/assessment.route"
+import {userRoutes} from "../routes/user.route"
+import {certificateRoutes} from "../routes/certificate.route"
+
+//import Components
+import Dialog2 from "./Dialog2";
+
 
 interface SidebarProps {
   isCollapsed: boolean;
   toggleSidebar: () => void;
-  role: "admin" | "student";
+  role: "Teacher" | "Student" | "Admin" | "Visitor";
 }
 
 const Sidebar = ({ isCollapsed, toggleSidebar, role }: SidebarProps) => {
-  const handleNotInThisSprint = () => {
-    alert("Use Case นี้จะถูกพัฒนาใน Sprint อื่นๆ ขออภัยในความไม่สะดวก");
-  };
 
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   
 const navigate = useNavigate();
-
-//   const handleLogout = async () => {
-//   try {
-//     await useAuthStore.getState().logout(); // ✅ เรียกที่เดียวจบ
-//     toast.success("ออกจากระบบสำเร็จ");
-//     navigate("/login");
-//   } catch (error) {
-//     toast.error("ออกจากระบบไม่สำเร็จ");
-//     console.error("Logout error:", error);
-//   }
-// };
 
 const handleLogout = async () => {
   console.log("👉 Logout clicked"); // ✅ ตรวจว่า onClick ทำงาน
@@ -54,139 +60,146 @@ const handleLogout = async () => {
   }
 };
 
-  // const commonItems = [
-  //   {
-  //     to:"/visiter",
-  //     icon: <StickyNote size={24} />,
-  //     text: "หน้าเยี่ยมชม",
-  //     isActionable: false
-  //   },
-  //   {
-  //     to: role === "admin" ? "/" : "/main-student",
-  //     icon: <Home size={24} />,
-  //     text: "หน้าหลัก",
-  //     isActionable: true
-  //   },
-  //   {
-  //     to: role === "admin" ? "/list-activity-admin" : "/list-activity-student",
-  //     icon: <BookA size={24} />,
-  //     text: "กิจกรรมสหกิจ",
-  //     isActionable: true
-  //   },
-  //   {
-  //     to: "/history",
-  //     icon: <History size={24} />,
-  //     text: "ประวัติกิจกรรม (ห้าม click)",
-  //     onClick: handleNotInThisSprint,
-  //     isActionable: false
-  //   },
-  //   {
-  //     to: "/certificates",
-  //     icon: <BadgeCheck size={24} />,
-  //     text: "จัดการเกียรติบัตร (ห้าม click)",
-  //     onClick: handleNotInThisSprint,
-  //     isActionable: false
-  //   },
-  //   {
-  //     to: "/settings",
-  //     icon: <Settings size={24} />,
-  //     text: "ตั้งค่า (ห้าม click)",
-  //     onClick: handleNotInThisSprint,
-  //    isActionable: false
-  //   },
-  //   {
-  //     to: "",
-  //     icon: <LogOut size={24} />,
-  //     text: "ออกจากระบบ",
-  //     onClick: handleLogout,
-  //     isActionable: true
-  //   },
-  // ];
+const iconMap: { [key: string]: JSX.Element } = {
+  BookA: <BookA size={24} />,
+  ClipboardList: <ClipboardList size={24} />,
+  Utensils: <Utensils size={24} />,
+  School: <School size={24} />,
+  BadgeCheck: <BadgeCheck size={24} />,
+  Users: <Users size={24}/>,
+  History: <History size={24}/>
+};
 
-  // const adminOnlyItems = [
-  //   {
-  //     to: "/evaluation",
-  //     icon: <ClipboardList size={24} />,
-  //     text: "แบบประเมิน (ห้าม click)",
-  //     onClick: handleNotInThisSprint,
-  //     isActionable: false
-  //   },
-  //   {
-  //     to: "/students",
-  //     icon: <Users size={24} />,
-  //     text: "รายชื่อนิสิต (ห้าม click)",
-  //     onClick: handleNotInThisSprint,
-  //     isActionable: false
-  //   },
-  // ];
+// //activity sidebar
+// const activitySidebarItems = activityRoutes
+//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
+//   .map(route => ({
+//     to: route.path,
+//     text: route.label,
+//     icon: iconMap[route.icon],
+//     isActionable: true
+//   }));
 
-  // const itemsToRender =
-  //   role === "admin"
-  //     ? [...commonItems.slice(0, 2), ...adminOnlyItems, ...commonItems.slice(2)]
-  //     : commonItems;
+//   //activity history
+//   const  activityHistorySidebarItems = activityHistoryRoutes
+//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
+//   .map(route => ({
+//     to: route.path,
+//     text: route.label,
+//     icon: iconMap[route.icon],
+//     isActionable: true
+//   }));
 
-  const itemsToRender = [
+//   //assessment 
+//   const assessmentSidebarItems = assessmentRoutes
+//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
+//   .map(route => ({
+//     to: route.path,
+//     text: route.label,
+//     icon: iconMap[route.icon],
+//     isActionable: true
+//   }));
+
+//   //user
+//   const userSidebarItems = userRoutes
+//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
+//   .map(route => ({
+//     to: route.path,
+//     text: route.label,
+//     icon: iconMap[route.icon],
+//     isActionable: true
+//   }));
+
+//   //certificate
+//   const certificateSidebarItems = certificateRoutes
+//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
+//   .map(route => ({
+//     to: route.path,
+//     text: route.label,
+//     icon: iconMap[route.icon],
+//     isActionable: true
+//   }));
+
+//   //food sidebar
+//   const foodSidebarItems = foodRoutes
+//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
+//   .map(route => ({
+//     to: route.path,
+//     text: route.label,
+//     icon: iconMap[route.icon],
+//     isActionable: true
+//   }));
+
+//   //room sidebar
+//   const roomSidebarItems = roomRoutes
+//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
+//   .map(route => ({
+//     to: route.path,
+//     text: route.label,
+//     icon: iconMap[route.icon],
+//     isActionable: true
+//   }));
+
+  const buildSidebarItems = (
+  routes: {
+    path: string;
+    label: string;
+    icon: string;
+    roles: string[];
+    visibleInSidebar: boolean;
+  }[],
+  role: string,
+  iconMap: { [key: string]: JSX.Element }
+) => {
+  return routes
+    .filter(route => route.visibleInSidebar && route.roles.includes(role))
+    .map(route => ({
+      to: route.path,
+      text: route.label,
+      icon: iconMap[route.icon],
+      isActionable: true
+    }));
+};
+
+const activitySidebarItems = buildSidebarItems(activityRoutes, role, iconMap);
+const activityHistorySidebarItems = buildSidebarItems(activityHistoryRoutes, role, iconMap);
+const assessmentSidebarItems = buildSidebarItems(assessmentRoutes, role, iconMap);
+const userSidebarItems = buildSidebarItems(userRoutes, role, iconMap);
+const certificateSidebarItems = buildSidebarItems(certificateRoutes, role, iconMap);
+const foodSidebarItems = buildSidebarItems(foodRoutes, role, iconMap);
+const roomSidebarItems = buildSidebarItems(roomRoutes, role, iconMap);
+
+
+
+
+  const items = [
   {
-    to: "/activity-list-visitor",
-    icon: <StickyNote size={24} />,
-    text: "หน้าเยี่ยมชม",
-    isActionable: true
-  },
-  {
-    to: role === "admin" ? "/" : "/main-student",
+    to: role === "Teacher" ? "/" : "/main-student",
     icon: <Home size={24} />,
     text: "หน้าหลัก",
     isActionable: true
   },
-  {
-      to: role === "admin" ? "/list-activity-admin" : "/list-activity-student",
-      icon: <BookA size={24} />,
-      text: "กิจกรรมสหกิจ",
-      isActionable: true
-  },
-  {
-    to: "/history",
-    icon: <History size={24} />,
-    text: "ประวัติกิจกรรม (ห้าม click)",
-    onClick: handleNotInThisSprint,
-    isActionable: false
-  },
-  {
-    to: "/evaluation",
-    icon: <ClipboardList size={24} />,
-    text: "แบบประเมิน (ห้าม click)",
-    onClick: handleNotInThisSprint,
-    isActionable: false
-  },
-  {
-    to: "/students",
-    icon: <Users size={24} />,
-    text: "รายชื่อนิสิต (ห้าม click)",
-    onClick: handleNotInThisSprint,
-    isActionable: false
-  },
-  {
-    to: "/certificates",
-    icon: <BadgeCheck size={24} />,
-    text: "จัดการเกียรติบัตร (ห้าม click)",
-    onClick: handleNotInThisSprint,
-    isActionable: false
-  },
-  {
-    to: "/settings",
-    icon: <Settings size={24} />,
-    text: "ตั้งค่า (ห้าม click)",
-    onClick: handleNotInThisSprint,
-    isActionable: false
-  },
-  {
-    to: "",
+  ...activitySidebarItems,
+  ...activityHistorySidebarItems,
+  ...assessmentSidebarItems,
+  ...userSidebarItems,
+  ...certificateSidebarItems,
+  ...foodSidebarItems,
+  ...roomSidebarItems,
+   {
+    to: "", // หรือ "#" ก็ได้ เพราะใช้ onClick เป็นหลัก
     icon: <LogOut size={24} />,
     text: "ออกจากระบบ",
-    onClick: handleLogout,
+    onClick: () => setShowLogoutDialog(true), // 💡 เปิด Dialog2
     isActionable: true
-  },
+  }
 ];
+
+const filteredItems = role === "Student"
+  ? items.filter(item =>
+      !["/foods", "/evaluation", "/students","/rooms"].includes(item.to)
+    )
+  : items;
 
     
   return (
@@ -221,12 +234,45 @@ const handleLogout = async () => {
         </div>
 
         {/* เมนู Sidebar */}
-        <div className="flex flex-col space-y-1">
-          {itemsToRender.map((item, index) => (
+        {/* <div className="flex flex-col space-y-1">
+          {filteredItems.map((item, index) => (
             <SidebarItem key={index} {...item} collapsed={isCollapsed} />
           ))}
-        </div>
+        </div> */}
+
+        <div className="flex flex-col justify-between h-full">
+  {/* 🔹 เมนูหลัก */}
+  <div className="space-y-1">
+    {filteredItems
+      .filter(item => item.text !== "ออกจากระบบ")
+      .map((item, index) => (
+        <SidebarItem key={index} {...item} collapsed={isCollapsed} />
+      ))}
+  </div>
+
+  {/* 🔻 ปุ่มออกจากระบบ */}
+  <div className="pb-50 border-t border-gray-200">
+    {filteredItems
+      .filter(item => item.text === "ออกจากระบบ")
+      .map((item, index) => (
+        <SidebarItem key={`logout-${index}`} {...item} collapsed={isCollapsed} />
+      ))}
+  </div>
+</div>
+
       </div>
+      <Dialog2
+        open={showLogoutDialog}
+        title="คุณแน่ใจหรือไม่?"
+        message="คุณต้องการออกจากระบบจริงหรือ?"
+        icon={<LogOut size={32} className="text-blue-600" />}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={() => {
+          setShowLogoutDialog(false);
+          handleLogout();
+        }}
+        type="button"
+      />
     </div>
   );
 };
@@ -249,12 +295,7 @@ const SidebarItem = ({
   const location = useLocation();
   const isActive = location.pathname === to;
   const isRouteItem = typeof onClick !== "function";
-const isDisabled = !isActionable;
-
-
-
-
-
+  const isDisabled = !isActionable;
 
   const baseClass = `relative flex items-center py-2 px-3 rounded-lg transition-all duration-300 font-pt ${
     isActive
@@ -279,15 +320,6 @@ const isDisabled = !isActionable;
     </>
   );
 
-  // return isDisabled ? (
-  //   <div onClick={onClick} className={baseClass}>
-  //     {content}
-  //   </div>
-  // ) : (
-  //   <Link to={to} className={baseClass}>
-  //     {content}
-  //   </Link>
-  // );
 const disabledClass = `relative flex items-center py-2 px-3 rounded-lg font-pt
   text-gray-400 cursor-not-allowed bg-gray-50 
   ${collapsed ? "justify-center" : ""}`;

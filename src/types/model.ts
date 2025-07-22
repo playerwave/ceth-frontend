@@ -238,7 +238,7 @@ export interface Users {
 
 export interface Roles {
   roles_id: number;
-  role_name: "Student" | "Teacher" | "Admin"; // Name of the role (e.g., 'Admin', 'User')
+  role_name: "Student" | "Teacher" | "Admin" | "Visitor"; // Name of the role (e.g., 'Admin', 'User')
 }
 //------------------------------------------------------------------------------
 

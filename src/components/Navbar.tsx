@@ -25,8 +25,8 @@ const Navbar = ({ children }: NavbarProps) => {
   // เก็บ role ใน state ธรรมดา (ไม่ใช้ localStorage)
   // const [role, setRole] = useState<"student" | "admin">("student");
 
-const role: "student" | "admin" =
-  user?.role === "Student" ? "student" : "admin";
+const role: "Student" | "Teacher" =
+  user?.role === "Student" ? "Student" : "Teacher";
 
 
   // ตรวจสอบขนาดหน้าจอ ตั้งแต่โหลดแรก
