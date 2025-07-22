@@ -1,5 +1,15 @@
+// src/components/Table_re/activityColumns.ts
+
 import { GridColDef } from "@mui/x-data-grid";
-import { Chip, Checkbox, Typography, Box } from "@mui/material";
+import {
+  Chip,
+  Checkbox,
+  Typography,
+  Box,
+  IconButton, // ✅ เพิ่ม
+  Menu, // ✅ เพิ่ม
+  MenuItem, // ✅ เพิ่ม
+} from "@mui/material";
 import {
   Album,
   HouseWifi,
@@ -7,25 +17,114 @@ import {
   School as SchoolLucide,
   User,
 } from "lucide-react";
+import React, { useState } from "react"; // ✅ เพิ่ม React และ useState
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
-import { Activity } from "../types/model"; // ปรับเส้นทางให้ตรงกับที่เก็บ Activity
+import { Activity } from "../types/model"; // ตรวจสอบเส้นทางให้ถูกต้อง
 
 // 👉 type ที่สามารถใช้ปรับรูปแบบคอลัมน์ได้
 type ColumnOptions = {
   enableTypeFilter?: boolean;
   includeStatus?: boolean;
-  selectedTypes?: string[]; // ✅ เพิ่ม
-  handleTypeChange?: (type: string) => void; // ✅ เพิ่ม
+  selectedTypes?: string[];
+  handleTypeChange?: (type: string) => void;
   handleStatusToggle?: (row: Activity) => void;
   includeRecommend?: boolean;
+  selectedLocations?: string[];
+  handleLocationChange?: (locationType: string) => void;
+};
+
+// ✅ Custom Header Component สำหรับคอลัมน์สถานที่ (event_format)
+const LocationFilterHeader: React.FC<{
+  selectedLocations: string[];
+  handleLocationChange: (locationType: string) => void;
+}> = ({ selectedLocations, handleLocationChange }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleCheckboxChange = (locationType: string) => {
+    handleLocationChange(locationType);
+  };
+
+  return (
+    <Box display="flex" alignItems="center" gap={0}>
+      {" "}
+      {/* ลด gap */}
+      <MapPin fontSize="small" />
+      <IconButton
+        aria-label="filter location"
+        aria-controls={open ? "location-menu" : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? "true" : undefined}
+        onClick={handleClick}
+        size="small"
+        sx={{ ml: 0 }}
+      >
+        <KeyboardArrowDownIcon sx={{ color: "white" }} />{" "}
+        {/* ✅ เปลี่ยนตรงนี้ */}
+      </IconButton>
+      <Menu
+        id="location-menu"
+        MenuListProps={{
+          "aria-labelledby": "filter-location-button",
+        }}
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+      >
+        <MenuItem onClick={(e) => e.stopPropagation()}>
+          {" "}
+          {/* หยุด event propagation เพื่อไม่ให้ Menu ปิดเมื่อคลิก Checkbox */}
+          <Checkbox
+            size="small"
+            checked={selectedLocations.includes("Onsite")}
+            onChange={() => handleCheckboxChange("Onsite")}
+          />
+          <Typography variant="body2">Onsite</Typography>
+        </MenuItem>
+        <MenuItem onClick={(e) => e.stopPropagation()}>
+          <Checkbox
+            size="small"
+            checked={selectedLocations.includes("Online")}
+            onChange={() => handleCheckboxChange("Online")}
+          />
+          <Typography variant="body2">Online</Typography>
+        </MenuItem>
+        <MenuItem onClick={(e) => e.stopPropagation()}>
+          <Checkbox
+            size="small"
+            checked={selectedLocations.includes("Course")}
+            onChange={() => handleCheckboxChange("Course")}
+          />
+          <Typography variant="body2">Course</Typography>
+        </MenuItem>
+      </Menu>
+    </Box>
+  );
 };
 
 export const getActivityColumns = (
-  options: ColumnOptions = {},
-): GridColDef[] => {
-  const columns: GridColDef[] = [
+  options: ColumnOptions = {}
+): GridColDef<Activity>[] => {
+  const columns: GridColDef<Activity>[] = [
     {
-      field: "company_lecturer",
+      field: "presenter_company_name",
       headerName: "ชื่อบริษัท/วิทยากร",
       width: 170,
       renderCell: (params) => {
@@ -42,28 +141,32 @@ export const getActivityColumns = (
           <Typography fontWeight={600} mr={1}>
             ประเภท
           </Typography>
-          <Checkbox
-            size="small"
-            checked={options.selectedTypes?.includes("Hard Skill") ?? false}
-            onChange={() => options.handleTypeChange?.("Hard Skill")}
-            sx={{
-              color: "#F3D9B1",
-              "&.Mui-checked": { color: "#F3D9B1" },
-              bgcolor: "#1E3A8A",
-              borderRadius: "4px",
-            }}
-          />
-          <Checkbox
-            size="small"
-            checked={options.selectedTypes?.includes("Soft Skill") ?? false}
-            onChange={() => options.handleTypeChange?.("Soft Skill")}
-            sx={{
-              color: "#E9D5FF",
-              "&.Mui-checked": { color: "#E9D5FF" },
-              bgcolor: "#1E3A8A",
-              borderRadius: "4px",
-            }}
-          />
+          {options.enableTypeFilter && (
+            <>
+              <Checkbox
+                size="small"
+                checked={options.selectedTypes?.includes("Hard") ?? false}
+                onChange={() => options.handleTypeChange?.("Hard")}
+                sx={{
+                  color: "#F3D9B1",
+                  "&.Mui-checked": { color: "#F3D9B1" },
+                  bgcolor: "#1E3A8A",
+                  borderRadius: "4px",
+                }}
+              />
+              <Checkbox
+                size="small"
+                checked={options.selectedTypes?.includes("Soft") ?? false}
+                onChange={() => options.handleTypeChange?.("Soft")}
+                sx={{
+                  color: "#E9D5FF",
+                  "&.Mui-checked": { color: "#E9D5FF" },
+                  bgcolor: "#1E3A8A",
+                  borderRadius: "4px",
+                }}
+              />
+            </>
+          )}
         </Box>
       ),
       renderCell: (params) => {
@@ -76,11 +179,11 @@ export const getActivityColumns = (
               backgroundColor:
                 value === "ไม่ได้ระบุ"
                   ? "transparent"
-                  : value === "Hard Skill"
+                  : value === "Hard"
                     ? "#FFF4CC"
                     : "#EDE7F6",
               color:
-                value === "Hard Skill"
+                value === "Hard"
                   ? "#FBBF24"
                   : value === "ไม่ได้ระบุ"
                     ? "black"
@@ -92,7 +195,7 @@ export const getActivityColumns = (
       },
     },
     {
-      field: "name",
+      field: "activity_name",
       headerName: "ชื่อกิจกรรม",
       width: 240,
       renderCell: (params) =>
@@ -101,13 +204,13 @@ export const getActivityColumns = (
           : (params.value ?? "-"),
     },
     {
-      field: "date",
+      field: "start_register_date",
       headerName: "วันที่จัดกิจกรรม",
       flex: 1,
       sortable: true,
       renderCell: (params) => {
-        const start = params.row.start_register;
-        const end = params.row.end_register;
+        const start = params.row.start_register_date;
+        const end = params.row.end_register_date;
         if (!start || !end) return <span>ยังไม่ได้กำหนด</span>;
         const formatDate = (dateStr: string) => {
           const date = new Date(dateStr);
@@ -130,13 +233,14 @@ export const getActivityColumns = (
           <span>
             {isSameDay
               ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
-                  end,
+                  end
                 )} น.`
-              : `${formatDate(start)} - ${formatDate(end)}`}
+              : `${formatDate(start)} - ${formatTime(end)}`}
           </span>
         );
       },
     },
+
     {
       field: "location_type",
       headerName: "สถานที่",
@@ -161,14 +265,11 @@ export const getActivityColumns = (
       headerName: "ที่นั่ง",
       width: 100,
       renderCell: (params) => {
-        const total = params.row.registered_count;
-        const absent = params.row.not_attended_count;
-        return total != null && absent != null ? (
+        const totalSeats = params.row.seat;
+        return (
           <Box display="flex" alignItems="center" gap={1}>
-            {absent}/{total} <User />
+            {totalSeats != null ? `${totalSeats} ` : "- "} <User />
           </Box>
-        ) : (
-          <span>-</span>
         );
       },
     },
@@ -176,7 +277,7 @@ export const getActivityColumns = (
 
   if (options.includeStatus) {
     columns.push({
-      field: "status",
+      field: "activity_status",
       headerName: "สถานะ",
       width: 100,
       renderCell: (params) => {

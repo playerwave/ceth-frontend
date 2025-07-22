@@ -178,73 +178,415 @@
 
 // export default ManageActivityStuden;
 
-import { useEffect, useState } from "react";
-import { useActivityStore } from "../../../../stores/Student/activity.store.student";
+// import { useEffect, useState } from "react";
+// import { useActivityStore } from "../../../../stores/Student/activity.store.student";
+// import { useNavigate } from "react-router-dom";
+
+// import Loading from "../../../../components/Loading";
+// import SearchBar from "../../../../components/Searchbar";
+// import { AlarmClockPlus, CopyPlus } from "lucide-react";
+// import ActivityTablePageStudent from "./ActivityTablePageStuden";
+// import CalculateDialog from "./components/CalculateDialog";
+// // import { useAuth } from "../../../../hooks/useAuth"; // สมมติคุณมี hook ดึง userId
+
+// import { isRecommended } from "./utils.ts/activity";
+
+// const ManageActivityStudent: React.FC = () => {
+//   const navigate = useNavigate();
+//   const userId = 14; // คืนเป็น string หรือ number
+//   const {
+//     activities,
+//     searchResults,
+//     fetchStudentActivities,
+//     searchActivities,
+//     activityLoading,
+//     activityError,
+//     enrolledActivities,
+//   } = useActivityStore();
+
+//   const [activeTab, setActiveTab] = useState<"list" | "calendar" | "recommend">(
+//     "list",
+//   );
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [openDialog, setOpenDialog] = useState(false);
+
+//   // โหลดกิจกรรมเมื่อ mount หรือ userId เปลี่ยน
+//   useEffect(() => {
+//     if (userId) {
+//       fetchStudentActivities(userId);
+//     }
+//   }, [fetchStudentActivities, userId]);
+
+//   // ผลลัพธ์จาก search (ถ้ามี) หรือดึงจาก store
+//   const displayed = searchResults ?? activities;
+
+//   // กรองเฉพาะกิจกรรม public
+//   const publicActivities = displayed.filter(
+//     (a) => a.activity_status === "Public",
+//   );
+
+//   // กรองกิจกรรมแนะนำ (recommend === 'yes')
+//   const recommendedActivities = publicActivities
+//     .filter(isRecommended)
+//     .filter((a) =>
+//       a.activity_name.toLowerCase().includes(searchTerm.toLowerCase().trim()),
+//     );
+
+//   const handleTabChange = (tab: "list" | "calendar" | "recommend") => {
+//     setActiveTab(tab);
+//     setSearchTerm("");
+//     if (tab === "list" && userId) {
+//       fetchStudentActivities(userId);
+//     }
+//   };
+
+//   const handleSearch = (term: string) => {
+//     setSearchTerm(term);
+//     if (activeTab === "list") {
+//       searchActivities(term);
+//     }
+//   };
+
+//   return (
+//     <div className="max-w-screen-xl w-full mx-auto px-6 mt-10">
+//       <h1 className="text-center text-3xl font-bold mb-9 mt-4">
+//         จัดการกิจกรรม
+//       </h1>
+
+//       {/* Search bar */}
+//       <div className="flex justify-center w-full mb-4">
+//         <SearchBar onSearch={handleSearch} />
+//       </div>
+
+//       {/* Tabs + Action Button */}
+//       <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
+//         <div className="flex space-x-4">
+//           {(["list", "calendar", "recommend"] as const).map((tab) => (
+//             <button
+//               key={tab}
+//               className={`px-4 py-2 text-lg font-semibold flex items-center ${
+//                 activeTab === tab
+//                   ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
+//                   : "text-gray-500"
+//               }`}
+//               onClick={() => handleTabChange(tab)}
+//             >
+//               {
+//                 {
+//                   list: "ลิสต์",
+//                   calendar: "ปฏิทิน",
+//                   recommend: "กิจกรรมที่แนะนำ",
+//                 }[tab]
+//               }
+//             </button>
+//           ))}
+//         </div>
+
+//         <div className="flex justify-end">
+//           <button
+//             className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90 transition"
+//             onClick={() =>
+//               activeTab === "recommend"
+//                 ? setOpenDialog(true)
+//                 : navigate("/create-activity-admin", {
+//                     state: { reload: true },
+//                   })
+//             }
+//           >
+//             {activeTab === "recommend" ? (
+//               <>
+//                 คำนวณชั่วโมง <AlarmClockPlus className="w-4 h-4" />
+//               </>
+//             ) : (
+//               <>
+//                 เพิ่มกิจกรรม <CopyPlus className="w-4 h-4" />
+//               </>
+//             )}
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* Content */}
+//       {activityLoading ? (
+//         <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-50 backdrop-blur-md z-40">
+//           <Loading />
+//         </div>
+//       ) : activityError ? (
+//         <p className="text-center text-red-500 p-4">
+//           ❌ เกิดข้อผิดพลาด: {activityError}
+//         </p>
+//       ) : activeTab === "list" && publicActivities.length === 0 ? (
+//         <p className="text-center text-gray-500 p-4">
+//           📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
+//         </p>
+//       ) : activeTab === "recommend" && recommendedActivities.length === 0 ? (
+//         <p className="text-center text-gray-500 p-4">
+//           📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
+//         </p>
+//       ) : activeTab === "list" ? (
+//         <ActivityTablePageStudent rows1={publicActivities} rows2={[]} />
+//       ) : activeTab === "recommend" ? (
+//         <ActivityTablePageStudent rows1={[]} rows2={recommendedActivities} />
+//       ) : (
+//         <div className="text-center text-gray-500 p-6">
+//           <h2 className="text-xl font-semibold">
+//             📅 โหมดปฏิทิน (ยังไม่รองรับ)
+//           </h2>
+//         </div>
+//       )}
+
+//       {/* Calculate Dialog */}
+//       <CalculateDialog
+//         open={openDialog}
+//         onClose={() => setOpenDialog(false)}
+//         currentSkillHours={{
+//           hard: enrolledActivities.reduce((sum, a) => sum + a.recieve_hours, 0),
+//           soft: 0, // หรือคำนวณจาก a.type === 'Soft'
+//         }}
+//         selectedActivities={enrolledActivities}
+//       />
+//     </div>
+//   );
+// };
+
+// export default ManageActivityStudent;
+
+// src/pages/ManageActivityStudent.tsx
+
+// src/pages/ManageActivityStudent.tsx
+
+// import { useEffect, useState, useMemo } from "react";
+// import { useActivityVisitorStore } from "../../../../stores/Visitor/activity.store.visitor";
+// import { useNavigate } from "react-router-dom";
+
+// import Loading from "../../../../components/Loading";
+// import SearchBar from "../../../../components/Searchbar";
+// import { AlarmClockPlus, CopyPlus } from "lucide-react";
+// import ActivityTablePageStudent from "./ActivityTablePageStuden"; // ตรวจสอบชื่อไฟล์ให้ตรง ActivityTablePageStudent.tsx
+// import CalculateDialog from "./components/CalculateDialog";
+// // import { useAuth } from "../../../../hooks/useAuth";
+// import { isRecommended } from "./utils.ts/activity";
+// import { Activity } from "../../../../types/model";
+
+// const ManageActivityStudent: React.FC = () => {
+//   const navigate = useNavigate();
+//   const userId = 14;
+
+//   const {
+//     activities: allPublicActivities,
+//     fetchPublicActivities,
+//     activityLoading,
+//     activityError,
+//   } = useActivityVisitorStore();
+
+//   const [enrolledActivities, setEnrolledActivities] = useState<Activity[]>([]);
+
+//   const [activeTab, setActiveTab] = useState<"list" | "calendar" | "recommend">(
+//     "list"
+//   );
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [openDialog, setOpenDialog] = useState(false);
+
+//   useEffect(() => {
+//     fetchPublicActivities();
+//   }, [fetchPublicActivities]);
+
+//   // กรองกิจกรรมตาม searchTerm เท่านั้น
+//   const publicActivities = useMemo(() => {
+//     let filtered = allPublicActivities;
+
+//     if (searchTerm.trim()) {
+//       filtered = filtered.filter((a) =>
+//         a.activity_name.toLowerCase().includes(searchTerm.toLowerCase().trim())
+//       );
+//     }
+
+//     return filtered; // ✅ ลบ .filter((a) => a.activity_status === "Public") ออก
+//   }, [allPublicActivities, searchTerm]);
+
+//   const recommendedActivities = useMemo(() => {
+//     return publicActivities.filter(isRecommended);
+//   }, [publicActivities]);
+
+//   const handleTabChange = (tab: "list" | "calendar" | "recommend") => {
+//     setActiveTab(tab);
+//     setSearchTerm("");
+//   };
+
+//   const handleSearch = (term: string) => {
+//     setSearchTerm(term);
+//   };
+
+//   return (
+//     <div className="max-w-screen-xl w-full mx-auto px-6 mt-10">
+//       <h1 className="text-center text-3xl font-bold mb-9 mt-4">
+//         จัดการกิจกรรม
+//       </h1>
+
+//       {/* Search bar */}
+//       <div className="flex justify-center w-full mb-4">
+//         <SearchBar onSearch={handleSearch} />
+//       </div>
+
+//       {/* Tabs + Action Button */}
+//       <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
+//         <div className="flex space-x-4">
+//           {(["list", "calendar", "recommend"] as const).map((tab) => (
+//             <button
+//               key={tab}
+//               className={`px-4 py-2 text-lg font-semibold flex items-center ${
+//                 activeTab === tab
+//                   ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
+//                   : "text-gray-500"
+//               }`}
+//               onClick={() => handleTabChange(tab)}
+//             >
+//               {
+//                 {
+//                   list: "ลิสต์",
+//                   calendar: "ปฏิทิน",
+//                   recommend: "กิจกรรมที่แนะนำ",
+//                 }[tab]
+//               }
+//             </button>
+//           ))}
+//         </div>
+
+//         <div className="flex justify-end">
+//           <button
+//             className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90 transition"
+//             onClick={() =>
+//               activeTab === "recommend"
+//                 ? setOpenDialog(true)
+//                 : navigate("/create-activity-admin", {
+//                     state: { reload: true },
+//                   })
+//             }
+//           >
+//             {activeTab === "recommend" ? (
+//               <>
+//                 คำนวณชั่วโมง <AlarmClockPlus className="w-4 h-4" />
+//               </>
+//             ) : (
+//               <>
+//                 เพิ่มกิจกรรม <CopyPlus className="w-4 h-4" />
+//               </>
+//             )}
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* Content */}
+//       {activityLoading ? (
+//         <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-50 backdrop-blur-md z-40">
+//           <Loading />
+//         </div>
+//       ) : activityError ? (
+//         <p className="text-center text-red-500 p-4">
+//           ❌ เกิดข้อผิดพลาด: {activityError}
+//         </p>
+//       ) : activeTab === "list" && publicActivities.length === 0 ? (
+//         <p className="text-center text-gray-500 p-4">
+//           📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
+//         </p>
+//       ) : activeTab === "recommend" && recommendedActivities.length === 0 ? (
+//         <p className="text-center text-gray-500 p-4">
+//           📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
+//         </p>
+//       ) : activeTab === "list" ? (
+//         <ActivityTablePageStudent rows1={publicActivities} rows2={[]} />
+//       ) : activeTab === "recommend" ? (
+//         <ActivityTablePageStudent rows1={[]} rows2={recommendedActivities} />
+//       ) : (
+//         <div className="text-center text-gray-500 p-6">
+//           <h2 className="text-xl font-semibold">
+//             📅 โหมดปฏิทิน (ยังไม่รองรับ)
+//           </h2>
+//         </div>
+//       )}
+
+//       {/* Calculate Dialog */}
+//       <CalculateDialog
+//         open={openDialog}
+//         onClose={() => setOpenDialog(false)}
+//         currentSkillHours={{
+//           hard: enrolledActivities.reduce(
+//             (sum, a) => sum + (a.type === "Hard" ? a.recieve_hours : 0),
+//             0
+//           ),
+//           soft: enrolledActivities.reduce(
+//             (sum, a) => sum + (a.type === "Soft" ? a.recieve_hours : 0),
+//             0
+//           ),
+//         }}
+//         selectedActivities={enrolledActivities}
+//       />
+//     </div>
+//   );
+// };
+
+// export default ManageActivityStudent;
+
+import { useEffect, useState, useMemo } from "react";
+import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
 import { useNavigate } from "react-router-dom";
 
 import Loading from "../../../../components/Loading";
 import SearchBar from "../../../../components/Searchbar";
 import { AlarmClockPlus, CopyPlus } from "lucide-react";
-import ActivityTablePageStudent from "./ActivityTablePageStuden";
+import ActivityTablePageStudent from "./ActivityTablePageStuden"; // ตรวจสอบชื่อไฟล์ให้ตรง ActivityTablePageStudent.tsx
 import CalculateDialog from "./components/CalculateDialog";
-// import { useAuth } from "../../../../hooks/useAuth"; // สมมติคุณมี hook ดึง userId
-
+// import { useAuth } from "../../../../hooks/useAuth";
 import { isRecommended } from "./utils.ts/activity";
+import { Activity } from "../../../../types/model";
 
 const ManageActivityStudent: React.FC = () => {
   const navigate = useNavigate();
-  const userId = 14; // คืนเป็น string หรือ number
+  const userId = 14;
+
   const {
-    activities,
-    searchResults,
-    fetchStudentActivities,
-    searchActivities,
+    activities: allPublicActivities,
+    fetchActivities,
     activityLoading,
     activityError,
-    enrolledActivities,
   } = useActivityStore();
 
+  const [enrolledActivities, setEnrolledActivities] = useState<Activity[]>([]);
+
   const [activeTab, setActiveTab] = useState<"list" | "calendar" | "recommend">(
-    "list",
+    "list"
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
 
-  // โหลดกิจกรรมเมื่อ mount หรือ userId เปลี่ยน
   useEffect(() => {
-    if (userId) {
-      fetchStudentActivities(userId);
+    fetchActivities();
+  }, [fetchActivities]);
+
+  // กรองกิจกรรมตาม searchTerm เท่านั้น
+  const publicActivities = useMemo(() => {
+    let filtered = allPublicActivities;
+
+    if (searchTerm.trim()) {
+      filtered = filtered.filter((a) =>
+        a.activity_name.toLowerCase().includes(searchTerm.toLowerCase().trim())
+      );
     }
-  }, [fetchStudentActivities, userId]);
 
-  // ผลลัพธ์จาก search (ถ้ามี) หรือดึงจาก store
-  const displayed = searchResults ?? activities;
+    return filtered; // ✅ ลบ .filter((a) => a.activity_status === "Public") ออก
+  }, [allPublicActivities, searchTerm]);
 
-  // กรองเฉพาะกิจกรรม public
-  const publicActivities = displayed.filter(
-    (a) => a.activity_status === "Public",
-  );
-
-  // กรองกิจกรรมแนะนำ (recommend === 'yes')
-  const recommendedActivities = publicActivities
-    .filter(isRecommended)
-    .filter((a) =>
-      a.activity_name.toLowerCase().includes(searchTerm.toLowerCase().trim()),
-    );
+  const recommendedActivities = useMemo(() => {
+    return publicActivities.filter(isRecommended);
+  }, [publicActivities]);
 
   const handleTabChange = (tab: "list" | "calendar" | "recommend") => {
     setActiveTab(tab);
     setSearchTerm("");
-    if (tab === "list" && userId) {
-      fetchStudentActivities(userId);
-    }
   };
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    if (activeTab === "list") {
-      searchActivities(term);
-    }
   };
 
   return (
@@ -340,8 +682,14 @@ const ManageActivityStudent: React.FC = () => {
         open={openDialog}
         onClose={() => setOpenDialog(false)}
         currentSkillHours={{
-          hard: enrolledActivities.reduce((sum, a) => sum + a.recieve_hours, 0),
-          soft: 0, // หรือคำนวณจาก a.type === 'Soft'
+          hard: enrolledActivities.reduce(
+            (sum, a) => sum + (a.type === "Hard" ? a.recieve_hours : 0),
+            0
+          ),
+          soft: enrolledActivities.reduce(
+            (sum, a) => sum + (a.type === "Soft" ? a.recieve_hours : 0),
+            0
+          ),
         }}
         selectedActivities={enrolledActivities}
       />

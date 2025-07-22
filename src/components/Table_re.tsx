@@ -41,13 +41,12 @@ export default function TableRedesign({
   const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
 
- const handleRowClick: GridEventListener<"rowClick"> = (params) => {
-  const id = params.row.activity_id;
-  if (id) {
-    navigate(`/activity-info-admin/${id}`); // ✅ ใช้ path parameter
-  }
-};
-
+  const handleRowClick: GridEventListener<"rowClick"> = (params) => {
+    const id = params.row.activity_id;
+    if (id) {
+      navigate(`/activity-info-admin/${id}`); // ✅ ใช้ path parameter
+    }
+  };
 
   const handleLocationChange = (event: SelectChangeEvent) => {
     setLocationFilter(event.target.value);
@@ -123,25 +122,25 @@ export default function TableRedesign({
     return col;
   });
 
-  if (handleStatusToggle) {
-    columnsWithDropdown.push({
-      field: "toggleStatus",
-      headerName: "เปลี่ยนสถานะ",
-      width: 150,
-      renderCell: (params) => (
-        <Button
-          variant="outlined"
-          onClick={() => handleStatusToggle(params.row)}
-        >
-          {params.row.status === "Public" ? "ปิด" : "เปิด"}
-        </Button>
-      ),
-      sortable: false,
-      filterable: false,
-      align: "center",
-      headerAlign: "center",
-    });
-  }
+  // if (handleStatusToggle) {
+  //   columnsWithDropdown.push({
+  //     field: "toggleStatus",
+  //     headerName: "เปลี่ยนสถานะ",
+  //     width: 150,
+  //     renderCell: (params) => (
+  //       <Button
+  //         variant="outlined"
+  //         onClick={() => handleStatusToggle(params.row)}
+  //       >
+  //         {params.row.status === "Public" ? "ปิด" : "เปิด"}
+  //       </Button>
+  //     ),
+  //     sortable: false,
+  //     filterable: false,
+  //     align: "center",
+  //     headerAlign: "center",
+  //   });
+  // }
 
   return (
     <Box sx={{ mb: 4 }}>

@@ -1,35 +1,25 @@
-import { useState, useMemo } from "react";
+// src/pages/ActivityTablePageVisitor.tsx
+
+import { useMemo } from "react";
 import TableRedesign from "../../../components/Table_re";
 import CustomCard from "../../../components/Card";
-import { getActivityColumns } from "../../../components/activity_column";
+import { Activity } from "../../../types/model"; // นำเข้า Activity Type ที่ถูกต้องของคุณ
+import { GridColDef } from "@mui/x-data-grid";
+import { getActivityColumns } from "../../../components/activity_column"; // <<< ตรวจสอบเส้นทางให้ถูกต้อง
 
 type Props = {
-  rows1: any[];
+  rows1: Activity[]; // ต้องเป็น Activity[]
 };
 
 const ActivityTablePageVisitor = ({ rows1 }: Props) => {
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-
-  const handleTypeChange = (type: string) => {
-    setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
-    );
-  };
-
-  const filterByType = (rows: any[]) => {
-    if (selectedTypes.length === 0) return rows;
-    return rows.filter((row) => selectedTypes.includes(row.type));
-  };
-
-  const activityColumnsWithoutStatus = useMemo(
+  const activityColumns: GridColDef<Activity>[] = useMemo(
     () =>
       getActivityColumns({
-        includeStatus: false,
-        enableTypeFilter: true,
-        handleTypeChange,
-        selectedTypes,
+        // คุณสามารถส่ง options ที่นี่ได้ เช่น
+        // includeStatus: true, // หากต้องการให้คอลัมน์สถานะแสดง
+        // enableTypeFilter: true, // หากต้องการให้มี checkbox ใน header ของประเภท
       }),
-    [selectedTypes],
+    [] // dependency array (สามารถเพิ่ม state ที่เกี่ยวข้องกับการกรอง/คอลัมน์ได้)
   );
 
   return (
@@ -38,11 +28,12 @@ const ActivityTablePageVisitor = ({ rows1 }: Props) => {
         <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
         <TableRedesign
           initialPageSize={20}
-          columns={activityColumnsWithoutStatus}
-          rows={filterByType(rows1) ?? []}
+          columns={activityColumns} // ใช้ columns ที่ได้จาก getActivityColumns
+          rows={rows1 ?? []}
           height={1170}
           width="100%"
           borderRadius={14}
+          getRowId={(row) => row.activity_id} // row ตอนนี้คือ Activity type
         />
       </CustomCard>
     </div>
