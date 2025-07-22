@@ -131,12 +131,18 @@ const Login = () => {
     const user = useAuthStore.getState().user;
 
     if (!authError && user) {
-      if (user.role_id === 1) {
+      if (user.role_id === 1 || user.role_id === 2) {
         navigate("/"); // Admin / Teacher
-      } else if (user.role_id === 2) {
+        console.log('Admin or Teacher: ', user.role_id);
+        
+      } else if (user.role_id === 3) {
         navigate("/main-student"); // Student
+        console.log("Student role_id: ", user.role_id);
+        
       } else {
         navigate("/activity-info-visitor"); // Visitor or other role
+        console.log("Visitor: ",  user.role_id);
+        
       }
     }
   };
