@@ -32,7 +32,8 @@ export function mapApiToActivity(a: ApiActivity): Activity {
     room_id: a.room_id,
     start_assessment: a.start_assessment,
     end_assessment: a.end_assessment,
-    foods: a.foods ?? [],
+    // foods: a.foods ?? [],
+    activityFood: a.activityFood ?? [],
   };
 }
 

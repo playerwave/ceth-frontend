@@ -36,5 +36,5 @@ export interface ApiActivity {
   room_id: number;
   start_assessment: string | null;
   end_assessment: string | null;
-  foods: ActivityFood[];
+  activityFood: ActivityFood[];
 }

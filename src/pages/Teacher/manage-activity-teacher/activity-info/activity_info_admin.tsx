@@ -82,6 +82,8 @@ import ActivityImage from "./components/ActivityImage";
 import ActivityDetails from "./components/ActivityDetails";
 import FoodSelector from "./components/FoodSelector";
 import ActivityFooter from "./components/ActivityFooter";
+import {ActivityFood} from "../../../../types/model"
+
 
 export default function ActivityInfoAdmin() {
   const { id: paramId } = useParams();
@@ -131,12 +133,19 @@ export default function ActivityInfoAdmin() {
     return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
 
   // ✅ แมปรายการอาหารที่เกี่ยวข้องกับกิจกรรม จาก activity.foods (ActivityFood[])
+  // const relatedFoods =
+  //   Array.isArray(activity.foods) && activity.foods.length > 0
+  //     ? foods.filter((food) =>
+  //         activity.foods.some((af) => af.food_id === food.food_id)
+  //       )
+  //     : [];
   const relatedFoods =
-    Array.isArray(activity.foods) && activity.foods.length > 0
-      ? foods.filter((food) =>
-          activity.foods.some((af) => af.food_id === food.food_id)
-        )
-      : [];
+  Array.isArray(activity.activityFood) && activity.activityFood.length > 0
+    ? foods.filter((food) =>
+        activity.activityFood.some((af: ActivityFood) => af.food_id === food.food_id)
+      )
+    : [];
+
 
   return (
     <div className="justify-items-center">

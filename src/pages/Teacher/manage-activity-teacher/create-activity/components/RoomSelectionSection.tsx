@@ -177,10 +177,10 @@ const RoomSelectionSection: React.FC<Props> = ({
           <MenuItem disabled value="">
             เลือกประเภทกิจกรรม
           </MenuItem>
-          <MenuItem value="Soft Skill">
+          <MenuItem value="Soft">
             ชั่วโมงเตรียมความพร้อม (Soft Skill)
           </MenuItem>
-          <MenuItem value="Hard Skill">
+          <MenuItem value="Hard">
             ชั่วโมงทักษะทางวิชาการ (Hard Skill)
           </MenuItem>
         </Select>

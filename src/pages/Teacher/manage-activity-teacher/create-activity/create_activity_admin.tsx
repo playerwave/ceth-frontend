@@ -43,12 +43,11 @@ const CreateActivityAdmin: React.FC = () => {
   const { createActivity, activityLoading } = useActivityStore(); //
   const savedFoods = JSON.parse(localStorage.getItem("selectedFoods") || "[]");
   const [formData, setFormData] = useState<CreateActivityForm>({
-  activity_id: undefined,
   activity_name: "",
   presenter_company_name: "",
   description: "",
   type: "Soft",
-  seat: undefined,
+  seat: 0,
   recieve_hours: 0,
   event_format: "Onsite",
   activity_status: "Private",
@@ -70,30 +69,6 @@ const CreateActivityAdmin: React.FC = () => {
   selectedFoods: savedFoods,
 });
 
-
-
-  // const IfBuildingRoom: Record<string, { name: string; capacity: number }[]> = {
-  //   "3": [
-  //     { name: "IF-3M210", capacity: 210 }, // ห้องบรรยาย
-  //     { name: "IF-3C01", capacity: 55 }, // ห้องปฏิบัติการ
-  //     { name: "IF-3C02", capacity: 55 },
-  //     { name: "IF-3C03", capacity: 55 },
-  //     { name: "IF-3C04", capacity: 55 },
-  //   ],
-  //   "4": [
-  //     { name: "IF-4M210", capacity: 210 }, // ห้องบรรยาย
-  //     { name: "IF-4C01", capacity: 55 }, // ห้องปฏิบัติการ
-  //     { name: "IF-4C02", capacity: 55 },
-  //     { name: "IF-4C03", capacity: 55 },
-  //     { name: "IF-4C04", capacity: 55 },
-  //   ],
-  //   "5": [
-  //     { name: "IF-5M210", capacity: 210 }, // ห้องบรรยาย
-  //   ],
-  //   "11": [
-  //     { name: "IF-11M280", capacity: 280 }, // ห้องบรรยาย
-  //   ],
-  // };
 
   const navigate = useNavigate();
   const { assessments, fetchAssessments } = useAssessmentStore();
@@ -318,31 +293,68 @@ useEffect(() => {
     setFormData((prev) => ({ ...prev, selectedFoods: updatedFoodOptions }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files && e.target.files.length > 0) {
+  //     const file = e.target.files[0];
 
-      if (!file.type.startsWith("image/")) {
-        toast.error("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!");
-        return;
-      }
+  //     if (!file.type.startsWith("image/")) {
+  //       toast.error("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!");
+  //       return;
+  //     }
 
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("ไฟล์ขนาดใหญ่เกินไป (ต้องไม่เกิน 5MB)");
-        return;
-      }
+  //     if (file.size > 5 * 1024 * 1024) {
+  //       toast.error("ไฟล์ขนาดใหญ่เกินไป (ต้องไม่เกิน 5MB)");
+  //       return;
+  //     }
 
-      // ✅ แสดงตัวอย่างรูปภาพ
-      const imageUrl = URL.createObjectURL(file);
-      setPreviewImage(imageUrl);
+  //     // ✅ แสดงตัวอย่างรูปภาพ
+  //     const imageUrl = URL.createObjectURL(file);
+  //     setPreviewImage(imageUrl);
 
-      // ✅ เก็บไฟล์ไว้ใน `ac_image_url`
+  //     // ✅ เก็บไฟล์ไว้ใน `ac_image_url`
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       image_url: file, // ✅ ตอนนี้เก็บเป็น File
+  //     }));
+  //   }
+  // };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files && e.target.files.length > 0) {
+    const file = e.target.files[0];
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("ไฟล์ขนาดใหญ่เกินไป (ต้องไม่เกิน 5MB)");
+      return;
+    }
+
+    // ✅ แสดงตัวอย่างรูปภาพทันที
+    const localPreviewUrl = URL.createObjectURL(file);
+    setPreviewImage(localPreviewUrl);
+
+    try {
+      // ✅ อัปโหลดไปยัง Cloudinary
+      const cloudinaryUrl = await uploadImageToCloudinary(file);
+
+      // ✅ เซ็ต URL กลับเข้า formData
       setFormData((prev) => ({
         ...prev,
-        image_url: file, // ✅ ตอนนี้เก็บเป็น File
+        image_url: cloudinaryUrl,
       }));
+
+      toast.success("📸 อัปโหลดรูปภาพสำเร็จ!");
+    } catch (error) {
+      console.error("❌ Upload failed:", error);
+      toast.error("อัปโหลดรูปภาพไม่สำเร็จ");
     }
-  };
+  }
+};
+
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -457,6 +469,7 @@ useEffect(() => {
                   handleChange={handleFormChange}
                   setSeatCapacity={setSeatCapacity}
                   selectedRoom={selectedRoom}
+                  setFormData={setFormData}
                 />
 
                 {/* <FoodMenuSection

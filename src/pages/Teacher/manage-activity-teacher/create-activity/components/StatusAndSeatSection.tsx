@@ -10,7 +10,7 @@ interface Props {
   handleChange: (e: React.ChangeEvent<any> | SelectChangeEvent) => void;
   // setSeatCapacity: (value: number | string) => void;
   setSeatCapacity: Dispatch<SetStateAction<string>>;
-
+  setFormData: Dispatch<SetStateAction<CreateActivityForm>>
   selectedRoom: string;
 }
 
@@ -20,6 +20,7 @@ const StatusAndSeatSection: React.FC<Props> = ({
   handleChange,
   setSeatCapacity,
   selectedRoom,
+  setFormData,
 }) => {
   return (
     // <div className="flex space-x-4 mt-5">
@@ -90,7 +91,7 @@ const StatusAndSeatSection: React.FC<Props> = ({
   {/* จำนวนที่นั่ง */}
   <div className="w-1/2">
     <label className="block font-semibold">จำนวนที่นั่ง *</label>
-    <TextField
+    {/* <TextField
       id="ac_seat"
       name="seat"
       type="number"
@@ -107,7 +108,56 @@ const StatusAndSeatSection: React.FC<Props> = ({
       helperText={Number(seatCapacity) < 0 ? "❌ กรุณาใส่จำนวนที่นั่ง" : ""}
       disabled={selectedRoom !== ""}
       sx={{ height: "56px" }}
-    />
+    /> */}
+
+    <TextField
+  id="ac_seat"
+  name="seat"
+  type="number"
+  placeholder="จำนวนที่เปิดให้นิสิตลงทะเบียน"
+  value={formData.seat?.toString() ?? ""}
+  className="w-full"
+  onChange={(e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      const num = Number(value);
+      const maxSeat = Number(seatCapacity); // ✅ ความจุของห้องที่เลือก
+
+      if (num >= 0 && num <= maxSeat) {
+        setFormData((prev: CreateActivityForm) => ({ ...prev, seat: num }));
+      }
+    }
+  }}
+  // error={
+  //   formData.seat !== undefined &&
+  //   (formData.seat < 0 || formData.seat > Number(seatCapacity))
+  // }
+  // helperText={
+  //   formData.seat !== undefined &&
+  //   formData.seat > Number(seatCapacity)
+  //     ? `❌ จำนวนที่นั่งต้องไม่เกิน ${seatCapacity}`
+  //     : formData.seat < 0
+  //     ? "❌ กรุณาใส่จำนวนที่นั่ง"
+  //     : ""
+  // }
+  error={
+  typeof formData.seat === "number" &&
+  (formData.seat < 0 || formData.seat > Number(seatCapacity))
+}
+helperText={
+  typeof formData.seat === "number"
+    ? formData.seat > Number(seatCapacity)
+      ? `❌ จำนวนที่นั่งต้องไม่เกิน ${seatCapacity}`
+      : formData.seat < 0
+      ? "❌ กรุณาใส่จำนวนที่นั่ง"
+      : ""
+    : ""
+}
+
+  sx={{ height: "56px" }}
+/>
+
+
   </div>
 </div>
 
