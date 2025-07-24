@@ -236,18 +236,43 @@ import {roomRoutes} from "./routes/room.route"
 import { useAuthStore } from "./stores/Visitor/auth.store";
 
 function App() {
-  const role = useAuthStore.getState().user?.role || "Visitor";
+  const role = useAuthStore.getState().user?.role?.role_name || "Visitor";
 
-  const renderRoutesByRole = (
+
+//   const renderRoutesByRole = (
+//   routes: {
+//     path: string;
+//     element: JSX.Element;
+//     roles: string[];
+//   }[],
+//   role: string
+// ) => {
+//   return routes
+//     .filter(route => route.roles.includes(role))
+//     .map((route, index) => (
+//       <Route
+//         key={`route-${index}`}
+//         path={route.path}
+//         element={
+//           <ProtectedRoute>
+//             <Navbar>{route.element}</Navbar>
+//           </ProtectedRoute>
+//         }
+//       />
+//     ));
+// };
+
+
+const renderRoutesByRole = (
   routes: {
     path: string;
     element: JSX.Element;
-    roles: string[];
+    roles?: string[]; // 👈 เปลี่ยนเป็น optional
   }[],
   role: string
 ) => {
   return routes
-    .filter(route => route.roles.includes(role))
+    .filter(route => !route.roles || route.roles.includes(role)) // 👈 รองรับทั้งมี/ไม่มี roles
     .map((route, index) => (
       <Route
         key={`route-${index}`}
@@ -266,130 +291,6 @@ function App() {
   return (
     <>
       <Toaster position="bottom-right" richColors />
-      {/* <Routes>
-        <Route path="/login" element={<Login />} /> */}
-{/* 
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Navbar>
-                <Main />
-              </Navbar>
-            </ProtectedRoute>
-          }
-        />
-
-      
-        <Route
-          path="/main-student"
-          element={
-            <ProtectedRoute>
-              <Navbar>
-                <MainStudent />
-              </Navbar>
-            </ProtectedRoute>
-          }
-        />
-
-   
-        {activityRoutes.map((route, index) =>
-          route.roles.includes(role) ? (
-            <Route
-              key={index}
-              path={route.path}
-              element={
-                <ProtectedRoute>
-                  <Navbar>{route.element}</Navbar>
-                </ProtectedRoute>
-              }
-            />
-          ) : null
-        )}
-
-        {assessmentRoutes.map((route, index) =>
-  route.roles.includes(role) ? (
-    <Route
-      key={`${index}`}
-      path={route.path}
-      element={
-        <ProtectedRoute>
-          <Navbar>{route.element}</Navbar>
-        </ProtectedRoute>
-      }
-    />
-  ) : null
-)}
-
- {activityHistoryRoutes.map((route, index) =>
-  route.roles.includes(role) ? (
-    <Route
-      key={`${index}`}
-      path={route.path}
-      element={
-        <ProtectedRoute>
-          <Navbar>{route.element}</Navbar>
-        </ProtectedRoute>
-      }
-    />
-  ) : null
-)}
-
- {certificateRoutes.map((route, index) =>
-  route.roles.includes(role) ? (
-    <Route
-      key={`${index}`}
-      path={route.path}
-      element={
-        <ProtectedRoute>
-          <Navbar>{route.element}</Navbar>
-        </ProtectedRoute>
-      }
-    />
-  ) : null
-)}
-
-{userRoutes.map((route, index) =>
-  route.roles.includes(role) ? (
-    <Route
-      key={`${index}`}
-      path={route.path}
-      element={
-        <ProtectedRoute>
-          <Navbar>{route.element}</Navbar>
-        </ProtectedRoute>
-      }
-    />
-  ) : null
-)}
-
-{foodRoutes.map((route, index) =>
-  route.roles.includes(role) ? (
-    <Route
-      key={`${index}`}
-      path={route.path}
-      element={
-        <ProtectedRoute>
-          <Navbar>{route.element}</Navbar>
-        </ProtectedRoute>
-      }
-    />
-  ) : null
-)}
-
- {roomRoutes.map((route, index) =>
-  route.roles.includes(role) ? (
-    <Route
-      key={`${index}`}
-      path={route.path}
-      element={
-        <ProtectedRoute>
-          <Navbar>{route.element}</Navbar>
-        </ProtectedRoute>
-      }
-    />
-  ) : null
-)} */}
 
 <Routes>
   <Route path="/login" element={<Login />} />
@@ -436,17 +337,6 @@ function App() {
   />
 </Routes>
 
-
-        {/* 🧪 test route */}
-        {/* <Route
-          path="/test-card"
-          element={
-            <Navbar>
-              <TestCardPage />
-            </Navbar>
-          }
-        />
-      </Routes> */}
     </>
   );
 }

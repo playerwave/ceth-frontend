@@ -123,26 +123,6 @@ export default function TableRedesign({
     return col;
   });
 
-  // if (handleStatusToggle) {
-  //   columnsWithDropdown.push({
-  //     field: "toggleStatus",
-  //     headerName: "เปลี่ยนสถานะ",
-  //     width: 150,
-  //     renderCell: (params) => (
-  //       <Button
-  //         variant="outlined"
-  //         onClick={() => handleStatusToggle(params.row)}
-  //       >
-  //         {params.row.status === "Public" ? "ปิด" : "เปิด"}
-  //       </Button>
-  //     ),
-  //     sortable: false,
-  //     filterable: false,
-  //     align: "center",
-  //     headerAlign: "center",
-  //   });
-  // }
-
   return (
     <Box sx={{ mb: 4 }}>
       {title && (

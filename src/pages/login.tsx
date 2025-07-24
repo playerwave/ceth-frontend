@@ -113,7 +113,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "../stores/Visitor/auth.store";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -124,54 +123,82 @@ const Login = () => {
   const navigate = useNavigate();
   const hasRedirected = useRef(false);
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   await login({ username, password });
+
+  //   const user = useAuthStore.getState().user;
+
+  //   if (!authError && user) {
+  //     if (user.role_id === 1 || user.role_id === 2) {
+  //       navigate("/"); // Admin / Teacher
+  //       console.log('Admin or Teacher: ', user.role_id);
+        
+  //     } else if (user.role_id === 3) {
+  //       navigate("/main-student"); // Student
+  //       console.log("Student role_id: ", user.role_id);
+        
+  //     } else {
+  //       navigate("/activity-info-visitor"); // Visitor or other role
+  //       console.log("Visitor: ",  user.role_id);
+        
+  //     }
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await login({ username, password });
+  e.preventDefault();
 
-    const user = useAuthStore.getState().user;
+  await login({ username, password });
 
-    if (!authError && user) {
-      if (user.role_id === 1 || user.role_id === 2) {
-        navigate("/"); // Admin / Teacher
-        console.log('Admin or Teacher: ', user.role_id);
+  const user = useAuthStore.getState().user;
+  const error = useAuthStore.getState().authError;
+
+  console.log(user?.role_id);
+  
+  if (!error && user) {
+    switch (user.role_id) {
+      case 1:
+      case 2:
+        navigate("/");
+        break;
+      case 3:
+        navigate("/main-student");
+        console.log("navigate to main-student");
         
-      } else if (user.role_id === 3) {
-        navigate("/main-student"); // Student
-        console.log("Student role_id: ", user.role_id);
-        
-      } else {
-        navigate("/activity-info-visitor"); // Visitor or other role
-        console.log("Visitor: ",  user.role_id);
-        
-      }
-    }
-  };
-
-
-
-  useEffect(() => {
-  console.log("🔍 useEffect triggered");
-  console.log("authLoading:", authLoading);
-  console.log("isAuthenticated:", isAuthenticated);
-  console.log("authError:", authError);
-  console.log("user:", user);
-
-  if (!authLoading && isAuthenticated && user && !authError && !hasRedirected.current) {
-    hasRedirected.current = true;
-    console.log("✅ Passing condition with role_id:", user.role_id);
-
-    if (user.role_id === 1 || user.role_id === 3) {
-      navigate("/");
-      console.log("➡️ Navigating to Admin/Teacher");
-    } else if (user.role_id === 2) {
-      navigate("/main-student");
-      console.log("➡️ Navigating to Student");
-    } else {
-      navigate("/activity-info-visitor");
-      console.log("🛑 Unexpected role_id → Navigating to Visitor");
+        break;
+      default:
+        navigate("/activity-info-visitor");
     }
   }
-}, [authLoading, isAuthenticated, user, authError]);
+};
+
+
+
+
+//   useEffect(() => {
+//   console.log("🔍 useEffect triggered");
+//   console.log("authLoading:", authLoading);
+//   console.log("isAuthenticated:", isAuthenticated);
+//   console.log("authError:", authError);
+//   console.log("user:", user);
+
+//   if (!authLoading && isAuthenticated && user && !authError && !hasRedirected.current) {
+//     hasRedirected.current = true;
+//     console.log("✅ Passing condition with role_id:", user.role_id);
+
+//     if (user.role_id === 1 || user.role_id === 3) {
+//       navigate("/");
+//       console.log("➡️ Navigating to Admin/Teacher");
+//     } else if (user.role_id === 2) {
+//       navigate("/main-student");
+//       console.log("➡️ Navigating to Student");
+//     } else {
+//       navigate("/activity-info-visitor");
+//       console.log("🛑 Unexpected role_id → Navigating to Visitor");
+//     }
+//   }
+// }, [authLoading, isAuthenticated, user, authError]);
 
 
 

@@ -30,34 +30,6 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      // login: async ({ username, password }) => {
-      //   set({ authLoading: true, authError: null });
-      //   try {
-      //     const apiUser = await authService.login({ username, password });
-      //     const authUser = mapApiToAuthUser(apiUser);
-      //     set({ user: authUser, isAuthenticated: true });
-
-      //     await get().fetchMe(); // ✅ อัปเดต user จาก backend
-
-      //     // ✅ ดึงใหม่หลัง fetchMe แล้ว redirect จากตรงนี้
-      //     const freshUser = get().user;
-      //     if (freshUser) {
-      //       const navigateTo =
-      //         freshUser.role_id === 1 || freshUser.role_id === 3
-      //           ? "/"
-      //           : freshUser.role_id === 2
-      //             ? "/main-student"
-      //             : "/activity-info-visitor";
-      //       window.location.href = navigateTo; // ✅ force redirect (ปลอดภัยกว่า navigate() ตอน login)
-      //     }
-      //   } catch (error) {
-      //     console.error("Login error:", error);
-      //     set({ authError: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" });
-      //   } finally {
-      //     set({ authLoading: false });
-      //   }
-      // },
-
       logout: async () => {
         try {
           await authService.logout(); // ✅ backend: เคลียร์ session + cookie
@@ -67,6 +39,20 @@ export const useAuthStore = create<AuthState>()(
         set({ user: null, isAuthenticated: false }); // ✅ frontend: เคลียร์ state
       },
 
+      // fetchMe: async () => {
+      //   set({ authLoading: true, authError: null });
+      //   try {
+      //     const user = await authService.fetchMe();
+      //     const authUser = mapUserToAuthUser(user);
+      //     set({ user: authUser, isAuthenticated: true });
+      //   } catch (error) {
+      //     console.error("FetchMe error:", error);
+      //     set({ user: null, isAuthenticated: false });
+      //   } finally {
+      //     set({ authLoading: false });
+      //   }
+      // },
+
       fetchMe: async () => {
         set({ authLoading: true, authError: null });
         try {
@@ -75,7 +61,21 @@ export const useAuthStore = create<AuthState>()(
           set({ user: authUser, isAuthenticated: true });
         } catch (error) {
           console.error("FetchMe error:", error);
-          set({ user: null, isAuthenticated: false });
+
+          // 🔧 เพิ่ม fallback user แบบ Visitor หากโหลดไม่สำเร็จ
+          set({
+            user: {
+              userId: 0,
+              username: "guest",
+              role: {
+                roles_id: 0,
+                role_name: "Visitor",
+              },
+              role_id: 0,
+              token: "",
+            },
+            isAuthenticated: false,
+          });
         } finally {
           set({ authLoading: false });
         }

@@ -33,7 +33,7 @@ const ActivityTablePageVisitor = ({ rows1 }: Props) => {
           height={1170}
           width="100%"
           borderRadius={14}
-          getRowId={(row) => row.activity_id} // row ตอนนี้คือ Activity type
+          // getRowId={(row) => row.activity_id} // row ตอนนี้คือ Activity type
         />
       </CustomCard>
     </div>

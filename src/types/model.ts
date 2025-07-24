@@ -247,7 +247,7 @@ export interface Roles {
 export interface AuthUser {
   userId: number;
   username: string;
-  role: "Student" | "Teacher" | "Admin";
+  role: Roles;
   role_id: number;
   token: string;
 }

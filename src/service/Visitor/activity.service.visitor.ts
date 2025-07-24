@@ -4,7 +4,7 @@ import axiosInstance from "../../libs/axios";
 import { ParsedVisitorActivity } from "../../types/Visitor/parsed_visitor_activity";
 import { Activity } from "../../types/model"; // นำเข้า Activity Type ของคุณ
 
-const API_URL_FOR_VISITOR = "http://localhost:5090/visitor";
+const API_URL_FOR_VISITOR = "http://localhost:5090/api/visitor";
 
 const convertParsedToActivity = (
   parsedActivity: ParsedVisitorActivity
@@ -38,15 +38,16 @@ const convertParsedToActivity = (
     room_id: 0, // กำหนดค่าเริ่มต้น
     start_assessment: null, // กำหนดค่าเริ่มต้น
     end_assessment: null, // กำหนดค่าเริ่มต้น
-    foods: [], // กำหนดค่าเริ่มต้น
+    activityFood: [], // กำหนดค่าเริ่มต้น
   };
 };
 
 const fetchPublicActivities = async (): Promise<Activity[]> => {
   // คืนค่าเป็น Activity[]
   try {
-    const response =
-      await axiosInstance.get<{ row: string }[]>(API_URL_FOR_VISITOR);
+    const response = await axiosInstance.get<{ row: string }[]>(
+      `${API_URL_FOR_VISITOR}/get-visitor-activities`
+    );
 
     const rawData: { row: string }[] = response.data;
 
