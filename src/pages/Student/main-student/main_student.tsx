@@ -124,44 +124,49 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 
-import { useMainActivityStore } from "../../../stores/Student/store_main_activity_student";
+import { useActivityStore } from "../../../stores/Student/activity.store.student";
 import SoftHardSkillCards from "../main-student/components/SoftHardSkillCards";
 import BarChartSection from "../main-student/components/BarChartSection";
 import TableActivitySection from "../main-student/components/TableListSection";
 import ActivityTabs from "../main-student/components/ActivityTabs"; // ✅ Tabs
 import TablePendingEvaluation from "./components/TablePendingEvaluation";
+import { useAuthStore } from "../../../stores/Visitor/auth.store";
 
 const MainStudent = () => {
   const [searchId, setSearchId] = useState("");
   const [activeTab, setActiveTab] = useState<"enrolled" | "pendingEvaluation">(
-    "enrolled",
-  ); // ✅ Tab state
+    "enrolled"
+  );
 
   const {
     fetchEnrolledActivities,
     enrolledActivities,
     activityLoading,
     activityError,
-  } = useMainActivityStore();
+  } = useActivityStore();
 
-  const userId = localStorage.getItem("userId") || "8";
+  // แปลง userId จาก localStorage (string) เป็น number
+  const { user } = useAuthStore(); // หรือ context ที่เก็บ user login
+  const userId = user?.userId;
 
   useEffect(() => {
-    fetchEnrolledActivities(userId);
-  }, []);
+    if (userId) {
+      fetchEnrolledActivities(userId);
+    }
+  }, [userId, fetchEnrolledActivities]);
 
   const transformedActivities = enrolledActivities
-    .filter((act) => act.ac_status === "Public")
+    .filter((act) => act.activity_status === "Public")
     .map((act) => ({
-      id: act.ac_id.toString(),
-      name: act.ac_name,
-      company_lecturer: act.ac_company_lecturer,
-      description: act.ac_description,
-      type: act.ac_type as "Soft Skill" | "Hard Skill",
-      start_time: new Date(act.ac_start_time),
-      seat: act.ac_seat,
-      status: act.ac_status as "Public" | "Private",
-      registered_count: act.ac_registered_count,
+      id: act.activity_id.toString(),
+      name: act.activity_name,
+      company_lecturer: act.presenter_company_name,
+      description: act.description,
+      type: act.type as "Soft Skill" | "Hard Skill",
+      start_time: new Date(act.start_activity_date),
+      seat: act.seat,
+      status: act.activity_status as "Public" | "Private",
+      // registered_count: act.ac_registered_count,
     }));
 
   return (
@@ -203,14 +208,14 @@ const MainStudent = () => {
             <TableActivitySection
               activityLoading={activityLoading}
               activityError={activityError}
-              enrolledActivities={enrolledActivities}
+              enrolledActivities={[]}
               transformedActivities={transformedActivities}
             />
           ) : (
             <TablePendingEvaluation
               activityLoading={activityLoading}
               activityError={activityError}
-              enrolledActivities={enrolledActivities}
+              enrolledActivities={[]}
               transformedActivities={transformedActivities}
             />
           )}

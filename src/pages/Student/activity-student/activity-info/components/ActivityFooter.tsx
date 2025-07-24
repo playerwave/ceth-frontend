@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import ConfirmDialog from "../../../../../components/ConfirmDialog";
 import Button from "../../../../../components/Button";
 import { Clock, Play } from "lucide-react";
+import { useAuthStore } from "../../../../../stores/Visitor/auth.store";
 
 interface Props {
   activity: any;
@@ -29,36 +30,85 @@ export default function ActivityFooter({
   const [isUnEnrollModalOpen, setIsUnEnrollModalOpen] = useState(false);
 
   // ฟังก์ชันการลงทะเบียน
+  // const handleEnroll = async () => {
+  //   const userId = 8; // เปลี่ยนเป็น userId จริง
+  //   if (!userId) {
+  //     toast.error("❌ ไม่พบข้อมูลผู้ใช้");
+  //     return;
+  //   }
+
+  //   if (
+  //     activity.activityFood &&
+  //     activity.activityFood.length > 0 &&
+  //     !selectedFood && // ตรวจสอบว่าเลือกอาหารหรือยัง
+  //     activity.event_format === "Onsite"
+  //   ) {
+  //     toast.error("❌ กรุณาเลือกอาหารก่อนลงทะเบียน");
+  //     return;
+  //   }
+
+  //   // ตรวจสอบเวลา
+  //   const hasTimeConflict = enrolledActivities.some((act) => {
+  //     if (
+  //       activity.event_format === "Course" ||
+  //       act.event_format === "Course"
+  //     ) {
+  //       return false;
+  //     }
+
+  //     const existingStart = new Date(act.start_activity_date).getTime();
+  //     const existingEnd = new Date(act.end_activity_date).getTime();
+  //     const newStart = new Date(activity.start_activity_date).getTime();
+  //     const newEnd = new Date(activity.end_activity_date).getTime();
+
+  //     return (
+  //       (newStart >= existingStart && newStart < existingEnd) ||
+  //       (newEnd > existingStart && newEnd <= existingEnd) ||
+  //       (newStart <= existingStart && newEnd >= existingEnd)
+  //     );
+  //   });
+
+  //   if (hasTimeConflict) {
+  //     toast.error(
+  //       "ไม่สามารถลงทะเบียนได้: เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว",
+  //     );
+  //     return;
+  //   }
+
+  //   await enrollActivity(userId, activity.id, selectedFood); // ส่ง selectedFood ไปด้วย
+  //   setIsEnrolled(true);
+  //   navigate("/list-activity-student");
+  // };
+
+  // ✅ ดึง useAuthStore ที่ด้านบนของ Component
+  const { user } = useAuthStore();
+  const userId = user?.userId;
+
   const handleEnroll = async () => {
-    const userId = 8; // เปลี่ยนเป็น userId จริง
     if (!userId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
 
     if (
-      activity.food &&
-      activity.food.length > 0 &&
-      !selectedFood && // ตรวจสอบว่าเลือกอาหารหรือยัง
-      activity.location_type === "Onsite"
+      activity.activityFood &&
+      activity.activityFood.length > 0 &&
+      !selectedFood &&
+      activity.event_format === "Onsite"
     ) {
       toast.error("❌ กรุณาเลือกอาหารก่อนลงทะเบียน");
       return;
     }
 
-    // ตรวจสอบเวลา
     const hasTimeConflict = enrolledActivities.some((act) => {
-      if (
-        activity.location_type === "Course" ||
-        act.ac_location_type === "Course"
-      ) {
+      if (activity.event_format === "Course" || act.event_format === "Course") {
         return false;
       }
 
-      const existingStart = new Date(act.ac_start_time).getTime();
-      const existingEnd = new Date(act.ac_end_time).getTime();
-      const newStart = new Date(activity.start_time).getTime();
-      const newEnd = new Date(activity.end_time).getTime();
+      const existingStart = new Date(act.start_activity_date).getTime();
+      const existingEnd = new Date(act.end_activity_date).getTime();
+      const newStart = new Date(activity.start_activity_date).getTime();
+      const newEnd = new Date(activity.end_activity_date).getTime();
 
       return (
         (newStart >= existingStart && newStart < existingEnd) ||
@@ -69,27 +119,64 @@ export default function ActivityFooter({
 
     if (hasTimeConflict) {
       toast.error(
-        "ไม่สามารถลงทะเบียนได้: เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว",
+        "ไม่สามารถลงทะเบียนได้: เวลากิจกรรมนี้ทับซ้อนกับกิจกรรมอื่นที่คุณลงทะเบียนเอาไว้แล้ว"
       );
       return;
     }
+    console.log("userId:", userId, typeof userId);
+    console.log(
+      "activity.activity_id:",
+      activity.activity_id,
+      typeof activity.activity_id
+    );
 
-    await enrollActivity(userId, activity.id, selectedFood); // ส่ง selectedFood ไปด้วย
-    setIsEnrolled(true);
-    navigate("/list-activity-student");
+    try {
+      console.log(
+        "➡️ กำลังลงทะเบียน",
+        userId,
+        activity.activity_id,
+        selectedFood
+      );
+      // แปลง selectedFood ให้เป็น array หรือส่งเป็น [] ถ้าไม่มี
+      const foodArray = selectedFood ? [selectedFood] : [];
+      await enrollActivity(userId, activity.activity_id, ["ข้าวผัด", "น้ำเปล่า"]);
+      toast.success("✅ ลงทะเบียนสำเร็จ");
+      setIsEnrolled(true);
+      navigate("/list-activity-student");
+    } catch (error) {
+      console.error("❌ ลงทะเบียนไม่สำเร็จ:", error);
+      toast.error("❌ เกิดข้อผิดพลาดในการลงทะเบียน");
+    }
   };
 
   // ฟังก์ชันการยกเลิกการลงทะเบียน
+  // const handleUnenroll = async () => {
+  //   const userId = 8; // เปลี่ยนเป็น userId จริง
+  //   if (!userId) {
+  //     toast.error("❌ ไม่พบข้อมูลผู้ใช้");
+  //     return;
+  //   }
+
+  //   await unenrollActivity(userId, activity.id);
+  //   setIsEnrolled(false);
+  //   navigate("/main-student");
+  // };
+
   const handleUnenroll = async () => {
-    const userId = 8; // เปลี่ยนเป็น userId จริง
     if (!userId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
 
-    await unenrollActivity(userId, activity.id);
-    setIsEnrolled(false);
-    navigate("/main-student");
+    try {
+      await unenrollActivity(userId, activity.id);
+      setIsEnrolled(false);
+      navigate("/main-student");
+      toast.success("✅ ยกเลิกการลงทะเบียนสำเร็จ");
+    } catch (error) {
+      console.error("❌ ยกเลิกการลงทะเบียนไม่สำเร็จ:", error);
+      toast.error("❌ เกิดข้อผิดพลาดในการยกเลิกการลงทะเบียน");
+    }
   };
 
   const formatTime = (date: Date): string =>
@@ -113,7 +200,7 @@ export default function ActivityFooter({
                           day: "2-digit",
                           month: "long",
                           year: "numeric",
-                        },
+                        }
                       ).format(activity.end_register)})`}
           onCancel={() => setIsUnEnrollModalOpen(false)}
           onConfirm={handleUnenroll}
@@ -129,7 +216,7 @@ export default function ActivityFooter({
                           day: "2-digit",
                           month: "long",
                           year: "numeric",
-                        },
+                        }
                       ).format(activity.end_register)})`}
           onCancel={() => setIsEnrollModalOpen(false)}
           onConfirm={handleEnroll}
@@ -140,17 +227,17 @@ export default function ActivityFooter({
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 font-[Sarabun] font-semibold">
             <Clock size={25} />
-            {activity.start_time
-              ? formatTime(new Date(activity.start_time))
+            {activity.start_activity_date
+              ? formatTime(new Date(activity.start_activity_date))
               : "ไม่ระบุ"}{" "}
             -{" "}
-            {activity.end_time
-              ? formatTime(new Date(activity.end_time))
+            {activity.end_activity_date
+              ? formatTime(new Date(activity.end_activity_date))
               : "ไม่ระบุ"}
           </div>
 
           <div className="flex items-center gap-1 ml-3 font-[Sarabun] font-semibold">
-            <Play size={25} /> {activity.state}
+            <Play size={25} /> {activity.activity_state}
           </div>
         </div>
 

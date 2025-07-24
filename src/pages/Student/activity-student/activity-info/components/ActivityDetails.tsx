@@ -1,4 +1,5 @@
 // import { Typography } from "@mui/material";
+import React, { useEffect } from "react";
 import {
   Album,
   CalendarDays,
@@ -7,21 +8,23 @@ import {
   MapPin,
   School,
 } from "lucide-react";
+import type { Activity } from "../../../../../types/model";
+import { useRoomStore } from "../../../../../stores/Teacher/room.store";
 
 interface Props {
   activity: any;
 }
 
+type LocationType = "Onsite" | "Course" | "Online";
+
 function LocationTypeDisplay({ locationType }: { locationType: string }) {
-  const iconMap = {
+  const iconMap: Record<LocationType, React.ElementType> = {
     Onsite: School,
     Course: Album,
     Online: HouseWifi,
   };
 
-  // const IconComponent = iconMap[locationType] ?? HouseWifi;
-  const IconComponent =
-    iconMap[locationType as keyof typeof iconMap] ?? HouseWifi;
+  const IconComponent = iconMap[locationType as LocationType] ?? HouseWifi;
   const label = locationType;
 
   return (
@@ -32,7 +35,25 @@ function LocationTypeDisplay({ locationType }: { locationType: string }) {
   );
 }
 
+function formatRoomDisplay(room?: { room_name?: string; floor?: string }) {
+  if (!room || !room.room_name) return "ไม่ระบุห้อง";
+  return `ชั้น ${room.floor ?? "-"} ห้อง ${room.room_name}`;
+}
+
 export default function ActivityDetails({ activity }: Props) {
+  // ดึงข้อมูล rooms กับ fetchRooms จาก store
+  const { rooms, fetchRooms } = useRoomStore();
+
+  // โหลดข้อมูล rooms ถ้ายังไม่มี
+  useEffect(() => {
+    if (rooms.length === 0) {
+      fetchRooms();
+    }
+  }, [rooms.length, fetchRooms]);
+
+  // หา room ที่ตรงกับ activity.room_id
+  const room = rooms.find((r) => r.room_id === activity.room_id);
+
   const formatDate = (dateInput?: string | Date | null) => {
     if (!dateInput) return "ไม่ระบุ";
     const date = new Date(dateInput);
@@ -60,7 +81,7 @@ export default function ActivityDetails({ activity }: Props) {
               flexShrink: 1,
             }}
           >
-            {activity.company_lecturer}
+            {activity.presenter_company_name}
           </p>
 
           {/* ป้ายประเภท + ชั่วโมง */}
@@ -90,26 +111,26 @@ export default function ActivityDetails({ activity }: Props) {
 
         <div className="flex items-center gap-1 font-[Sarabun] w-full lg:w-auto justify-start lg:justify-end text-xs sm:text-sm md:text-base">
           {/* ประเภทกิจกรรม */}
-          <LocationTypeDisplay locationType={activity.location_type} />
+          <LocationTypeDisplay locationType={activity.event_format} />
 
           {/* วันที่เริ่มกิจกรรม */}
           {/* <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
           {formatDate(activity.start_time)} */}
 
           {/* ปิดลงทะเบียน (เฉพาะกิจกรรมที่ไม่ใช่ Course) */}
-          {activity.location_type !== "Course" ? (
+          {activity.event_format !== "Course" ? (
             <>
               <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-              {formatDate(activity.start_time)}
+              {formatDate(activity.start_activity_date)}
               <Hourglass className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-              ปิดลงทะเบียน {formatDate(activity.end_register)}&nbsp;&nbsp;
+              ปิดลงทะเบียน {formatDate(activity.end_register_date)}&nbsp;&nbsp;
             </>
           ) : null}
 
           {/* สถานที่ */}
           <MapPin className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-          {activity.location_type === "Onsite"
-            ? `ห้อง ${activity.room}`
+          {activity.event_format === "Onsite"
+            ? formatRoomDisplay(room)
             : "ไม่มีห้องสำหรับกิจกรรมนี้"}
         </div>
       </div>

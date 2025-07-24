@@ -62,6 +62,14 @@ export const activityRoutes = [
     visibleInSidebar: false
   },
   {
+    path: "/activity-info-student/:id",
+    element: <ActivityInfoStudent />,
+    label: "ดูข้อมูลกิจกรรมนิสิต",
+    icon: "ClipboardList",
+    roles: ["Student"] as RoleName[],
+    visibleInSidebar: false
+  },
+  {
     path: "/activity-list-visitor",
     element: <ActivityListVisitor />,
     label: "กิจกรรมสำหรับเยี่ยมชม",
