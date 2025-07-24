@@ -8,3 +8,7 @@
 @theme{
   --font-pt-sans: pt-sans;
 }
+
+body {
+  background-color: #FAFBFF !important;
+}

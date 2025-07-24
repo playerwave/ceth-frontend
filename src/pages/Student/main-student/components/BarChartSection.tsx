@@ -25,7 +25,7 @@ const BarChartSection = () => {
       <CustomCard
         height="auto"
         width="100%"
-        className="w-full max-w-full md:max-w-[900px] lg:max-w-[950px] p-2 shadow-xl"
+        className="w-full max-w-full md:max-w-[900px] lg:max-w-[1050px] p-2 shadow-xl"
       >
         <h2 className="text-lg font-bold text-center mb-4">
           กราฟแสดงจำนวน Soft Skill และ Hard Skill ในแต่ละเดือน
