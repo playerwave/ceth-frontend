@@ -1,30 +1,26 @@
 import * as React from "react";
 import { DataGrid, GridColDef, GridRowParams } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
-
-interface Food {
-  name: string;
-  price: number;
-  phone: string;
-}
-
+import { Food } from "../../../../../types/model"; // ชี้ path ให้ถูกต้อง
 interface Props {
   data: Food[];
 }
+
 
 const FoodTable: React.FC<Props> = ({ data }) => {
   const navigate = useNavigate();
 
   const columns: GridColDef[] = [
-    { field: "name", headerName: "ชื่อเมนู", flex: 1 },
-    { field: "price", headerName: "ราคา", flex: 1 },
-    { field: "phone", headerName: "เบอร์ติดต่อ", flex: 1 },
+    { field: "food_id", headerName: "ID", flex: 1 },
+    { field: "food_name", headerName: "ชื่อเมนู", flex: 1 },
+
   ];
 
   return (
     <div style={{ height: 400, width: "100%" }}>
       <DataGrid
-        rows={data.map((item, index) => ({ id: index, ...item }))}
+        rows={data.map((item) => ({ id: item.food_id, ...item }))}
+
         columns={columns}
         pageSizeOptions={[5, 10]}
         pagination
@@ -32,7 +28,9 @@ const FoodTable: React.FC<Props> = ({ data }) => {
           pagination: { paginationModel: { pageSize: 5, page: 0 } },
         }}
         onRowClick={(params: GridRowParams) =>
-          navigate("/edit-food", { state: { food: params.row } })
+          navigate(`/update-food-teacher?id=${params.row.food_id}`)
+
+
         }
         sx={{
           "& .MuiDataGrid-columnHeaders, & .MuiDataGrid-columnHeader": {
@@ -51,9 +49,9 @@ const FoodTable: React.FC<Props> = ({ data }) => {
             color: "#000000 !important",
           },
           "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
-            {
-              color: "#000000 !important",
-            },
+          {
+            color: "#000000 !important",
+          },
           "& .MuiSelect-select, & .MuiSvgIcon-root.MuiSelect-icon": {
             color: "#000000 !important",
           },
