@@ -1,10 +1,13 @@
 import axiosInstance from "../../libs/axios";
 import { Activity } from "../../types/model";
 
+// base path
+const STUDENT_ACTIVITY_PATH = "/student/activity";
+
 //--------------------- Fetch Activities for a Student -------------------------
 export const fetchActivities = async (userId: number): Promise<Activity[]> => {
   const response = await axiosInstance.get<Activity[]>(
-    `/student/activity?userId=${encodeURIComponent(userId)}`,
+    `${STUDENT_ACTIVITY_PATH}/get-student-activities/${userId}`
   );
   return response.data;
 };
@@ -12,10 +15,10 @@ export const fetchActivities = async (userId: number): Promise<Activity[]> => {
 
 //--------------------- Search Activities --------------------------------------
 export const searchActivities = async (
-  searchName: string,
+  searchName: string
 ): Promise<Activity[]> => {
   const response = await axiosInstance.get<Activity[]>(
-    `/student/activity/search?name=${encodeURIComponent(searchName)}`,
+    `${STUDENT_ACTIVITY_PATH}/searchActivity?ac_name=${encodeURIComponent(searchName)}`
   );
   return response.data;
 };
@@ -23,10 +26,10 @@ export const searchActivities = async (
 
 //--------------------- Fetch Recommended Activity IDs --------------------------
 export const fetchRecommendedIds = async (
-  userId: number,
+  userId: number
 ): Promise<number[]> => {
   const response = await axiosInstance.get<number[]>(
-    `/student/activity/recommended?userId=${encodeURIComponent(userId)}`,
+    `${STUDENT_ACTIVITY_PATH}/recommended?userId=${encodeURIComponent(userId)}`
   );
   return response.data;
 };
@@ -35,22 +38,46 @@ export const fetchRecommendedIds = async (
 //--------------------- Fetch Single Activity with Enrollment State -------------
 export const fetchActivity = async (
   id: number | string,
-  userId: number,
+  userId: number
 ): Promise<Activity> => {
   const response = await axiosInstance.get<Activity>(
-    `/student/activity/${id}?userId=${encodeURIComponent(String(userId))}`,
+    `${STUDENT_ACTIVITY_PATH}/${id}?userId=${encodeURIComponent(String(userId))}`
   );
   return response.data;
 };
-////------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-//--------------------- Export Service -------------------------------------------
-// รวมฟังก์ชันทั้งหมดที่เกี่ยวข้องกับ student‐activity
+//--------------------- Enrolled Activity --------------------------------------
+export const enrollActivity = async (
+  userId: number,
+  activityId: number,
+  food: string[]
+) => {
+  return axiosInstance.post(
+    `${STUDENT_ACTIVITY_PATH}/student-enroll-activity/${userId}`,
+    { activityId, food }
+  );
+};
+//------------------------------------------------------------------------------
+
+//--------------------- Unenrolled Activity ------------------------------------
+export const unenrollActivity = async (userId: number, activityId: number) => {
+  return axiosInstance.delete(
+    `${STUDENT_ACTIVITY_PATH}/unenroll-activity/${userId}`,
+    { data: { activityId } }
+  );
+};
+//------------------------------------------------------------------------------
+
+//--------------------- Export Service -----------------------------------------
 const activityService = {
   fetchActivities,
   searchActivities,
+  fetchRecommendedIds,
   fetchActivity,
+  enrollActivity,
+  unenrollActivity,
 };
-//--------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 export default activityService;
