@@ -1,6 +1,6 @@
 // stores/Room/room.service.ts
 import axiosInstance from "../../libs/axios";
-import { Room } from "../../types/model";
+import { Building, Faculty, Room } from "../../types/model";
 
 // base path
 const TEACHER_ROOM_PATH = "/teacher/room";
@@ -13,6 +13,17 @@ export const fetchAllRooms = async (): Promise<Room[]> => {
   return response.data;
 };
 //----------------------------------------------------------------
+
+
+//--------------------- Fetch Room by ID -------------------------
+export const fetchRoomById = async (id: number): Promise<Room> => {
+
+  const response = await axiosInstance.get<Room>(
+    `${TEACHER_ROOM_PATH}/get-room/${id}`
+  );
+  return response.data;
+
+};
 
 //--------------------- Count Rooms ------------------------------
 export const countRooms = async (): Promise<number> => {
@@ -49,6 +60,19 @@ export const deleteRoom = async (id: number): Promise<void> => {
   await axiosInstance.delete(`${TEACHER_ROOM_PATH}/delete-room/${id}`);
 };
 //----------------------------------------------------------------
+// 🔧 Fetch all buildings
+export const fetchAllBuildings = async (): Promise<Building[]> => {
+  const res = await axiosInstance.get("/teacher/building/get-buildings");
+  return res.data;
+};
+
+// 🔧 Fetch all faculties
+export const fetchAllFaculties = async (): Promise<Faculty[]> => {
+  const res = await axiosInstance.get("/faculty/get-faculties"); // ✅ แก้ให้ตรง
+  return res.data.facultyData; // ✅ ถ้า backend ส่ง facultyData ภายใน object
+};
+
+
 
 //--------------------- Export Service ---------------------------
 const roomService = {
@@ -57,6 +81,9 @@ const roomService = {
   createRoom,
   updateRoom,
   deleteRoom,
+  fetchRoomById,
+  fetchAllBuildings,       // ✅ เพิ่มได้
+  fetchAllFaculties,       // ✅ เพิ่มได้
 };
 
 export default roomService;

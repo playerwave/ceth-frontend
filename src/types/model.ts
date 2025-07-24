@@ -17,14 +17,14 @@ export interface Activity {
   image_url: string | File;
   activity_status: "Private" | "Public";
   activity_state:
-    | "Not Start"
-    | "Special Open Register"
-    | "Open Register"
-    | "Close Register"
-    | "Start Activity"
-    | "End Activity"
-    | "Start Assessment"
-    | "End Assessment";
+  | "Not Start"
+  | "Special Open Register"
+  | "Open Register"
+  | "Close Register"
+  | "Start Activity"
+  | "End Activity"
+  | "Start Assessment"
+  | "End Assessment";
   status: "Active" | "Inactive";
   last_update_activity_date: string;
   url: string | null;
@@ -75,12 +75,16 @@ export interface ActivityFood {
 export interface Room {
   room_id: number;
   faculty_id: number; // FK to Faculty
+  
   room_name: string;
   floor: string;
   seat_number: number;
   building_id: number; // FK to Building
   status: "Active" | "Available";
 }
+
+
+
 //-----------------------------------------------------------------------------
 
 //--------------------------- Building ----------------------------------------

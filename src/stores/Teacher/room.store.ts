@@ -131,7 +131,7 @@
 // }));
 
 import { create } from "zustand";
-import { Room } from "../../types/model";
+import { Building, Faculty, Room } from "../../types/model";
 import roomService from "../../service/Teacher/room.service";
 
 interface RoomStore {
@@ -139,6 +139,8 @@ interface RoomStore {
   selectedRoom: Room | null;
   loading: boolean;
   error: string | null;
+  buildings: Building[];  // ✅ เพิ่มตรงนี้
+  faculties: Faculty[];   // ✅ เพิ่มตรงนี้
 
   fetchRooms: () => Promise<void>;
   selectRoom: (room: Room) => void;
@@ -150,7 +152,10 @@ interface RoomStore {
 
   // Optional: countRooms
   roomCount?: number;
+
   fetchRoomCount?: () => Promise<void>;
+  fetchBuildings: () => Promise<void>;   // ✅ ฟังก์ชันโหลดอาคาร
+  fetchFaculties: () => Promise<void>;   // ✅ ฟังก์ชันโหลดคณะ
 }
 
 export const useRoomStore = create<RoomStore>((set) => ({
@@ -159,8 +164,21 @@ export const useRoomStore = create<RoomStore>((set) => ({
   loading: false,
   error: null,
   roomCount: undefined,
+  buildings: [],    // ✅ state ใหม่
+  faculties: [],    // ✅ state ใหม่
 
   //------------------------------------------- Room Actions --------------------------------------------------
+
+
+  fetchFaculties: async () => {
+    try {
+      const data = await roomService.fetchAllFaculties(); // ✅ ต้องมีใน roomService
+      set({ faculties: data });
+    } catch (error) {
+      console.error("❌ Error fetching faculties:", error);
+      set({ error: "โหลดข้อมูลคณะไม่สำเร็จ" });
+    }
+  },
 
   fetchRooms: async () => {
     set({ loading: true, error: null });
@@ -221,6 +239,17 @@ export const useRoomStore = create<RoomStore>((set) => ({
       set({ rooms: updatedList });
     } catch (error) {
       console.error("❌ Error deleting room:", error);
+    }
+  },
+
+
+  // 👉 fetch buildings
+  fetchBuildings: async () => {
+    try {
+      const data = await roomService.fetchAllBuildings();
+      set({ buildings: data });
+    } catch (error) {
+      console.error("❌ Error fetching buildings:", error);
     }
   },
 }));
