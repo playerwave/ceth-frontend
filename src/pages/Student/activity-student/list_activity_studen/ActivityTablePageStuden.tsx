@@ -50,13 +50,13 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
     <>
       {rows1.length > 0 && (
         <div style={{ padding: 24 }}>
-          <CustomCard height={1250} width="100%">
+          <CustomCard height={800} width="100%">
             <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
             <TableRedesign
               initialPageSize={20}
               columns={activityColumnsWithoutStatus} // ✅ ถูกต้อง
               rows={filterByType(rows1)}
-              height={1170}
+              height={720}
               width="100%"
               borderRadius={14}
             />

@@ -21,4 +21,20 @@ export const activityHistoryRoutes = [
     roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   },
+  {
+    path: "/list-activity-history-student",
+    element: <ActivityHistoryInfoTeacher />,
+    label: "ประวัติกิจกรรม",
+    icon: "History",
+    roles: ["Student"] as RoleName[],
+    visibleInSidebar: true
+  },
+  {
+    path: "/activity-history-info-student",
+    element: <ActivityHistoryInfoTeacher />,
+    label: "",
+    icon: "ClipboardList",
+    roles: ["Student"] as RoleName[],
+    visibleInSidebar: false
+  },
 ];
