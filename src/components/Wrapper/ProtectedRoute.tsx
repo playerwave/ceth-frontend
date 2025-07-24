@@ -110,7 +110,6 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
   }
 
   // 👨‍🎓 Student route
-  console.log("user role name: ",user.role.role_name);
   
   if (path.includes("student") && user.role_id !== 3) {
     return <Navigate to="/login" replace />;

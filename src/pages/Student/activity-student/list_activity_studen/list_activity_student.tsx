@@ -540,7 +540,7 @@ import CalculateDialog from "./components/CalculateDialog";
 import { isRecommended } from "./utils.ts/activity";
 import { Activity } from "../../../../types/model";
 
-const ManageActivityStudent: React.FC = () => {
+const ListActivityStudent: React.FC = () => {
   const navigate = useNavigate();
   const userId = 14;
 
@@ -697,4 +697,4 @@ const ManageActivityStudent: React.FC = () => {
   );
 };
 
-export default ManageActivityStudent;
+export default ListActivityStudent;

@@ -9,13 +9,16 @@ import ActivityInfoStudent from "../pages/Student/activity-student/activity-info
 import ActivityListVisitor from "../pages/visitor/activity-list/visiter";
 import ActivityInfoVisitor from "../pages/visitor/activity-info/activity_info_visitor";
 
+import type { Roles } from "../types/model";
+type RoleName = Roles["role_name"];
+
 export const activityRoutes = [
   {
     path: "/list-activity-admin",
     element: <ListActivityTeacher />,
     label: "รายการกิจกรรม",
     icon: "BookA",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: true
   },
   {
@@ -23,7 +26,7 @@ export const activityRoutes = [
     element: <CreateActivityAdmin />,
     label: "สร้างกิจกรรม",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   },
   {
@@ -31,7 +34,7 @@ export const activityRoutes = [
     element: <UpdateActivityAdmin />,
     label: "แก้ไขกิจกรรม",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   },
   {
@@ -39,7 +42,7 @@ export const activityRoutes = [
     element: <ActivityInfoAdmin />,
     label: "ดูข้อมูลกิจกรรม",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   },
   {
@@ -47,7 +50,7 @@ export const activityRoutes = [
     element: <ListActivityStudent />,
     label: "กิจกรรมสหกิจ",
     icon: "BookA",
-    roles: ["Student"],
+    roles: ["Student"] as RoleName[],
     visibleInSidebar: true
   },
   {
@@ -55,7 +58,7 @@ export const activityRoutes = [
     element: <ActivityInfoStudent />,
     label: "ดูข้อมูลกิจกรรมนิสิต",
     icon: "ClipboardList",
-    roles: ["Student"],
+    roles: ["Student"] as RoleName[],
     visibleInSidebar: false
   },
   {
@@ -63,7 +66,7 @@ export const activityRoutes = [
     element: <ActivityListVisitor />,
     label: "กิจกรรมสำหรับเยี่ยมชม",
     icon: "BookA",
-    roles: ["Visitor"],
+    roles: ["Visitor"] as RoleName[],
     visibleInSidebar: false
   },
   {
@@ -71,7 +74,7 @@ export const activityRoutes = [
     element: <ActivityInfoVisitor />,
     label: "รายละเอียดกิจกรรม",
     icon: "ClipboardList",
-    roles: ["Visitor"],
+    roles: ["Visitor"] as RoleName[],
     visibleInSidebar: false
   }
 ];
