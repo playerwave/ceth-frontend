@@ -3,6 +3,7 @@ import TableRedesign from "../../../../components/Table_re";
 import CustomCard from "../../../../components/Card";
 import { getActivityColumns } from "../../../../components/activity_column";
 import { Activity } from "../../../../types/model";
+import { useNavigate } from "react-router-dom";
 
 import Dialog2 from "../../../../components/Dialog2";
 
@@ -31,12 +32,20 @@ const ActivityTablePage = ({
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Activity | null>(null);
   const [, setPreviewChecked] = useState<boolean | null>(null); // เพิ่ม preview
+  const navigate = useNavigate();
 
   const handleTypeChange = (type: string) => {
     setSelectedTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
+
+  const handleDoubleClickActivity = (row: Activity) => {
+    navigate(`/activity-info-admin/${row.activity_id}`, {
+      state: { id: row.activity_id },
+    });
+  }
+
 
   const filterByType = (rows: Activity[]) => {
     if (selectedTypes.length === 0) return rows;
@@ -91,6 +100,7 @@ const ActivityTablePage = ({
           width="100%"
           borderRadius={14}
           handleStatusToggle={handleConfirmStatusChange}
+          onRowDoubleClick={handleDoubleClickActivity}
         />
       </CustomCard>
 
@@ -110,13 +120,24 @@ const ActivityTablePage = ({
         <h2 className="text-2xl font-semibold mb-4">
           กิจกรรมสหกิจที่ให้นิสิตทำแบบประเมิน
         </h2>
-        <TableRedesign
+        {/* <TableRedesign
           columns={activityColumnsWithoutStatus}
           rows={filterByType(rows3) ?? []}
           height={420}
           width="100%"
           borderRadius={14}
-        />
+        /> */}
+
+        <TableRedesign
+  columns={activityColumns}
+  rows={filterByType(rows1) ?? []}
+  height={420}
+  width="100%"
+  borderRadius={14}
+  handleStatusToggle={handleConfirmStatusChange}
+  onRowDoubleClick={handleDoubleClickActivity}
+/>
+
       </CustomCard>
       <Dialog2
         open={openDialog}

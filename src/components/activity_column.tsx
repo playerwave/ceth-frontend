@@ -276,61 +276,64 @@ export const getActivityColumns = (
   ];
 
   if (options.includeStatus) {
-    columns.push({
-      field: "activity_status",
-      headerName: "สถานะ",
-      width: 100,
-      renderCell: (params) => {
-        const isPublic = params.value === "Public";
-        return (
-          <Box
-            onClick={() => console.log("toggle")}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              bgcolor: isPublic ? "#22c55e" : "#ef4444",
-              color: "white",
-              px: 1,
-              py: 0.5,
-              borderRadius: "9999px",
-              fontSize: 12,
-              fontWeight: 600,
-              gap: 1.2,
-              minWidth: "80px",
-              justifyContent: "space-between",
-              cursor: "pointer",
-              height: 23,
-            }}
-          >
-            {isPublic ? (
-              <>
-                {params.value}
-                <Box
-                  sx={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: "50%",
-                    bgcolor: "white",
-                  }}
-                />
-              </>
-            ) : (
-              <>
-                <Box
-                  sx={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: "50%",
-                    bgcolor: "white",
-                  }}
-                />
-                {params.value}
-              </>
-            )}
-          </Box>
-        );
-      },
-    });
+    columns.push(
+    {
+  field: "activity_status",
+  headerName: "สถานะ",
+  width: 100,
+  renderCell: (params) => {
+    const isPublic = params.value === "Public";
+    return (
+      <Box
+        onClick={() => options.handleStatusToggle?.(params.row)} // ✅ เรียกฟังก์ชัน toggle ที่ส่งมา
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          bgcolor: isPublic ? "#22c55e" : "#ef4444",
+          color: "white",
+          px: 2,
+          py: 1,
+          borderRadius: "9999px",
+          fontSize: 14,
+          fontWeight: 600,
+          gap: 1.5,
+          minWidth: "100px",
+          justifyContent: "space-between",
+          cursor: "pointer",
+          height: 32,
+        }}
+      >
+        {isPublic ? (
+          <>
+            {params.value}
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: "50%",
+                bgcolor: "white",
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                borderRadius: "50%",
+                bgcolor: "white",
+              }}
+            />
+            {params.value}
+          </>
+        )}
+      </Box>
+    );
+  },
+}
+
+    );
   }
 
   return columns;

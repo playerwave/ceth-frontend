@@ -25,7 +25,7 @@ export interface TableRedesignProps {
   rows: any[];
   title?: string;
   initialPageSize?: number;
-
+  onRowDoubleClick?: (row: Activity) => void;
   handleStatusToggle?: (row: Activity) => void;
 }
 
@@ -37,6 +37,7 @@ export default function TableRedesign({
   title,
   initialPageSize,
   handleStatusToggle,
+  onRowDoubleClick,
 }: TableRedesignProps) {
   const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
@@ -171,7 +172,7 @@ export default function TableRedesign({
             columns={columnsWithDropdown}
             rows={filteredRows}
             getRowId={(row) => row.activity_id}
-            onRowClick={handleRowClick}
+            onRowDoubleClick={(params) => onRowDoubleClick?.(params.row)}
             pageSizeOptions={[5, 10, 20]}
             initialState={{
               pagination: {
