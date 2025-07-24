@@ -625,26 +625,30 @@ const ListActivityStudent: React.FC = () => {
         </div>
 
         <div className="flex justify-end">
+        {activeTab === "recommend" && ( 
           <button
-            className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90 transition"
-            onClick={() =>
-              activeTab === "recommend"
-                ? setOpenDialog(true)
-                : navigate("/create-activity-admin", {
-                    state: { reload: true },
-                  })
-            }
-          >
-            {activeTab === "recommend" ? (
-              <>
-                คำนวณชั่วโมง <AlarmClockPlus className="w-4 h-4" />
-              </>
-            ) : (
-              <>
-                เพิ่มกิจกรรม <CopyPlus className="w-4 h-4" />
-              </>
-            )}
-          </button>
+          className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90 transition"
+          onClick={() =>
+            activeTab === "recommend"
+              ? setOpenDialog(true)
+              : navigate("/create-activity-admin", {
+                  state: { reload: true },
+                })
+          }
+        >
+          <>
+              คำนวณชั่วโมง <AlarmClockPlus className="w-4 h-4" />
+            </>
+          {/* {activeTab === "recommend" ? (
+            <>
+              คำนวณชั่วโมง <AlarmClockPlus className="w-4 h-4" />
+            </>
+          ) : (
+            <div className="hidden"></div>
+
+          )} */}
+        </button>
+         )}
         </div>
       </div>
 

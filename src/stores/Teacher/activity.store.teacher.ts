@@ -21,7 +21,6 @@ interface ActivityStore {
     status: "Public" | "Private"
   ) => Promise<void>;
   setMockActivities?: (activities: Activity[]) => void;
-
   activityLoading?: boolean;
   activityError?: string | null;
   activity?: Activity | null;
