@@ -2,13 +2,16 @@ import ListAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/li
 import CreateAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/create-assessment/create.assessment.teacher";
 import EditAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/edit-assessment/edit.assessment.teacher";
 
+import type { Roles } from "../types/model";
+type RoleName = Roles["role_name"];
+
 export const assessmentRoutes = [
   {
     path: "/list-assessment-teacher",
     element: <ListAssessmentTeacher />,
     label: "จัดการแบบประเมิน",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: true
   },
    {
@@ -16,7 +19,7 @@ export const assessmentRoutes = [
     element: <CreateAssessmentTeacher />,
     label: "",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   },
      {
@@ -24,7 +27,7 @@ export const assessmentRoutes = [
     element: <EditAssessmentTeacher />,
     label: "",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   },
 ];

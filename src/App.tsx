@@ -238,8 +238,11 @@ import { useAuthStore } from "./stores/Visitor/auth.store";
 function App() {
   // const role = useAuthStore.getState().user?.role?.role_name || "Visitor";
   const { user } = useAuthStore();
-  const role = user?.role || "Visitor";
-
+  const role: string =
+    typeof user?.role === "string"
+      ? user.role
+      : user?.role?.role_name || "Visitor";
+  
   console.log('user in App.tsx:', user);
   console.log('role: ', role);
   

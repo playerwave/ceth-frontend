@@ -1,13 +1,16 @@
 import ListActivityHistoryTeacher from "../pages/Teacher/manage-activity-history-teacher/list-activity-history/list.activity.history.teacher";
 import ActivityHistoryInfoTeacher from "../pages/Teacher/manage-activity-history-teacher/activity-history-info/activity.history.info.teacher"
 
+import type { Roles } from "../types/model";
+type RoleName = Roles["role_name"];
+
 export const activityHistoryRoutes = [
   {
     path: "/list-activity-history-teacher",
     element: <ListActivityHistoryTeacher />,
     label: "ประวัติกิจกรรม",
     icon: "History",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: true
   },
    {
@@ -15,7 +18,7 @@ export const activityHistoryRoutes = [
     element: <ActivityHistoryInfoTeacher />,
     label: "",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   },
 ];

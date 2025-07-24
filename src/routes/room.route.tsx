@@ -2,13 +2,16 @@ import ListRoomAdmin from "../pages/Teacher/manageroom-teacher/list-room/list.ro
 import CreateRoomAdmin from "../pages/Teacher/manageroom-teacher/create-room/create.room.teacher";
 import EditRoomAdmin from "../pages/Teacher/manageroom-teacher/edit-room/edit.room.teacher";
 
+import type { Roles } from "../types/model";
+type RoleName = Roles["role_name"];
+
 export const roomRoutes = [
   {
     path: "/list-room-teacher",
     element: <ListRoomAdmin />,
     label: "จัดการห้อง",
     icon: "School",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: true
   },
   {
@@ -16,7 +19,7 @@ export const roomRoutes = [
     element: <CreateRoomAdmin />,
     label: "สร้างอาหาร",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   },
   {
@@ -24,7 +27,7 @@ export const roomRoutes = [
     element: <EditRoomAdmin />,
     label: "แก้ไขอาหาร",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   }
 ];

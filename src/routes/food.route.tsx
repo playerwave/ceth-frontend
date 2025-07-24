@@ -2,13 +2,16 @@ import ListFoodAdmin from "../pages/Teacher/mangefood-teacher/list-food/list.foo
 import CreateFoodAdmin from "../pages/Teacher/mangefood-teacher/create-food/create.food.teacher";
 import EditFoodAdmin from "../pages/Teacher/mangefood-teacher/edit-food/edit.food";
 
+import type { Roles } from "../types/model";
+type RoleName = Roles["role_name"];
+
 export const foodRoutes = [
   {
     path: "/list-food-teacher",
     element: <ListFoodAdmin />,
     label: "จัดการอาหาร",
     icon: "Utensils",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: true
   },
   {
@@ -16,7 +19,7 @@ export const foodRoutes = [
     element: <CreateFoodAdmin />,
     label: "สร้างอาหาร",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   },
   {
@@ -24,7 +27,7 @@ export const foodRoutes = [
     element: <EditFoodAdmin />,
     label: "แก้ไขอาหาร",
     icon: "ClipboardList",
-    roles: ["Teacher", "Admin"],
+    roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false
   }
 ];
