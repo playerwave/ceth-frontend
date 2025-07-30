@@ -2,6 +2,8 @@ import ListUserTeacher from "../pages/Teacher/manage-user-teacher/list-user-teac
 import CreateUserTeacher from "../pages/Teacher/manage-user-teacher/create-user-teacher/create.user.teacher";
 import UserInfoTeacher from "../pages/Teacher/manage-user-teacher/user-info-teacher/user.info.teacher"
 
+import { ProtectionLevel } from "./secure/urlEnCryption";
+
 import type { Roles } from "../types/model";
 type RoleName = Roles["role_name"];
 
@@ -12,7 +14,8 @@ export const userRoutes = [
     label: "จัดผู้ใช้งาน",
     icon: "Users",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: true
+    visibleInSidebar: true,
+    protectionLevel: ProtectionLevel.ENCODED
   },
    {
     path: "/create-user-teacher",
@@ -20,7 +23,8 @@ export const userRoutes = [
     label: "",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED
   },
      {
     path: "/update-user-teacher",
@@ -28,6 +32,7 @@ export const userRoutes = [
     label: "",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED
   },
 ];

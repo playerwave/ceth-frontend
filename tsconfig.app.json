@@ -20,7 +20,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Type declarations */
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": ["vite/client"]
   },
-  "include": ["src"]
+  "include": ["src", "src/types"]
 }

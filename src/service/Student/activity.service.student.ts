@@ -24,6 +24,17 @@ export const searchActivities = async (
 };
 //-------------------------------------------------------------------------------
 
+//--------------------- Fetch Enrolled Activities for a Student -------------------------
+export const fetchEnrolledActivities = async (
+  userId: number
+): Promise<Activity[]> => {
+  const response = await axiosInstance.get<Activity[]>(
+    `/student/activity/get-enrolled-activities/${userId}`
+  );
+  return response.data;
+};
+//------------------------------------------------------------------------------
+
 //--------------------- Fetch Recommended Activity IDs --------------------------
 export const fetchRecommendedIds = async (
   userId: number
@@ -63,7 +74,7 @@ export const fetchActivity = async (
   id: number | string,
 ): Promise<Activity> => {
   const response = await axiosInstance.get<Activity>(
-    `${STUDENT_ACTIVITY_PATH}/get-activity/${id}`,
+    `${STUDENT_ACTIVITY_PATH}/get-activity/${id}=${encodeURIComponent(String(userId))}`
   );
   return response.data;
 };
@@ -85,10 +96,16 @@ export const enrollActivity = async (
   userId: number,
   activityId: number,
   food?: string[]
-): Promise<void> => {
-  await axiosInstance.post(
-    `${STUDENT_ACTIVITY_PATH}/student-enroll-activity/${userId}`,
-    { activityId, food }
+) => {
+  console.log("in service");
+
+  console.log("userId: ", userId);
+  console.log("activityId: ", activityId);
+  console.log("food: ", food);
+
+  return axiosInstance.post(
+    `${STUDENT_ACTIVITY_PATH}/student-enroll-activity/${activityId}/${userId}`,
+    { food }
   );
 };
 

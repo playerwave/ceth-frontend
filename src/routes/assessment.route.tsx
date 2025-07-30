@@ -2,6 +2,8 @@ import ListAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/li
 import CreateAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/create-assessment/create.assessment.teacher";
 import EditAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/edit-assessment/edit.assessment.teacher";
 
+import { ProtectionLevel } from "./secure/urlEnCryption";
+
 import type { Roles } from "../types/model";
 type RoleName = Roles["role_name"];
 
@@ -12,7 +14,8 @@ export const assessmentRoutes = [
     label: "จัดการแบบประเมิน",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: true
+    visibleInSidebar: true,
+    protectionLevel: ProtectionLevel.ENCODED
   },
    {
     path: "/create-assessment-teacher",
@@ -20,7 +23,8 @@ export const assessmentRoutes = [
     label: "",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED
   },
      {
     path: "/update-assessment-teacher",
@@ -28,6 +32,7 @@ export const assessmentRoutes = [
     label: "",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED
   },
 ];

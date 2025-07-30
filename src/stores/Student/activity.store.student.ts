@@ -145,82 +145,52 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       return null;
     }
   },
-
-//   fetchActivity: async (id: number | string, userId: number | string) => {
-//   set({ activityLoading: true, activityError: null });
-//   try {
-//     const activity = await activityService.fetchActivity(id, userId);
-//     set({ activity, activityLoading: false });
-//     return activity;
-//   } catch (error) {
-//     console.error("❌ Error fetching activity:", error);
-//     set({
-//       activityError: "ไม่สามารถโหลดกิจกรรมนี้ได้",
-//       activityLoading: false,
-//     });
-//     return null;
-//   }
-// },
-
-// fetchActivity: async (id: number | string, userId: number) => {
-//   set({ activityLoading: true, activityError: null });
-//   try {
-//     const activity = await activityService.fetchActivity(id, userId);
-//     set({ activity, activityLoading: false });
-//     return activity;
-//   } catch (error) {
-//     console.error("❌ Error fetching activity:", error);
-//     set({
-//       activityError: "ไม่สามารถโหลดกิจกรรมนี้ได้",
-//       activityLoading: false,
-//     });
-//     return null;
-//   }
-// },
-
-  // ลงทะเบียนกิจกรรม
-  enrollActivity: async (userId: number, activityId: number, food?: string[]) => {
-  set({ activityLoading: true, activityError: null });
-  try {
-    await activityService.enrollActivity(userId, activityId, food); // ✅ ส่งตรง
-    await get().fetchEnrolledActivities(userId);
-    set({ activityLoading: false });
-  } catch (error) {
-    console.error("❌ Error enrolling activity:", error);
-    set({
-      activityError: "ไม่สามารถลงทะเบียนกิจกรรมได้",
-      activityLoading: false,
-    });
-  }
-},
-
-
-  // ยกเลิกกิจกรรม
-  unEnrollActivity: async (userId: number, activityId: number) => {
+  fetchEnrolledActivities: async (userId: number) => {
     set({ activityLoading: true, activityError: null });
     try {
-      await activityService.unEnrollActivity(userId, activityId);
-      await get().fetchEnrolledActivities(userId);
-      set({ activityLoading: false });
+      const activities = await activityService.fetchEnrolledActivities(userId);
+      set({ enrolledActivities: activities, activityLoading: false });
     } catch (error) {
-      console.error("❌ Error unenrolling activity:", error);
       set({
-        activityError: "ไม่สามารถยกเลิกกิจกรรมได้",
+        activityError: "ไม่สามารถโหลดกิจกรรมที่ลงทะเบียนได้",
         activityLoading: false,
       });
     }
   },
 
-  // โหลดกิจกรรมที่นิสิตลงทะเบียนแล้ว
-  fetchEnrolledActivities: async (userId: number) => {
+  enrollActivity: async (
+    userId: number,
+    activityId: number,
+    food?: string[]
+  ) => {
     set({ activityLoading: true, activityError: null });
     try {
-      const enrolledActivities = await activityService.fetchEnrolledActivities(userId);
-      set({ enrolledActivities, activityLoading: false });
+      console.log("in store");
+
+      console.log("userId: ", userId);
+      console.log("activityId: ", activityId);
+      console.log("food: ", food);
+
+      await activityService.enrollActivity(userId, activityId, food);
+      set({ activityLoading: false });
+      // อาจจะ fetchEnrolledActivities(userId) ซ้ำเพื่อ refresh
     } catch (error) {
-      console.error("❌ Error fetching enrolled activities:", error);
       set({
-        activityError: "ไม่สามารถโหลดกิจกรรมที่ลงทะเบียนได้",
+        activityError: "ไม่สามารถสมัครกิจกรรมได้",
+        activityLoading: false,
+      });
+    }
+  },
+
+  unenrollActivity: async (userId: number, activityId: number) => {
+    set({ activityLoading: true, activityError: null });
+    try {
+      await activityService.unenrollActivity(userId, activityId);
+      set({ activityLoading: false });
+      // อาจจะ fetchEnrolledActivities(userId) ซ้ำเพื่อ refresh
+    } catch (error) {
+      set({
+        activityError: "ไม่สามารถยกเลิกกิจกรรมได้",
         activityLoading: false,
       });
     }

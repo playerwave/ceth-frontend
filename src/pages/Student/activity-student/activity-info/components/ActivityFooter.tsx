@@ -123,30 +123,10 @@ export default function ActivityFooter({
       );
       return;
     }
-    console.log("userId:", userId, typeof userId);
-    console.log(
-      "activity.activity_id:",
-      activity.activity_id,
-      typeof activity.activity_id
-    );
 
-    try {
-      console.log(
-        "➡️ กำลังลงทะเบียน",
-        userId,
-        activity.activity_id,
-        selectedFood
-      );
-      // แปลง selectedFood ให้เป็น array หรือส่งเป็น [] ถ้าไม่มี
-      const foodArray = selectedFood ? [selectedFood] : [];
-      await enrollActivity(userId, activity.activity_id, ["ข้าวผัด", "น้ำเปล่า"]);
-      toast.success("✅ ลงทะเบียนสำเร็จ");
-      setIsEnrolled(true);
-      navigate("/list-activity-student");
-    } catch (error) {
-      console.error("❌ ลงทะเบียนไม่สำเร็จ:", error);
-      toast.error("❌ เกิดข้อผิดพลาดในการลงทะเบียน");
-    }
+    await enrollActivity(userId, activity.activity_id, selectedFood);
+    setIsEnrolled(true);
+    // navigate("/list-activity-student");
   };
 
   // ฟังก์ชันการยกเลิกการลงทะเบียน

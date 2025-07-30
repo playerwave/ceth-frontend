@@ -2,6 +2,8 @@ import ListRoomAdmin from "../pages/Teacher/manageroom-teacher/list-room/list.ro
 import CreateRoomAdmin from "../pages/Teacher/manageroom-teacher/create-room/create.room.teacher";
 import EditRoomAdmin from "../pages/Teacher/manageroom-teacher/edit-room/edit.room.teacher";
 
+import { ProtectionLevel } from "./secure/urlEnCryption";
+
 import type { Roles } from "../types/model";
 type RoleName = Roles["role_name"];
 
@@ -12,7 +14,8 @@ export const roomRoutes = [
     label: "จัดการห้อง",
     icon: "School",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: true
+    visibleInSidebar: true,
+    protectionLevel: ProtectionLevel.ENCODED
   },
   {
     path: "/create-room-teacher",
@@ -20,7 +23,8 @@ export const roomRoutes = [
     label: "สร้างอาหาร",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED
   },
   {
     path: "/update-room-teacher",
@@ -28,6 +32,7 @@ export const roomRoutes = [
     label: "แก้ไขอาหาร",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED
   }
 ];
