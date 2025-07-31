@@ -30,40 +30,84 @@ const CreateAssessmentTeacher = () => {
     }
   }, [questions]);
 
+  const handleDuplicateQuestion = (type: string, index: number) => {
+    setQuestions(prev => {
+      const before = prev.slice(0, index + 1);
+      const after = prev.slice(index + 1);
+      return [...before, type, ...after];
+    });
+    setIsAdding(true);
+  };
   const renderComponent = (type: string, index: number) => {
     switch (type) {
       case "complacent":
-        return <Complacent key={index} onDelete={() => handleDeleteQuestion(index)} />;
+        return <Complacent
+          key={index}
+          onDelete={() => handleDeleteQuestion(index)}
+          onDuplicate={() => handleDuplicateQuestion("complacent", index)}
+        />
+
       case "choice":
-        return <Choice key={index} onDelete={() => handleDeleteQuestion(index)}  />;
+        return <Choice
+          key={index}
+          onDelete={() => handleDeleteQuestion(index)}
+          onDuplicate={() => handleDuplicateQuestion("choice", index)}
+        />;
+
       case "checkbox":
-        return <Checkbox key={index}  onDelete={() => handleDeleteQuestion(index)}/>;
+        return <Checkbox
+          key={index}
+          onDelete={() => handleDeleteQuestion(index)}
+          onDuplicate={() => handleDuplicateQuestion("checkbox", index)} />;
       case "openques":
-        return <Openques key={index}   onDelete={() => handleDeleteQuestion(index)} />;
+        return <Openques key={index}
+          onDelete={() => handleDeleteQuestion(index)}
+          onDuplicate={() => handleDuplicateQuestion("openques", index)} />;
       default:
         return null;
     }
   };
 
-  return (
-    <div className="w-320 mx-auto mt-5 mb-5 p-6 border bg-white rounded-lg shadow-sm min-h-screen">
-      <div className="flex justify-between">
-        <h1 className="text-4xl font-bold mb-11">สร้างแบบประเมินกิจกรรมสหกิจ</h1>
-        <QuestionTypeSelector onSelect={handleAddQuestion} />
-      </div>
-
-      <form className="space-y-10 flex-grow">
-        <div className="w-180">
-          <label className="block font-semibold mb-1">ชื่อหัวข้อ</label>
-          <TextField name="activity_name" placeholder="ชื่อกิจกรรม" className="w-180" />
+ return (
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50">
+    <div className="flex justify-center items-start min-h-screen p-6">
+      <div className="w-full max-w-7xl bg-white backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 p-8">
+        <div className="flex justify-between items-center mb-12">
+          <h1 className="text-4xl font-bold">
+            สร้างแบบประเมินกิจกรรมสหกิจ
+          </h1>
+          <QuestionTypeSelector onSelect={handleAddQuestion} />
         </div>
 
-        {questions.map((type, index) => renderComponent(type, index))}
+        <form className="space-y-8 w-full">
+          <div className="w-full flex justify-center">
+            <div className="w-140">
+              <label className="block font-semibold mb-4 text-center text-slate-700 text-lg">
+                ชื่อหัวข้อ
+              </label>
+              <div className="">
+                <TextField
+                  name="activity_name"
+                  placeholder="ชื่อกิจกรรม"
+                  fullWidth
+                />
+              </div>
+            </div>
+          </div>
 
-        <div ref={bottomRef} />
-      </form>
+          {questions.map((type, index) => (
+            <div className="w-full flex justify-center" key={index}>
+              {renderComponent(type, index)}
+            </div>
+          ))}
+
+          <div ref={bottomRef} />
+        </form>
+      </div>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default CreateAssessmentTeacher;

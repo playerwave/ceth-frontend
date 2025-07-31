@@ -1,10 +1,33 @@
 import { TextField, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import React, { useState } from 'react';
 
-const Checkbox = ({ onDelete }: { onDelete: () => void }) => {
+const Checkbox = ({ onDelete, onDuplicate }: { onDelete: () => void; onDuplicate: () => void }) => {
   const [questionSets, setQuestionSets] = useState([{ id: 1, choices: [''] }]);
   const [nextId, setNextId] = useState(2);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => setAnchorEl(null);
+
+  const handleDeleteAll = () => {
+    setQuestionSets([]);
+    setNextId(1);
+    onDelete();
+    handleClose();
+  };
+
+  const handleDuplicate = () => {
+    onDuplicate();
+    handleClose();
+  };
 
   const addQuestionSet = () => {
     setQuestionSets([...questionSets, { id: nextId, choices: [''] }]);
@@ -48,23 +71,22 @@ const Checkbox = ({ onDelete }: { onDelete: () => void }) => {
     );
   };
 
-  const deleteAllCheckbox = () => {
-    setQuestionSets([]);
-    setNextId(1);
-    onDelete(); // 💥 ลบตัวเองจากหน้าแม่
-  };
-
   return (
-    <div className='border w-180 rounded-md p-4 bg-white'>
-      <div className='flex items-center  mb-3 ml-3 mr-3'>
+    <div className='border  border-gray-400 w-180 rounded-md p-4 bg-white'>
+      <div className='flex items-center justify-between mb-3 ml-3 mr-3'>
         <TextField
           name="activity_name"
           placeholder="หัวเรื่องแบบประเมิน"
           className="w-140"
         />
-        <IconButton color="error" onClick={deleteAllCheckbox}>
-          <DeleteIcon />
+        <IconButton onClick={handleMenuClick}>
+          <MoreVertIcon />
         </IconButton>
+
+        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+          <MenuItem onClick={handleDuplicate}>ทำซ้ำคำถาม</MenuItem>
+          <MenuItem onClick={handleDeleteAll}>ลบทั้งหมด</MenuItem>
+        </Menu>
       </div>
 
       {questionSets.map((q, idx) => (
@@ -78,7 +100,7 @@ const Checkbox = ({ onDelete }: { onDelete: () => void }) => {
 
           {q.choices.map((choice, idx) => (
             <div key={idx} className='flex items-center mt-2 mb-2'>
-              <input type="checkbox" name={`checkbox-satisfaction-${q.id}`} className="mr-2" />
+              <input type="checkbox" disabled name={`checkbox-satisfaction-${q.id}`} className="mr-2" />
               <TextField
                 name={`choice-${q.id}-${idx}`}
                 placeholder={`ตัวเลือก ${idx + 1}`}
@@ -93,8 +115,8 @@ const Checkbox = ({ onDelete }: { onDelete: () => void }) => {
           ))}
 
           <div className='flex items-center mb-2'>
-            <input type="radio" disabled className="mr-2" />
-            <TextField placeholder="อื่นๆ.." className="w-140" disabled />
+            <input type="checkbox" disabled className="mr-2" />
+            <TextField placeholder="อื่นๆ.." className="w-140" />
           </div>
 
           <div className='flex gap-2 ml-92'>

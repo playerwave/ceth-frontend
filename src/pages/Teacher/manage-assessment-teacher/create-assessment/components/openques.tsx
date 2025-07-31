@@ -1,10 +1,32 @@
-import { IconButton, TextField } from '@mui/material';
+import { IconButton, Menu, MenuItem, TextField } from '@mui/material';
 import React, { useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-const Openques = ({ onDelete }: { onDelete: () => void }) => {
+const Openques = ({ onDelete, onDuplicate }: { onDelete: () => void; onDuplicate: () => void }) => {
   const [questions, setQuestions] = useState([{ id: 1, question: '', answer: '' }]);
   const [nextId, setNextId] = useState(2);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => setAnchorEl(null);
+
+  const handleDeleteAll = () => {
+    setQuestions([]);
+    setNextId(1);
+    onDelete();
+    handleClose();
+  };
+
+  const handleDuplicate = () => {
+    onDuplicate();
+    handleClose();
+  };
 
   const addQuestion = () => {
     setQuestions([...questions, { id: nextId, question: '', answer: '' }]);
@@ -26,23 +48,22 @@ const Openques = ({ onDelete }: { onDelete: () => void }) => {
     );
   };
 
-  const deleteAllOpenques = () => {
-    setQuestions([]);
-    setNextId(1);
-    onDelete(); // 💥 แจ้งหน้าแม่ให้ลบตัวเอง
-  };
-
   return (
-    <div className='border w-180 rounded-md p-4 bg-white'>
-      <div className='flex items-center  mb-3 ml-3 mr-3'>
+    <div className='border  border-gray-400 w-180 rounded-md p-4 bg-white'>
+      <div className='flex items-center justify-between mb-3 ml-3 mr-3'>
         <TextField
           name="activity_name"
           placeholder="หัวเรื่องแบบประเมิน"
           className="w-140"
         />
-        <IconButton color="error" onClick={deleteAllOpenques}>
-          <DeleteIcon />
+        <IconButton onClick={handleMenuClick}>
+          <MoreVertIcon />
         </IconButton>
+
+        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+          <MenuItem onClick={handleDuplicate}>ทำซ้ำคำถาม</MenuItem>
+          <MenuItem onClick={handleDeleteAll}>ลบทั้งหมด</MenuItem>
+        </Menu>
       </div>
 
       {questions.map((q) => (
@@ -63,6 +84,7 @@ const Openques = ({ onDelete }: { onDelete: () => void }) => {
             <TextField
               name="answer"
               placeholder="คำตอบ/อธิบาย"
+              disabled
               className="w-140"
               multiline
               minRows={2}

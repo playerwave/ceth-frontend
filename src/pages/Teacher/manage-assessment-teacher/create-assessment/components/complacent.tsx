@@ -1,8 +1,14 @@
 import { IconButton, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useState } from 'react';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
-const Complacent = ({ onDelete }: { onDelete: () => void }) => {
+
+const Complacent = ({ onDelete, onDuplicate }: { onDelete: () => void; onDuplicate: () => void }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
   const [questions, setQuestions] = useState([{ id: 1, text: '' }]);
   const [nextId, setNextId] = useState(2);
 
@@ -11,6 +17,10 @@ const Complacent = ({ onDelete }: { onDelete: () => void }) => {
     setNextId(nextId + 1);
   };
 
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => setAnchorEl(null);
   const deleteQuestion = (id: number) => {
     const filtered = questions.filter((q) => q.id !== id);
     const reIndexed = filtered.map((q, idx) => ({ ...q, id: idx + 1 }));
@@ -24,25 +34,33 @@ const Complacent = ({ onDelete }: { onDelete: () => void }) => {
     );
   };
 
-  const deleteAllQuestions = () => {
+  const handleDeleteAll = () => {
     setQuestions([]);
     setNextId(1);
-    onDelete(); // 💥 ลบตัวเองจากหน้าแม่
+    onDelete();
+    handleClose();
   };
 
+  const handleDuplicate = () => {
+    onDuplicate();
+    handleClose();
+  };
+
+
+
+
   return (
-    <div className="border w-180 rounded-md p-4 bg-white">
-      <div className="flex items-center  mt-5 ml-3 mr-3">
-        <TextField
-          name="activity_name"
-          placeholder="หัวเรื่องแบบประเมิน"
-          className="w-140"
-        />
-        <div >
-        <IconButton color="error" onClick={deleteAllQuestions}>
-          <DeleteIcon />
+<div className="border border-gray-400 w-180 rounded-md p-4 bg-white">
+      <div className="flex items-center justify-between mt-5 ml-3 mr-3">
+        <TextField name="activity_name" placeholder="หัวเรื่องแบบประเมิน" className="w-140" />
+        <IconButton onClick={handleMenuClick}>
+          <MoreVertIcon />
         </IconButton>
-        </div>
+
+        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+          <MenuItem onClick={handleDuplicate}>ทำซ้ำคำถาม</MenuItem>
+          <MenuItem onClick={handleDeleteAll}>ลบทั้งหมด</MenuItem>
+        </Menu>
       </div>
 
       <div>
@@ -55,6 +73,7 @@ const Complacent = ({ onDelete }: { onDelete: () => void }) => {
                     <span className="mb-0.5">{level}</span>
                     <input
                       type="radio"
+                      disabled
                       name={`complacent-satisfaction-${q.id}-${q.id}`}
                       value={level}
                       className="scale-125"
@@ -81,7 +100,7 @@ const Complacent = ({ onDelete }: { onDelete: () => void }) => {
                 </IconButton>
               </div>
             </div>
-          </div>
+                      </div>
         ))}
       </div>
 
