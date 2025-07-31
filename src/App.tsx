@@ -1,6 +1,6 @@
 
 import "./App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 
 // component
@@ -123,6 +123,19 @@ function App() {
               <Navbar>
                 <MainStudent />
               </Navbar>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 🔄 Default route - redirect ตาม role */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Navigate 
+                to={role === "Student" ? "/main-student" : "/"} 
+                replace 
+              />
             </ProtectedRoute>
           }
         />

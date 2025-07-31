@@ -12,6 +12,7 @@ interface Props {
   setSeatCapacity: Dispatch<SetStateAction<string>>;
   setFormData: Dispatch<SetStateAction<CreateActivityForm>>
   selectedRoom: string;
+  disabled?: boolean;
 }
 
 const StatusAndSeatSection: React.FC<Props> = ({
@@ -21,53 +22,9 @@ const StatusAndSeatSection: React.FC<Props> = ({
   setSeatCapacity,
   selectedRoom,
   setFormData,
+  disabled = false,
 }) => {
   return (
-    // <div className="flex space-x-4 mt-5">
-    //   {/* สถานะ */}
-    //   <div className="w-1/6">
-    //     <label className="block font-semibold w-50">สถานะ *</label>
-    //     <Select
-    //       labelId="ac_status"
-    //       name="ac_status"
-    //       value={formData.activity_status}
-    //       onChange={handleChange}
-    //       className="rounded w-50"
-    //       sx={{
-    //         height: "56px",
-    //         "& .MuiSelect-select": {
-    //           padding: "8px",
-    //         },
-    //       }}
-    //     >
-    //       <MenuItem value="Private">Private</MenuItem>
-    //       <MenuItem value="Public">Public</MenuItem>
-    //     </Select>
-    //   </div>
-
-    //   {/* จำนวนที่นั่ง */}
-    //   <div className="w-85.5">
-    //     <label className="block font-semibold">จำนวนที่นั่ง *</label>
-    //     <TextField
-    //       id="ac_seat"
-    //       name="ac_seat"
-    //       type="number"
-    //       placeholder="จำนวนที่เปิดให้นิสิตลงทะเบียน"
-    //       value={seatCapacity}
-    //       className="w-full"
-    //       onChange={(e) => {
-    //         const value = e.target.value;
-    //         if (/^\d*$/.test(value)) {
-    //           setSeatCapacity(value);
-    //         }
-    //       }}
-    //       error={Number(seatCapacity) < 0}
-    //       helperText={Number(seatCapacity) < 0 ? "❌ กรุณาใส่จำนวนที่นั่ง" : ""}
-    //       disabled={selectedRoom !== ""} // ✅ ปิดการแก้ไขถ้ามีการเลือกห้องแล้ว
-    //       sx={{ height: "56px" }}
-    //     />
-    //   </div>
-    // </div>
     <div className="flex space-x-4 mt-5 w-140">
   {/* สถานะ */}
   <div className="w-1/2">
@@ -77,6 +34,7 @@ const StatusAndSeatSection: React.FC<Props> = ({
       name="activity_status"
       value={formData.activity_status}
       onChange={handleChange}
+      disabled={disabled}
       className="rounded w-full"
       sx={{
         height: "56px",
@@ -91,25 +49,6 @@ const StatusAndSeatSection: React.FC<Props> = ({
   {/* จำนวนที่นั่ง */}
   <div className="w-1/2">
     <label className="block font-semibold">จำนวนที่นั่ง *</label>
-    {/* <TextField
-      id="ac_seat"
-      name="seat"
-      type="number"
-      placeholder="จำนวนที่เปิดให้นิสิตลงทะเบียน"
-      value={seatCapacity}
-      className="w-full"
-      onChange={(e) => {
-        const value = e.target.value;
-        if (/^\d*$/.test(value)) {
-          setSeatCapacity(value);
-        }
-      }}
-      error={Number(seatCapacity) < 0}
-      helperText={Number(seatCapacity) < 0 ? "❌ กรุณาใส่จำนวนที่นั่ง" : ""}
-      disabled={selectedRoom !== ""}
-      sx={{ height: "56px" }}
-    /> */}
-
     <TextField
   id="ac_seat"
   name="seat"
@@ -128,18 +67,7 @@ const StatusAndSeatSection: React.FC<Props> = ({
       }
     }
   }}
-  // error={
-  //   formData.seat !== undefined &&
-  //   (formData.seat < 0 || formData.seat > Number(seatCapacity))
-  // }
-  // helperText={
-  //   formData.seat !== undefined &&
-  //   formData.seat > Number(seatCapacity)
-  //     ? `❌ จำนวนที่นั่งต้องไม่เกิน ${seatCapacity}`
-  //     : formData.seat < 0
-  //     ? "❌ กรุณาใส่จำนวนที่นั่ง"
-  //     : ""
-  // }
+  disabled={disabled}
   error={
   typeof formData.seat === "number" &&
   (formData.seat < 0 || formData.seat > Number(seatCapacity))

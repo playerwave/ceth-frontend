@@ -109,44 +109,45 @@ const ListActivityTeacher: React.FC = () => {
   };
 
   return (
-    <div className="max-w-screen-xl w-full mx-auto px-6 mt-10">
-      <h1 className="text-center text-3xl font-bold mb-9 mt-4">
-        จัดการกิจกรรม
-      </h1>
+    <div className="w-full flex flex-col items-center justify-center px-6 mt-10">
+      <div className="w-full max-w-screen-xl flex flex-col items-center justify-center">
+        <h1 className="text-center text-3xl font-bold mb-9 mt-4">
+          จัดการกิจกรรม
+        </h1>
 
-      <div className="flex justify-center w-full mb-4">
-        <SearchBar onSearch={handleSearch} />
-      </div>
-
-      <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
-        <div className="flex space-x-4">
-          {(["list", "calendar"] as const).map((tab) => (
-            <button
-              key={tab}
-              className={`px-4 py-2 text-lg font-semibold ${
-                activeTab === tab
-                  ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
-                  : "text-gray-500"
-              }`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab === "list" ? "ลิสต์" : "ปฏิทิน"}
-            </button>
-          ))}
+        <div className="flex justify-center w-full mb-4">
+          <SearchBar onSearch={handleSearch} />
         </div>
 
-        <button
-          className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90"
-          onClick={() =>
-            navigate("/create-activity-admin", { state: { reload: true } })
-          }
-        >
-          เพิ่มกิจกรรม <CopyPlus className="w-4 h-4" />
-        </button>
-      </div>
+                <div className="flex flex-wrap justify-between items-center gap-2 mb-6 w-full">
+          <div className="flex space-x-4">
+            {(["list", "calendar"] as const).map((tab) => (
+              <button
+                key={tab}
+                className={`px-4 py-2 text-lg font-semibold ${
+                  activeTab === tab
+                    ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
+                    : "text-gray-500"
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab === "list" ? "ลิสต์" : "ปฏิทิน"}
+              </button>
+            ))}
+          </div>
+
+          <button
+            className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90"
+            onClick={() =>
+              navigate("/create-activity-admin", { state: { reload: true } })
+            }
+          >
+            เพิ่มกิจกรรม <CopyPlus className="w-4 h-4" />
+          </button>
+        </div>
 
       {activityLoading ? (
-        <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-50 z-40">
+        <div className="fixed inset-0 flex justify-center ml-10 items-center bg-white bg-opacity-50 z-40">
           <Loading />
         </div>
       ) : activityError ? (
@@ -172,16 +173,17 @@ const ListActivityTeacher: React.FC = () => {
             📅 โหมดปฏิทิน (ยังไม่มีข้อมูล)
           </h2>
         </div>
-      )}
+        )}
 
-      {dialog && (
-        <ConfirmDialog
-          open={dialog.open}
-          message={dialog.message}
-          onConfirm={dialog.onConfirm}
-          onClose={() => setDialog(null)}
-        />
-      )}
+        {dialog && (
+          <ConfirmDialog
+            open={dialog.open}
+            message={dialog.message}
+            onConfirm={dialog.onConfirm}
+            onClose={() => setDialog(null)}
+          />
+        )}
+      </div>
     </div>
   );
 };

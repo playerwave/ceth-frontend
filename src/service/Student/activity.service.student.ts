@@ -47,51 +47,15 @@ export const fetchRecommendedIds = async (
 //-------------------------------------------------------------------------------
 
 //--------------------- Fetch Single Activity with Enrollment State -------------
-// export const fetchActivity = async (
-//   id: number | string,
-//   userId: number
-// ): Promise<Activity> => {
-//   const response = await axiosInstance.get<Activity>(
-//     `${STUDENT_ACTIVITY_PATH}/get-activity/${id}?userId=${encodeURIComponent(String(userId))}`
-//   );
-//   return response.data;
-// };
-
-// export const fetchActivity = async (
-//   id: number | string,
-//   userId: number | string,
-// ): Promise<Activity> => {
-//   const response = await axiosInstance.get<Activity>(
-//     `/student/activity/get-activity/${id}`,
-//     {
-//       params: { userId }, 
-//     }
-//   );
-//   return response.data;
-// };
-
-export const fetchActivity = async (
-  id: number | string,
-): Promise<Activity> => {
+export const fetchActivity = async (id: number | string): Promise<Activity> => {
   const response = await axiosInstance.get<Activity>(
-    `${STUDENT_ACTIVITY_PATH}/get-activity/${id}=${encodeURIComponent(String(userId))}`
+    `${STUDENT_ACTIVITY_PATH}/get-activity/${id}`
   );
   return response.data;
 };
 //------------------------------------------------------------------------------
 
 //--------------------- Enrolled Activity --------------------------------------
-// export const enrollActivity = async (
-//   userId: number,
-//   activityId: number,
-//   food: string[]
-// ) => {
-//   return axiosInstance.post(
-//     `${STUDENT_ACTIVITY_PATH}/student-enroll-activity/${userId}`,
-//     { activityId, food }
-//   );
-// };
-
 export const enrollActivity = async (
   userId: number,
   activityId: number,
@@ -120,16 +84,6 @@ export const unEnrollActivity = async (userId: number, activityId: number) => {
 };
 //------------------------------------------------------------------------------
 
-//--------------------- Get Enrolled Activities ---------------------------------
-export const fetchEnrolledActivities = async (
-  studentId: number | string,
-): Promise<Activity[]> => {
-  const response = await axiosInstance.get<Activity[]>(
-    `${STUDENT_ACTIVITY_PATH}/get-enrolled-activities/${studentId}`,
-  );
-  return response.data;
-};
-//-------------------------------------------------------------------------------
 //--------------------- Export Service -----------------------------------------
 const activityService = {
   fetchActivities,
@@ -138,6 +92,7 @@ const activityService = {
   fetchActivity,
   enrollActivity,
   unEnrollActivity,
+  fetchEnrolledActivities,
 };
 //------------------------------------------------------------------------------
 

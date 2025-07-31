@@ -10,12 +10,14 @@ interface Props {
   formData: CreateActivityForm;
   handleDateTimeChange: (name: string, newValue: Dayjs | null) => void;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
+  disabled?: boolean;
 }
 
 const ActivityTimeSection: React.FC<Props> = ({
   formData,
   handleDateTimeChange,
   setFormData,
+  disabled = false,
 }) => {
   return (
     <div className="grid grid-cols-1 gap-2 w-full mt-10">
@@ -39,6 +41,7 @@ const ActivityTimeSection: React.FC<Props> = ({
                   onChange={(newValue) =>
                     handleDateTimeChange("start_activity_date", newValue)
                   }
+                  disabled={disabled || !formData.end_register_date}
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },
@@ -71,7 +74,6 @@ const ActivityTimeSection: React.FC<Props> = ({
                           : "",
                     },
                   }}
-                  disabled={!formData.end_register_date}
                 />
               </LocalizationProvider>
             </div>
@@ -93,6 +95,7 @@ const ActivityTimeSection: React.FC<Props> = ({
                   onChange={(newValue) =>
                     handleDateTimeChange("end_activity_date", newValue)
                   }
+                  disabled={disabled || !formData.start_activity_date}
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },
@@ -133,7 +136,6 @@ const ActivityTimeSection: React.FC<Props> = ({
                           : "",
                     },
                   }}
-                  disabled={!formData.start_activity_date}
                 />
               </LocalizationProvider>
             </div>
@@ -171,6 +173,7 @@ const ActivityTimeSection: React.FC<Props> = ({
               }));
             }
           }}
+          disabled={disabled || formData.event_format !== "Course"}
           error={
             formData.activity_status === "Public" &&
             formData.event_format === "Course" &&
@@ -185,7 +188,6 @@ const ActivityTimeSection: React.FC<Props> = ({
               ? "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0"
               : ""
           }
-          disabled={formData.event_format !== "Course"}
           sx={{ height: "56px" }}
           
         />

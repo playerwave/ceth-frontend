@@ -132,6 +132,7 @@ interface Props {
   handleFloorChange: (event: SelectChangeEvent) => void;
   handleRoomChange: (event: SelectChangeEvent) => void;
   handleChange: (e: React.ChangeEvent<any> | SelectChangeEvent) => void;
+  disabled?: boolean;
 }
 
 const RoomSelectionSection: React.FC<Props> = ({
@@ -142,6 +143,7 @@ const RoomSelectionSection: React.FC<Props> = ({
   handleFloorChange,
   handleRoomChange,
   handleChange,
+  disabled = false,
 }) => {
   // ✅ สร้างรายการชั้นจาก rooms
   const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
@@ -159,6 +161,7 @@ const RoomSelectionSection: React.FC<Props> = ({
           name="type"
           value={formData.type}
           onChange={handleChange}
+          disabled={disabled}
           className="rounded w-full"
           displayEmpty
           renderValue={(selected) => {
@@ -196,7 +199,7 @@ const RoomSelectionSection: React.FC<Props> = ({
             value={selectedFloor}
             onChange={handleFloorChange}
             className="rounded p-2 w-full"
-            disabled={formData.event_format !== "Onsite"}
+            disabled={disabled || formData.event_format !== "Onsite"}
             sx={{
               height: "56px",
               opacity: formData.event_format !== "Onsite" ? 0.5 : 1,
@@ -224,7 +227,7 @@ const RoomSelectionSection: React.FC<Props> = ({
                 ? "cursor-not-allowed"
                 : ""
             }`}
-            disabled={formData.event_format !== "Onsite" || !selectedFloor}
+            disabled={disabled || formData.event_format !== "Onsite" || !selectedFloor}
             sx={{
               height: "56px",
               "& .MuiSelect-select": { padding: "8px" },

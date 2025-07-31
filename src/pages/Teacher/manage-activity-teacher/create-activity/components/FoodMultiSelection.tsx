@@ -5,12 +5,14 @@ interface Props {
   foods: Food[];
   selectedFoodIds: number[];
   setSelectedFoodIds: (val: number[]) => void;
+  disabled?: boolean;
 }
 
 const FoodMultiSelect: React.FC<Props> = ({
   foods,
   selectedFoodIds,
   setSelectedFoodIds,
+  disabled = false,
 }) => {
   const selectedFoods = foods.filter((f) =>
     selectedFoodIds.includes(f.food_id),
@@ -25,6 +27,7 @@ const FoodMultiSelect: React.FC<Props> = ({
       onChange={(_, newValues) => {
         setSelectedFoodIds(newValues.map((f) => f.food_id));
       }}
+      disabled={disabled}
       isOptionEqualToValue={(opt, val) => opt.food_id === val.food_id}
       renderTags={(value, getTagProps) =>
         value.map((option, index) => (

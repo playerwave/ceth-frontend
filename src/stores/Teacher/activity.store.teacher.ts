@@ -13,7 +13,7 @@ interface ActivityStore {
   createActivity: (activity: Partial<Activity>) => Promise<void>;
 
   searchActivities?: (searchName: string) => Promise<void>;
-  fetchActivity: (id: number) => Promise<void>;
+  fetchActivity: (id: number) => Promise<Activity | null>;
   fetchEnrolledStudents?: (id: number) => Promise<void>;
   updateActivity: (activity: Activity) => Promise<void>;
   updateActivityStatus: (
@@ -124,9 +124,11 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     try {
       const activity = await activityService.getActivityById(id);
       set({ activity });
+      return activity; // ✅ ส่งคืนข้อมูล activity
     } catch (error) {
       console.error("❌ Error fetching activity:", error);
       set({ activityError: "ไม่สามารถโหลดกิจกรรมนี้ได้" });
+      return null;
     } finally {
       set({ activityLoading: false });
     }

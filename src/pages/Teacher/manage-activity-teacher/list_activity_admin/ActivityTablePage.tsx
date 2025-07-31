@@ -128,68 +128,96 @@ const ActivityTablePage = ({
   );
 
   return (
-    <div style={{ padding: 24 }}>
-      {/* 🧪 ปุ่มทดสอบการเข้ารหัส */}
-      {/* <div style={{ marginBottom: 20, padding: 10, backgroundColor: '#f0f0f0', borderRadius: 5 }}>
-        <h3>🧪 Debug Tools:</h3>
-        <button 
-          onClick={testEncryption}
-          style={{ 
-            backgroundColor: '#007bff', 
-            color: 'white', 
-            padding: '8px 16px', 
-            border: 'none', 
-            borderRadius: 4,
-            cursor: 'pointer'
-          }}
-        >
-          ทดสอบการเข้ารหัส
-        </button>
-        <p style={{ fontSize: '12px', color: '#666', marginTop: 5 }}>
-          คลิกปุ่มนี้เพื่อทดสอบว่า createSecureLink ทำงานหรือไม่
-        </p>
-      </div> */}
+    <div style={{ 
+      padding: 24, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center',
+      maxWidth: '100%',
+      width: '100%',
+      justifyContent: 'center'
+    }}>
+      <div style={{ 
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+      }}>
+        <div style={{ 
+          maxWidth: "1465px", 
+          width: "100%",
+          display: "flex",
+          justifyContent: "center"
+        }}>
+          <CustomCard height={500} width="1465px" className="mb-10">
+            <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
+            <TableRedesign
+              columns={activityColumns}
+              rows={filterByType(rows1) ?? []}
+              height={420}
+              width="100%"
+              borderRadius={14}
+              handleStatusToggle={handleConfirmStatusChange}
+              onRowDoubleClick={handleDoubleClickActivity}
+            />
+          </CustomCard>
+        </div>
+      </div>
 
-      <CustomCard height={500} width="100%" className="mb-10">
-        <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
-        <TableRedesign
-          columns={activityColumns}
-          rows={filterByType(rows1) ?? []}
-          height={420}
-          width="100%"
-          borderRadius={14}
-          handleStatusToggle={handleConfirmStatusChange}
-          onRowDoubleClick={handleDoubleClickActivity}
-        />
-      </CustomCard>
+      <div style={{ 
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+      }}>
+        <div style={{ 
+          maxWidth: "1465px", 
+          width: "100%",
+          display: "flex",
+          justifyContent: "center"
+        }}>
+          <CustomCard height={500} width="1465px" className="mb-10">
+            <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจที่ร่าง</h2>
+            <TableRedesign
+              columns={activityColumns}
+              rows={filterByType(rows2) ?? []}
+              height={420}
+              width="100%"
+              borderRadius={14}
+              handleStatusToggle={handleConfirmStatusChange}
+              onRowDoubleClick={handleDoubleClickActivity}
+            />
+          </CustomCard>
+        </div>
+      </div>
 
-      <CustomCard height={500} width="100%" className="mb-10">
-        <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจที่ร่าง</h2>
-        <TableRedesign
-          columns={activityColumns}
-          rows={filterByType(rows2) ?? []}
-          height={420}
-          width="100%"
-          borderRadius={14}
-          handleStatusToggle={handleConfirmStatusChange}
-          onRowDoubleClick={handleDoubleClickActivity}
-        />
-      </CustomCard>
-
-      <CustomCard height={500} width="100%">
-        <h2 className="text-2xl font-semibold mb-4">
-          กิจกรรมสหกิจที่ให้นิสิตทำแบบประเมิน
-        </h2>
-        <TableRedesign
-          columns={activityColumns}
-          rows={filterByType(rows1) ?? []}
-          height={420}
-          width="100%"
-          borderRadius={14}
-          handleStatusToggle={handleConfirmStatusChange}
-          onRowDoubleClick={handleDoubleClickActivity}
-        />
-      </CustomCard>
+      <div style={{ 
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+      }}>
+        <div style={{ 
+          maxWidth: "1465px", 
+          width: "100%",
+          display: "flex",
+          justifyContent: "center"
+        }}>
+          <CustomCard height={500} width="1465px">
+            <h2 className="text-2xl font-semibold mb-4">
+              กิจกรรมสหกิจที่ให้นิสิตทำแบบประเมิน
+            </h2>
+            <TableRedesign
+              columns={activityColumns}
+              rows={filterByType(rows3) ?? []}
+              height={420}
+              width="100%"
+              borderRadius={14}
+              onRowDoubleClick={handleDoubleClickActivity}
+            />
+          </CustomCard>
+        </div>
+      </div>
       <Dialog2
         open={openDialog}
         onClose={() => setOpenDialog(false)}

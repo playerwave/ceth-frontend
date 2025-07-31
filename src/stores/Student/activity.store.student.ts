@@ -185,7 +185,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   unenrollActivity: async (userId: number, activityId: number) => {
     set({ activityLoading: true, activityError: null });
     try {
-      await activityService.unenrollActivity(userId, activityId);
+      await activityService.unEnrollActivity(userId, activityId);
       set({ activityLoading: false });
       // อาจจะ fetchEnrolledActivities(userId) ซ้ำเพื่อ refresh
     } catch (error) {

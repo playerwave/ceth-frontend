@@ -6,9 +6,10 @@ import { CreateActivityForm } from "../create_activity_admin";
 interface Props {
   formData: CreateActivityForm;
   handleChange: (e: React.ChangeEvent<any> | SelectChangeEvent) => void;
+  disabled?: boolean;
 }
 
-const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange }) => {
+const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange, disabled = false }) => {
   return (
     <div className="flex flex-col space-y-6 w-140 ml-0">
       <div className="flex flex-col w-140">
@@ -19,6 +20,7 @@ const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange }) => {
           value={formData.activity_name}
           className="w-full"
           onChange={handleChange}
+          disabled={disabled}
           error={
             formData.activity_status !== "Private" &&
             (formData.activity_name?.length ?? 0) > 0 &&
@@ -43,6 +45,7 @@ const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange }) => {
           value={formData.presenter_company_name}
           className="w-full"
           onChange={handleChange}
+          disabled={disabled}
           error={
             formData.activity_status !== "Private" &&
             (formData.presenter_company_name?.length ?? 0) > 0 &&

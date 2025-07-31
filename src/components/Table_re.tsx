@@ -177,8 +177,8 @@ export default function TableRedesign({
       >
         <Box
           sx={{
+            width: "100%",
             minWidth: "100%",
-            width: "max-content",
           }}
         >
           <DataGrid
@@ -195,6 +195,10 @@ export default function TableRedesign({
             disableRowSelectionOnClick
             autoHeight={false}
             sx={{
+              width: "100%",
+              "& .MuiDataGrid-root": {
+                width: "100%",
+              },
               border: "none",
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: "#1E3A8A",

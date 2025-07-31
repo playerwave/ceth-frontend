@@ -46,7 +46,7 @@ const ActionButtonsSection: React.FC<Props> = ({
             }}
             bgColor="blue"
           >
-            สร้าง
+           สร้าง
           </Button>
         ) : (
           <Button

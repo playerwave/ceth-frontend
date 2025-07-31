@@ -12,6 +12,7 @@ interface Props {
   assessments: Assessment[];
   handleChange: (e: SelectChangeEvent<any>) => void;
   handleDateTimeChange: (name: string, newValue: Dayjs | null) => void;
+  disabled?: boolean;
 }
 
 const AssessmentSection: React.FC<Props> = ({
@@ -19,6 +20,7 @@ const AssessmentSection: React.FC<Props> = ({
   assessments,
   handleChange,
   handleDateTimeChange,
+  disabled = false,
 }) => {
   return (
     <div className="flex space-x-6 items-center mt-6">
@@ -30,6 +32,7 @@ const AssessmentSection: React.FC<Props> = ({
           className="w-140"
           value={formData.assessment_id || ""}
           onChange={handleChange}
+          disabled={disabled}
           displayEmpty
           renderValue={(selected) => {
             if (!selected) return "เลือกเเบบประเมิน";
@@ -71,6 +74,7 @@ const AssessmentSection: React.FC<Props> = ({
                   onChange={(newValue) =>
                     handleDateTimeChange("start_assessment", newValue)
                   }
+                  disabled={disabled || !formData.end_activity_date}
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },
@@ -103,7 +107,6 @@ const AssessmentSection: React.FC<Props> = ({
                           : "",
                     },
                   }}
-                  disabled={!formData.end_activity_date}
                 />
               </LocalizationProvider>
             </div>
@@ -127,6 +130,8 @@ const AssessmentSection: React.FC<Props> = ({
                   onChange={(newValue) =>
                     handleDateTimeChange("end_assessment", newValue)
                   }
+                  // ✅ end_assessment สามารถแก้ไขได้เสมอ แม้กิจกรรมจะเริ่มแล้ว
+                  disabled={!formData.start_assessment}
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },
@@ -155,7 +160,6 @@ const AssessmentSection: React.FC<Props> = ({
                           : "",
                     },
                   }}
-                  disabled={!formData.start_assessment}
                 />
               </LocalizationProvider>
             </div>

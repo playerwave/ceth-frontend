@@ -4,11 +4,13 @@ import { ImagePlus } from "lucide-react";
 interface Props {
   previewImage: string | null;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
 }
 
 const ImageUploadSection: React.FC<Props> = ({
   previewImage,
   handleFileChange,
+  disabled = false,
 }) => {
   return (
     <div className="mt-10">
@@ -16,6 +18,7 @@ const ImageUploadSection: React.FC<Props> = ({
       <input
         type="file"
         onChange={handleFileChange}
+        disabled={disabled}
         className="w-118 p-2 border rounded ml-4 border-[#9D9D9D]"
       />
 

@@ -163,7 +163,8 @@ export default function ActivityInfoAdmin() {
   }, [foods.length, fetchFoods]);
 
   const handleToUpdateActivity = (activity_id: number) => {
-    navigate("/update-activity-admin", { state: { id: activity_id } });
+    navigate(`/update-activity-admin/${activity_id}`);
+    console.log("🔄 Navigating to update activity:", activity_id);
   };
 
   if (activityLoading) return <Loading />;

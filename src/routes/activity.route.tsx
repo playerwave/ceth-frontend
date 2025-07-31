@@ -34,7 +34,7 @@ export const activityRoutes = [
     protectionLevel: ProtectionLevel.ENCODED // เข้ารหัสแบบง่าย
   },
   {
-    path: "/update-activity-admin",
+    path: "/update-activity-admin/:id",
     element: <UpdateActivityAdmin />,
     label: "แก้ไขกิจกรรม",
     icon: "ClipboardList",

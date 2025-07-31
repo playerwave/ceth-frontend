@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAssessmentStore } from "../../../../stores/Teacher/assessment.store";
 import Loading from "../../../../components/Loading";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -40,7 +40,7 @@ export interface CreateActivityForm extends Partial<Activity> {
 }
 
 const CreateActivityAdmin: React.FC = () => {
-  const { createActivity, activityLoading } = useActivityStore(); //
+  const { createActivity, activityLoading, fetchActivity, activity, updateActivity } = useActivityStore(); //
   const savedFoods = JSON.parse(localStorage.getItem("selectedFoods") || "[]");
   const [formData, setFormData] = useState<CreateActivityForm>({
   activity_id: undefined,
@@ -70,6 +70,82 @@ const CreateActivityAdmin: React.FC = () => {
   selectedFoods: savedFoods,
 });
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { id: activityId } = useParams(); // ✅ ดึง activity ID จาก URL
+
+  // ✅ ฟังก์ชันตรวจสอบว่าเวลาปัจจุบันเลย start_activity_date แล้วหรือยัง
+  const isActivityStarted = () => {
+    if (!formData.start_activity_date) return false;
+    const now = dayjs();
+    const startTime = dayjs(formData.start_activity_date);
+    return now.isAfter(startTime) || now.isSame(startTime);
+  };
+
+  // ✅ ฟังก์ชันตรวจสอบว่าแก้ไขได้หรือไม่
+  const isFieldEditable = (fieldName: string) => {
+    if (!isActivityStarted()) return true; // ถ้ายังไม่เริ่มกิจกรรม แก้ไขได้ทุก field
+    
+    // ถ้าเริ่มกิจกรรมแล้ว แก้ไขได้แค่ end_assessment
+    return fieldName === 'end_assessment';
+  };
+
+  const { assessments, fetchAssessments } = useAssessmentStore();
+  const foods = useFoodStore((state) => state.foods); // ✅ ต้องมีตรงนี้ก่อน
+  const fetchFoods = useFoodStore((state) => state.fetchFoods);
+  const { rooms, fetchRooms } = useRoomStore();
+
+  // ✅ ดึงข้อมูล activity เมื่อ component mount
+  useEffect(() => {
+    if (activityId) {
+      console.log("📥 Fetching activity for update:", activityId);
+      fetchActivity(Number(activityId));
+    }
+  }, [activityId, fetchActivity]);
+
+  // ✅ อัปเดต form เมื่อได้ข้อมูล activity
+  useEffect(() => {
+    if (activity) {
+      console.log("📝 Populating form with activity data:", activity);
+      setFormData({
+        activity_id: activity.activity_id,
+        activity_name: activity.activity_name || "",
+        presenter_company_name: activity.presenter_company_name || "",
+        description: activity.description || "",
+        type: activity.type || "Soft",
+        seat: activity.seat,
+        recieve_hours: activity.recieve_hours || 0,
+        event_format: activity.event_format || "Onsite",
+        activity_status: activity.activity_status || "Private",
+        activity_state: activity.activity_state || "Not Start",
+        create_activity_date: activity.create_activity_date || "",
+        last_update_activity_date: activity.last_update_activity_date || "",
+        start_register_date: activity.start_register_date || "",
+        special_start_register_date: activity.special_start_register_date || "",
+        end_register_date: activity.end_register_date || "",
+        start_activity_date: activity.start_activity_date || "",
+        end_activity_date: activity.end_activity_date || "",
+        image_url: activity.image_url || "",
+        assessment_id: activity.assessment_id,
+        room_id: activity.room_id,
+        start_assessment: activity.start_assessment || "",
+        end_assessment: activity.end_assessment || "",
+        status: activity.status || "Active",
+        url: activity.url || "",
+        selectedFoods: (activity as any).foods?.map((food: any) => food.food_id) || savedFoods,
+      });
+
+      // ✅ อัปเดตห้องที่เลือก
+      if (activity.room_id) {
+        const selectedRoom = rooms.find(room => room.room_id === activity.room_id);
+        if (selectedRoom) {
+          setSelectedFloor(selectedRoom.floor);
+          setSelectedRoom(selectedRoom.room_name);
+          setSeatCapacity(selectedRoom.seat_number?.toString() || "");
+        }
+      }
+    }
+  }, [activity, rooms]);
 
 
   // const IfBuildingRoom: Record<string, { name: string; capacity: number }[]> = {
@@ -95,13 +171,7 @@ const CreateActivityAdmin: React.FC = () => {
   //   ],
   // };
 
-  const navigate = useNavigate();
-  const { assessments, fetchAssessments } = useAssessmentStore();
-  const foods = useFoodStore((state) => state.foods); // ✅ ต้องมีตรงนี้ก่อน
-  const fetchFoods = useFoodStore((state) => state.fetchFoods);
-  const { rooms, fetchRooms } = useRoomStore();
-
-useEffect(() => {
+  useEffect(() => {
   fetchRooms(); // ✅ โหลดข้อมูลห้องเมื่อ component mount
 }, []);
 
@@ -250,11 +320,21 @@ const handleRoomChange = (event: SelectChangeEvent) => {
     console.log("🚀 Data ที่ส่งไป store:", formData);
 
     try {
-      await createActivity(formData);
+      if (activityId) {
+        // ✅ อัปเดตกิจกรรมที่มีอยู่
+        console.log("🔄 Updating existing activity:", activityId);
+        await updateActivity(formData as Activity);
+        toast.success("อัปเดตกิจกรรมสำเร็จ!");
+      } else {
+        // ✅ สร้างกิจกรรมใหม่
+        console.log("➕ Creating new activity");
+        await createActivity(formData);
+        toast.success("สร้างกิจกรรมสำเร็จ!");
+      }
       // navigate("/list-activity-admin");
     } catch (error) {
-      console.error("❌ Error creating activity:", error);
-      toast.error("Create failed!");
+      console.error("❌ Error saving activity:", error);
+      toast.error("บันทึกกิจกรรมไม่สำเร็จ!");
     }
   };
 
@@ -373,7 +453,24 @@ useEffect(() => {
           <div
             className={`w-320 mx-auto ml-2xl mt-5 mb-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm min-h-screen flex flex-col`}
           >
-            <h1 className="text-4xl font-bold mb-11">สร้างกิจกรรมสหกิจ</h1>
+            <h1 className="text-4xl font-bold mb-11">
+              {activityId ? "แก้ไขกิจกรรมสหกิจ" : "สร้างกิจกรรมสหกิจ"}
+            </h1>
+            
+            {/* ✅ แสดงข้อความแจ้งเตือนเมื่อกิจกรรมเริ่มแล้ว */}
+            {isActivityStarted() && (
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-yellow-800 font-medium">
+                    ⚠️ กิจกรรมได้เริ่มดำเนินการแล้ว สามารถแก้ไขได้เฉพาะ "วันสิ้นสุดการประเมิน" เท่านั้น
+                  </span>
+                </div>
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-10 flex-grow">
               <div>
                 {/* แถวแรก: ชื่อกิจกรรม + วันเวลาปิด/เปิดลงทะเบียน */}
@@ -381,11 +478,13 @@ useEffect(() => {
                   <ActivityInfoSection
                     formData={formData}
                     handleChange={handleFormChange} // ✅ รับได้ 1 argument ตาม type ที่ต้องการ
+                    disabled={isActivityStarted()}
                   />
 
                   <RegisterPeriodSection
                     formData={formData}
                     handleDateTimeChange={handleDateTimeChange}
+                    disabled={isActivityStarted()}
                   />
                   
                 </div>
@@ -417,6 +516,7 @@ useEffect(() => {
   <DescriptionSection
     formData={formData}
     handleChange={handleFormChange}
+    disabled={isActivityStarted()}
   />
 
   <div className="flex flex-col space-y-3">
@@ -424,6 +524,7 @@ useEffect(() => {
       formData={formData}
       setFormData={setFormData}
       handleDateTimeChange={handleDateTimeChange}
+      disabled={isActivityStarted()}
     />
 
     <TypeAndLocationSection
@@ -432,6 +533,7 @@ useEffect(() => {
       setSelectedFloor={setSelectedFloor}
       setSelectedRoom={setSelectedRoom}
       setSeatCapacity={setSeatCapacity}
+      disabled={isActivityStarted()}
     />
   </div>
 </div>
@@ -446,9 +548,10 @@ useEffect(() => {
                   handleFloorChange={handleFloorChange}
                   handleRoomChange={handleRoomChange}
                   handleChange={handleFormChange}
+                  disabled={isActivityStarted()}
                 />
 
-                <ActivityLink formData={formData} handleChange={handleFormChange} />
+                <ActivityLink formData={formData} handleChange={handleFormChange} disabled={isActivityStarted()} />
                 </div>
 
                 <StatusAndSeatSection
@@ -457,14 +560,9 @@ useEffect(() => {
                   handleChange={handleFormChange}
                   setSeatCapacity={setSeatCapacity}
                   selectedRoom={selectedRoom}
+                  setFormData={setFormData}
+                  disabled={isActivityStarted()}
                 />
-
-                {/* <FoodMenuSection
-                  formData={formData}
-                  addFoodOption={addFoodOption}
-                  removeFoodOption={removeFoodOption}
-                  updateFoodOption={updateFoodOption}
-                /> */}
 
 <div className="mt-6 max-w-xl w-full">
   <label className="block font-semibold">อาหาร *</label>
@@ -475,8 +573,9 @@ useEffect(() => {
   localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
   setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
 }}
-
+disabled={isActivityStarted()}
 />
+
 </div>
 
                 
@@ -486,11 +585,13 @@ useEffect(() => {
                   assessments={assessments}
                   handleChange={handleFormChange}
                   handleDateTimeChange={handleDateTimeChange}
+                  disabled={isActivityStarted()}
                 />
 
                 <ImageUploadSection
                   previewImage={previewImage}
                   handleFileChange={handleFileChange}
+                  disabled={isActivityStarted()}
                 />
 
                 <ActionButtonsSection

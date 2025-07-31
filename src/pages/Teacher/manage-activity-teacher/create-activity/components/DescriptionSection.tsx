@@ -5,9 +5,10 @@ import { CreateActivityForm } from "../create_activity_admin";
 interface Props {
   formData: CreateActivityForm;
   handleChange: (e: React.ChangeEvent<any>) => void;
+  disabled?: boolean;
 }
 
-const DescriptionSection: React.FC<Props> = ({ formData, handleChange }) => {
+const DescriptionSection: React.FC<Props> = ({ formData, handleChange, disabled = false }) => {
   return (
     <div className="mt-5">
       <br />
@@ -16,6 +17,7 @@ const DescriptionSection: React.FC<Props> = ({ formData, handleChange }) => {
         name="description"
         value={formData.description}
         onChange={handleChange}
+        disabled={disabled}
         multiline
         rows={6}
         variant="outlined"

@@ -31,7 +31,7 @@ export interface ActivityState {
 
   // เพิ่มฟังก์ชันที่จำเป็น
   fetchStudentActivities: (userId: number) => Promise<void>; // เพิ่มฟังก์ชันนี้
-  searchActivities: (searchName: string) => Promise<void>;
+  searchActivities: (searchName: string, userId: number) => Promise<void>;
   fetchActivity: (
     id: number | string,
     userId: number
@@ -41,10 +41,7 @@ export interface ActivityState {
   enrollActivity: (
     userId: number,
     activityId: number,
-    food: string[]
+    food?: string[]
   ) => Promise<void>;
   unenrollActivity: (userId: number, activityId: number) => Promise<void>;
 }
-
-
-

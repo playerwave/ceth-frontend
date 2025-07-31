@@ -8,191 +8,15 @@ import { CreateActivityForm } from "../create_activity_admin";
 interface Props {
   formData: CreateActivityForm;
   handleDateTimeChange: (name: string, newValue: Dayjs | null) => void;
+  disabled?: boolean;
 }
 
 const RegisterPeriodSection: React.FC<Props> = ({
   formData,
   handleDateTimeChange,
+  disabled = false,
 }) => {
   return (
-  //   <div className="flex flex-col ml-0">
-  //     {" "}
-  //     {/* ลบ space-y-6 ออก */}
-  //     <div className="flex flex-col w-77.5">
-  //       <label className="block font-semibold mb-1">
-  //         วันที่ลงทะเบียนพิเศษ *
-  //       </label>
-  //       <LocalizationProvider dateAdapter={AdapterDayjs}>
-  //         <DateTimePicker
-  //           minDate={dayjs()}
-  //           value={
-  //             formData.end_register_date ? dayjs(formData.end_register_date) : null
-  //           }
-  //           onChange={(newValue) =>
-  //             handleDateTimeChange("end_register_date", newValue)
-  //           }
-  //           sx={{ height: "56px" }}
-  //         />
-  //       </LocalizationProvider>
-  //     </div>
-  //     {/* <div className="flex flex-col w-77.5 mt-9">
-  //       {" "}
-  //       <label className="block font-semibold">
-  //         วันและเวลาเปิดให้นิสิตลงทะเบียน *
-  //       </label>
-  //       <LocalizationProvider dateAdapter={AdapterDayjs}>
-  //         <DateTimePicker
-  //           minDate={dayjs().add(1, "day")}
-  //           value={
-  //             formData.start_register_date
-  //               ? dayjs(formData.start_register_date)
-  //               : null
-  //           }
-  //           onChange={(newValue) =>
-  //             handleDateTimeChange("start_register_date", newValue)
-  //           }
-  //           slotProps={{
-  //             textField: {
-  //               sx: { height: "56px" },
-  //               error: !!(
-  //                 formData.activity_status !== "Private" &&
-  //                 formData.start_register_date &&
-  //                 formData.end_register_date &&
-  //                 (dayjs(formData.start_register_date).isBefore(
-  //                   dayjs().startOf("day"),
-  //                 ) ||
-  //                   dayjs(formData.start_register_date).isAfter(
-  //                     dayjs(formData.end_register_date),
-  //                   ) ||
-  //                   dayjs(formData.start_register_date).isSame(
-  //                     dayjs(formData.end_register_date),
-  //                     "day",
-  //                   ))
-  //               ),
-  //               helperText:
-  //                 formData.activity_status !== "Private" &&
-  //                 formData.start_register_date &&
-  //                 formData.end_register_date &&
-  //                 (dayjs(formData.start_register_date).isBefore(
-  //                   dayjs().startOf("day"),
-  //                 ) ||
-  //                   dayjs(formData.start_register_date).isAfter(
-  //                     dayjs(formData.end_register_date),
-  //                   ) ||
-  //                   dayjs(formData.start_register_date).isSame(
-  //                     dayjs(formData.end_register_date),
-  //                     "day",
-  //                   ))
-  //                   ? "วันเปิดให้นิสิตสถานะ normal ลงทะเบียน ต้องอยู่หลังวันนี้ และไม่ตรงกับหรือเลยวันปิดลงทะเบียน"
-  //                   : "",
-  //             },
-  //           }}
-  //         />
-  //       </LocalizationProvider>
-  //     </div>
-  //      <p className="text-xs text-gray-500 mt-1">Start</p> */}
-
-  //      <div className="grid grid-cols-1 gap-2 w-full mt-9">
-  //       <div>
-  //       <label className="block font-semibold mb-1">
-  //     วันและเวลาที่เปิดลงทะเบียน *
-  //   </label>
-  // {/* Start Register Date */}
-  // <div className="flex space-x-2 w-full">
-  //   <div className="w-1/2">
-  //           <div className="flex flex-col">
-  //   <LocalizationProvider dateAdapter={AdapterDayjs}>
-  //     <DateTimePicker
-  //       minDate={dayjs().add(1, "day")}
-  //       value={
-  //         formData.start_register_date
-  //           ? dayjs(formData.start_register_date)
-  //           : null
-  //       }
-  //       onChange={(newValue) =>
-  //         handleDateTimeChange("start_register_date", newValue)
-  //       }
-  //       slotProps={{
-  //         textField: {
-  //           sx: { height: "56px" },
-  //           error: !!(
-  //             formData.activity_status !== "Private" &&
-  //             formData.start_register_date &&
-  //             formData.end_register_date &&
-  //             (dayjs(formData.start_register_date).isBefore(
-  //               dayjs().startOf("day"),
-  //             ) ||
-  //               dayjs(formData.start_register_date).isAfter(
-  //                 dayjs(formData.end_register_date),
-  //               ) ||
-  //               dayjs(formData.start_register_date).isSame(
-  //                 dayjs(formData.end_register_date),
-  //                 "day",
-  //               ))
-  //           ),
-  //           helperText:
-  //             formData.activity_status !== "Private" &&
-  //             formData.start_register_date &&
-  //             formData.end_register_date &&
-  //             (dayjs(formData.start_register_date).isBefore(
-  //               dayjs().startOf("day"),
-  //             ) ||
-  //               dayjs(formData.start_register_date).isAfter(
-  //                 dayjs(formData.end_register_date),
-  //               ) ||
-  //               dayjs(formData.start_register_date).isSame(
-  //                 dayjs(formData.end_register_date),
-  //                 "day",
-  //               ))
-  //               ? "วันเปิดลงทะเบียนต้องอยู่หลังวันนี้และไม่ตรง/หลังวันปิด"
-  //               : "",
-  //         },
-  //       }}
-  //     />
-  //   </LocalizationProvider>
-  //   </div>
-  //   </div>
-  //   <p className="text-xs text-gray-500 mt-1">Start</p>
-  // </div>
-
-  // <span className="self-center font-semibold">-</span>
-
-  // {/* End Register Date */}
-  // <div className="flex space-x-2 w-full">
-
-  //   <div className="w-1/2">
-  //           <div className="flex flex-col">
-  //   <LocalizationProvider dateAdapter={AdapterDayjs}>
-  //     <DateTimePicker
-  //       value={
-  //         formData.end_register_date
-  //           ? dayjs(formData.end_register_date)
-  //           : null
-  //       }
-  //       onChange={(newValue) =>
-  //         handleDateTimeChange("end_register_date", newValue)
-  //       }
-  //       slotProps={{
-  //         textField: {
-  //           sx: { height: "56px" },
-  //           error: false,
-  //           helperText: "",
-  //         },
-  //       }}
-  //     />
-  //   </LocalizationProvider>
-
-  // </div>
-  // <p className="text-xs text-gray-500 mt-1">Start</p>
-  // </div>
- 
-
-
-  // </div>
-  //   </div>
-  //   </div>
-  //   </div>
-
 <div className="flex flex-col ml-0">
       {" "}
       <div className="flex flex-col w-77.5">
@@ -210,10 +34,12 @@ const RegisterPeriodSection: React.FC<Props> = ({
       onChange={(newValue) =>
         handleDateTimeChange("special_start_register_date", newValue)
       }
+      disabled={disabled}
       slotProps={{
         textField: {
           sx: { height: "56px" },
           error: !!(
+            !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
             formData.special_start_register_date &&
             formData.start_register_date &&
             dayjs(formData.special_start_register_date).isAfter(
@@ -221,6 +47,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
             )
           ),
           helperText:
+            !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
             formData.special_start_register_date &&
             formData.start_register_date &&
             dayjs(formData.special_start_register_date).isAfter(
@@ -230,7 +57,6 @@ const RegisterPeriodSection: React.FC<Props> = ({
               : "",
         },
       }}
-      disabled={false}
     />
   </LocalizationProvider>
 </div>
@@ -256,10 +82,12 @@ const RegisterPeriodSection: React.FC<Props> = ({
               onChange={(newValue) =>
                 handleDateTimeChange("start_register_date", newValue)
               }
+              disabled={disabled || !formData.special_start_register_date}
               slotProps={{
                 textField: {
                   sx: { height: "56px" },
                   error: !!(
+                    !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
                     formData.activity_status !== "Private" &&
                     formData.start_register_date &&
                     formData.end_register_date &&
@@ -275,6 +103,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                       ))
                   ),
                   helperText:
+                    !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
                     formData.activity_status !== "Private" &&
                     formData.start_register_date &&
                     formData.end_register_date &&
@@ -292,7 +121,6 @@ const RegisterPeriodSection: React.FC<Props> = ({
                       : "",
                 },
               }}
-              disabled={!formData.special_start_register_date}
             />
           </LocalizationProvider>
         </div>
@@ -316,10 +144,12 @@ const RegisterPeriodSection: React.FC<Props> = ({
               onChange={(newValue) =>
                 handleDateTimeChange("end_register_date", newValue)
               }
+              disabled={disabled || !formData.start_register_date}
               slotProps={{
                 textField: {
                   sx: { height: "56px" },
                   error: !!(
+                    !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
                     formData.activity_status !== "Private" &&
                     formData.end_register_date &&
                     formData.start_register_date &&
@@ -328,6 +158,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     )
                   ),
                   helperText:
+                    !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
                     formData.activity_status !== "Private" &&
                     formData.end_register_date &&
                     formData.start_register_date &&
@@ -338,7 +169,6 @@ const RegisterPeriodSection: React.FC<Props> = ({
                       : "",
                 },
               }}
-              disabled={!formData.start_register_date}
             />
           </LocalizationProvider>
         </div>
