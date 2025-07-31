@@ -1,12 +1,31 @@
 import { IconButton, Menu, MenuItem, TextField } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-const Openques = ({ onDelete, onDuplicate }: { onDelete: () => void; onDuplicate: () => void }) => {
+
+
+type OpenquesData = {
+  type: "open";
+  topic: string;
+  questions: {
+    id: number;
+    question: string;
+    answer: string;
+  }[];
+};
+
+type Props = {
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onChange: (data: OpenquesData) => void;
+};
+
+
+const Openques = ({ onDelete, onDuplicate, onChange }: Props) => {
   const [questions, setQuestions] = useState([{ id: 1, question: '', answer: '' }]);
   const [nextId, setNextId] = useState(2);
-
+  const [topicTitle, setTopicTitle] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -47,6 +66,18 @@ const Openques = ({ onDelete, onDuplicate }: { onDelete: () => void; onDuplicate
       )
     );
   };
+  const stableOnChange = useCallback(onChange, []);
+
+  useEffect(() => {
+    const payload: OpenquesData = {
+      type: "open",
+      topic: topicTitle,
+      
+      questions,
+    };
+    stableOnChange(payload);
+  }, [questions]);
+
 
   return (
     <div className='border  border-gray-400 w-180 rounded-md p-4 bg-white'>
@@ -55,6 +86,8 @@ const Openques = ({ onDelete, onDuplicate }: { onDelete: () => void; onDuplicate
           name="activity_name"
           placeholder="หัวเรื่องแบบประเมิน"
           className="w-140"
+          value={topicTitle}
+          onChange={(e) => setTopicTitle(e.target.value)}
         />
         <IconButton onClick={handleMenuClick}>
           <MoreVertIcon />
