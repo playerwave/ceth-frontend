@@ -9,12 +9,14 @@ interface Props {
   formData: CreateActivityForm;
   handleDateTimeChange: (name: string, newValue: Dayjs | null) => void;
   disabled?: boolean;
+  isEditMode?: boolean;
 }
 
 const RegisterPeriodSection: React.FC<Props> = ({
   formData,
   handleDateTimeChange,
   disabled = false,
+  isEditMode = false,
 }) => {
   return (
 <div className="flex flex-col ml-0">
@@ -88,6 +90,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                   sx: { height: "56px" },
                   error: !!(
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
+                    !isEditMode && // ✅ ไม่แสดง error ถ้าอยู่ในหน้าแก้ไข
                     formData.activity_status !== "Private" &&
                     formData.start_register_date &&
                     formData.end_register_date &&
@@ -104,6 +107,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                   ),
                   helperText:
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
+                    !isEditMode && // ✅ ไม่แสดง error ถ้าอยู่ในหน้าแก้ไข
                     formData.activity_status !== "Private" &&
                     formData.start_register_date &&
                     formData.end_register_date &&

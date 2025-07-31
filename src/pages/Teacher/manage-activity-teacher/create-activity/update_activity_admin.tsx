@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAssessmentStore } from "../../../../stores/Teacher/assessment.store";
 import Loading from "../../../../components/Loading";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -35,6 +35,12 @@ import ActionButtonsSection from "./components/ActionButtonsSection";
 import DescriptionSection from "./components/DescriptionSection";
 import StatusAndSeatSection from "./components/StatusAndSeatSection";
 import ActivityLink from "./components/ActivityLink"; // ✅ นำเข้า ActivityLink
+import {
+  useSecureParams,
+  extractSecureParam,
+} from "../../../../routes/secure/SecureRoute";
+
+
 export interface CreateActivityForm extends Partial<Activity> {
   selectedFoods: number[];
 }
@@ -72,7 +78,10 @@ const CreateActivityAdmin: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { id: activityId } = useParams(); // ✅ ดึง activity ID จาก URL
+  const params = useSecureParams();
+  
+  // 🔐 ดึง ID จาก URL ที่เข้ารหัส
+  const finalActivityId = extractSecureParam(params, 'id', 0);
 
   // ✅ ฟังก์ชันตรวจสอบว่าเวลาปัจจุบันเลย start_activity_date แล้วหรือยัง
   const isActivityStarted = () => {
@@ -97,11 +106,11 @@ const CreateActivityAdmin: React.FC = () => {
 
   // ✅ ดึงข้อมูล activity เมื่อ component mount
   useEffect(() => {
-    if (activityId) {
-      console.log("📥 Fetching activity for update:", activityId);
-      fetchActivity(Number(activityId));
+    if (finalActivityId) {
+      console.log("📥 Fetching activity for update:", finalActivityId);
+      fetchActivity(finalActivityId);
     }
-  }, [activityId, fetchActivity]);
+  }, [finalActivityId, fetchActivity]);
 
   // ✅ อัปเดต form เมื่อได้ข้อมูล activity
   useEffect(() => {
@@ -320,10 +329,30 @@ const handleRoomChange = (event: SelectChangeEvent) => {
     console.log("🚀 Data ที่ส่งไป store:", formData);
 
     try {
-      if (activityId) {
+      if (finalActivityId) {
         // ✅ อัปเดตกิจกรรมที่มีอยู่
-        console.log("🔄 Updating existing activity:", activityId);
-        await updateActivity(formData as Activity);
+        console.log("🔄 Updating existing activity:", finalActivityId);
+        
+        // ✅ เตรียมข้อมูลให้ตรงกับ backend requirements
+        const updateData = {
+          ...formData,
+          // แก้ไข floor ให้เป็น string (ใช้จาก selectedFloor หรือจาก room ที่เลือก)
+          floor: selectedFloor || (formData.room_id ? rooms.find(r => r.room_id === formData.room_id)?.floor || "" : ""),
+          // แก้ไข room_id ให้เป็น integer
+          room_id: formData.room_id ? Number(formData.room_id) : null,
+          // แก้ไข seat ให้เป็น integer และไม่เป็น null
+          seat: formData.seat ? Number(formData.seat) : 0,
+          // แก้ไข foodIds ให้เป็น array และไม่ว่าง (backend ต้องการ foodIds)
+          foodIds: Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ? formData.selectedFoods : [],
+        };
+
+        // ✅ จัดการ image_url แยก (ไม่ส่งถ้าไม่มีรูปภาพ)
+        if (typeof formData.image_url === 'string' && formData.image_url.trim() !== "") {
+          updateData.image_url = formData.image_url;
+        }
+        
+        console.log("🚀 Data ที่ส่งไป store:", updateData);
+        await updateActivity(updateData as Activity);
         toast.success("อัปเดตกิจกรรมสำเร็จ!");
       } else {
         // ✅ สร้างกิจกรรมใหม่
@@ -398,7 +427,7 @@ useEffect(() => {
     setFormData((prev) => ({ ...prev, selectedFoods: updatedFoodOptions }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
 
@@ -412,15 +441,25 @@ useEffect(() => {
         return;
       }
 
-      // ✅ แสดงตัวอย่างรูปภาพ
-      const imageUrl = URL.createObjectURL(file);
-      setPreviewImage(imageUrl);
+      // ✅ แสดงตัวอย่างรูปภาพทันที
+      const localPreviewUrl = URL.createObjectURL(file);
+      setPreviewImage(localPreviewUrl);
 
-      // ✅ เก็บไฟล์ไว้ใน `ac_image_url`
-      setFormData((prev) => ({
-        ...prev,
-        image_url: file, // ✅ ตอนนี้เก็บเป็น File
-      }));
+      try {
+        // ✅ อัปโหลดไปยัง Cloudinary
+        const cloudinaryUrl = await uploadImageToCloudinary(file);
+
+        // ✅ เซ็ต URL กลับเข้า formData
+        setFormData((prev) => ({
+          ...prev,
+          image_url: cloudinaryUrl,
+        }));
+
+        toast.success("📸 อัปโหลดรูปภาพสำเร็จ!");
+      } catch (error) {
+        console.error("❌ Upload failed:", error);
+        toast.error("อัปโหลดรูปภาพไม่สำเร็จ");
+      }
     }
   };
 
@@ -454,7 +493,7 @@ useEffect(() => {
             className={`w-320 mx-auto ml-2xl mt-5 mb-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm min-h-screen flex flex-col`}
           >
             <h1 className="text-4xl font-bold mb-11">
-              {activityId ? "แก้ไขกิจกรรมสหกิจ" : "สร้างกิจกรรมสหกิจ"}
+              {finalActivityId ? "แก้ไขกิจกรรมสหกิจ" : "สร้างกิจกรรมสหกิจ"}
             </h1>
             
             {/* ✅ แสดงข้อความแจ้งเตือนเมื่อกิจกรรมเริ่มแล้ว */}
@@ -485,6 +524,7 @@ useEffect(() => {
                     formData={formData}
                     handleDateTimeChange={handleDateTimeChange}
                     disabled={isActivityStarted()}
+                    isEditMode={!!finalActivityId}
                   />
                   
                 </div>
@@ -598,6 +638,8 @@ disabled={isActivityStarted()}
                   formStatus={formData.activity_status ?? "Private"}
                   isModalOpen={isModalOpen}
                   setIsModalOpen={setIsModalOpen}
+                  isEditMode={!!finalActivityId}
+                  originalStatus={activity?.activity_status ?? "Private"}
                 />
               </div>
               

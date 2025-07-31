@@ -122,6 +122,7 @@ import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 import {
   useSecureParams,
   extractSecureParam,
+  useSecureLink,
 } from "../../../../routes/secure/SecureRoute";
 
 import Loading from "../../../../components/Loading";
@@ -134,6 +135,7 @@ import ActivityFooter from "./components/ActivityFooter";
 export default function ActivityInfoAdmin() {
   const navigate = useNavigate();
   const params = useSecureParams();
+  const { createSecureLink } = useSecureLink();
 
   const finalActivityId = extractSecureParam(params, 'id', 0);
 
@@ -163,8 +165,19 @@ export default function ActivityInfoAdmin() {
   }, [foods.length, fetchFoods]);
 
   const handleToUpdateActivity = (activity_id: number) => {
-    navigate(`/update-activity-admin/${activity_id}`);
+    // สร้าง URL ที่เข้ารหัสสำหรับหน้า update
+    const encryptedUrl = createSecureLink("/update-activity-admin", {
+      id: activity_id,
+      name: "Update Activity",
+      type: "update",
+      isActive: true,
+      timestamp: Date.now(),
+    });
+    
     console.log("🔄 Navigating to update activity:", activity_id);
+    console.log("🔐 Generated update URL:", encryptedUrl);
+    
+    window.location.href = encryptedUrl;
   };
 
   if (activityLoading) return <Loading />;

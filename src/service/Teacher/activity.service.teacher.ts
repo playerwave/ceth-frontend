@@ -71,6 +71,7 @@ export const updateActivityStatus = async (
 
 //--------------------- Update Activity ----------------------------
 export const updateActivity = async (activity: Activity): Promise<void> => {
+  console.log("update activity: ", activity);
   await axiosInstance.put(
     `${TEACHER_ACTIVITY_PATH}/update-activity/${activity.activity_id}`,
     {
