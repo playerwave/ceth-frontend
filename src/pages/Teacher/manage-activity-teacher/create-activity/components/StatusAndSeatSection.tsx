@@ -48,15 +48,23 @@ const StatusAndSeatSection: React.FC<Props> = ({
 
   {/* จำนวนที่นั่ง */}
   <div className="w-1/2">
-    <label className="block font-semibold">จำนวนที่นั่ง *</label>
+    <label className="block font-semibold">
+      จำนวนที่นั่ง *
+      {formData.event_format === "Course" && (
+        <span className="text-gray-500 text-sm ml-2">(ไม่ใช้สำหรับ Course)</span>
+      )}
+    </label>
     <TextField
   id="ac_seat"
   name="seat"
   type="number"
   placeholder="จำนวนที่เปิดให้นิสิตลงทะเบียน"
-  value={formData.seat?.toString() ?? ""}
+  value={formData.event_format === "Course" ? "" : (formData.seat?.toString() ?? "")} // ✅ ล้างค่าเมื่อเป็น Course
   className="w-full"
   onChange={(e) => {
+    // ✅ ไม่ให้แก้ไขเมื่อเป็น Course
+    if (formData.event_format === "Course") return;
+    
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
       const num = Number(value);
@@ -67,13 +75,13 @@ const StatusAndSeatSection: React.FC<Props> = ({
       }
     }
   }}
-  disabled={disabled}
+  disabled={disabled || formData.event_format === "Course"} // ✅ ปิดเมื่อเป็น Course
   error={
   typeof formData.seat === "number" &&
   (formData.seat < 0 || formData.seat > Number(seatCapacity))
 }
 helperText={
-  typeof formData.seat === "number"
+  typeof formData.seat === "number" && formData.event_format !== "Course"
     ? formData.seat > Number(seatCapacity)
       ? `❌ จำนวนที่นั่งต้องไม่เกิน ${seatCapacity}`
       : formData.seat < 0
@@ -84,11 +92,8 @@ helperText={
 
   sx={{ height: "56px" }}
 />
-
-
   </div>
 </div>
-
   );
 };
 

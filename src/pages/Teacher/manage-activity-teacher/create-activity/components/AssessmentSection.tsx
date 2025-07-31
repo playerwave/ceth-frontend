@@ -25,17 +25,22 @@ const AssessmentSection: React.FC<Props> = ({
   return (
     <div className="flex space-x-6 items-center mt-6">
       <div className="border-[#9D9D9D]">
-        <label className="block font-semibold">แบบประเมิน *</label>
+        <label className="block font-semibold">
+          แบบประเมิน *
+          {formData.event_format === "Course" && (
+            <span className="text-gray-500 text-sm ml-2">(ไม่ใช้สำหรับ Course)</span>
+          )}
+        </label>
         <Select
           labelId="assessment"
           name="assessment_id"
           className="w-140"
-          value={formData.assessment_id || ""}
+          value={formData.event_format === "Course" ? "" : (formData.assessment_id || "")} // ✅ ล้างค่าเมื่อเป็น Course
           onChange={handleChange}
-          disabled={disabled}
+          disabled={disabled || formData.event_format === "Course"} // ✅ ปิดเมื่อเป็น Course
           displayEmpty
           renderValue={(selected) => {
-            if (!selected) return "เลือกเเบบประเมิน";
+            if (!selected || formData.event_format === "Course") return "เลือกเเบบประเมิน";
             return assessments.find((a) => a.assessment_id === selected)?.assessment_name || "";
           }}
         >
@@ -57,6 +62,9 @@ const AssessmentSection: React.FC<Props> = ({
       <div className="mt-5">
         <label className="block font-semibold">
           วันและเวลาเริ่มและสิ้นสุดการทำแบบประเมิน *
+          {formData.event_format === "Course" && (
+            <span className="text-gray-500 text-sm ml-2">(ไม่ใช้สำหรับ Course)</span>
+          )}
         </label>
         
         <div className="flex space-x-2 w-full">
@@ -68,21 +76,22 @@ const AssessmentSection: React.FC<Props> = ({
                   className="w-77.5"
                   minDate={dayjs(formData.start_activity_date)}
                   value={
-                    formData.start_assessment
+                    formData.event_format === "Course" ? null : (formData.start_assessment
                       ? dayjs(formData.start_assessment)
-                      : null
+                      : null)
                   }
                   onChange={(newValue) =>
                     handleDateTimeChange("start_assessment", newValue)
                   }
-                  disabled={disabled || !formData.end_activity_date}
+                  disabled={disabled || !formData.end_activity_date || formData.event_format === "Course"}
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },
                       error: !!(
-                        (formData.activity_status === "Public" && !formData.start_assessment) ||
+                        (formData.activity_status === "Public" && !formData.start_assessment && formData.event_format !== "Course") ||
                         (formData.activity_status === "Public" &&
                         formData.start_assessment &&
+                        formData.event_format !== "Course" &&
                         ((formData.start_activity_date &&
                           dayjs(formData.start_assessment).isBefore(
                             dayjs(formData.start_activity_date),
@@ -98,7 +107,9 @@ const AssessmentSection: React.FC<Props> = ({
                             ))))
                       ),
                       helperText:
-                        formData.activity_status === "Public" && !formData.start_assessment
+                        formData.event_format === "Course"
+                          ? ""
+                          : formData.activity_status === "Public" && !formData.start_assessment
                           ? "❌ กรุณาเลือกวันและเวลาเริ่มการทำแบบประเมิน"
                           : formData.activity_status === "Public" &&
                             formData.start_assessment
@@ -137,31 +148,35 @@ const AssessmentSection: React.FC<Props> = ({
                   className="w-77.5"
                   minDate={dayjs(formData.start_assessment)}
                   value={
-                    formData.end_assessment
+                    formData.event_format === "Course" ? null : (formData.end_assessment
                       ? dayjs(formData.end_assessment)
-                      : null
+                      : null)
                   }
                   onChange={(newValue) =>
                     handleDateTimeChange("end_assessment", newValue)
                   }
-                  // ✅ end_assessment สามารถแก้ไขได้เสมอ แม้กิจกรรมจะเริ่มแล้ว
-                  disabled={!formData.start_assessment}
+                  // ✅ end_assessment สามารถแก้ไขได้เสมอ แม้กิจกรรมจะเริ่มแล้ว แต่ไม่ใช่เมื่อเป็น Course
+                  disabled={!formData.start_assessment || formData.event_format === "Course"}
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },
                       error: !!(
-                        (formData.activity_status === "Public" && !formData.end_assessment) ||
+                        (formData.activity_status === "Public" && !formData.end_assessment && formData.event_format !== "Course") ||
                         (formData.activity_status === "Public" &&
                         formData.end_assessment &&
+                        formData.event_format !== "Course" &&
                         formData.start_assessment &&
                         dayjs(formData.end_assessment).isBefore(dayjs(formData.start_assessment))) ||
                         // ✅ เพิ่มการตรวจสอบ: end_assessment ห้ามอยู่ก่อน start_assessment
                         (formData.end_assessment &&
                         formData.start_assessment &&
+                        formData.event_format !== "Course" &&
                         dayjs(formData.end_assessment).isBefore(dayjs(formData.start_assessment)))
                       ),
                       helperText:
-                        formData.activity_status === "Public" && !formData.end_assessment
+                        formData.event_format === "Course"
+                          ? ""
+                          : formData.activity_status === "Public" && !formData.end_assessment
                           ? "❌ กรุณาเลือกวันและเวลาสิ้นสุดการทำแบบประเมิน"
                           : formData.activity_status === "Public" &&
                             formData.end_assessment &&

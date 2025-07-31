@@ -210,10 +210,13 @@ export const getActivityColumns = (
       width: 300,
       sortable: true,
       renderCell: (params) => {
-        const start = params.row.start_register_date;
-        const end = params.row.end_register_date;
-        if (!start || !end) return <span>ยังไม่ได้กำหนด</span>;
-        const formatDate = (dateStr: string) => {
+        const eventFormat = params.row.event_format;
+        const startActivityDate = params.row.start_activity_date;
+        const endActivityDate = params.row.end_activity_date;
+
+        // ✅ ฟังก์ชันสำหรับแปลงวันที่ให้เป็นรูปแบบ วัน/เดือน/ปี
+        const formatDateOnly = (dateStr: string) => {
+          if (!dateStr) return "";
           const date = new Date(dateStr);
           return date.toLocaleDateString("th-TH", {
             day: "2-digit",
@@ -221,24 +224,25 @@ export const getActivityColumns = (
             year: "numeric",
           });
         };
-        const formatTime = (dateStr: string) => {
-          const date = new Date(dateStr);
-          return `${date.getHours().toString().padStart(2, "0")}.${date
-            .getMinutes()
-            .toString()
-            .padStart(2, "0")}`;
-        };
-        const isSameDay =
-          new Date(start).toDateString() === new Date(end).toDateString();
-        return (
-          <span>
-            {isSameDay
-              ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
-                  end
-                )} น.`
-              : `${formatDate(start)} - ${formatTime(end)}`}
-          </span>
-        );
+
+        // ✅ ตรวจสอบ event_format และแสดงผลตามเงื่อนไข
+        if (eventFormat === "Course") {
+          // ✅ สำหรับ Course แสดง start_activity_date - end_activity_date
+          if (!startActivityDate || !endActivityDate) {
+            return <span>ยังไม่ได้กำหนด</span>;
+          }
+          return (
+            <span>
+              {formatDateOnly(startActivityDate)} - {formatDateOnly(endActivityDate)}
+            </span>
+          );
+        } else {
+          // ✅ สำหรับ Onsite และ Online แสดงแค่ start_activity_date
+          if (!startActivityDate) {
+            return <span>ยังไม่ได้กำหนด</span>;
+          }
+          return <span>{formatDateOnly(startActivityDate)}</span>;
+        }
       },
     },
 
@@ -267,9 +271,18 @@ export const getActivityColumns = (
       width: 130,
       renderCell: (params) => {
         const totalSeats = params.row.seat;
+        const eventFormat = params.row.event_format;
+        const enrolledCount = (params.row as any).enrolled_count || 0; // ✅ ใช้ any type เพื่อหลีกเลี่ยง linter error
+        
+        // ✅ ถ้าเป็น Course ให้แสดง "-"
+        if (eventFormat === "Course") {
+          return <span>-</span>;
+        }
+        
         return (
           <Box display="flex" alignItems="center" gap={1}>
-            {totalSeats != null ? `${totalSeats} ` : "- "} <User />
+            <span>{enrolledCount}/{totalSeats != null ? totalSeats : "-"}</span>
+            <User />
           </Box>
         );
       },

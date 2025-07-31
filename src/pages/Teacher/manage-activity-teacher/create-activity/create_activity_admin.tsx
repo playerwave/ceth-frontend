@@ -375,6 +375,17 @@ useEffect(() => {
 
   const handleFormChange = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
     formHandleChange(e, setFormData);
+    
+    // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
+    if (e.target.name === "event_format" && e.target.value === "Course") {
+      setFormData((prev) => ({
+        ...prev,
+        seat: 0,
+        assessment_id: undefined, // ✅ ล้างค่าแบบประเมิน
+        start_assessment: "", // ✅ ล้างค่าวันเริ่มประเมิน
+        end_assessment: "", // ✅ ล้างค่าวันสิ้นสุดประเมิน
+      }));
+    }
   };
 
   // ✅ Wrapper ที่ fix setFormData

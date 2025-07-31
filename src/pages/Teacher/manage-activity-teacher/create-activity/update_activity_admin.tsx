@@ -122,7 +122,7 @@ const CreateActivityAdmin: React.FC = () => {
         presenter_company_name: activity.presenter_company_name || "",
         description: activity.description || "",
         type: activity.type || "Soft",
-        seat: activity.seat,
+        seat: activity.event_format === "Course" ? 0 : activity.seat, // ✅ เซ็ตเป็น 0 ถ้าเป็น Course
         recieve_hours: activity.recieve_hours || 0,
         event_format: activity.event_format || "Onsite",
         activity_status: activity.activity_status || "Private",
@@ -135,10 +135,10 @@ const CreateActivityAdmin: React.FC = () => {
         start_activity_date: activity?.start_activity_date ? convertUTCToLocal(activity.start_activity_date) : "",
         end_activity_date: activity?.end_activity_date ? convertUTCToLocal(activity.end_activity_date) : "",
         image_url: activity.image_url || "",
-        assessment_id: activity.assessment_id,
+        assessment_id: activity.event_format === "Course" ? undefined : activity.assessment_id, // ✅ ล้างค่าแบบประเมินถ้าเป็น Course
         room_id: activity.room_id,
-        start_assessment: activity?.start_assessment ? convertUTCToLocal(activity.start_assessment) : "",
-        end_assessment: activity?.end_assessment ? convertUTCToLocal(activity.end_assessment) : "",
+        start_assessment: activity.event_format === "Course" ? "" : (activity?.start_assessment ? convertUTCToLocal(activity.start_assessment) : ""), // ✅ ล้างค่าวันเริ่มประเมินถ้าเป็น Course
+        end_assessment: activity.event_format === "Course" ? "" : (activity?.end_assessment ? convertUTCToLocal(activity.end_assessment) : ""), // ✅ ล้างค่าวันสิ้นสุดประเมินถ้าเป็น Course
         status: activity.status || "Active",
         url: activity.url || "",
         selectedFoods: (activity as any).foods?.map((food: any) => food.food_id) || savedFoods,
@@ -483,6 +483,17 @@ useEffect(() => {
 
   const handleFormChange = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
     formHandleChange(e, setFormData);
+    
+    // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
+    if (e.target.name === "event_format" && e.target.value === "Course") {
+      setFormData((prev) => ({
+        ...prev,
+        seat: 0,
+        assessment_id: undefined, // ✅ ล้างค่าแบบประเมิน
+        start_assessment: "", // ✅ ล้างค่าวันเริ่มประเมิน
+        end_assessment: "", // ✅ ล้างค่าวันสิ้นสุดประเมิน
+      }));
+    }
   };
 
   // ✅ Wrapper ที่ fix setFormData
@@ -632,7 +643,7 @@ useEffect(() => {
   localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
   setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
 }}
-disabled={isActivityStarted()}
+disabled={formData.event_format !== "Onsite"}
 />
 
 </div>
