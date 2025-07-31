@@ -147,6 +147,23 @@ const ActivityTimeSection: React.FC<Props> = ({
       {/* จำนวนชั่วโมงที่จะได้รับ */}
       <div className="w-77.5 mb-2">
         <label className="block font-semibold">จำนวนชั่วโมงที่จะได้รับ *</label>
+        
+        {/* ✅ แสดงข้อความแจ้งเตือนเมื่อมีการลบชั่วโมงพักเที่ยง */}
+        {formData.event_format !== "Course" &&
+        formData.start_activity_date &&
+        formData.end_activity_date && (() => {
+          const startTime = dayjs(formData.start_activity_date);
+          const endTime = dayjs(formData.end_activity_date);
+          const lunchStart = startTime.hour(12).minute(0).second(0);
+          const lunchEnd = startTime.hour(13).minute(0).second(0);
+          const hasLunchBreak = startTime.isBefore(lunchStart) && endTime.isAfter(lunchEnd);
+          return hasLunchBreak;
+        })() && (
+          <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-600 text-sm">
+            ℹ️ ลบ 1 ชั่วโมงสำหรับพักเที่ยง (12:00-13:00)
+          </div>
+        )}
+        
         <TextField
           id="recieve_hours"
           name="recieve_hours"
@@ -156,11 +173,20 @@ const ActivityTimeSection: React.FC<Props> = ({
             formData.event_format !== "Course" &&
             formData.start_activity_date &&
             formData.end_activity_date
-              ? dayjs(formData.end_activity_date).diff(
-                  dayjs(formData.start_activity_date),
-                  "hour",
-                  true,
-                )
+              ? (() => {
+                  const startTime = dayjs(formData.start_activity_date);
+                  const endTime = dayjs(formData.end_activity_date);
+                  const totalHours = endTime.diff(startTime, "hour", true);
+                  
+                  // ✅ ตรวจสอบว่ากิจกรรมคาบเกี่ยวช่วงเที่ยงหรือไม่
+                  const lunchStart = startTime.hour(12).minute(0).second(0);
+                  const lunchEnd = startTime.hour(13).minute(0).second(0);
+                  
+                  // ถ้าเริ่มก่อนเที่ยงและจบหลังเที่ยง ให้ลบ 1 ชั่วโมง
+                  const hasLunchBreak = startTime.isBefore(lunchStart) && endTime.isAfter(lunchEnd);
+                  
+                  return hasLunchBreak ? Math.max(0, totalHours - 1) : totalHours;
+                })()
               : formData.recieve_hours || ""
           }
           className="w-full"

@@ -80,7 +80,7 @@ export const updateActivity = async (activity: Activity): Promise<void> => {
     }
   );
 };
-//------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 //--------------------- addFoodToActivity ----------------------------
 export const addFoodToActivity = async (

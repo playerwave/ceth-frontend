@@ -58,6 +58,7 @@ const AssessmentSection: React.FC<Props> = ({
         <label className="block font-semibold">
           วันและเวลาเริ่มและสิ้นสุดการทำแบบประเมิน *
         </label>
+        
         <div className="flex space-x-2 w-full">
           {/* Start */}
           <div className="w-1/2">
@@ -79,7 +80,8 @@ const AssessmentSection: React.FC<Props> = ({
                     textField: {
                       sx: { height: "56px" },
                       error: !!(
-                        formData.activity_status === "Public" &&
+                        (formData.activity_status === "Public" && !formData.start_assessment) ||
+                        (formData.activity_status === "Public" &&
                         formData.start_assessment &&
                         ((formData.start_activity_date &&
                           dayjs(formData.start_assessment).isBefore(
@@ -88,23 +90,35 @@ const AssessmentSection: React.FC<Props> = ({
                           (formData.end_assessment &&
                             dayjs(formData.start_assessment).isAfter(
                               dayjs(formData.end_assessment),
-                            )))
+                            )) ||
+                          // ✅ เพิ่มการตรวจสอบ: start_assessment ห้ามอยู่ก่อน end_register_date
+                          (formData.end_register_date &&
+                            dayjs(formData.start_assessment).isBefore(
+                              dayjs(formData.end_register_date),
+                            ))))
                       ),
                       helperText:
-                        formData.activity_status === "Public" &&
-                        formData.start_assessment
-                          ? formData.start_activity_date &&
-                            dayjs(formData.start_assessment).isBefore(
-                              dayjs(formData.start_activity_date),
-                            )
-                            ? "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม"
-                            : formData.end_assessment &&
+                        formData.activity_status === "Public" && !formData.start_assessment
+                          ? "❌ กรุณาเลือกวันและเวลาเริ่มการทำแบบประเมิน"
+                          : formData.activity_status === "Public" &&
+                            formData.start_assessment
+                            ? formData.start_activity_date &&
+                              dayjs(formData.start_assessment).isBefore(
+                                dayjs(formData.start_activity_date),
+                              )
+                              ? "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม"
+                              : formData.end_assessment &&
                                 dayjs(formData.start_assessment).isAfter(
                                   dayjs(formData.end_assessment),
                                 )
-                              ? "❌ วันเปิดประเมินต้องอยู่ก่อนวันปิดประเมิน"
-                              : ""
-                          : "",
+                                ? "❌ วันเปิดประเมินต้องอยู่ก่อนวันปิดประเมิน"
+                                : formData.end_register_date &&
+                                  dayjs(formData.start_assessment).isBefore(
+                                    dayjs(formData.end_register_date),
+                                  )
+                                  ? "❌ วันเปิดประเมินต้องอยู่หลังวันปิดลงทะเบียน"
+                                  : ""
+                            : "",
                     },
                   }}
                 />
@@ -135,29 +149,34 @@ const AssessmentSection: React.FC<Props> = ({
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },
-                      // error:
-                      //   formData.activity_status === "Public" &&
-                      //   formData.end_assessment &&
-                      //   formData.start_assessment &&
-                      //   dayjs(formData.end_assessment).isBefore(
-                      //     dayjs(formData.start_assessment),
-                      //   ),
                       error: !!(
-  formData.activity_status === "Public" &&
-  formData.end_assessment &&
-  formData.start_assessment &&
-  dayjs(formData.end_assessment).isBefore(dayjs(formData.start_assessment))
-),
-
-                      helperText:
-                        formData.activity_status === "Public" &&
+                        (formData.activity_status === "Public" && !formData.end_assessment) ||
+                        (formData.activity_status === "Public" &&
                         formData.end_assessment &&
                         formData.start_assessment &&
-                        dayjs(formData.end_assessment).isBefore(
-                          dayjs(formData.start_assessment),
-                        )
-                          ? "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน"
-                          : "",
+                        dayjs(formData.end_assessment).isBefore(dayjs(formData.start_assessment))) ||
+                        // ✅ เพิ่มการตรวจสอบ: end_assessment ห้ามอยู่ก่อน start_assessment
+                        (formData.end_assessment &&
+                        formData.start_assessment &&
+                        dayjs(formData.end_assessment).isBefore(dayjs(formData.start_assessment)))
+                      ),
+                      helperText:
+                        formData.activity_status === "Public" && !formData.end_assessment
+                          ? "❌ กรุณาเลือกวันและเวลาสิ้นสุดการทำแบบประเมิน"
+                          : formData.activity_status === "Public" &&
+                            formData.end_assessment &&
+                            formData.start_assessment &&
+                            dayjs(formData.end_assessment).isBefore(
+                              dayjs(formData.start_assessment),
+                            )
+                            ? "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน"
+                            : formData.end_assessment &&
+                              formData.start_assessment &&
+                              dayjs(formData.end_assessment).isBefore(
+                                dayjs(formData.start_assessment),
+                              )
+                              ? "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน"
+                              : "",
                     },
                   }}
                 />

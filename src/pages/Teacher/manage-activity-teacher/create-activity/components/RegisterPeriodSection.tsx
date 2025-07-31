@@ -103,7 +103,12 @@ const RegisterPeriodSection: React.FC<Props> = ({
                       dayjs(formData.start_register_date).isSame(
                         dayjs(formData.end_register_date),
                         "day",
-                      ))
+                      ) ||
+                      // ✅ เพิ่มการตรวจสอบ: start_register_date ห้ามอยู่ก่อน special_start_register_date
+                      (formData.special_start_register_date &&
+                        dayjs(formData.start_register_date).isBefore(
+                          dayjs(formData.special_start_register_date),
+                        )))
                   ),
                   helperText:
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
@@ -122,7 +127,12 @@ const RegisterPeriodSection: React.FC<Props> = ({
                         "day",
                       ))
                       ? "❌ วันเปิดให้นิสิตลงทะเบียนต้องอยู่หลังวันนี้และไม่ตรงกับวันปิด"
-                      : "",
+                      : formData.special_start_register_date &&
+                        dayjs(formData.start_register_date).isBefore(
+                          dayjs(formData.special_start_register_date),
+                        )
+                        ? "❌ วันเปิดลงทะเบียนต้องอยู่หลังวันลงทะเบียนพิเศษ"
+                        : "",
                 },
               }}
             />

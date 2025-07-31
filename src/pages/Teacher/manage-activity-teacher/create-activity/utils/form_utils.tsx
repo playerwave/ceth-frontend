@@ -62,7 +62,7 @@ export const handleDateTimeChange = (
 ) => {
   setFormData((prev: any) => ({
     ...prev,
-    [name]: newValue ? newValue.format("YYYY-MM-DDTHH:mm:ss") : null,
+    [name]: newValue ? newValue.format("YYYY-MM-DDTHH:mm:ss") : null, // ✅ ส่ง local time ไป Backend
   }));
 };
 

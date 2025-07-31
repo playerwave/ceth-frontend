@@ -9,6 +9,7 @@ interface Props {
   setIsModalOpen: (open: boolean) => void;
   isEditMode?: boolean;
   originalStatus?: string;
+  onSubmit?: () => void; // ✅ เพิ่ม onSubmit prop
 }
 
 const ActionButtonsSection: React.FC<Props> = ({
@@ -17,6 +18,7 @@ const ActionButtonsSection: React.FC<Props> = ({
   setIsModalOpen,
   isEditMode = false,
   originalStatus = "Private",
+  onSubmit,
 }) => {
   const navigate = useNavigate();
 
@@ -44,7 +46,11 @@ const ActionButtonsSection: React.FC<Props> = ({
         return "แก้ไขกิจกรรม";
       }
     } else {
-      return "สร้างกิจกรรม";
+      if (formStatus === "Public") {
+        return "สร้างกิจกรรม Public";
+      } else {
+        return "สร้างกิจกรรม Private";
+      }
     }
   };
 
@@ -56,7 +62,11 @@ const ActionButtonsSection: React.FC<Props> = ({
         return "คุณแน่ใจว่าจะแก้ไขกิจกรรมนี้";
       }
     } else {
-      return "คุณแน่ใจว่าจะสร้างกิจกรรมที่เป็น Public\n(นิสิตทุกคนในระบบจะเห็นกิจกรรมนี้)";
+      if (formStatus === "Public") {
+        return "คุณแน่ใจว่าจะสร้างกิจกรรมที่เป็น Public\n(นิสิตทุกคนในระบบจะเห็นกิจกรรมนี้)";
+      } else {
+        return "คุณแน่ใจว่าจะสร้างกิจกรรมที่เป็น Private\n(เฉพาะนิสิตที่ได้รับเชิญเท่านั้นที่เห็นกิจกรรมนี้)";
+      }
     }
   };
 
@@ -68,7 +78,10 @@ const ActionButtonsSection: React.FC<Props> = ({
         message={getDialogMessage()}
         onCancel={() => setIsModalOpen(false)}
         type="submit"
-        onConfirm={() => {}}
+        onConfirm={() => {
+          setIsModalOpen(false);
+          onSubmit?.(); // ✅ เรียก onSubmit function
+        }}
       />
 
       <div className="mt-auto flex justify-end items-center space-x-4 px-6">
@@ -82,27 +95,15 @@ const ActionButtonsSection: React.FC<Props> = ({
         </Button>
 
         {/* ปุ่มสร้าง / แก้ไข / ร่าง */}
-        {formStatus === "Public" ? (
-          <Button
-            onClick={() => {
-              setIsModalOpen(true);
-              console.log("clicked");
-            }}
-            bgColor="blue"
-          >
-            {getButtonText()}
-          </Button>
-        ) : (
-          <Button
-            onClick={() => {
-              console.log("clicked");
-            }}
-            bgColor="blue"
-            type="submit"
-          >
-            {getButtonText()}
-          </Button>
-        )}
+        <Button
+          onClick={() => {
+            setIsModalOpen(true);
+            console.log("clicked");
+          }}
+          bgColor="blue"
+        >
+          {getButtonText()}
+        </Button>
       </div>
     </>
   );

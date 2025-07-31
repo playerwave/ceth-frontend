@@ -129,20 +129,25 @@ const CreateActivityAdmin: React.FC = () => {
         activity_state: activity.activity_state || "Not Start",
         create_activity_date: activity.create_activity_date || "",
         last_update_activity_date: activity.last_update_activity_date || "",
-        start_register_date: activity.start_register_date || "",
-        special_start_register_date: activity.special_start_register_date || "",
-        end_register_date: activity.end_register_date || "",
-        start_activity_date: activity.start_activity_date || "",
-        end_activity_date: activity.end_activity_date || "",
+        start_register_date: activity?.start_register_date ? convertUTCToLocal(activity.start_register_date) : "",
+        special_start_register_date: activity?.special_start_register_date ? convertUTCToLocal(activity.special_start_register_date) : "",
+        end_register_date: activity?.end_register_date ? convertUTCToLocal(activity.end_register_date) : "",
+        start_activity_date: activity?.start_activity_date ? convertUTCToLocal(activity.start_activity_date) : "",
+        end_activity_date: activity?.end_activity_date ? convertUTCToLocal(activity.end_activity_date) : "",
         image_url: activity.image_url || "",
         assessment_id: activity.assessment_id,
         room_id: activity.room_id,
-        start_assessment: activity.start_assessment || "",
-        end_assessment: activity.end_assessment || "",
+        start_assessment: activity?.start_assessment ? convertUTCToLocal(activity.start_assessment) : "",
+        end_assessment: activity?.end_assessment ? convertUTCToLocal(activity.end_assessment) : "",
         status: activity.status || "Active",
         url: activity.url || "",
         selectedFoods: (activity as any).foods?.map((food: any) => food.food_id) || savedFoods,
       });
+
+      // ✅ อัปเดต preview image เมื่อมีรูปภาพ
+      if (activity.image_url && typeof activity.image_url === 'string') {
+        setPreviewImage(activity.image_url);
+      }
 
       // ✅ อัปเดตห้องที่เลือก
       if (activity.room_id) {
@@ -336,6 +341,8 @@ const handleRoomChange = (event: SelectChangeEvent) => {
         // ✅ เตรียมข้อมูลให้ตรงกับ backend requirements
         const updateData = {
           ...formData,
+          // ✅ ใช้ acRecieveHours ที่คำนวณแล้วแทน formData.recieve_hours
+          recieve_hours: acRecieveHours,
           // แก้ไข floor ให้เป็น string (ใช้จาก selectedFloor หรือจาก room ที่เลือก)
           floor: selectedFloor || (formData.room_id ? rooms.find(r => r.room_id === formData.room_id)?.floor || "" : ""),
           // แก้ไข room_id ให้เป็น integer
@@ -481,6 +488,18 @@ useEffect(() => {
   // ✅ Wrapper ที่ fix setFormData
   const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
     handleDateTimeChangeBase(name, newValue, setFormData);
+  };
+
+  // ✅ ฟังก์ชันแปลง UTC เป็น local time
+  const convertUTCToLocal = (utcString: string): string => {
+    if (!utcString) return "";
+    try {
+      const date = new Date(utcString);
+      return date.toLocaleString('sv-SE').replace(' ', 'T');
+    } catch (error) {
+      console.error("❌ Error converting UTC to local:", error);
+      return utcString;
+    }
   };
 
   return (
@@ -640,6 +659,13 @@ disabled={isActivityStarted()}
                   setIsModalOpen={setIsModalOpen}
                   isEditMode={!!finalActivityId}
                   originalStatus={activity?.activity_status ?? "Private"}
+                  onSubmit={() => {
+                    // ✅ สร้าง fake event object ที่มี preventDefault method
+                    const fakeEvent = {
+                      preventDefault: () => {},
+                    } as React.FormEvent;
+                    handleSubmit(fakeEvent);
+                  }}
                 />
               </div>
               

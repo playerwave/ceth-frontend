@@ -225,7 +225,13 @@ const handleRoomChange = (event: SelectChangeEvent) => {
     console.log("🚀 Data ที่ส่งไป store:", formData);
 
     try {
-      await createActivity(formData);
+      // ✅ สร้างข้อมูลใหม่ที่มี recieve_hours ที่คำนวณแล้ว
+      const createData = {
+        ...formData,
+        recieve_hours: acRecieveHours,
+      };
+      
+      await createActivity(createData);
       // navigate("/list-activity-admin");
     } catch (error) {
       console.error("❌ Error creating activity:", error);
