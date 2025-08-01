@@ -211,6 +211,22 @@ export default function ActivityInfoAdmin() {
           locationType={activity.event_format}
         />
 
+        <div className="mt-8 flex items-center">
+          <p className="font-semibold font-[Sarabun] mr-2">ลิ้งค์กิจกรรม: </p>
+          {activity.url ? (
+            <a
+              href={activity.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-black-600 hover:text-blue-800 underline cursor-pointer"
+            >
+              {activity.url}
+            </a>
+          ) : (
+            <span className="text-gray-500">-</span>
+          )}
+        </div>
+
         <ActivityFooter
           startTime={activity.start_activity_date}
           endTime={activity.end_activity_date}
