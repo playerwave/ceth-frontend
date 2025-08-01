@@ -87,11 +87,11 @@ export default function TableRedesign({
   };
 
   const filteredRows = locationFilter
-    ? rows.filter((row) => row.location_type === locationFilter)
+    ? rows.filter((row) => row.event_format === locationFilter)
     : rows;
 
   const columnsWithDropdown = columns.map((col) => {
-    if (col.field === "location_type") {
+    if (col.field === "event_format") {
       return {
         ...col,
         renderHeader: () => (

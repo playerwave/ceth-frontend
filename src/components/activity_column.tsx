@@ -247,7 +247,7 @@ export const getActivityColumns = (
     },
 
     {
-      field: "location_type",
+      field: "event_format",
       headerName: "สถานที่",
       width: 120,
       renderHeader: () => (
