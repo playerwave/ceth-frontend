@@ -131,6 +131,7 @@ import ActivityImage from "./components/ActivityImage";
 import ActivityDetails from "./components/ActivityDetails";
 import FoodSelector from "./components/FoodSelector";
 import ActivityFooter from "./components/ActivityFooter";
+import ActivityUrl from "./components/ActivityUrl";
 
 export default function ActivityInfoAdmin() {
   const navigate = useNavigate();
@@ -203,7 +204,7 @@ export default function ActivityInfoAdmin() {
 
   return (
     <div className="justify-items-center">
-      <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
+      <div className="w-320 h-auto min-h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <ActivityHeader
           name={activity.activity_name}
           seat={activity.seat}
@@ -214,7 +215,9 @@ export default function ActivityInfoAdmin() {
 
         <ActivityImage imageUrl={activity.image_url} />
 
+        <div className="mt-10">
         <ActivityDetails activity={activity} />
+        </div>
 
         {/* Debug: Show food data info */}
         {/* {import.meta.env.DEV && (
@@ -227,28 +230,24 @@ export default function ActivityInfoAdmin() {
           </div>
         )} */}
 
-        <FoodSelector
+<div className="mt-8">
+<FoodSelector
           foodList={relatedFoods}
           locationType={activity.event_format}
         />
+</div>
+        
 
-        <div className="mt-8 flex items-center">
-          <p className="font-semibold font-[Sarabun] mr-2">ลิ้งค์กิจกรรม: </p>
-          {activity.url ? (
-            <a
-              href={activity.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-black-600 hover:text-blue-800 underline cursor-pointer"
-            >
-              {activity.url}
-            </a>
-          ) : (
-            <span className="text-gray-500">-</span>
-          )}
-        </div>
+<div className="mt-8">
+<ActivityUrl
+         url={activity.url || ""}
+         label={activity.url || "-"}
+       />
+</div>
+     
 
-        <ActivityFooter
+<div className="mt-8">
+<ActivityFooter
           startTime={activity.start_activity_date}
           endTime={activity.end_activity_date}
           state={activity.activity_state}
@@ -257,6 +256,8 @@ export default function ActivityInfoAdmin() {
           }
           onEdit={() => handleToUpdateActivity(activity.activity_id)}
         />
+</div>
+        
       </div>
     </div>
   );
