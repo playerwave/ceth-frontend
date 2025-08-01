@@ -116,6 +116,8 @@ const CreateActivityAdmin: React.FC = () => {
   useEffect(() => {
     if (activity) {
       console.log("📝 Populating form with activity data:", activity);
+      console.log("🍽️ Activity foods:", (activity as any).foods);
+      console.log("🍽️ Activity activityFood:", (activity as any).activityFood);
       setFormData({
         activity_id: activity.activity_id,
         activity_name: activity.activity_name || "",
@@ -634,19 +636,33 @@ useEffect(() => {
                   disabled={isActivityStarted()}
                 />
 
-<div className="mt-6 max-w-xl w-full">
-  <label className="block font-semibold">อาหาร *</label>
-                <FoodMultiSelect
-  foods={foods}
-  selectedFoodIds={formData.selectedFoods}
-  setSelectedFoodIds={(newIds) => {
-  localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
-  setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
-}}
-disabled={formData.event_format !== "Onsite"}
-/>
+                <div className="mt-6 max-w-xl w-full">
+                  <label className="block font-semibold">อาหาร *</label>
+                  <FoodMultiSelect
+                    foods={foods}
+                    selectedFoodIds={formData.selectedFoods}
+                    setSelectedFoodIds={(newIds) => {
+                      console.log("🍽️ Food selection changed:", { old: formData.selectedFoods, new: newIds });
+                      localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
+                      setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
+                    }}
+                    disabled={formData.event_format !== "Onsite"}
+                  />
+                </div>
 
-</div>
+                {/* Debug Section */}
+                {import.meta.env.DEV && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h3 className="font-semibold text-blue-800 mb-2">🔍 Debug Food Info:</h3>
+                    <div className="text-sm space-y-1">
+                      <p><strong>Selected Foods:</strong> {JSON.stringify(formData.selectedFoods)}</p>
+                      <p><strong>Activity Foods:</strong> {JSON.stringify((activity as any)?.foods)}</p>
+                      <p><strong>Activity ActivityFood:</strong> {JSON.stringify((activity as any)?.activityFood)}</p>
+                      <p><strong>Total Foods Available:</strong> {foods.length}</p>
+                      <p><strong>Event Format:</strong> {formData.event_format}</p>
+                    </div>
+                  </div>
+                )}
 
                 
 

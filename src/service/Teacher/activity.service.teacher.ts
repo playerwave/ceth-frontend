@@ -19,6 +19,7 @@ export const getActivityById = async (id: number): Promise<Activity> => {
   const response = await axiosInstance.get<Activity>(
     `${TEACHER_ACTIVITY_PATH}/get-activity/${id}`
   );
+  console.log("🔍 Activity data service:", response.data);
   return response.data;
 };
 //------------------------------------------------------------------
@@ -87,18 +88,27 @@ export const addFoodToActivity = async (
   activity_id: number,
   food_id: number
 ) => {
-  return axiosInstance.post(`/teacher/activity/${activity_id}/add-food`, {
-    food_id,
-  });
+  console.log("🍽️ Adding food to activity:", { activity_id, food_id });
+  const response = await axiosInstance.post(
+    `/teacher/activity/${activity_id}/add-food`,
+    {
+      food_id,
+    }
+  );
+  console.log("✅ Add food response:", response.data);
+  return response;
 };
 //------------------------------------------------------------------
 
 //--------------------- removeFoodFromActivity ----------------------------
 
 export const removeFoodFromActivity = async (activity_food_id: number) => {
-  return axiosInstance.delete(
+  console.log("🗑️ Removing food from activity:", { activity_food_id });
+  const response = await axiosInstance.delete(
     `/teacher/activity/remove-food/${activity_food_id}`
   );
+  console.log("✅ Remove food response:", response.data);
+  return response;
 };
 //------------------------------------------------------------------
 

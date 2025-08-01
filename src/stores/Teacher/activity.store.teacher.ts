@@ -194,8 +194,17 @@ export const useActivityStore = create<ActivityStore>((set) => ({
 
   //--------------------- addFoodToActivity -----------------------
   addFoodToActivity: async (activity_id: number, food_id: number) => {
-    await activityService.addFoodToActivity(activity_id, food_id);
-    await useActivityStore.getState().fetchActivity(activity_id);
+    console.log("🔄 Store: Adding food to activity:", { activity_id, food_id });
+    try {
+      await activityService.addFoodToActivity(activity_id, food_id);
+      console.log(
+        "✅ Store: Food added successfully, refreshing activity data"
+      );
+      await useActivityStore.getState().fetchActivity(activity_id);
+    } catch (error) {
+      console.error("❌ Store: Error adding food to activity:", error);
+      throw error;
+    }
     //----------------------------------------------------------------
   },
 
@@ -204,8 +213,20 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     activity_food_id: number,
     activity_id: number
   ) => {
-    await activityService.removeFoodFromActivity(activity_food_id);
-    await useActivityStore.getState().fetchActivity(activity_id);
+    console.log("🔄 Store: Removing food from activity:", {
+      activity_food_id,
+      activity_id,
+    });
+    try {
+      await activityService.removeFoodFromActivity(activity_food_id);
+      console.log(
+        "✅ Store: Food removed successfully, refreshing activity data"
+      );
+      await useActivityStore.getState().fetchActivity(activity_id);
+    } catch (error) {
+      console.error("❌ Store: Error removing food from activity:", error);
+      throw error;
+    }
   },
   //----------------------------------------------------------------
 }));

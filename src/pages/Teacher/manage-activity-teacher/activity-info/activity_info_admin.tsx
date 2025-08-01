@@ -184,10 +184,20 @@ export default function ActivityInfoAdmin() {
   if (error) return <p className="text-center text-lg text-red-500">❌ {error}</p>;
   if (!activity) return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
 
+  // Debug: Log activity data to see the structure
+  console.log("🔍 Activity data:", activity);
+  console.log("🔍 Foods data:", foods);
+  console.log("🔍 Activity foods:", activity.activityFood);
+  console.log("🔍 Activity foods (alternative):", (activity as any).foods);
+
   const relatedFoods =
     Array.isArray(activity.activityFood) && activity.activityFood.length > 0
       ? foods.filter((food) =>
           activity.activityFood.some((af) => af.food_id === food.food_id)
+        )
+      : Array.isArray((activity as any).foods) && (activity as any).foods.length > 0
+      ? foods.filter((food) =>
+          (activity as any).foods.some((af: any) => af.food_id === food.food_id)
         )
       : [];
 
@@ -205,6 +215,17 @@ export default function ActivityInfoAdmin() {
         <ActivityImage imageUrl={activity.image_url} />
 
         <ActivityDetails activity={activity} />
+
+        {/* Debug: Show food data info */}
+        {/* {import.meta.env.DEV && (
+          <div className="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+            <p>🔍 Debug Food Info:</p>
+            <p>Activity Foods: {JSON.stringify(activity.activityFood)}</p>
+            <p>Alternative Foods: {JSON.stringify((activity as any).foods)}</p>
+            <p>Related Foods Count: {relatedFoods.length}</p>
+            <p>All Foods Count: {foods.length}</p>
+          </div>
+        )} */}
 
         <FoodSelector
           foodList={relatedFoods}
