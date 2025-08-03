@@ -66,10 +66,13 @@ export const updateActivityStatus = async (
   id: string,
   status: "Public" | "Private"
 ): Promise<void> => {
-  await axiosInstance.put(`${TEACHER_ACTIVITY_PATH}/update-activity/${id}`, {
-    status,
-    last_update: new Date(),
-  });
+  await axiosInstance.patch(
+    `${TEACHER_ACTIVITY_PATH}/update-activity-status/${id}`,
+    {
+      activity_status: status,
+      last_update: new Date(),
+    }
+  );
 };
 //------------------------------------------------------------------
 
