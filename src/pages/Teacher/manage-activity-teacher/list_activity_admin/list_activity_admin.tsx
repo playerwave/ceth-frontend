@@ -59,16 +59,45 @@ const ListActivityTeacher: React.FC = () => {
   }, [fetchActivities]);
 
   const displayedActivities = searchResults ?? activities;
-  const publicActivities = displayedActivities.filter(
-    (a) => a.activity_status === "Public",
-  );
+  
+  // กิจกรรมสหกิจ: Public และยังไม่ถึง start_assessment
+  const publicActivities = displayedActivities.filter((a) => {
+    const isPublic = a.activity_status === "Public";
+    const hasStartAssessment = a.start_assessment !== null && a.start_assessment !== undefined;
+    const now = new Date();
+    const startAssessmentDate = hasStartAssessment && a.start_assessment ? new Date(a.start_assessment) : null;
+    const notReachedAssessment = !hasStartAssessment || (startAssessmentDate && now < startAssessmentDate);
+    
+    // Debug log
+    if (import.meta.env.DEV) {
+      console.log(`🔍 Activity: ${a.activity_name}`, {
+        isPublic,
+        hasStartAssessment,
+        startAssessmentDate: startAssessmentDate?.toISOString(),
+        now: now.toISOString(),
+        notReachedAssessment,
+        included: isPublic && notReachedAssessment
+      });
+    }
+    
+    return isPublic && notReachedAssessment;
+  });
+  
   const privateActivities = displayedActivities.filter(
     (a) => a.activity_status === "Private",
   );
-  const activitiesEvaluate = displayedActivities.filter(
-    (a) =>
-      a.activity_state === "Start Assessment" && a.start_assessment !== null,
-  );
+  
+  // กิจกรรมที่ให้นิสิตทำแบบประเมิน: มี start_assessment และถึงเวลาแล้ว
+  const activitiesEvaluate = displayedActivities.filter((a) => {
+    const hasStartAssessment = a.start_assessment !== null && a.start_assessment !== undefined;
+    if (!hasStartAssessment || !a.start_assessment) return false;
+    
+    const now = new Date();
+    const startAssessmentDate = new Date(a.start_assessment);
+    const hasReachedAssessment = now >= startAssessmentDate;
+    
+    return hasStartAssessment && hasReachedAssessment;
+  });
 
   const handleSearch = (term: string) => {
     if (term.trim() === searchTerm.trim()) return;
@@ -77,7 +106,7 @@ const ListActivityTeacher: React.FC = () => {
   };
 
   const handleStatusToggle = async (activity: Activity) => {
-    const currentStatus = activity.status?.toLowerCase();
+    const currentStatus = activity.activity_status?.toLowerCase();
     const updatedStatus = currentStatus === "public" ? "Private" : "Public";
 
     if (!isActivityValid(activity)) {
@@ -87,9 +116,19 @@ const ListActivityTeacher: React.FC = () => {
           "กรุณากรอกข้อมูลกิจกรรมให้ตรงเงื่อนไข\n(กด Confirm เพื่อไปที่หน้าแก้ไขกิจกรรม)",
         onConfirm: () => {
           setDialog(null);
-          navigate("/update-activity-admin", {
-            state: { id: activity.activity_id },
+          // สร้าง URL ที่เข้ารหัสสำหรับหน้า update
+          const encryptedUrl = createSecureLink("/update-activity-admin", {
+            id: activity.activity_id,
+            name: "Update Activity",
+            type: "update",
+            isActive: true,
+            timestamp: Date.now(),
           });
+          
+          console.log("🔄 Navigating to update activity:", activity.activity_id);
+          console.log("🔐 Generated update URL:", encryptedUrl);
+          
+          window.location.href = encryptedUrl;
         },
       });
       return;
@@ -118,6 +157,18 @@ const ListActivityTeacher: React.FC = () => {
         <div className="flex justify-center w-full mb-4">
           <SearchBar onSearch={handleSearch} />
         </div>
+
+        {/* Debug: Show filtering info */}
+        {import.meta.env.DEV && (
+          <div className="w-full max-w-screen-xl mb-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+            <p>🔍 Debug Filtering Info:</p>
+            <p>Total Activities: {displayedActivities.length}</p>
+            <p>Public Activities: {publicActivities.length}</p>
+            <p>Private Activities: {privateActivities.length}</p>
+            <p>Assessment Activities: {activitiesEvaluate.length}</p>
+            <p>Current Time: {new Date().toISOString()}</p>
+          </div>
+        )}
 
                 <div className="flex flex-wrap justify-between items-center gap-2 mb-6 w-full">
           <div className="flex space-x-4">
