@@ -20,6 +20,7 @@ interface ActivityStore {
     id: string,
     status: "Public" | "Private"
   ) => Promise<void>;
+  deleteActivity: (id: number) => Promise<void>; // ✅ เพิ่มฟังก์ชันลบกิจกรรม
   setMockActivities?: (activities: Activity[]) => void;
   activityLoading?: boolean;
   activityError?: string | null;
@@ -229,6 +230,21 @@ export const useActivityStore = create<ActivityStore>((set) => ({
       await useActivityStore.getState().fetchActivity(activity_id);
     } catch (error) {
       console.error("❌ Store: Error removing food from activity:", error);
+      throw error;
+    }
+  },
+  //----------------------------------------------------------------
+
+  //--------------------- deleteActivity -----------------------
+  deleteActivity: async (id: number) => {
+    console.log("🗑️ Store: Deleting activity with ID:", id);
+    try {
+      await activityService.deleteActivity(id);
+      console.log("✅ Store: Activity deleted successfully");
+      // โหลดรายการกิจกรรมใหม่หลังจากลบ
+      await useActivityStore.getState().fetchActivities();
+    } catch (error) {
+      console.error("❌ Store: Error deleting activity:", error);
       throw error;
     }
   },

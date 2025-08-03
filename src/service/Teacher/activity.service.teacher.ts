@@ -120,6 +120,16 @@ export const removeFoodFromActivity = async (activity_food_id: number) => {
 };
 //------------------------------------------------------------------
 
+//--------------------- Delete Activity ----------------------------
+export const deleteActivity = async (id: number): Promise<void> => {
+  console.log("🗑️ Deleting activity with ID:", id);
+  const response = await axiosInstance.delete(
+    `${TEACHER_ACTIVITY_PATH}/delete-activity/${id}`
+  );
+  console.log("✅ Delete activity response:", response.data);
+};
+//------------------------------------------------------------------
+
 //--------------------- Export Service -----------------------------
 // เป็นนการทำ Object literal เพื่อรวมฟังก์ชันทั้งหมดที่เกี่ยวข้องกกับ activity
 const activityService = {
@@ -132,6 +142,7 @@ const activityService = {
   updateActivity,
   addFoodToActivity,
   removeFoodFromActivity,
+  deleteActivity, // ✅ เพิ่มฟังก์ชันลบกิจกรรม
 };
 //------------------------------------------------------------------
 
