@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useSecureLink } from "../routes/secure/SecureRoute";
 
 // 🔧 Custom MapPin icon แทน lucide-react
 const MapPin = ({ size, color }: { size: number; color: string }) => (
@@ -57,6 +58,7 @@ export default function TableRedesign({
   onRowDoubleClick,
 }: TableRedesignProps) {
   const navigate = useNavigate();
+  const { createSecureLink } = useSecureLink();
   const [locationFilter, setLocationFilter] = useState<string>("");
   const user = useAuthStore.getState().user;
 
@@ -67,7 +69,19 @@ export default function TableRedesign({
       if (role === "Student") {
         navigate(`/activity-info-student/${id}`);
       } else {
-        navigate(`/activity-info-admin/${id}`);
+        // ใช้ URL ที่เข้ารหัสสำหรับ Teacher
+        const encryptedUrl = createSecureLink("/activity-info-admin", {
+          id: id,
+          name: params.row.activity_name,
+          type: params.row.type,
+          isActive: params.row.activity_status === "Public",
+          timestamp: Date.now(),
+        });
+        
+        console.log("🔐 Navigating to activity info:", id);
+        console.log("🔐 Generated URL:", encryptedUrl);
+        
+        window.location.href = encryptedUrl;
       }
     }
   };

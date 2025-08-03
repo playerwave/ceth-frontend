@@ -4,8 +4,25 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import { CreateActivityForm } from "../create_activity_admin";
 import { Assessment } from "../../../../../types/model";
+
+// เพิ่ม timezone plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+// ฟังก์ชันแปลง timezone
+const convertToLocalTime = (date: string | Date | null): Dayjs | null => {
+  if (!date) return null;
+  return dayjs(date).tz("Asia/Bangkok");
+};
+
+const convertToUTC = (date: Dayjs | null): string | null => {
+  if (!date) return null;
+  return date.utc().format();
+};
 
 interface Props {
   formData: CreateActivityForm;
@@ -69,7 +86,7 @@ const AssessmentSection: React.FC<Props> = ({
                   minDate={dayjs(formData.start_activity_date)}
                   value={
                     formData.start_assessment
-                      ? dayjs(formData.start_assessment)
+                      ? convertToLocalTime(formData.start_assessment)
                       : null
                   }
                   onChange={(newValue) =>
@@ -84,16 +101,16 @@ const AssessmentSection: React.FC<Props> = ({
                         (formData.activity_status === "Public" &&
                           formData.start_assessment &&
                           ((formData.start_activity_date &&
-                            dayjs(formData.start_assessment).isBefore(
+                            convertToLocalTime(formData.start_assessment)?.isBefore(
                               dayjs(formData.start_activity_date),
                             )) ||
                             (formData.end_assessment &&
-                              dayjs(formData.start_assessment).isAfter(
-                                dayjs(formData.end_assessment),
+                              convertToLocalTime(formData.start_assessment)?.isAfter(
+                                convertToLocalTime(formData.end_assessment),
                               )) ||
                             // ✅ เพิ่มการตรวจสอบ: start_assessment ห้ามอยู่ก่อน end_register_date
                             (formData.end_register_date &&
-                              dayjs(formData.start_assessment).isBefore(
+                              convertToLocalTime(formData.start_assessment)?.isBefore(
                                 dayjs(formData.end_register_date),
                               ))))
                       ),
@@ -103,17 +120,17 @@ const AssessmentSection: React.FC<Props> = ({
                           : formData.activity_status === "Public" &&
                             formData.start_assessment
                             ? formData.start_activity_date &&
-                              dayjs(formData.start_assessment).isBefore(
+                              convertToLocalTime(formData.start_assessment)?.isBefore(
                                 dayjs(formData.start_activity_date),
                               )
                               ? "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม"
                               : formData.end_assessment &&
-                                dayjs(formData.start_assessment).isAfter(
-                                  dayjs(formData.end_assessment),
+                                convertToLocalTime(formData.start_assessment)?.isAfter(
+                                  convertToLocalTime(formData.end_assessment),
                                 )
                                 ? "❌ วันเปิดประเมินต้องอยู่ก่อนวันปิดประเมิน"
                                 : formData.end_register_date &&
-                                  dayjs(formData.start_assessment).isBefore(
+                                  convertToLocalTime(formData.start_assessment)?.isBefore(
                                     dayjs(formData.end_register_date),
                                   )
                                   ? "❌ วันเปิดประเมินต้องอยู่หลังวันปิดลงทะเบียน"
@@ -138,7 +155,7 @@ const AssessmentSection: React.FC<Props> = ({
                   minDate={dayjs(formData.start_assessment)}
                   value={
                     formData.end_assessment
-                      ? dayjs(formData.end_assessment)
+                      ? convertToLocalTime(formData.end_assessment)
                       : null
                   }
                   onChange={(newValue) =>
@@ -154,11 +171,11 @@ const AssessmentSection: React.FC<Props> = ({
                         (formData.activity_status === "Public" &&
                           formData.end_assessment &&
                           formData.start_assessment &&
-                          dayjs(formData.end_assessment).isBefore(dayjs(formData.start_assessment))) ||
+                          convertToLocalTime(formData.end_assessment)?.isBefore(convertToLocalTime(formData.start_assessment))) ||
                         // ✅ เพิ่มการตรวจสอบ: end_assessment ห้ามอยู่ก่อน start_assessment
                         (formData.end_assessment &&
                           formData.start_assessment &&
-                          dayjs(formData.end_assessment).isBefore(dayjs(formData.start_assessment)))
+                          convertToLocalTime(formData.end_assessment)?.isBefore(convertToLocalTime(formData.start_assessment)))
                       ),
                       helperText:
                         formData.activity_status === "Public" && !formData.end_assessment
@@ -166,14 +183,14 @@ const AssessmentSection: React.FC<Props> = ({
                           : formData.activity_status === "Public" &&
                             formData.end_assessment &&
                             formData.start_assessment &&
-                            dayjs(formData.end_assessment).isBefore(
-                              dayjs(formData.start_assessment),
+                            convertToLocalTime(formData.end_assessment)?.isBefore(
+                              convertToLocalTime(formData.start_assessment),
                             )
                             ? "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน"
                             : formData.end_assessment &&
                               formData.start_assessment &&
-                              dayjs(formData.end_assessment).isBefore(
-                                dayjs(formData.start_assessment),
+                              convertToLocalTime(formData.end_assessment)?.isBefore(
+                                convertToLocalTime(formData.start_assessment),
                               )
                               ? "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน"
                               : "",
