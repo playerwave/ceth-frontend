@@ -22,12 +22,12 @@ const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange, disabled
           onChange={handleChange}
           disabled={disabled}
           error={
-            formData.activity_status !== "Private" &&
+            formData.activity_status === "Public" &&
             (formData.activity_name?.length ?? 0) > 0 &&
             (formData.activity_name?.length ?? 0) < 4
           }
           helperText={
-            formData.activity_status !== "Private" &&
+            formData.activity_status === "Public" &&
             (formData.activity_name?.length ?? 0) > 0 &&
             (formData.activity_name?.length ?? 0) < 4
               ? "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร"
@@ -47,12 +47,12 @@ const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange, disabled
           onChange={handleChange}
           disabled={disabled}
           error={
-            formData.activity_status !== "Private" &&
+            formData.activity_status === "Public" &&
             (formData.presenter_company_name?.length ?? 0) > 0 &&
             (formData.presenter_company_name?.length ?? 0) < 4
           }
           helperText={
-            formData.activity_status !== "Private" &&
+            formData.activity_status === "Public" &&
             (formData.presenter_company_name?.length ?? 0) > 0 &&
             (formData.presenter_company_name?.length ?? 0) < 4
               ? "ต้องมีอย่างน้อย 4 ตัวอักษร"

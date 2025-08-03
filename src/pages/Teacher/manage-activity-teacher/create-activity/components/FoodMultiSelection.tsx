@@ -39,14 +39,18 @@ const FoodMultiSelect: React.FC<Props> = ({
         ))
       }
       renderInput={(params) => (
-        <TextField {...params}  variant="outlined" />
+        <TextField 
+          {...params}  
+          variant="outlined"
+          placeholder={disabled ? "อาหารไม่จำเป็นสำหรับกิจกรรมนี้" : "เลือกอาหาร"}
+        />
       )}
-    //   sx={{ minWidth: 300 }}
-    sx={{
-  minWidth: 564,
-  maxWidth: 56, // ✅ หรือ 100% ถ้ามี parent คุมความกว้าง
-  width: "100%", // ✅ เพื่อให้ responsive ตาม container
-}}
+      sx={{
+        minWidth: 564,
+        maxWidth: 56, // ✅ หรือ 100% ถ้ามี parent คุมความกว้าง
+        width: "100%", // ✅ เพื่อให้ responsive ตาม container
+        opacity: disabled ? 0.5 : 1,
+      }}
     />
   );
 };

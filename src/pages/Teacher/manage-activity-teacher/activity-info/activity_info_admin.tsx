@@ -190,6 +190,8 @@ export default function ActivityInfoAdmin() {
   console.log("🔍 Foods data:", foods);
   console.log("🔍 Activity foods:", activity.activityFood);
   console.log("🔍 Activity foods (alternative):", (activity as any).foods);
+  console.log("🔍 Image URL:", activity.image_url);
+  console.log("🔍 Image URL type:", typeof activity.image_url);
 
   const relatedFoods =
     Array.isArray(activity.activityFood) && activity.activityFood.length > 0

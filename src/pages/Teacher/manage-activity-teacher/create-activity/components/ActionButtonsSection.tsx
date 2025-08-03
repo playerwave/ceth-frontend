@@ -10,6 +10,7 @@ interface Props {
   isEditMode?: boolean;
   originalStatus?: string;
   onSubmit?: () => void; // ✅ เพิ่ม onSubmit prop
+  onSuccess?: (activityId: number) => void; // ✅ เพิ่ม onSuccess prop
 }
 
 const ActionButtonsSection: React.FC<Props> = ({
@@ -19,6 +20,7 @@ const ActionButtonsSection: React.FC<Props> = ({
   isEditMode = false,
   originalStatus = "Private",
   onSubmit,
+  onSuccess,
 }) => {
   const navigate = useNavigate();
 
@@ -65,7 +67,7 @@ const ActionButtonsSection: React.FC<Props> = ({
       if (formStatus === "Public") {
         return "คุณแน่ใจว่าจะสร้างกิจกรรมที่เป็น Public\n(นิสิตทุกคนในระบบจะเห็นกิจกรรมนี้)";
       } else {
-        return "คุณแน่ใจว่าจะสร้างกิจกรรมที่เป็น Private\n(เฉพาะนิสิตที่ได้รับเชิญเท่านั้นที่เห็นกิจกรรมนี้)";
+        return "คุณแน่ใจว่าจะสร้างกิจกรรมที่เป็น Private\n(นิสิตไม่สามารถมองเห็นกิจกรรมนี้)";
       }
     }
   };
@@ -78,9 +80,17 @@ const ActionButtonsSection: React.FC<Props> = ({
         message={getDialogMessage()}
         onCancel={() => setIsModalOpen(false)}
         type="submit"
-        onConfirm={() => {
+        onConfirm={async () => {
           setIsModalOpen(false);
-          onSubmit?.(); // ✅ เรียก onSubmit function
+          try {
+            const result = await onSubmit?.(); // ✅ เรียก onSubmit function และรับผลลัพธ์
+            // ✅ ถ้า onSubmit สำเร็จและมี onSuccess callback ให้เรียก
+            if (onSuccess && result) {
+              onSuccess(result); // ✅ ส่ง activityId ที่ได้จาก onSubmit
+            }
+          } catch (error) {
+            console.error("❌ Error in onSubmit:", error);
+          }
         }}
       />
 

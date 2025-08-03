@@ -120,7 +120,7 @@
 
 // export default RoomSelectionSection;
 
-import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
 import { CreateActivityForm } from "../create_activity_admin";
 import { Room } from "../../../../../types/model"; // ✅ ปรับ path ให้ตรงกับที่เก็บ Room
 
@@ -133,6 +133,8 @@ interface Props {
   handleRoomChange: (event: SelectChangeEvent) => void;
   handleChange: (e: React.ChangeEvent<any> | SelectChangeEvent) => void;
   disabled?: boolean;
+  seatCapacity?: string;
+  setSeatCapacity?: (value: string) => void;
 }
 
 const RoomSelectionSection: React.FC<Props> = ({
@@ -144,6 +146,8 @@ const RoomSelectionSection: React.FC<Props> = ({
   handleRoomChange,
   handleChange,
   disabled = false,
+  seatCapacity,
+  setSeatCapacity,
 }) => {
   // ✅ สร้างรายการชั้นจาก rooms
   const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
@@ -242,6 +246,82 @@ const RoomSelectionSection: React.FC<Props> = ({
           </Select>
         </div>
       </div>
+
+      {/* จำนวนที่นั่ง - แสดงสำหรับ Online และ Course
+      <div className="w-140">
+        <label className="block font-semibold">จำนวนที่นั่ง</label>
+        <TextField
+          type="number"
+          name="seat"
+          value={seatCapacity || ""}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^\d*$/.test(value)) {
+              const num = Number(value);
+              
+              // ✅ ตรวจสอบตาม event_format
+              if (formData.event_format === "Onsite") {
+                // ✅ Onsite: ไม่เกินความจุห้อง (ถ้ามีห้องที่เลือก)
+                const selectedRoomObj = filteredRooms.find(r => r.room_name === selectedRoom);
+                const maxSeat = selectedRoomObj?.seat_number || 0;
+                if (num >= 0 && num <= maxSeat) {
+                  if (setSeatCapacity) {
+                    setSeatCapacity(value);
+                  }
+                  const seatEvent = {
+                    ...e,
+                    target: {
+                      ...e.target,
+                      name: "seat",
+                      value: value
+                    }
+                  };
+                  handleChange(seatEvent);
+                }
+              } else if (formData.event_format === "Online") {
+                // ✅ Online: ไม่จำกัด (แต่ต้องมากกว่า 0)
+                if (num >= 0) {
+                  if (setSeatCapacity) {
+                    setSeatCapacity(value);
+                  }
+                  const seatEvent = {
+                    ...e,
+                    target: {
+                      ...e.target,
+                      name: "seat",
+                      value: value
+                    }
+                  };
+                  handleChange(seatEvent);
+                }
+              }
+              // ✅ Course: ไม่สามารถกำหนดได้ (disabled)
+            }
+          }}
+          disabled={disabled || formData.event_format === "Course"}
+          className="w-full"
+          placeholder={
+            formData.event_format === "Course" 
+              ? "ไม่สามารถกำหนดได้สำหรับ Course" 
+              : formData.event_format === "Online"
+              ? "กรอกจำนวนที่นั่ง (ไม่จำกัด)"
+              : "กรอกจำนวนที่นั่ง"
+          }
+          sx={{
+            "& .MuiInputBase-root": {
+              height: "56px",
+            },
+            opacity: formData.event_format === "Course" ? 0.5 : 1,
+          }}
+          helperText={
+            formData.event_format === "Course" 
+              ? "Course ไม่ต้องการจำนวนที่นั่ง" 
+              : formData.event_format === "Online"
+              ? "กำหนดจำนวนที่นั่งสำหรับกิจกรรม Online (ไม่จำกัด)"
+              : "จำนวนที่นั่งจะถูกกำหนดโดยห้องที่เลือก"
+          }
+        />s
+      </div> */}
     </div>
   );
 };

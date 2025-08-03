@@ -11,6 +11,7 @@ interface Props {
   foods: Food[];
   updateFoodOption: (index: number, value: number) => void;
   removeFoodOption: (index: number) => void;
+  disabled?: boolean;
 }
 
 const FoodDropdownInput: React.FC<Props> = ({
@@ -19,6 +20,7 @@ const FoodDropdownInput: React.FC<Props> = ({
   foods,
   updateFoodOption,
   removeFoodOption,
+  disabled = false,
 }) => {
   const {
     getRootProps,
@@ -41,13 +43,13 @@ const FoodDropdownInput: React.FC<Props> = ({
   });
 
   return (
-    <Box className="relative space-y-1">
+    <Box className={`relative space-y-1 ${disabled ? "opacity-50" : ""}`}>
       <Label className="mb-1">เลือกอาหาร</Label>
       <Root {...getRootProps()}>
         <InputWrapper ref={setAnchorEl} className={focused ? "focused" : ""}>
-          <input {...getInputProps()} />
+          <input {...getInputProps()} disabled={disabled} />
         </InputWrapper>
-        {groupedOptions.length > 0 && (
+        {groupedOptions.length > 0 && !disabled && (
           <Listbox {...getListboxProps()}>
             {groupedOptions.map((option, idx) => (
               <li {...getOptionProps({ option, index: idx })} key={option.food_id}>
@@ -63,6 +65,7 @@ const FoodDropdownInput: React.FC<Props> = ({
         onClick={() => removeFoodOption(index)}
         color="error"
         size="small"
+        disabled={disabled}
         sx={{ position: "absolute", top: 0, right: 0 }}
       >
         <Delete />

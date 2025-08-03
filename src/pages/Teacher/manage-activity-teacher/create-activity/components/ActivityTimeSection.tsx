@@ -46,7 +46,7 @@ const ActivityTimeSection: React.FC<Props> = ({
                     textField: {
                       sx: { height: "56px" },
                       error: !!(
-                        formData.activity_status !== "Private" &&
+                        formData.activity_status === "Public" &&
                         formData.start_activity_date &&
                         ((formData.end_register_date &&
                           dayjs(formData.start_activity_date).isBefore(
@@ -58,7 +58,7 @@ const ActivityTimeSection: React.FC<Props> = ({
                             )))
                       ),
                       helperText:
-                        formData.activity_status !== "Private" &&
+                        formData.activity_status === "Public" &&
                         formData.start_activity_date
                           ? formData.end_register_date &&
                             dayjs(formData.start_activity_date).isBefore(
@@ -116,7 +116,7 @@ const ActivityTimeSection: React.FC<Props> = ({
                       //       ))),
                       
                       helperText:
-                        formData.activity_status !== "Private" && formData.end_activity_date
+                        formData.activity_status === "Public" && formData.end_activity_date
                           ? formData.start_activity_date &&
                             dayjs(formData.end_activity_date).isBefore(
                               dayjs(formData.start_activity_date),

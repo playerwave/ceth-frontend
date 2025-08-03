@@ -53,27 +53,49 @@ const StatusAndSeatSection: React.FC<Props> = ({
           id="ac_seat"
           name="seat"
           type="number"
-          placeholder="จำนวนที่เปิดให้นิสิตลงทะเบียน"
+          placeholder={
+            formData.event_format === "Course" 
+              ? "ไม่สามารถกำหนดได้สำหรับ Course"
+              : formData.event_format === "Online"
+              ? "กรอกจำนวนที่นั่ง (ไม่จำกัด)"
+              : "จำนวนที่เปิดให้นิสิตลงทะเบียน"
+          }
           value={formData.seat?.toString() ?? ""}
           className="w-full"
           onChange={(e) => {
             const value = e.target.value;
             if (/^\d*$/.test(value)) {
               const num = Number(value);
-              const maxSeat = Number(seatCapacity); // ✅ ความจุของห้องที่เลือก
-
-              if (num >= 0 && num <= maxSeat) {
-                setFormData((prev: CreateActivityForm) => ({ ...prev, seat: num }));
+              
+              // ✅ ตรวจสอบตาม event_format
+              if (formData.event_format === "Onsite") {
+                // ✅ Onsite: ไม่เกินความจุห้อง
+                const maxSeat = Number(seatCapacity);
+                if (num >= 0 && num <= maxSeat) {
+                  setFormData((prev: CreateActivityForm) => ({ ...prev, seat: num }));
+                }
+              } else if (formData.event_format === "Online") {
+                // ✅ Online: ไม่จำกัด (แต่ต้องมากกว่า 0)
+                if (num >= 0) {
+                  setFormData((prev: CreateActivityForm) => ({ ...prev, seat: num }));
+                }
               }
+              // ✅ Course: ไม่สามารถกำหนดได้ (disabled)
             }
           }}
-          disabled={disabled}
+          disabled={disabled || formData.event_format === "Course"}
           error={
+            formData.activity_status === "Public" &&
+            formData.event_format === "Onsite" &&
             typeof formData.seat === "number" &&
             (formData.seat < 0 || formData.seat > Number(seatCapacity))
           }
           helperText={
-            typeof formData.seat === "number"
+            formData.event_format === "Course"
+              ? "Course ไม่ต้องการจำนวนที่นั่ง"
+              : formData.event_format === "Online"
+              ? "กำหนดจำนวนที่นั่งสำหรับกิจกรรม Online (ไม่จำกัด)"
+              : formData.activity_status === "Public" && typeof formData.seat === "number"
               ? formData.seat > Number(seatCapacity)
                 ? `❌ จำนวนที่นั่งต้องไม่เกิน ${seatCapacity}`
                 : formData.seat < 0
@@ -81,11 +103,11 @@ const StatusAndSeatSection: React.FC<Props> = ({
                   : ""
               : ""
           }
-
-          sx={{ height: "56px" }}
+          sx={{ 
+            height: "56px",
+            opacity: formData.event_format === "Course" ? 0.5 : 1,
+          }}
         />
-
-
       </div>
     </div>
 

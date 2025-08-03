@@ -10,7 +10,9 @@ interface Props {
 
 const ActivityLink: React.FC<Props> = ({ formData, handleChange, disabled = false }) => {
   const showError =
-    formData.event_format === "Course" && (!formData.url || formData.url.trim() === "");
+    formData.activity_status === "Public" &&
+    formData.event_format === "Course" && 
+    (!formData.url || formData.url.trim() === "");
 
   return (
     <div className="w-140 mb-2 mt-5">

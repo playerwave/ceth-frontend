@@ -40,23 +40,25 @@ const RegisterPeriodSection: React.FC<Props> = ({
       slotProps={{
         textField: {
           sx: { height: "56px" },
-          error: !!(
-            !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
-            formData.special_start_register_date &&
-            formData.start_register_date &&
-            dayjs(formData.special_start_register_date).isAfter(
-              dayjs(formData.start_register_date),
-            )
-          ),
-          helperText:
-            !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
-            formData.special_start_register_date &&
-            formData.start_register_date &&
-            dayjs(formData.special_start_register_date).isAfter(
-              dayjs(formData.start_register_date),
-            )
-              ? "❌ วันลงทะเบียนพิเศษต้องอยู่ก่อนวันลงทะเบียนปกติ"
-              : "",
+                            error: !!(
+                    !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
+                    formData.activity_status === "Public" &&
+                    formData.special_start_register_date &&
+                    formData.start_register_date &&
+                    dayjs(formData.special_start_register_date).isAfter(
+                      dayjs(formData.start_register_date),
+                    )
+                  ),
+                  helperText:
+                    !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
+                    formData.activity_status === "Public" &&
+                    formData.special_start_register_date &&
+                    formData.start_register_date &&
+                    dayjs(formData.special_start_register_date).isAfter(
+                      dayjs(formData.start_register_date),
+                    )
+                      ? "❌ วันลงทะเบียนพิเศษต้องอยู่ก่อนวันลงทะเบียนปกติ"
+                      : "",
         },
       }}
     />
@@ -91,7 +93,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                   error: !!(
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
                     !isEditMode && // ✅ ไม่แสดง error ถ้าอยู่ในหน้าแก้ไข
-                    formData.activity_status !== "Private" &&
+                    formData.activity_status === "Public" &&
                     formData.start_register_date &&
                     formData.end_register_date &&
                     (dayjs(formData.start_register_date).isBefore(
@@ -113,7 +115,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                   helperText:
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
                     !isEditMode && // ✅ ไม่แสดง error ถ้าอยู่ในหน้าแก้ไข
-                    formData.activity_status !== "Private" &&
+                    formData.activity_status === "Public" &&
                     formData.start_register_date &&
                     formData.end_register_date &&
                     (dayjs(formData.start_register_date).isBefore(
@@ -164,7 +166,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                   sx: { height: "56px" },
                   error: !!(
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
-                    formData.activity_status !== "Private" &&
+                    formData.activity_status === "Public" &&
                     formData.end_register_date &&
                     formData.start_register_date &&
                     dayjs(formData.end_register_date).isBefore(
@@ -173,7 +175,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                   ),
                   helperText:
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
-                    formData.activity_status !== "Private" &&
+                    formData.activity_status === "Public" &&
                     formData.end_register_date &&
                     formData.start_register_date &&
                     dayjs(formData.end_register_date).isBefore(
