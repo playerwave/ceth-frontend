@@ -13,6 +13,8 @@ import { useSecureLink } from "../../../../routes/secure/SecureRoute";
 import { Activity } from "../../../../types/model";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
+import { Trash2 } from "lucide-react"; // ✅ เพิ่ม icon ถังขยะ
+import ConfirmDialog from "../../../../components/ConfirmDialog"; // ✅ เพิ่ม ConfirmDialog
 
 import {
   handleChange,
@@ -208,6 +210,7 @@ useEffect(() => {
   const [seatCapacity, setSeatCapacity] = useState<string>(""); // ✅ เก็บจำนวนที่นั่งของห้องที่เลือก
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // ✅ เพิ่ม state สำหรับ dialog ลบ
 
   const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
 
@@ -534,6 +537,32 @@ useEffect(() => {
     }
   };
 
+  // ✅ ฟังก์ชันตรวจสอบว่าสามารถลบกิจกรรมได้หรือไม่
+  const canDeleteActivity = () => {
+    if (!activity) return false;
+    const restrictedStates = ["Close Register", "Start Activity", "End Activity", "Start Assessment", "End Assessment"];
+    return !restrictedStates.includes(activity.activity_state || "");
+  };
+
+  // ✅ ฟังก์ชันลบกิจกรรม
+  const handleDeleteActivity = async () => {
+    if (!activity || !canDeleteActivity()) {
+      toast.error("ไม่สามารถลบกิจกรรมนี้ได้");
+      return;
+    }
+
+    try {
+      // ✅ เรียก API ลบกิจกรรม
+      await useActivityStore.getState().deleteActivity(activity.activity_id);
+      toast.success("ลบกิจกรรมสำเร็จ!");
+      setDeleteDialogOpen(false);
+      navigate("/list-activity-admin");
+    } catch (error) {
+      console.error("❌ Error deleting activity:", error);
+      toast.error("ลบกิจกรรมไม่สำเร็จ!");
+    }
+  };
+
   return (
     <>
       {activityLoading ? (
@@ -543,9 +572,21 @@ useEffect(() => {
           <div
             className={`w-320 mx-auto ml-2xl mt-5 mb-5 p-6 border bg-white border-gray-200 rounded-lg shadow-sm min-h-screen flex flex-col`}
           >
-            <h1 className="text-4xl font-bold mb-11">
-              {finalActivityId ? "แก้ไขกิจกรรมสหกิจ" : "สร้างกิจกรรมสหกิจ"}
-            </h1>
+            <div className="flex items-center justify-between mb-11">
+              <h1 className="text-4xl font-bold">
+                {finalActivityId ? "แก้ไขกิจกรรมสหกิจ" : "สร้างกิจกรรมสหกิจ"}
+              </h1>
+              {finalActivityId && canDeleteActivity() && (
+                <button
+                  onClick={() => setDeleteDialogOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-600 rounded-lg transition-colors"
+                  title="ลบกิจกรรม"
+                >
+                  <Trash2 size={20} />
+                  <span className="font-medium">ลบกิจกรรม</span>
+                </button>
+              )}
+            </div>
             
             {/* ✅ แสดงข้อความแจ้งเตือนเมื่อกิจกรรมเริ่มแล้ว */}
             {isActivityStarted() && (
@@ -716,6 +757,16 @@ disabled={formData.event_format !== "Onsite"}
           </div>
         </Box>
       )}
+
+      {/* ✅ Dialog สำหรับยืนยันการลบกิจกรรม */}
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        title="ยืนยันการลบกิจกรรม"
+        message={`คุณแน่ใจหรือไม่ที่ต้องการลบกิจกรรม "${activity?.activity_name}"?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้`}
+        onCancel={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDeleteActivity}
+        type="button"
+      />
     </>
   );
 };
