@@ -670,23 +670,6 @@ useEffect(() => {
 disabled={formData.event_format !== "Onsite"}
 />
 </div>
-
-                {/* Debug Section */}
-                {import.meta.env.DEV && (
-                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h3 className="font-semibold text-blue-800 mb-2">🔍 Debug Food Info:</h3>
-                    <div className="text-sm space-y-1">
-                      <p><strong>Selected Foods:</strong> {JSON.stringify(formData.selectedFoods)}</p>
-                      <p><strong>Activity Foods:</strong> {JSON.stringify((activity as any)?.foods)}</p>
-                      <p><strong>Activity ActivityFood:</strong> {JSON.stringify((activity as any)?.activityFood)}</p>
-                      <p><strong>Total Foods Available:</strong> {foods.length}</p>
-                      <p><strong>Event Format:</strong> {formData.event_format}</p>
-                    </div>
-                  </div>
-                )}
-
-                
-
                 <AssessmentSection
                   formData={formData}
                   assessments={assessments}
