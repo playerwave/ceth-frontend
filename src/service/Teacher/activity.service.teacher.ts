@@ -25,14 +25,17 @@ export const getActivityById = async (id: number): Promise<Activity> => {
 //------------------------------------------------------------------
 
 //--------------------- Create Activity ----------------------------
-export const createActivity = async (payload: Partial<Activity>) => {
+export const createActivity = async (
+  payload: Partial<Activity>
+): Promise<number> => {
   console.log("📤 Creating activity with payload:", payload);
 
   const response = await axiosInstance.post(
     `${TEACHER_ACTIVITY_PATH}/create-activity`,
     payload
   );
-  return response.data;
+  console.log("📥 Create activity response:", response.data);
+  return response.data.activity_id; // ✅ ส่งคืน activity_id จาก response
 };
 //------------------------------------------------------------------
 
@@ -71,15 +74,17 @@ export const updateActivityStatus = async (
 //------------------------------------------------------------------
 
 //--------------------- Update Activity ----------------------------
-export const updateActivity = async (activity: Activity): Promise<void> => {
+export const updateActivity = async (activity: Activity): Promise<number> => {
   console.log("update activity: ", activity);
-  await axiosInstance.put(
+  const response = await axiosInstance.put(
     `${TEACHER_ACTIVITY_PATH}/update-activity/${activity.activity_id}`,
     {
       ...activity,
       last_update: new Date(),
     }
   );
+  console.log("📥 Update activity response:", response.data);
+  return activity.activity_id; // ✅ ส่งคืน activity_id จาก input
 };
 //--------------------------------------------------------------------
 

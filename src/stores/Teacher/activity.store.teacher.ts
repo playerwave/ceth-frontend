@@ -10,12 +10,12 @@ interface ActivityStore {
   fetchActivities: () => Promise<void>;
   selectActivity: (id: number) => Promise<void>;
   clearSelectedActivity: () => void;
-  createActivity: (activity: Partial<Activity>) => Promise<void>;
+  createActivity: (activity: Partial<Activity>) => Promise<number | undefined>;
 
   searchActivities?: (searchName: string) => Promise<void>;
   fetchActivity: (id: number) => Promise<Activity | null>;
   fetchEnrolledStudents?: (id: number) => Promise<void>;
-  updateActivity: (activity: Activity) => Promise<void>;
+  updateActivity: (activity: Activity) => Promise<number | undefined>;
   updateActivityStatus: (
     id: string,
     status: "Public" | "Private"
@@ -47,11 +47,13 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     console.log("📤 createActivity payload:", activityData);
     set({ loading: true, error: null });
     try {
-      await activityService.createActivity(activityData);
+      const result = await activityService.createActivity(activityData);
       const updatedList = await activityService.fetchAllActivities(); // อัปเดตรายการ
       set({ activities: updatedList });
+      return result; // ✅ ส่งคืน activity_id
     } catch (err) {
       set({ error: "Failed to create activity" });
+      throw err; // ✅ re-throw error
     } finally {
       set({ loading: false });
     }
@@ -151,10 +153,12 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   //--------------------- updateActivity ---------------------------
   updateActivity: async (activity: Activity) => {
     try {
-      await activityService.updateActivity(activity);
+      const result = await activityService.updateActivity(activity);
       await useActivityStore.getState().fetchActivities();
+      return result; // ✅ ส่งคืน activity_id
     } catch (error) {
       console.error("❌ Error updating activity:", error);
+      throw error; // ✅ re-throw error
     }
   },
   //----------------------------------------------------------------
