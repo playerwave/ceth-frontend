@@ -127,6 +127,19 @@ const ActivityTablePage = ({
     [selectedTypes],
   );
 
+  const activityColumnsForAssessment = useMemo(
+    () =>
+      getActivityColumns({
+        includeStatus: true,
+        enableTypeFilter: true,
+        handleTypeChange,
+        selectedTypes,
+        handleStatusToggle: handleConfirmStatusChange,
+        disableStatusToggle: true, // ✅ ปิดปุ่ม Toggle สำหรับตาราง Assessment
+      }),
+    [selectedTypes, handleConfirmStatusChange],
+  );
+
   return (
     <div style={{ 
       padding: 24, 
@@ -208,7 +221,7 @@ const ActivityTablePage = ({
               กิจกรรมสหกิจที่ให้นิสิตทำแบบประเมิน
             </h2>
             <TableRedesign
-              columns={activityColumns}
+              columns={activityColumnsForAssessment}
               rows={filterByType(rows3) ?? []}
               height={420}
               width="100%"

@@ -33,6 +33,7 @@ type ColumnOptions = {
   includeRecommend?: boolean;
   selectedLocations?: string[];
   handleLocationChange?: (locationType: string) => void;
+  disableStatusToggle?: boolean; // ✅ เพิ่ม option สำหรับปิดปุ่ม Toggle
 };
 
 // ✅ Custom Header Component สำหรับคอลัมน์สถานที่ (event_format)
@@ -298,6 +299,7 @@ export const getActivityColumns = (
   renderCell: (params) => {
     const isPublic = params.value === "Public";
     const isEvaluating = params.row.activity_state === "Start Assessment";
+    const isDisabled = options.disableStatusToggle || isEvaluating;
     
     if (isEvaluating) {
       return (
@@ -322,7 +324,7 @@ export const getActivityColumns = (
               <Toggle
                 isPublic={isPublic}
                 onToggle={() => options.handleStatusToggle?.(params.row)}
-                disabled={isEvaluating}
+                disabled={isDisabled}
               />
             );
   },

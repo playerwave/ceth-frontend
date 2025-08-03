@@ -60,23 +60,42 @@ const ListActivityTeacher: React.FC = () => {
 
   const displayedActivities = searchResults ?? activities;
   
-  // กิจกรรมสหกิจ: Public และยังไม่ถึง start_assessment
+  // กิจกรรมสหกิจ: Public และยังไม่ถึง start_assessment หรือไม่มี assessment dates
   const publicActivities = displayedActivities.filter((a) => {
     const isPublic = a.activity_status === "Public";
     const hasStartAssessment = a.start_assessment !== null && a.start_assessment !== undefined;
+    const hasEndAssessment = a.end_assessment !== null && a.end_assessment !== undefined;
+    
+    // ถ้าไม่มี assessment dates เลย ให้แสดงในตารางนี้
+    if (!hasStartAssessment || !hasEndAssessment) {
+      if (import.meta.env.DEV) {
+        console.log(`🔍 Activity: ${a.activity_name}`, {
+          isPublic,
+          hasStartAssessment,
+          hasEndAssessment,
+          included: isPublic,
+          reason: "No assessment dates"
+        });
+      }
+      return isPublic;
+    }
+    
+    // ถ้ามี assessment dates ให้ตรวจสอบเวลา
     const now = new Date();
-    const startAssessmentDate = hasStartAssessment && a.start_assessment ? new Date(a.start_assessment) : null;
-    const notReachedAssessment = !hasStartAssessment || (startAssessmentDate && now < startAssessmentDate);
+    const startAssessmentDate = a.start_assessment ? new Date(a.start_assessment) : null;
+    const notReachedAssessment = startAssessmentDate ? now < startAssessmentDate : false;
     
     // Debug log
     if (import.meta.env.DEV) {
       console.log(`🔍 Activity: ${a.activity_name}`, {
         isPublic,
         hasStartAssessment,
+        hasEndAssessment,
         startAssessmentDate: startAssessmentDate?.toISOString(),
         now: now.toISOString(),
         notReachedAssessment,
-        included: isPublic && notReachedAssessment
+        included: isPublic && notReachedAssessment,
+        reason: "Time-based filtering"
       });
     }
     
@@ -87,16 +106,47 @@ const ListActivityTeacher: React.FC = () => {
     (a) => a.activity_status === "Private",
   );
   
-  // กิจกรรมที่ให้นิสิตทำแบบประเมิน: มี start_assessment และถึงเวลาแล้ว
+  // กิจกรรมที่ให้นิสิตทำแบบประเมิน: Public, Active, และถึงเวลา start_assessment แต่ยังไม่ผ่าน end_assessment
   const activitiesEvaluate = displayedActivities.filter((a) => {
+    // ต้องเป็น Public และ Active
+    const isPublic = a.activity_status === "Public";
+    const isActive = a.status === "Active";
+    if (!isPublic || !isActive) return false;
+
+    // Course ไม่สามารถแสดงในตารางนี้ได้
+    if (a.event_format === "Course") return false;
+
+    // ต้องมี start_assessment และ end_assessment
     const hasStartAssessment = a.start_assessment !== null && a.start_assessment !== undefined;
-    if (!hasStartAssessment || !a.start_assessment) return false;
+    const hasEndAssessment = a.end_assessment !== null && a.end_assessment !== undefined;
+    if (!hasStartAssessment || !hasEndAssessment || !a.start_assessment || !a.end_assessment) return false;
     
     const now = new Date();
     const startAssessmentDate = new Date(a.start_assessment);
-    const hasReachedAssessment = now >= startAssessmentDate;
+    const endAssessmentDate = new Date(a.end_assessment);
     
-    return hasStartAssessment && hasReachedAssessment;
+    // ต้องถึงเวลา start_assessment และยังไม่ผ่าน end_assessment
+    const hasReachedStart = now >= startAssessmentDate;
+    const hasNotPassedEnd = now <= endAssessmentDate;
+    
+    // Debug log
+    if (import.meta.env.DEV) {
+      console.log(`🔍 Assessment Activity: ${a.activity_name}`, {
+        isPublic,
+        isActive,
+        eventFormat: a.event_format,
+        hasStartAssessment,
+        hasEndAssessment,
+        startAssessmentDate: startAssessmentDate.toISOString(),
+        endAssessmentDate: endAssessmentDate.toISOString(),
+        now: now.toISOString(),
+        hasReachedStart,
+        hasNotPassedEnd,
+        included: hasReachedStart && hasNotPassedEnd
+      });
+    }
+    
+    return hasReachedStart && hasNotPassedEnd;
   });
 
   const handleSearch = (term: string) => {
@@ -167,6 +217,27 @@ const ListActivityTeacher: React.FC = () => {
             <p>Private Activities: {privateActivities.length}</p>
             <p>Assessment Activities: {activitiesEvaluate.length}</p>
             <p>Current Time: {new Date().toISOString()}</p>
+            <p>Missing Activities: {displayedActivities.length - (publicActivities.length + privateActivities.length + activitiesEvaluate.length)}</p>
+            <p>Public Activities Details:</p>
+            {publicActivities.map((activity, index) => (
+              <p key={index} className="ml-4">
+                • {activity.activity_name} (ID: {activity.activity_id}) - {activity.event_format} - 
+                Start: {activity.start_assessment} - End: {activity.end_assessment}
+              </p>
+            ))}
+            <p>Private Activities Details:</p>
+            {privateActivities.map((activity, index) => (
+              <p key={index} className="ml-4">
+                • {activity.activity_name} (ID: {activity.activity_id}) - {activity.event_format}
+              </p>
+            ))}
+            <p>Assessment Activities Details:</p>
+            {activitiesEvaluate.map((activity, index) => (
+              <p key={index} className="ml-4">
+                • {activity.activity_name} (ID: {activity.activity_id}) - {activity.event_format} - 
+                Start: {activity.start_assessment} - End: {activity.end_assessment}
+              </p>
+            ))}
           </div>
         )}
 
