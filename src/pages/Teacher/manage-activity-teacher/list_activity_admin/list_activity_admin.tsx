@@ -159,7 +159,17 @@ const ListActivityTeacher: React.FC = () => {
     const currentStatus = activity.activity_status?.toLowerCase();
     const updatedStatus = currentStatus === "public" ? "Private" : "Public";
 
+    // ✅ เพิ่ม debug log
+    console.log("🔄 Status toggle attempt:", {
+      activity_id: activity.activity_id,
+      activity_name: activity.activity_name,
+      current_status: activity.activity_status,
+      activity_state: activity.activity_state,
+      is_valid: isActivityValid(activity)
+    });
+
     if (!isActivityValid(activity)) {
+      console.log("❌ Activity validation failed, showing dialog");
       setDialog({
         open: true,
         message:

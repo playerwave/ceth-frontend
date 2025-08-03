@@ -5,7 +5,7 @@ import { Activity } from "../../../../../types/model";
 // เปรียบเทียบคำค้นหา (ป้องกันค้นหาซ้ำคำเดิม)
 export const isSameSearchTerm = (
   newTerm: string,
-  currentTerm: string,
+  currentTerm: string
 ): boolean => {
   return newTerm.trim().toLowerCase() === currentTerm.trim().toLowerCase();
 };
@@ -13,7 +13,7 @@ export const isSameSearchTerm = (
 // กรองกิจกรรมตามสถานะ (Public หรือ Private)
 export const filterActivitiesByStatus = (
   activities: Activity[],
-  status: "Public" | "Private",
+  status: "Public" | "Private"
 ): Activity[] => {
   return activities.filter((a) => a.activity_status === status);
 };
@@ -28,6 +28,7 @@ export const isActivityValid = (activity: Activity): boolean => {
     seat,
     recieve_hours,
     activity_status,
+    activity_state,
     image_url,
     assessment_id,
     start_register_date,
@@ -41,6 +42,9 @@ export const isActivityValid = (activity: Activity): boolean => {
 
   // ถ้าเป็น Private ไม่ต้องตรวจสอบ
   if (activity_status === "Private") return true;
+
+  // ✅ ถ้า activity_state เป็น "Not Start" ให้ตรวจสอบแบบยืดหยุ่น
+  const isNotStarted = activity_state === "Not Start";
 
   // ชื่อกิจกรรม
   if (!activity_name || activity_name.length < 5 || activity_name.length > 50)
@@ -61,22 +65,29 @@ export const isActivityValid = (activity: Activity): boolean => {
   // ประเภท
   if (!type) return false;
 
-  // รูปภาพ
-  if (!image_url || !/\.(jpg|jpeg|png)$/i.test(image_url)) return false;
+  // ✅ รูปภาพ - ยืดหยุ่นสำหรับ Not Start
+  if (!isNotStarted && (!image_url || !/\.(jpg|jpeg|png)$/i.test(image_url)))
+    return false;
 
-  // ประเมินผล
-  if (event_format !== "Course" && !assessment_id) return false;
+  // ✅ ประเมินผล - ยืดหยุ่นสำหรับ Not Start
+  if (!isNotStarted && event_format !== "Course" && !assessment_id)
+    return false;
 
   // ประเภทสถานที่
   if (!event_format) return false;
 
-  // วันและเวลาเริ่ม-สิ้นสุดกิจกรรม
-  if (!start_activity_date || !end_activity_date) return false;
-  if (new Date(start_activity_date) >= new Date(end_activity_date))
+  // ✅ วันและเวลาเริ่ม-สิ้นสุดกิจกรรม - ยืดหยุ่นสำหรับ Not Start
+  if (!isNotStarted && (!start_activity_date || !end_activity_date))
+    return false;
+  if (
+    start_activity_date &&
+    end_activity_date &&
+    new Date(start_activity_date) >= new Date(end_activity_date)
+  )
     return false;
 
-  // วันประเมินผล
-  if (event_format !== "Course") {
+  // ✅ วันประเมินผล - ยืดหยุ่นสำหรับ Not Start
+  if (!isNotStarted && event_format !== "Course") {
     if (
       !start_assessment ||
       new Date(start_assessment) <= new Date(end_activity_date)
@@ -84,8 +95,8 @@ export const isActivityValid = (activity: Activity): boolean => {
       return false;
   }
 
-  // วันลงทะเบียน
-  if (event_format !== "Course") {
+  // ✅ วันลงทะเบียน - ยืดหยุ่นสำหรับ Not Start
+  if (!isNotStarted && event_format !== "Course") {
     if (!start_register_date || !end_register_date) return false;
     if (new Date(start_register_date) >= new Date(end_register_date))
       return false;
@@ -93,8 +104,8 @@ export const isActivityValid = (activity: Activity): boolean => {
       return false;
   }
 
-  // วันเปิดลงทะเบียนเฉพาะกลุ่ม
-  if (event_format === "Onsite") {
+  // ✅ วันเปิดลงทะเบียนเฉพาะกลุ่ม - ยืดหยุ่นสำหรับ Not Start
+  if (!isNotStarted && event_format === "Onsite") {
     if (
       !special_start_register_date ||
       new Date(special_start_register_date) >= new Date(start_register_date)
@@ -102,20 +113,26 @@ export const isActivityValid = (activity: Activity): boolean => {
       return false;
   }
 
-  // ห้องและชั้น
-  if (event_format === "Onsite") {
+  // ✅ ห้องและชั้น - ยืดหยุ่นสำหรับ Not Start
+  if (!isNotStarted && event_format === "Onsite") {
     if (!room_id || typeof room_id !== "number") return false;
   }
 
-  // จำนวนที่นั่ง
-  if (event_format !== "Course" && (seat === null || seat <= 0)) return false;
-
-  // จำนวนชั่วโมง
+  // ✅ จำนวนที่นั่ง - ยืดหยุ่นสำหรับ Not Start
   if (
-    (event_format === "Course" &&
+    !isNotStarted &&
+    event_format !== "Course" &&
+    (seat === null || seat <= 0)
+  )
+    return false;
+
+  // ✅ จำนวนชั่วโมง - ยืดหยุ่นสำหรับ Not Start
+  if (
+    !isNotStarted &&
+    ((event_format === "Course" &&
       (recieve_hours === null || recieve_hours <= 0)) ||
-    ((event_format === "Online" || event_format === "Onsite") &&
-      (recieve_hours === null || recieve_hours < 1))
+      ((event_format === "Online" || event_format === "Onsite") &&
+        (recieve_hours === null || recieve_hours < 1)))
   ) {
     return false;
   }
