@@ -25,6 +25,9 @@ import {userRoutes} from "./routes/user.route"
 import {foodRoutes} from "./routes/food.route"
 import {roomRoutes} from "./routes/room.route"
 
+// Visitor pages
+import VisitorActivityList from "./pages/visitor/activity-list/visiter";
+
 // auth store
 import { useAuthStore } from "./stores/Visitor/auth.store";
 
@@ -129,11 +132,15 @@ function App() {
 
         {/* 🔄 Default route - redirect ตาม role */}
         <Route
-          path="/dashboard"
+          path="/"
           element={
             <ProtectedRoute>
               <Navigate 
-                to={role === "Student" ? "/main-student" : "/"} 
+                to={
+                  role === "Student" ? "/main-student" : 
+                  role === "Teacher" || role === "Admin" ? "/" : 
+                  "/visitor"
+                } 
                 replace 
               />
             </ProtectedRoute>
@@ -150,6 +157,16 @@ function App() {
         {renderRoutesByRole(userRoutes, role)}
         {renderRoutesByRole(foodRoutes, role)}
         {renderRoutesByRole(roomRoutes, role)}
+
+        {/* 👥 Visitor routes */}
+        <Route
+          path="/visitor"
+          element={
+            <Navbar>
+              <VisitorActivityList />
+            </Navbar>
+          }
+        />
 
         {/* 🧪 test */}
         <Route

@@ -25,7 +25,7 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
   // ⛔ ถ้าไม่ auth และไม่ใช่ public page → redirect ตาม role
   if (!isAuthenticated || !user) {
     // 🔄 Redirect ไป dashboard ที่จะ redirect ตาม role อีกที
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/activity-list-visitor" replace />;
   }
 
   // 👨‍🎓 Student route
