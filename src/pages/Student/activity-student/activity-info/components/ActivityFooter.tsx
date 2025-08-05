@@ -14,6 +14,7 @@ interface Props {
   navigate: any;
   enrolledActivities: any[]; // เพิ่ม enrolledActivities
   selectedFood: string; // ใช้ selectedFood จาก props
+  userId?: number; // เพิ่ม userId
 }
 
 export default function ActivityFooter({
@@ -25,6 +26,7 @@ export default function ActivityFooter({
   navigate,
   enrolledActivities,
   selectedFood, // รับ selectedFood จาก props
+  userId,
 }: Props) {
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [isUnEnrollModalOpen, setIsUnEnrollModalOpen] = useState(false);
@@ -80,12 +82,12 @@ export default function ActivityFooter({
   //   navigate("/list-activity-student");
   // };
 
-  // ✅ ดึง useAuthStore ที่ด้านบนของ Component
+  // ✅ ใช้ userId จาก props หรือจาก useAuthStore
   const { user } = useAuthStore();
-  const userId = user?.userId;
+  const currentUserId = userId || user?.userId;
 
   const handleEnroll = async () => {
-    if (!userId) {
+    if (!currentUserId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
@@ -124,7 +126,7 @@ export default function ActivityFooter({
       return;
     }
 
-    await enrollActivity(userId, activity.activity_id, selectedFood);
+    await enrollActivity(currentUserId, activity.activity_id, selectedFood);
     setIsEnrolled(true);
     // navigate("/list-activity-student");
   };
@@ -143,13 +145,13 @@ export default function ActivityFooter({
   // };
 
   const handleUnenroll = async () => {
-    if (!userId) {
+    if (!currentUserId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
 
     try {
-      await unenrollActivity(userId, activity.id);
+      await unenrollActivity(currentUserId, activity.activity_id);
       setIsEnrolled(false);
       navigate("/main-student");
       toast.success("✅ ยกเลิกการลงทะเบียนสำเร็จ");

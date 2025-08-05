@@ -18,12 +18,11 @@ import ConfirmDialog from "../../../../components/ConfirmDialog"; // ✅ เพ�
 
 import {
   handleChange,
-  validateForm,
   // convertToDate,
 } from "./utils/form_utils"; // หรือเปลี่ยน path ให้ตรงกับตำแหน่งจริง
 import { handleDateTimeChange as handleDateTimeChangeBase } from "./utils/form_utils";
 
-import { handleChange as formHandleChange } from "./utils/form_utils";
+import { handleChange as formHandleChange, validateForm } from "./utils/form_utils";
 import ActivityInfoSection from "./components/ActivityInfoSection";
 import RegisterPeriodSection from "./components/RegisterPeriodSection";
 import ActivityTimeSection from "./components/ActivityTimeSection";
@@ -122,6 +121,31 @@ const CreateActivityAdmin: React.FC = () => {
       console.log("📝 Populating form with activity data:", activity);
       console.log("🍽️ Activity foods:", (activity as any).foods);
       console.log("🍽️ Activity activityFood:", (activity as any).activityFood);
+      
+      // 🔍 ตรวจสอบข้อมูล validation จาก URL
+      const urlValidationError = extractSecureParam(params, 'validationError', '');
+      const urlTargetStatus = extractSecureParam(params, 'targetStatus', '');
+      const urlShowValidationErrors = extractSecureParam(params, 'showValidationErrors', false);
+      
+      console.log("🔍 Validation data from URL:", {
+        urlValidationError,
+        urlTargetStatus,
+        urlShowValidationErrors
+      });
+      
+      // เซ็ตค่า state สำหรับ validation
+      setValidationError(urlValidationError);
+      setTargetStatus(urlTargetStatus);
+      setShowValidationErrors(urlShowValidationErrors);
+      
+      // เก็บ activity_status จาก Backend
+      setBackendActivityStatus(activity.activity_status || "Private");
+      
+      // ถ้ามี validation error และต้องการเปลี่ยนเป็น Public ให้ตั้งค่า activity_status เป็น Public
+      const initialActivityStatus = (urlShowValidationErrors && urlTargetStatus && urlTargetStatus === "Public") 
+        ? "Public" 
+        : (activity.activity_status || "Private");
+      
       setFormData({
         activity_id: activity.activity_id,
         activity_name: activity.activity_name || "",
@@ -131,7 +155,7 @@ const CreateActivityAdmin: React.FC = () => {
         seat: activity.event_format === "Course" ? 0 : activity.seat, // ✅ เซ็ตเป็น 0 ถ้าเป็น Course
         recieve_hours: activity.recieve_hours || 0,
         event_format: activity.event_format || "Onsite",
-        activity_status: activity.activity_status || "Private",
+        activity_status: initialActivityStatus, // ใช้ค่าที่ตรวจสอบจาก URL
         activity_state: activity.activity_state || "Not Start",
         create_activity_date: activity.create_activity_date || "",
         last_update_activity_date: activity.last_update_activity_date || "",
@@ -211,6 +235,15 @@ useEffect(() => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // ✅ เพิ่ม state สำหรับ dialog ลบ
+  
+  // ✅ เพิ่ม state สำหรับ validation
+  const [validationError, setValidationError] = useState<string>('');
+  const [targetStatus, setTargetStatus] = useState<string>('');
+  const [showValidationErrors, setShowValidationErrors] = useState<boolean>(false);
+  
+  // ✅ เพิ่ม state สำหรับเก็บ error และ activity_status จาก Backend
+  const [backendActivityStatus, setBackendActivityStatus] = useState<string>('');
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
 
@@ -524,6 +557,55 @@ useEffect(() => {
   const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
     handleDateTimeChangeBase(name, newValue, setFormData);
   };
+  
+  // ✅ ฟังก์ชันตรวจสอบ validation เมื่อ activity_status เป็น Public
+  const checkValidationForPublic = () => {
+    if (formData.activity_status === "Public") {
+      const isValid = validateForm(formData, setValidationErrors);
+      return isValid;
+    }
+    return true;
+  };
+  
+  // ✅ ฟังก์ชัน handleFormChange ที่เพิ่มการตรวจสอบ validation
+  const handleFormChangeWithValidation = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
+    formHandleChange(e, setFormData);
+    
+    // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
+    if (e.target.name === "event_format" && e.target.value === "Course") {
+      setFormData((prev) => ({
+        ...prev,
+        seat: 0,
+        assessment_id: undefined, // ✅ ล้างค่าแบบประเมิน
+        start_assessment: "", // ✅ ล้างค่าวันเริ่มประเมิน
+        end_assessment: "", // ✅ ล้างค่าวันสิ้นสุดประเมิน
+      }));
+    }
+    
+    // ✅ ถ้าเปลี่ยน event_format ไม่ใช่ Onsite ให้ล้างข้อมูลอาหาร
+    if (e.target.name === "event_format" && e.target.value !== "Onsite") {
+      setFormData((prev) => ({
+        ...prev,
+        selectedFoods: [], // ✅ ล้างข้อมูลอาหาร
+      }));
+      localStorage.removeItem("selectedFoods"); // ✅ ล้าง localStorage ด้วย
+      console.log("🧹 Cleared selectedFoods for non-Onsite event format");
+    }
+    
+    // ✅ ตรวจสอบ validation เมื่อเปลี่ยน activity_status เป็น Public
+    if (e.target.name === "activity_status" && e.target.value === "Public") {
+      setTimeout(() => {
+        checkValidationForPublic();
+      }, 100); // รอให้ formData อัปเดตก่อน
+    }
+  };
+  
+  // ✅ useEffect เพื่อตรวจสอบ validation เมื่อ formData เปลี่ยน
+  useEffect(() => {
+    if (backendActivityStatus === "Private" && formData.activity_status === "Public") {
+      checkValidationForPublic();
+    }
+  }, [formData, backendActivityStatus]);
 
   // ✅ ฟังก์ชันแปลง UTC เป็น local time
   const convertUTCToLocal = (utcString: string): string => {
@@ -602,13 +684,61 @@ useEffect(() => {
               </div>
             )}
             
+            {/* ✅ แสดงข้อความแจ้งเตือนเมื่อมี validation error */}
+            {/* {showValidationErrors && validationError && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-red-800 font-medium">
+                    ❌ กรุณาแก้ไขข้อมูลให้ถูกต้องเพื่อเปลี่ยนสถานะเป็น Public
+                  </span>
+                </div>
+                <div className="mt-2 text-red-700 text-sm">
+                  <p>• ตรวจสอบข้อมูลที่จำเป็นให้ครบถ้วน</p>
+                  <p>• ตรวจสอบวันที่ให้ถูกต้อง</p>
+                  <p>• ตรวจสอบรูปภาพและข้อมูลอื่นๆ</p>
+                </div>
+              </div>
+            )} */}
+            
+            {/* ✅ แสดงข้อความแจ้งเตือนเมื่อ Backend เป็น Private แต่ select เป็น Public */}
+            {backendActivityStatus === "Private" && formData.activity_status === "Public" && Object.keys(validationErrors).length > 0 && (
+              <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-orange-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-orange-800 font-medium">
+                    ⚠️ กรุณาแก้ไขข้อมูลให้ถูกต้องเพื่อเปลี่ยนสถานะเป็น Public
+                  </span>
+                </div>
+                <div className="mt-2 text-orange-700 text-sm">
+                  <p>• ข้อมูลบางส่วนไม่ครบถ้วนหรือไม่ถูกต้อง</p>
+                  <p>• กรุณาตรวจสอบข้อความ error ด้านล่าง</p>
+                </div>
+                {/* ✅ แสดงรายการ error ที่พบ */}
+                <div className="mt-3 text-orange-700 text-sm">
+                  <p className="font-semibold">รายการที่ต้องแก้ไข:</p>
+                  <ul className="list-disc list-inside mt-1 space-y-1">
+                    {Object.entries(validationErrors).map(([field, message]) => (
+                      <li key={field} className="text-orange-600">
+                        {message}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-10 flex-grow">
               <div>
                 {/* แถวแรก: ชื่อกิจกรรม + วันเวลาปิด/เปิดลงทะเบียน */}
                 <div className="flex space-x-6  ">
                   <ActivityInfoSection
                     formData={formData}
-                    handleChange={handleFormChange} // ✅ รับได้ 1 argument ตาม type ที่ต้องการ
+                    handleChange={handleFormChangeWithValidation} // ✅ ใช้ฟังก์ชันใหม่ที่มี validation
                     disabled={isActivityStarted()}
                   />
 
@@ -616,17 +746,17 @@ useEffect(() => {
                     formData={formData}
                     handleDateTimeChange={handleDateTimeChange}
                     disabled={isActivityStarted()}
-                    isEditMode={!!finalActivityId}
+                    isEditMode={false} // ✅ เปลี่ยนเป็น false เพื่อให้แสดง error
                   />
                   
                 </div>
 
                 {/* แถวสอง: คำอธิบาย + วันเวลาการดำเนินกิจกรรม + จำนวนชั่วโมง */}
                 {/* <div className="flex space-x-6 ">
-                  <DescriptionSection
-                    formData={formData}
-                    handleChange={handleFormChange}
-                  />
+                    <DescriptionSection
+    formData={formData}
+    handleChange={handleFormChangeWithValidation}
+  />
 
                   <ActivityTimeSection
                     formData={formData}
@@ -636,13 +766,13 @@ useEffect(() => {
                   
                 </div>
 
-                <TypeAndLocationSection
-                  formData={formData}
-                  handleChange={(e) => handleChange(e, setFormData)}
-                  setSelectedFloor={setSelectedFloor}
-                  setSelectedRoom={setSelectedRoom}
-                  setSeatCapacity={setSeatCapacity}
-                /> */}
+                    <TypeAndLocationSection
+      formData={formData}
+      handleChange={handleFormChangeWithValidation}
+      setSelectedFloor={setSelectedFloor}
+      setSelectedRoom={setSelectedRoom}
+      setSeatCapacity={setSeatCapacity}
+    /> */}
 
                 <div className="flex space-x-6">
   <DescriptionSection
@@ -679,19 +809,19 @@ useEffect(() => {
                   rooms={rooms}
                   handleFloorChange={handleFloorChange}
                   handleRoomChange={handleRoomChange}
-                  handleChange={handleFormChange}
+                  handleChange={handleFormChangeWithValidation}
                   disabled={isActivityStarted()}
                   seatCapacity={seatCapacity}
                   setSeatCapacity={setSeatCapacity}
                 />
 
-                <ActivityLink formData={formData} handleChange={handleFormChange} disabled={isActivityStarted()} />
+                <ActivityLink formData={formData} handleChange={handleFormChangeWithValidation} disabled={isActivityStarted()} />
                 </div>
 
                 <StatusAndSeatSection
                   formData={formData}
                   seatCapacity={seatCapacity}
-                  handleChange={handleFormChange}
+                  handleChange={handleFormChangeWithValidation}
                   setSeatCapacity={setSeatCapacity}
                   selectedRoom={selectedRoom}
                   setFormData={setFormData}
@@ -714,7 +844,7 @@ disabled={formData.event_format !== "Onsite"}
                 <AssessmentSection
                   formData={formData}
                   assessments={assessments}
-                  handleChange={handleFormChange}
+                  handleChange={handleFormChangeWithValidation}
                   handleDateTimeChange={handleDateTimeChange}
                   disabled={isActivityStarted()}
                 />

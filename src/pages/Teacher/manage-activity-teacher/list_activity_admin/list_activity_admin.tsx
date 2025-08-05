@@ -31,7 +31,7 @@ const CopyPlus = ({ className }: { className?: string }) => (
 );
 
 import { useSecureLink } from "../../../../routes/secure/SecureRoute";
-import { isActivityValid } from "./utils/activity";
+import { isActivityValid, validatePrivateToPublic } from "./utils/activity";
 
 const ListActivityTeacher: React.FC = () => {
   const navigate = useNavigate();
@@ -165,35 +165,94 @@ const ListActivityTeacher: React.FC = () => {
       activity_name: activity.activity_name,
       current_status: activity.activity_status,
       activity_state: activity.activity_state,
-      is_valid: isActivityValid(activity)
     });
 
-    if (!isActivityValid(activity)) {
-      console.log("❌ Activity validation failed, showing dialog");
-      setDialog({
-        open: true,
-        message:
-          "กรุณากรอกข้อมูลกิจกรรมให้ตรงเงื่อนไข\n(กด Confirm เพื่อไปที่หน้าแก้ไขกิจกรรม)",
-        onConfirm: () => {
-          setDialog(null);
-          // สร้าง URL ที่เข้ารหัสสำหรับหน้า update
-          const encryptedUrl = createSecureLink("/update-activity-admin", {
-            id: activity.activity_id,
-            name: "Update Activity",
-            type: "update",
-            isActive: true,
-            timestamp: Date.now(),
-          });
-          
-          console.log("🔄 Navigating to update activity:", activity.activity_id);
-          console.log("🔐 Generated update URL:", encryptedUrl);
-          
-          window.location.href = encryptedUrl;
-        },
-      });
-      return;
+    // ตรวจสอบเงื่อนไขตามทิศทางการเปลี่ยน
+    if (currentStatus === "public") {
+      // เปลี่ยนจาก Public เป็น Private
+      if (!isActivityValid(activity)) {
+        console.log("❌ Public to Private validation failed, showing dialog");
+        setDialog({
+          open: true,
+          message:
+            "กรุณากรอกข้อมูลกิจกรรมให้ตรงเงื่อนไข\n(กด Confirm เพื่อไปที่หน้าแก้ไขกิจกรรม)",
+          onConfirm: () => {
+            setDialog(null);
+            // สร้าง URL ที่เข้ารหัสสำหรับหน้า update
+            const encryptedUrl = createSecureLink("/update-activity-admin", {
+              id: activity.activity_id,
+              name: "Update Activity",
+              type: "update",
+              isActive: true,
+              timestamp: Date.now(),
+            });
+            
+            console.log("🔄 Navigating to update activity:", activity.activity_id);
+            console.log("🔐 Generated update URL:", encryptedUrl);
+            
+            window.location.href = encryptedUrl;
+          },
+        });
+        return;
+      }
+    } else {
+      // เปลี่ยนจาก Private เป็น Public
+      const validation = validatePrivateToPublic(activity);
+      
+      if (!validation.isValid) {
+        console.log("❌ Private to Public validation failed:", validation.reason);
+        setDialog({
+          open: true,
+          message: validation.message,
+          onConfirm: () => {
+            setDialog(null);
+            // สร้าง URL ที่เข้ารหัสสำหรับหน้า update พร้อมข้อมูล validation
+            const encryptedUrl = createSecureLink("/update-activity-admin", {
+              id: activity.activity_id,
+              name: "Update Activity",
+              type: "update",
+              isActive: true,
+              timestamp: Date.now(),
+              // เพิ่มข้อมูล validation
+              validationError: validation.reason,
+              targetStatus: "Public", // ต้องการเปลี่ยนเป็น Public
+              showValidationErrors: true, // แสดงข้อความ error
+            });
+            
+            console.log("🔄 Navigating to update activity:", activity.activity_id);
+            console.log("🔐 Generated update URL:", encryptedUrl);
+            console.log("🔍 Validation error reason:", validation.reason);
+            
+            window.location.href = encryptedUrl;
+          },
+        });
+        return;
+      } else {
+        // ถ้าผ่าน validation แต่ยังต้องยืนยัน
+        console.log("✅ Private to Public validation passed, showing confirmation dialog");
+        setDialog({
+          open: true,
+          message: validation.message,
+          onConfirm: async () => {
+            setDialog(null);
+            try {
+              await useActivityStore
+                .getState()
+                .updateActivityStatus?.(
+                  activity.activity_id.toString(),
+                  "Public",
+                );
+              toast.success("เปลี่ยนสถานะเป็น Public แล้ว");
+            } catch (err) {
+              toast.error("ไม่สามารถเปลี่ยนสถานะกิจกรรมได้");
+            }
+          },
+        });
+        return;
+      }
     }
 
+    // สำหรับ Public เป็น Private (ผ่าน validation แล้ว)
     try {
       await useActivityStore
         .getState()
@@ -219,7 +278,7 @@ const ListActivityTeacher: React.FC = () => {
         </div>
 
         {/* Debug: Show filtering info */}
-        {import.meta.env.DEV && (
+        {/* {import.meta.env.DEV && (
           <div className="w-full max-w-screen-xl mb-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
             <p>🔍 Debug Filtering Info:</p>
             <p>Total Activities: {displayedActivities.length}</p>
@@ -249,7 +308,7 @@ const ListActivityTeacher: React.FC = () => {
               </p>
             ))}
           </div>
-        )}
+        )} */}
 
                 <div className="flex flex-wrap justify-between items-center gap-2 mb-6 w-full">
           <div className="flex space-x-4">

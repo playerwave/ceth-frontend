@@ -1,4 +1,5 @@
 import ConfirmDialog from "../../../../../components/ConfirmDialog";
+import { useActivityStore } from "../../../../../stores/Student/activity.store.student";
 
 interface ConfirmModalProps {
   isEnrolled: boolean;
@@ -7,8 +8,11 @@ interface ConfirmModalProps {
   isUnEnrollModalOpen: boolean;
   setIsUnEnrollModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   activityEndRegister: Date | string;
-  onConfirmEnroll: () => Promise<void>;
-  onConfirmUnenroll: () => Promise<void>;
+  userId: number;
+  activityId: number;
+  selectedFoods?: string[];
+  onConfirmEnroll?: () => Promise<void>;
+  onConfirmUnenroll?: () => Promise<void>;
 }
 
 export default function ConfirmModal({
@@ -18,9 +22,44 @@ export default function ConfirmModal({
   isUnEnrollModalOpen,
   setIsUnEnrollModalOpen,
   activityEndRegister,
+  userId,
+  activityId,
+  selectedFoods,
   onConfirmEnroll,
   onConfirmUnenroll,
 }: ConfirmModalProps) {
+  const { enrollActivity, unenrollActivity } = useActivityStore();
+
+  const handleEnroll = async () => {
+    try {
+      await enrollActivity(userId, activityId, selectedFoods);
+      console.log("✅ ลงทะเบียนกิจกรรมสำเร็จ!");
+      setIsEnrollModalOpen(false);
+      // เรียก callback ถ้ามี
+      if (onConfirmEnroll) {
+        await onConfirmEnroll();
+      }
+    } catch (error) {
+      console.error("❌ Error enrolling activity:", error);
+      console.error("❌ ลงทะเบียนกิจกรรมไม่สำเร็จ!");
+    }
+  };
+
+  const handleUnenroll = async () => {
+    try {
+      await unenrollActivity(userId, activityId);
+      console.log("✅ ยกเลิกการลงทะเบียนสำเร็จ!");
+      setIsUnEnrollModalOpen(false);
+      // เรียก callback ถ้ามี
+      if (onConfirmUnenroll) {
+        await onConfirmUnenroll();
+      }
+    } catch (error) {
+      console.error("❌ Error unenrolling activity:", error);
+      console.error("❌ ยกเลิกการลงทะเบียนไม่สำเร็จ!");
+    }
+  };
+
   return (
     <>
       {isEnrolled ? (
@@ -34,7 +73,7 @@ export default function ConfirmModal({
             year: "numeric",
           }).format(new Date(activityEndRegister))})`}
           onCancel={() => setIsUnEnrollModalOpen(false)}
-          onConfirm={onConfirmUnenroll}
+          onConfirm={handleUnenroll}
         />
       ) : (
         <ConfirmDialog
@@ -47,7 +86,7 @@ export default function ConfirmModal({
             year: "numeric",
           }).format(new Date(activityEndRegister))})`}
           onCancel={() => setIsEnrollModalOpen(false)}
-          onConfirm={onConfirmEnroll}
+          onConfirm={handleEnroll}
         />
       )}
     </>

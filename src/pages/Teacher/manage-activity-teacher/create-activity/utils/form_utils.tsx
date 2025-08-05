@@ -110,18 +110,25 @@ export const validateForm = (formData: any, setErrors: any): boolean => {
   if (formData.activity_status === "Public") {
     if (!formData.activity_name || formData.activity_name.length < 4) {
       newErrors.activity_name = "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร";
+    } else if (formData.activity_name.length > 50) {
+      newErrors.activity_name = "ชื่อกิจกรรมต้องไม่เกิน 50 ตัวอักษร";
     }
     if (
       !formData.presenter_company_name ||
       formData.presenter_company_name.length < 4
     ) {
       newErrors.presenter_company_name = "ต้องมีอย่างน้อย 4 ตัวอักษร";
+    } else if (formData.presenter_company_name.length > 50) {
+      newErrors.presenter_company_name = "ชื่อบริษัท/วิทยากรต้องไม่เกิน 50 ตัวอักษร";
     }
     if (!formData.type) {
       newErrors.type = "กรุณาเลือกประเภท";
     }
     if (!formData.activity_status) {
       newErrors.activity_status = "กรุณาเลือกสถานะ";
+    }
+    if (formData.description && formData.description.length > 2000) {
+      newErrors.description = "คำอธิบายต้องไม่เกิน 2000 ตัวอักษร";
     }
     if (!formData.start_activity_date) {
       newErrors.start_activity_date = "กรุณาเลือกวันและเวลาเริ่มกิจกรรม";
@@ -182,6 +189,29 @@ export const validateForm = (formData: any, setErrors: any): boolean => {
       (!formData.url || formData.url.trim() === "")
     ) {
       newErrors.url = "กรุณาระบุลิ้งกิจกรรมสำหรับ Course";
+    }
+    
+    // ✅ ตรวจสอบวันที่ผ่านไปแล้ว
+    const now = dayjs();
+    
+    if (formData.special_start_register_date && dayjs(formData.special_start_register_date).isBefore(now)) {
+      newErrors.special_start_register_date = "❌ วันลงทะเบียนพิเศษต้องไม่เป็นอดีต";
+    }
+    
+    if (formData.start_register_date && dayjs(formData.start_register_date).isBefore(now)) {
+      newErrors.start_register_date = "❌ วันเปิดลงทะเบียนต้องไม่เป็นอดีต";
+    }
+    
+    if (formData.end_register_date && dayjs(formData.end_register_date).isBefore(now)) {
+      newErrors.end_register_date = "❌ วันปิดลงทะเบียนต้องไม่เป็นอดีต";
+    }
+    
+    if (formData.start_activity_date && dayjs(formData.start_activity_date).isBefore(now)) {
+      newErrors.start_activity_date = "❌ วันเริ่มกิจกรรมต้องไม่เป็นอดีต";
+    }
+    
+    if (formData.end_activity_date && dayjs(formData.end_activity_date).isBefore(now)) {
+      newErrors.end_activity_date = "❌ วันสิ้นสุดกิจกรรมต้องไม่เป็นอดีต";
     }
   }
 

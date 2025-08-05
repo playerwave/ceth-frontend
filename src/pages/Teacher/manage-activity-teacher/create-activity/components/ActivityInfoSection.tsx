@@ -24,14 +24,17 @@ const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange, disabled
           error={
             formData.activity_status === "Public" &&
             (formData.activity_name?.length ?? 0) > 0 &&
-            (formData.activity_name?.length ?? 0) < 4
+            ((formData.activity_name?.length ?? 0) < 4 || (formData.activity_name?.length ?? 0) > 50)
           }
           helperText={
             formData.activity_status === "Public" &&
             (formData.activity_name?.length ?? 0) > 0 &&
             (formData.activity_name?.length ?? 0) < 4
               ? "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร"
-              : ""
+              : formData.activity_status === "Public" &&
+                (formData.activity_name?.length ?? 0) > 50
+                ? "ชื่อกิจกรรมต้องไม่เกิน 50 ตัวอักษร"
+                : ""
           }
           sx={{ height: "56px" }}
         />
@@ -49,14 +52,17 @@ const ActivityInfoSection: React.FC<Props> = ({ formData, handleChange, disabled
           error={
             formData.activity_status === "Public" &&
             (formData.presenter_company_name?.length ?? 0) > 0 &&
-            (formData.presenter_company_name?.length ?? 0) < 4
+            ((formData.presenter_company_name?.length ?? 0) < 4 || (formData.presenter_company_name?.length ?? 0) > 50)
           }
           helperText={
             formData.activity_status === "Public" &&
             (formData.presenter_company_name?.length ?? 0) > 0 &&
             (formData.presenter_company_name?.length ?? 0) < 4
               ? "ต้องมีอย่างน้อย 4 ตัวอักษร"
-              : ""
+              : formData.activity_status === "Public" &&
+                (formData.presenter_company_name?.length ?? 0) > 50
+                ? "ชื่อบริษัท/วิทยากรต้องไม่เกิน 50 ตัวอักษร"
+                : ""
           }
           sx={{ height: "56px" }}
         />

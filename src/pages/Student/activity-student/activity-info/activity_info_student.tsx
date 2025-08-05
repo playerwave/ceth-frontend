@@ -29,20 +29,18 @@ export default function ActivityInfoStudent() {
   } = useActivityStore();
 
   const { user } = useAuthStore(); 
-  const userId = user?.userId;
+  const userId = user?.userId || 8; // ใช้ userId จริงหรือ fallback เป็น 8
 
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [selectedFood, setSelectedFood] = useState<string>("");
 
   useEffect(() => {
-    const userId = 8;
     fetchEnrolledActivities(userId);
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
-    const userId = 8;
     fetchActivity(id, userId);
-  }, [id]);
+  }, [id, userId]);
 
   useEffect(() => {
     if (enrolledActivities.length === 0) return;
@@ -75,13 +73,14 @@ export default function ActivityInfoStudent() {
         />
         <ActivityFooter
           activity={activity}
-          isEnrolled={false}
-          enrollActivity={() => {}} // ❌ ปิดระบบลงทะเบียน
-          unenrollActivity={() => {}} // ❌ ปิดยกเลิกลงทะเบียน
-          setIsEnrolled={() => {}} // ❌ ไม่ต้องเปลี่ยนสถานะ
+          isEnrolled={isEnrolled}
+          enrollActivity={enrollActivity}
+          unenrollActivity={unenrollActivity}
+          setIsEnrolled={setIsEnrolled}
           navigate={navigate}
-          enrolledActivities={[]} // ❌ ไม่แสดงรายชื่อที่ลงทะเบียน
+          enrolledActivities={enrolledActivities}
           selectedFood={selectedFood}
+          userId={userId}
         />
       </div>
     </div>

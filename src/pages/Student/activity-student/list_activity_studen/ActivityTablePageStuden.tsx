@@ -22,7 +22,7 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
   };
 
   const handleDoubleClickActivity = (row: Activity) => {
-    navigate(`/activity-info-admin/${row.activity_id}`, {
+    navigate(`/activity-info-student/${row.activity_id}`, {
       state: { id: row.activity_id },
     });
   }

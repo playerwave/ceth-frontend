@@ -44,6 +44,18 @@ const DescriptionSection: React.FC<Props> = ({ formData, handleChange, disabled 
   }}
         placeholder="รายละเอียดกิจกรรม หรือ คำอธิบาย"
         required
+        error={
+          formData.activity_status === "Public" &&
+          formData.description &&
+          formData.description.length > 2000
+        }
+        helperText={
+          formData.activity_status === "Public" &&
+          formData.description &&
+          formData.description.length > 2000
+            ? "คำอธิบายต้องไม่เกิน 2000 ตัวอักษร"
+            : ""
+        }
       />
     </div>
   );
