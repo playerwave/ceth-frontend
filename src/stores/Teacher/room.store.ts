@@ -139,8 +139,11 @@ interface RoomStore {
   selectedRoom: Room | null;
   loading: boolean;
   error: string | null;
-  buildings: Building[];  // ✅ เพิ่มตรงนี้
-  faculties: Faculty[];   // ✅ เพิ่มตรงนี้
+  buildings: Building[]; // ✅ เพิ่มตรงนี้
+  faculties: Faculty[]; // ✅ เพิ่มตรงนี้
+  availableRooms: Room[]; // ✅ ห้องที่ว่าง
+  roomConflicts: any[]; // ✅ ห้องที่ถูกใช้งาน
+  checkingAvailability: boolean; // ✅ สถานะการตรวจสอบ
 
   fetchRooms: () => Promise<void>;
   selectRoom: (room: Room) => void;
@@ -150,12 +153,31 @@ interface RoomStore {
   updateRoom: (room: Room) => Promise<void>;
   deleteRoom: (id: number) => Promise<void>;
 
+  // ✅ ฟังก์ชันตรวจสอบห้องที่ว่าง
+  checkAvailableRooms: (
+    start_date: string,
+    end_date: string,
+    exclude_id?: number
+  ) => Promise<void>;
+  checkRoomConflicts: (
+    room_id: number,
+    start_date: string,
+    end_date: string,
+    exclude_id?: number
+  ) => Promise<void>;
+  checkAllAvailableRooms: (
+    start_date: string,
+    end_date: string,
+    exclude_id?: number
+  ) => Promise<void>;
+  clearAvailabilityCheck: () => void;
+
   // Optional: countRooms
   roomCount?: number;
 
   fetchRoomCount?: () => Promise<void>;
-  fetchBuildings: () => Promise<void>;   // ✅ ฟังก์ชันโหลดอาคาร
-  fetchFaculties: () => Promise<void>;   // ✅ ฟังก์ชันโหลดคณะ
+  fetchBuildings: () => Promise<void>; // ✅ ฟังก์ชันโหลดอาคาร
+  fetchFaculties: () => Promise<void>; // ✅ ฟังก์ชันโหลดคณะ
 }
 
 export const useRoomStore = create<RoomStore>((set) => ({
@@ -164,11 +186,13 @@ export const useRoomStore = create<RoomStore>((set) => ({
   loading: false,
   error: null,
   roomCount: undefined,
-  buildings: [],    // ✅ state ใหม่
-  faculties: [],    // ✅ state ใหม่
+  buildings: [], // ✅ state ใหม่
+  faculties: [], // ✅ state ใหม่
+  availableRooms: [], // ✅ ห้องที่ว่าง
+  roomConflicts: [], // ✅ ห้องที่ถูกใช้งาน
+  checkingAvailability: false, // ✅ สถานะการตรวจสอบ
 
   //------------------------------------------- Room Actions --------------------------------------------------
-
 
   fetchFaculties: async () => {
     try {
@@ -242,7 +266,6 @@ export const useRoomStore = create<RoomStore>((set) => ({
     }
   },
 
-
   // 👉 fetch buildings
   fetchBuildings: async () => {
     try {
@@ -251,5 +274,81 @@ export const useRoomStore = create<RoomStore>((set) => ({
     } catch (error) {
       console.error("❌ Error fetching buildings:", error);
     }
+  },
+
+  // ✅ ตรวจสอบห้องที่ว่างในช่วงเวลาที่กำหนด
+  checkAvailableRooms: async (
+    start_date: string,
+    end_date: string,
+    exclude_id?: number
+  ) => {
+    set({ checkingAvailability: true, error: null });
+    try {
+      const availableRooms = await roomService.getAvailableRooms(
+        start_date,
+        end_date,
+        exclude_id
+      );
+      set({ availableRooms, checkingAvailability: false });
+    } catch (error) {
+      console.error("❌ Error checking available rooms:", error);
+      set({
+        error: "ไม่สามารถตรวจสอบห้องที่ว่างได้",
+        checkingAvailability: false,
+      });
+    }
+  },
+
+  // ✅ ตรวจสอบห้องที่ถูกใช้งาน
+  checkRoomConflicts: async (
+    room_id: number,
+    start_date: string,
+    end_date: string,
+    exclude_id?: number
+  ) => {
+    set({ checkingAvailability: true, error: null });
+    try {
+      const conflicts = await roomService.getRoomConflicts(
+        room_id,
+        start_date,
+        end_date,
+        exclude_id
+      );
+      set({ roomConflicts: conflicts, checkingAvailability: false });
+    } catch (error) {
+      console.error("❌ Error checking room conflicts:", error);
+      set({
+        error: "ไม่สามารถตรวจสอบห้องที่ถูกใช้งานได้",
+        checkingAvailability: false,
+      });
+    }
+  },
+
+  // ✅ ตรวจสอบห้องที่ว่างทั้งหมดในช่วงเวลาที่กำหนด
+  checkAllAvailableRooms: async (
+    start_date: string,
+    end_date: string,
+    exclude_id?: number
+  ) => {
+    set({ checkingAvailability: true, error: null });
+    try {
+      const availableRooms = await roomService.getAllAvailableRooms(
+        start_date,
+        end_date,
+        exclude_id
+      );
+      set({ availableRooms, checkingAvailability: false });
+    } catch (error) {
+      console.error("❌ Error checking all available rooms:", error);
+      set({
+        error: "ไม่สามารถตรวจสอบห้องที่ว่างได้",
+        checkingAvailability: false,
+      });
+    }
+  },
+
+  // ✅ ล้างข้อมูลการตรวจสอบ
+  clearAvailabilityCheck: () => {
+    set({ availableRooms: [], roomConflicts: [], checkingAvailability: false });
   },
 }));

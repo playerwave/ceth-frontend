@@ -120,7 +120,7 @@
 
 // export default RoomSelectionSection;
 
-import { MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
+import { MenuItem, Select, SelectChangeEvent, TextField, FormHelperText } from "@mui/material";
 import { CreateActivityForm } from "../create_activity_admin";
 import { Room } from "../../../../../types/model"; // ✅ ปรับ path ให้ตรงกับที่เก็บ Room
 
@@ -135,6 +135,11 @@ interface Props {
   disabled?: boolean;
   seatCapacity?: string;
   setSeatCapacity?: (value: string) => void;
+  // ✅ เพิ่ม props สำหรับ room conflicts
+  roomConflicts?: any[];
+  checkingAvailability?: boolean;
+  hasTimeConflict?: boolean;
+  currentActivityId?: number;
 }
 
 const RoomSelectionSection: React.FC<Props> = ({
@@ -148,12 +153,27 @@ const RoomSelectionSection: React.FC<Props> = ({
   disabled = false,
   seatCapacity,
   setSeatCapacity,
+  roomConflicts = [],
+  checkingAvailability = false,
+  hasTimeConflict = false,
+  currentActivityId,
 }) => {
   // ✅ สร้างรายการชั้นจาก rooms
   const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
 
   // ✅ กรองห้องตามชั้นที่เลือก
   const filteredRooms = rooms.filter((r) => r.floor === selectedFloor);
+
+  // ✅ ตรวจสอบว่าห้องไหนมี conflict
+  const getRoomConflict = (roomId: number) => {
+    return roomConflicts.find(conflict => conflict.room_id === roomId);
+  };
+
+  // ✅ ตรวจสอบว่ามีวันที่และเวลาที่กำหนดหรือไม่
+  const hasDateTimeSet = formData.start_activity_date && formData.end_activity_date;
+
+  // ✅ ตรวจสอบว่าห้องที่เลือกมี conflict หรือไม่
+  const selectedRoomConflict = formData.room_id ? getRoomConflict(formData.room_id) : null;
 
   return (
     <div className="flex flex-col space-y-4 mt-5">
@@ -238,90 +258,75 @@ const RoomSelectionSection: React.FC<Props> = ({
             }}
           >
             <MenuItem value="">เลือกห้อง</MenuItem>
-            {filteredRooms.map((room) => (
-              <MenuItem key={room.room_id} value={room.room_name}>
-                {room.room_name} (ความจุ {room.seat_number} ที่นั่ง)
-              </MenuItem>
-            ))}
+            {filteredRooms.map((room) => {
+              const conflict = getRoomConflict(room.room_id);
+              const isCurrentActivity = currentActivityId && conflict?.activity_id === currentActivityId;
+              const isAvailable = !conflict || isCurrentActivity;
+              
+              return (
+                <MenuItem 
+                  key={room.room_id} 
+                  value={room.room_name}
+                  disabled={Boolean(!isAvailable && hasDateTimeSet)}
+                  sx={{
+                    color: isAvailable ? 'inherit' : '#999',
+                    backgroundColor: isAvailable ? 'inherit' : '#f5f5f5',
+                  }}
+                >
+                  {room.room_name} (ความจุ {room.seat_number} ที่นั่ง)
+                  {!isAvailable && hasDateTimeSet && (
+                    <span className="text-red-500 ml-2">
+                      - ถูกใช้งานแล้ว
+                    </span>
+                  )}
+                </MenuItem>
+              );
+            })}
           </Select>
+          
+          {/* ✅ แสดง helper text สำหรับห้องที่เลือก */}
+          {selectedRoomConflict && hasDateTimeSet && !checkingAvailability && (
+            <FormHelperText 
+              error={!currentActivityId || selectedRoomConflict.activity_id !== currentActivityId}
+              sx={{ mt: 1 }}
+            >
+              {currentActivityId && selectedRoomConflict.activity_id === currentActivityId ? (
+                "ห้องนี้ถูกใช้งานโดยกิจกรรมปัจจุบัน"
+              ) : (
+                `ห้องนี้ถูกใช้งานโดยกิจกรรม: ${selectedRoomConflict.activity_name || 'ไม่ระบุ'}`
+              )}
+            </FormHelperText>
+          )}
+          
+          {/* ✅ แสดง helper text เมื่อกำลังตรวจสอบ */}
+          {checkingAvailability && hasDateTimeSet && (
+            <FormHelperText sx={{ mt: 1, color: 'info.main' }}>
+              กำลังตรวจสอบห้องที่ว่าง...
+            </FormHelperText>
+          )}
+          
+          {/* ✅ แสดง helper text เมื่อยังไม่ได้เลือกวันที่ */}
+          {!hasDateTimeSet && formData.event_format === "Onsite" && (
+            <FormHelperText sx={{ mt: 1, color: 'text.secondary' }}>
+              เลือกวันที่และเวลากิจกรรมเพื่อดูห้องที่ว่าง
+            </FormHelperText>
+          )}
         </div>
       </div>
 
-      {/* จำนวนที่นั่ง - แสดงสำหรับ Online และ Course
-      <div className="w-140">
-        <label className="block font-semibold">จำนวนที่นั่ง</label>
-        <TextField
-          type="number"
-          name="seat"
-          value={seatCapacity || ""}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (/^\d*$/.test(value)) {
-              const num = Number(value);
-              
-              // ✅ ตรวจสอบตาม event_format
-              if (formData.event_format === "Onsite") {
-                // ✅ Onsite: ไม่เกินความจุห้อง (ถ้ามีห้องที่เลือก)
-                const selectedRoomObj = filteredRooms.find(r => r.room_name === selectedRoom);
-                const maxSeat = selectedRoomObj?.seat_number || 0;
-                if (num >= 0 && num <= maxSeat) {
-                  if (setSeatCapacity) {
-                    setSeatCapacity(value);
-                  }
-                  const seatEvent = {
-                    ...e,
-                    target: {
-                      ...e.target,
-                      name: "seat",
-                      value: value
-                    }
-                  };
-                  handleChange(seatEvent);
-                }
-              } else if (formData.event_format === "Online") {
-                // ✅ Online: ไม่จำกัด (แต่ต้องมากกว่า 0)
-                if (num >= 0) {
-                  if (setSeatCapacity) {
-                    setSeatCapacity(value);
-                  }
-                  const seatEvent = {
-                    ...e,
-                    target: {
-                      ...e.target,
-                      name: "seat",
-                      value: value
-                    }
-                  };
-                  handleChange(seatEvent);
-                }
-              }
-              // ✅ Course: ไม่สามารถกำหนดได้ (disabled)
-            }
-          }}
-          disabled={disabled || formData.event_format === "Course"}
-          className="w-full"
-          placeholder={
-            formData.event_format === "Course" 
-              ? "ไม่สามารถกำหนดได้สำหรับ Course" 
-              : formData.event_format === "Online"
-              ? "กรอกจำนวนที่นั่ง (ไม่จำกัด)"
-              : "กรอกจำนวนที่นั่ง"
-          }
-          sx={{
-            "& .MuiInputBase-root": {
-              height: "56px",
-            },
-            opacity: formData.event_format === "Course" ? 0.5 : 1,
-          }}
-          helperText={
-            formData.event_format === "Course" 
-              ? "Course ไม่ต้องการจำนวนที่นั่ง" 
-              : formData.event_format === "Online"
-              ? "กำหนดจำนวนที่นั่งสำหรับกิจกรรม Online (ไม่จำกัด)"
-              : "จำนวนที่นั่งจะถูกกำหนดโดยห้องที่เลือก"
-          }
-        />s
-      </div> */}
+      {/* ✅ แสดงข้อความแจ้งเตือนเมื่อมี time conflict */}
+      {hasTimeConflict && hasDateTimeSet && (
+        <div className="w-140 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <span className="text-red-800 text-sm font-medium">
+              ⚠️ ห้องที่เลือกถูกใช้งานในช่วงเวลานี้ กรุณาเลือกห้องอื่นหรือเปลี่ยนเวลา
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

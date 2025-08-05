@@ -13,6 +13,7 @@ import { useSecureLink } from "../../../../routes/secure/SecureRoute";
 import { Activity } from "../../../../types/model";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
+import roomService from "../../../../service/Teacher/room.service";
 import { Trash2 } from "lucide-react"; // ✅ เพิ่ม icon ถังขยะ
 import ConfirmDialog from "../../../../components/ConfirmDialog"; // ✅ เพิ่ม ConfirmDialog
 
@@ -105,7 +106,14 @@ const CreateActivityAdmin: React.FC = () => {
   const { assessments, fetchAssessments } = useAssessmentStore();
   const foods = useFoodStore((state) => state.foods); // ✅ ต้องมีตรงนี้ก่อน
   const fetchFoods = useFoodStore((state) => state.fetchFoods);
-  const { rooms, fetchRooms } = useRoomStore();
+  const { 
+    rooms, 
+    fetchRooms, 
+    roomConflicts, 
+    checkingAvailability, 
+    checkRoomConflicts,
+    clearAvailabilityCheck 
+  } = useRoomStore();
 
   // ✅ ดึงข้อมูล activity เมื่อ component mount
   useEffect(() => {
@@ -298,6 +306,16 @@ const handleRoomChange = (event: SelectChangeEvent) => {
       ? parseInt(newSeatCapacity)
       : newSeatCapacity, // ✅ แปลงให้เป็น number
   }));
+
+  // ✅ ตรวจสอบ room conflicts เมื่อเลือกห้องและมีวันที่เวลา
+  if (selectedRoomObj?.room_id && formData.start_activity_date && formData.end_activity_date) {
+    checkRoomConflicts(
+      selectedRoomObj.room_id,
+      formData.start_activity_date,
+      formData.end_activity_date,
+      finalActivityId // ✅ ส่ง activity_id เพื่อ exclude กิจกรรมปัจจุบัน
+    );
+  }
 };
 
 
@@ -340,6 +358,28 @@ const handleRoomChange = (event: SelectChangeEvent) => {
     if (!validateForm(formData, setErrors)) {
       toast.error("กรุณากรอกข้อมูลให้ถูกต้องก่อนส่งฟอร์ม!");
       return;
+    }
+
+    // ✅ ตรวจสอบ room conflicts ก่อนบันทึก
+    if (formData.event_format === "Onsite" && formData.room_id && 
+        formData.start_activity_date && formData.end_activity_date) {
+      try {
+        const conflicts = await roomService.getRoomConflicts(
+          formData.room_id,
+          formData.start_activity_date,
+          formData.end_activity_date,
+          finalActivityId // ✅ ส่ง activity_id เพื่อ exclude กิจกรรมปัจจุบัน
+        );
+        
+        if (conflicts.length > 0) {
+          toast.error("ห้องที่เลือกถูกใช้งานในช่วงเวลานี้ กรุณาเลือกห้องอื่นหรือเปลี่ยนเวลา");
+          return;
+        }
+      } catch (error) {
+        console.error("❌ Error checking room conflicts:", error);
+        toast.error("ไม่สามารถตรวจสอบห้องที่ว่างได้");
+        return;
+      }
     }
 
     if (imageFile) {
@@ -390,8 +430,10 @@ const handleRoomChange = (event: SelectChangeEvent) => {
           room_id: formData.room_id ? Number(formData.room_id) : null,
           // แก้ไข seat ให้เป็น integer และไม่เป็น null
           seat: formData.seat ? Number(formData.seat) : 0,
-          // ✅ ส่ง foodIds เฉพาะเมื่อ event_format เป็น Onsite
-          foodIds: formData.event_format === "Onsite" ? (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ? formData.selectedFoods : []) : [],
+          // ✅ ส่ง foodIds เฉพาะเมื่อ event_format เป็น Onsite และกรอง foodIds ที่ถูกต้อง
+          foodIds: formData.event_format === "Onsite" ? 
+            (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ? 
+              formData.selectedFoods.filter(foodId => foodId > 0) : []) : [],
           // ✅ ลบ selectedFoods ออกจาก request เมื่อไม่ใช่ Onsite
           selectedFoods: formData.event_format === "Onsite" ? formData.selectedFoods : [],
         };
@@ -435,7 +477,7 @@ const handleRoomChange = (event: SelectChangeEvent) => {
   function addFoodOption() {
   setFormData((prev) => ({
     ...prev,
-    selectedFoods: [...prev.selectedFoods, 0], // ✅ เพิ่มค่า food_id เช่น 0
+    selectedFoods: [...prev.selectedFoods, -1], // ✅ ใช้ -1 เป็น placeholder สำหรับ food ที่ยังไม่ได้เลือก
   }));
 }
 
@@ -557,6 +599,28 @@ useEffect(() => {
   const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
     handleDateTimeChangeBase(name, newValue, setFormData);
   };
+
+  // ✅ useEffect เพื่อตรวจสอบ room conflicts เมื่อมีการเปลี่ยนแปลงวันที่เวลา
+  useEffect(() => {
+    if (formData.room_id && formData.start_activity_date && formData.end_activity_date) {
+      checkRoomConflicts(
+        formData.room_id,
+        formData.start_activity_date,
+        formData.end_activity_date,
+        finalActivityId // ✅ ส่ง activity_id เพื่อ exclude กิจกรรมปัจจุบัน
+      );
+    } else {
+      // ✅ ล้าง conflicts เมื่อไม่มีข้อมูลครบ
+      clearAvailabilityCheck();
+    }
+  }, [formData.room_id, formData.start_activity_date, formData.end_activity_date, finalActivityId]);
+
+  // ✅ useEffect เพื่อล้าง conflicts เมื่อเปลี่ยน event_format
+  useEffect(() => {
+    if (formData.event_format !== "Onsite") {
+      clearAvailabilityCheck();
+    }
+  }, [formData.event_format]);
   
   // ✅ ฟังก์ชันตรวจสอบ validation เมื่อ activity_status เป็น Public
   const checkValidationForPublic = () => {
@@ -590,6 +654,11 @@ useEffect(() => {
       }));
       localStorage.removeItem("selectedFoods"); // ✅ ล้าง localStorage ด้วย
       console.log("🧹 Cleared selectedFoods for non-Onsite event format");
+    }
+    
+    // ✅ ล้าง room conflicts เมื่อเปลี่ยน event_format
+    if (e.target.name === "event_format") {
+      clearAvailabilityCheck();
     }
     
     // ✅ ตรวจสอบ validation เมื่อเปลี่ยน activity_status เป็น Public
@@ -813,6 +882,10 @@ useEffect(() => {
                   disabled={isActivityStarted()}
                   seatCapacity={seatCapacity}
                   setSeatCapacity={setSeatCapacity}
+                  roomConflicts={roomConflicts}
+                  checkingAvailability={checkingAvailability}
+                  hasTimeConflict={roomConflicts.length > 0}
+                  currentActivityId={finalActivityId}
                 />
 
                 <ActivityLink formData={formData} handleChange={handleFormChangeWithValidation} disabled={isActivityStarted()} />

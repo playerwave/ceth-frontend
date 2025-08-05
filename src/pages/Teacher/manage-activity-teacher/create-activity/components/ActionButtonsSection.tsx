@@ -86,7 +86,14 @@ const ActionButtonsSection: React.FC<Props> = ({
             const result = await onSubmit?.(); // ✅ เรียก onSubmit function และรับผลลัพธ์
             // ✅ ถ้า onSubmit สำเร็จและมี onSuccess callback ให้เรียก
             if (onSuccess && result) {
-              onSuccess(result); // ✅ ส่ง activityId ที่ได้จาก onSubmit
+              // ✅ ตรวจสอบว่าเป็นการแก้ไขหรือสร้างใหม่
+              if (isEditMode) {
+                // ✅ ถ้าเป็นแก้ไข ให้อยู่ที่หน้าเดิม
+                console.log("✅ Activity updated successfully, staying on edit page");
+              } else {
+                // ✅ ถ้าเป็นสร้างใหม่ ให้ไปหน้า info
+                onSuccess(result); // ✅ ส่ง activityId ที่ได้จาก onSubmit
+              }
             }
           } catch (error) {
             console.error("❌ Error in onSubmit:", error);
