@@ -676,12 +676,13 @@ useEffect(() => {
     }
   }, [formData, backendActivityStatus]);
 
-  // ✅ ฟังก์ชันแปลง UTC เป็น local time
+  // ✅ ฟังก์ชันแปลง UTC เป็น local time (ไม่ลบ 7 ชั่วโมง)
   const convertUTCToLocal = (utcString: string): string => {
     if (!utcString) return "";
     try {
       const date = new Date(utcString);
-      return date.toLocaleString('sv-SE').replace(' ', 'T');
+      // ✅ ใช้เวลาจาก backend โดยตรง ไม่ลบ 7 ชั่วโมง
+      return date.toISOString().slice(0, 19).replace('T', ' ');
     } catch (error) {
       console.error("❌ Error converting UTC to local:", error);
       return utcString;

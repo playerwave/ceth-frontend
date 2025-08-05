@@ -2,6 +2,13 @@ import { SelectChangeEvent } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "sonner";
 
+// ✅ ฟังก์ชัน helper สำหรับเปรียบเทียบเวลาที่ถูกต้อง
+const compareTime = (time1: string, time2: string) => {
+  const date1 = new Date(time1);
+  const date2 = new Date(time2);
+  return date1.getTime() - date2.getTime();
+};
+
 // export const convertToDate = (value: string | null | undefined): string | null => {
 //   return value && value.trim() !== "" ? new Date(value).toISOString() : null;
 // };
@@ -62,7 +69,7 @@ export const handleDateTimeChange = (
 ) => {
   setFormData((prev: any) => ({
     ...prev,
-    [name]: newValue ? newValue.format("YYYY-MM-DDTHH:mm:ss") : null, // ✅ ส่ง local time ไป Backend
+    [name]: newValue ? newValue.format("YYYY-MM-DD HH:mm:ss") : null, // ✅ ส่ง local time ไป Backend
   }));
 };
 
@@ -155,9 +162,7 @@ export const validateForm = (formData: any, setErrors: any): boolean => {
     if (
       formData.start_assessment &&
       formData.start_activity_date &&
-      dayjs(formData.start_assessment).isBefore(
-        dayjs(formData.start_activity_date),
-      )
+      compareTime(formData.start_assessment, formData.start_activity_date) < 0
     ) {
       newErrors.start_assessment =
         "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม";
@@ -165,9 +170,7 @@ export const validateForm = (formData: any, setErrors: any): boolean => {
     if (
       formData.end_assessment &&
       formData.start_assessment &&
-      dayjs(formData.end_assessment).isBefore(
-        dayjs(formData.start_assessment),
-      )
+      compareTime(formData.end_assessment, formData.start_assessment) < 0
     ) {
       newErrors.end_assessment =
         "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน";
@@ -192,25 +195,25 @@ export const validateForm = (formData: any, setErrors: any): boolean => {
     }
     
     // ✅ ตรวจสอบวันที่ผ่านไปแล้ว
-    const now = dayjs();
+    const now = new Date();
     
-    if (formData.special_start_register_date && dayjs(formData.special_start_register_date).isBefore(now)) {
+    if (formData.special_start_register_date && compareTime(formData.special_start_register_date, now.toISOString()) < 0) {
       newErrors.special_start_register_date = "❌ วันลงทะเบียนพิเศษต้องไม่เป็นอดีต";
     }
     
-    if (formData.start_register_date && dayjs(formData.start_register_date).isBefore(now)) {
+    if (formData.start_register_date && compareTime(formData.start_register_date, now.toISOString()) < 0) {
       newErrors.start_register_date = "❌ วันเปิดลงทะเบียนต้องไม่เป็นอดีต";
     }
     
-    if (formData.end_register_date && dayjs(formData.end_register_date).isBefore(now)) {
+    if (formData.end_register_date && compareTime(formData.end_register_date, now.toISOString()) < 0) {
       newErrors.end_register_date = "❌ วันปิดลงทะเบียนต้องไม่เป็นอดีต";
     }
     
-    if (formData.start_activity_date && dayjs(formData.start_activity_date).isBefore(now)) {
+    if (formData.start_activity_date && compareTime(formData.start_activity_date, now.toISOString()) < 0) {
       newErrors.start_activity_date = "❌ วันเริ่มกิจกรรมต้องไม่เป็นอดีต";
     }
     
-    if (formData.end_activity_date && dayjs(formData.end_activity_date).isBefore(now)) {
+    if (formData.end_activity_date && compareTime(formData.end_activity_date, now.toISOString()) < 0) {
       newErrors.end_activity_date = "❌ วันสิ้นสุดกิจกรรมต้องไม่เป็นอดีต";
     }
   }
