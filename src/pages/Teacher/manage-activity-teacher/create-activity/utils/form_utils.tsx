@@ -4,9 +4,22 @@ import { toast } from "sonner";
 
 // ✅ ฟังก์ชัน helper สำหรับเปรียบเทียบเวลาที่ถูกต้อง
 const compareTime = (time1: string, time2: string) => {
-  const date1 = new Date(time1);
-  const date2 = new Date(time2);
-  return date1.getTime() - date2.getTime();
+  try {
+    const date1 = new Date(time1);
+    const date2 = new Date(time2);
+    
+    // ✅ ตรวจสอบว่า date ถูกต้องหรือไม่
+    if (isNaN(date1.getTime()) || isNaN(date2.getTime())) {
+      console.error("❌ Invalid date format:", { time1, time2 });
+      return 0;
+    }
+    
+    const result = date1.getTime() - date2.getTime();
+    return result;
+  } catch (error) {
+    console.error("❌ Error comparing times:", error, { time1, time2 });
+    return 0;
+  }
 };
 
 // export const convertToDate = (value: string | null | undefined): string | null => {
@@ -110,7 +123,7 @@ export const handleFileChange = <T extends Record<string, unknown>>(
   }
 };
 
-export const validateForm = (formData: any, setErrors: any): boolean => {
+export const validateForm = (formData: any, setErrors: any, isEditMode: boolean = false): boolean => {
   const newErrors: Record<string, string> = {};
 
   // ✅ ตรวจสอบเฉพาะเมื่อ activity_status เป็น "Public"
@@ -194,27 +207,30 @@ export const validateForm = (formData: any, setErrors: any): boolean => {
       newErrors.url = "กรุณาระบุลิ้งกิจกรรมสำหรับ Course";
     }
     
-    // ✅ ตรวจสอบวันที่ผ่านไปแล้ว
-    const now = new Date();
-    
-    if (formData.special_start_register_date && compareTime(formData.special_start_register_date, now.toISOString()) < 0) {
-      newErrors.special_start_register_date = "❌ วันลงทะเบียนพิเศษต้องไม่เป็นอดีต";
-    }
-    
-    if (formData.start_register_date && compareTime(formData.start_register_date, now.toISOString()) < 0) {
-      newErrors.start_register_date = "❌ วันเปิดลงทะเบียนต้องไม่เป็นอดีต";
-    }
-    
-    if (formData.end_register_date && compareTime(formData.end_register_date, now.toISOString()) < 0) {
-      newErrors.end_register_date = "❌ วันปิดลงทะเบียนต้องไม่เป็นอดีต";
-    }
-    
-    if (formData.start_activity_date && compareTime(formData.start_activity_date, now.toISOString()) < 0) {
-      newErrors.start_activity_date = "❌ วันเริ่มกิจกรรมต้องไม่เป็นอดีต";
-    }
-    
-    if (formData.end_activity_date && compareTime(formData.end_activity_date, now.toISOString()) < 0) {
-      newErrors.end_activity_date = "❌ วันสิ้นสุดกิจกรรมต้องไม่เป็นอดีต";
+    // ✅ ตรวจสอบวันที่ผ่านไปแล้ว (เฉพาะเมื่อสร้างกิจกรรมใหม่)
+    if (!isEditMode) {
+      const now = new Date();
+      const nowString = now.toISOString().slice(0, 19).replace('T', ' ');
+      
+      if (formData.special_start_register_date && compareTime(formData.special_start_register_date, nowString) < 0) {
+        newErrors.special_start_register_date = "❌ วันลงทะเบียนพิเศษต้องไม่เป็นอดีต";
+      }
+      
+      if (formData.start_register_date && compareTime(formData.start_register_date, nowString) < 0) {
+        newErrors.start_register_date = "❌ วันเปิดลงทะเบียนต้องไม่เป็นอดีต";
+      }
+      
+      if (formData.end_register_date && compareTime(formData.end_register_date, nowString) < 0) {
+        newErrors.end_register_date = "❌ วันปิดลงทะเบียนต้องไม่เป็นอดีต";
+      }
+      
+      if (formData.start_activity_date && compareTime(formData.start_activity_date, nowString) < 0) {
+        newErrors.start_activity_date = "❌ วันเริ่มกิจกรรมต้องไม่เป็นอดีต";
+      }
+      
+      if (formData.end_activity_date && compareTime(formData.end_activity_date, nowString) < 0) {
+        newErrors.end_activity_date = "❌ วันสิ้นสุดกิจกรรมต้องไม่เป็นอดีต";
+      }
     }
   }
 

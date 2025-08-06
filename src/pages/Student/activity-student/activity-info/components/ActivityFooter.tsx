@@ -183,7 +183,7 @@ export default function ActivityFooter({
                           month: "long",
                           year: "numeric",
                         }
-                      ).format(activity.end_register)})`}
+                      ).format(new Date(activity.end_register_date))})`}
           onCancel={() => setIsUnEnrollModalOpen(false)}
           onConfirm={handleUnenroll}
         />
@@ -199,7 +199,7 @@ export default function ActivityFooter({
                           month: "long",
                           year: "numeric",
                         }
-                      ).format(activity.end_register)})`}
+                      ).format(new Date(activity.end_register_date))})`}
           onCancel={() => setIsEnrollModalOpen(false)}
           onConfirm={handleEnroll}
         />

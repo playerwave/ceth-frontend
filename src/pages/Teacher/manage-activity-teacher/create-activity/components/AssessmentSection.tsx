@@ -92,7 +92,7 @@ const AssessmentSection: React.FC<Props> = ({
                   onChange={(newValue) =>
                     handleDateTimeChange("start_assessment", newValue)
                   }
-                  disabled={disabled || !formData.end_activity_date}
+                  disabled={disabled}
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },
@@ -162,7 +162,7 @@ const AssessmentSection: React.FC<Props> = ({
                     handleDateTimeChange("end_assessment", newValue)
                   }
                   // ✅ end_assessment สามารถแก้ไขได้เสมอ แม้กิจกรรมจะเริ่มแล้ว
-                  disabled={!formData.start_assessment}
+                  disabled={disabled || !formData.start_assessment}
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },

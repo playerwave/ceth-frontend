@@ -58,8 +58,8 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
   return (
     <>
       {rows1.length > 0 && (
-        <div style={{ padding: 24 }}>
-          <CustomCard height={800} width="100%">
+        <div style={{ padding: 16 }}>
+          <CustomCard height={800} width="1313px">
             <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
             <TableRedesign
               initialPageSize={20}
@@ -75,7 +75,7 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
       )}
 
       {rows2.length > 0 && (
-        <div style={{ padding: 24 }}>
+        <div style={{ padding: 16 }}>
           <CustomCard height={800} width="100%">
             <h2 className="text-2xl font-semibold mb-4">กิจกรรมที่แนะนำ</h2>
             <TableRedesign

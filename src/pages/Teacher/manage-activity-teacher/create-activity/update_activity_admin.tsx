@@ -95,11 +95,37 @@ const CreateActivityAdmin: React.FC = () => {
     return now.isAfter(startTime) || now.isSame(startTime);
   };
 
-  // ✅ ฟังก์ชันตรวจสอบว่าแก้ไขได้หรือไม่
-  const isFieldEditable = (fieldName: string) => {
-    if (!isActivityStarted()) return true; // ถ้ายังไม่เริ่มกิจกรรม แก้ไขได้ทุก field
+  // ✅ ฟังก์ชันตรวจสอบว่าควรจำกัดการแก้ไขหรือไม่
+  const shouldRestrictEditing = () => {
+    // ตรวจสอบว่าเป็น Public หรือไม่
+    if (backendActivityStatus !== "Public") return false;
     
-    // ถ้าเริ่มกิจกรรมแล้ว แก้ไขได้แค่ end_assessment
+    // ตรวจสอบ activity_state
+    if (activity?.activity_state === "Start Assessment") return true;
+    
+    // ตรวจสอบเวลา start_assessment
+    if (formData.start_assessment) {
+      const now = dayjs();
+      const startAssessment = dayjs(formData.start_assessment);
+      const endAssessment = formData.end_assessment ? dayjs(formData.end_assessment) : null;
+      
+      // ถ้าถึงหรือเลย start_assessment แต่ยังไม่เลย end_assessment
+      if (now.isAfter(startAssessment) || now.isSame(startAssessment)) {
+        // ถ้ายังไม่เลย end_assessment ให้จำกัดการแก้ไข
+        if (!endAssessment || now.isBefore(endAssessment)) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  };
+
+  // ✅ ฟังก์ชันตรวจสอบว่าแก้ไขได้หรือไม่ (อัปเดต)
+  const isFieldEditable = (fieldName: string) => {
+    if (!shouldRestrictEditing()) return true; // ถ้าไม่จำกัดการแก้ไข แก้ไขได้ทุก field
+    
+    // ถ้าจำกัดการแก้ไข แก้ไขได้แค่ end_assessment
     return fieldName === 'end_assessment';
   };
 
@@ -355,8 +381,11 @@ const handleRoomChange = (event: SelectChangeEvent) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm(formData, setErrors)) {
-      toast.error("กรุณากรอกข้อมูลให้ถูกต้องก่อนส่งฟอร์ม!");
+    // ✅ เรียก validateForm และเก็บผลลัพธ์
+    const isValid = validateForm(formData, setErrors, !!finalActivityId);
+    
+    if (!isValid) {
+      // ✅ useEffect จะจัดการแสดง error toast ให้
       return;
     }
 
@@ -625,7 +654,7 @@ useEffect(() => {
   // ✅ ฟังก์ชันตรวจสอบ validation เมื่อ activity_status เป็น Public
   const checkValidationForPublic = () => {
     if (formData.activity_status === "Public") {
-      const isValid = validateForm(formData, setValidationErrors);
+      const isValid = validateForm(formData, setValidationErrors, !!finalActivityId);
       return isValid;
     }
     return true;
@@ -676,13 +705,60 @@ useEffect(() => {
     }
   }, [formData, backendActivityStatus]);
 
+  // ✅ useEffect เพื่อแสดง error toast เมื่อ errors state เปลี่ยน
+  useEffect(() => {
+    const errorEntries = Object.entries(errors).filter(([_, msg]) => msg.trim() !== '');
+    if (errorEntries.length > 0) {
+      const fieldNameMap: Record<string, string> = {
+        activity_name: "ชื่อกิจกรรม",
+        presenter_company_name: "ชื่อบริษัท/วิทยากร",
+        description: "คำอธิบาย",
+        type: "ประเภทกิจกรรม",
+        seat: "จำนวนที่นั่ง",
+        recieve_hours: "จำนวนชั่วโมง",
+        event_format: "รูปแบบกิจกรรม",
+        start_register_date: "วันเริ่มลงทะเบียน",
+        end_register_date: "วันสิ้นสุดลงทะเบียน",
+        start_activity_date: "วันเริ่มกิจกรรม",
+        end_activity_date: "วันสิ้นสุดกิจกรรม",
+        room_id: "ห้อง",
+        assessment_id: "แบบประเมิน",
+        start_assessment: "วันเริ่มประเมิน",
+        end_assessment: "วันสิ้นสุดประเมิน",
+        image_url: "รูปภาพ",
+        url: "ลิงก์กิจกรรม",
+        selectedFoods: "อาหาร"
+      };
+
+      const errorList = errorEntries.slice(0, 3).map(([field, msg]) => {
+        const fieldName = fieldNameMap[field] || field;
+        return `${fieldName}: ${msg}`;
+      }).join('\n• ');
+      
+      const remainingCount = errorEntries.length - 3;
+      const message = `กรุณาแก้ไขข้อมูลต่อไปนี้:\n• ${errorList}${remainingCount > 0 ? `\nและอีก ${remainingCount} รายการ` : ''}`;
+      
+      toast.error(message, {
+        duration: 6000,
+      });
+    }
+  }, [errors]);
+
   // ✅ ฟังก์ชันแปลง UTC เป็น local time (ไม่ลบ 7 ชั่วโมง)
   const convertUTCToLocal = (utcString: string): string => {
     if (!utcString) return "";
     try {
       const date = new Date(utcString);
-      // ✅ ใช้เวลาจาก backend โดยตรง ไม่ลบ 7 ชั่วโมง
-      return date.toISOString().slice(0, 19).replace('T', ' ');
+      // ✅ ใช้เวลาจาก backend โดยตรง ไม่แปลงเป็น UTC อีกครั้ง
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      const result = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      return result;
     } catch (error) {
       console.error("❌ Error converting UTC to local:", error);
       return utcString;
@@ -740,8 +816,8 @@ useEffect(() => {
               )}
             </div>
             
-            {/* ✅ แสดงข้อความแจ้งเตือนเมื่อกิจกรรมเริ่มแล้ว */}
-            {isActivityStarted() && (
+            {/* ✅ แสดงข้อความแจ้งเตือนเมื่อควรจำกัดการแก้ไข */}
+            {shouldRestrictEditing() && (
               <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <div className="flex items-center">
                   <svg className="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -809,14 +885,15 @@ useEffect(() => {
                   <ActivityInfoSection
                     formData={formData}
                     handleChange={handleFormChangeWithValidation} // ✅ ใช้ฟังก์ชันใหม่ที่มี validation
-                    disabled={isActivityStarted()}
+                    disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                   />
 
                   <RegisterPeriodSection
                     formData={formData}
                     handleDateTimeChange={handleDateTimeChange}
-                    disabled={isActivityStarted()}
+                    disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                     isEditMode={false} // ✅ เปลี่ยนเป็น false เพื่อให้แสดง error
+                    backendActivityStatus={backendActivityStatus} // ✅ ส่ง backend activity status
                   />
                   
                 </div>
@@ -848,7 +925,7 @@ useEffect(() => {
   <DescriptionSection
     formData={formData}
     handleChange={handleFormChange}
-    disabled={isActivityStarted()}
+    disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
   />
 
   <div className="flex flex-col space-y-3">
@@ -856,7 +933,7 @@ useEffect(() => {
       formData={formData}
       setFormData={setFormData}
       handleDateTimeChange={handleDateTimeChange}
-      disabled={isActivityStarted()}
+      disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
     />
 
     <TypeAndLocationSection
@@ -865,7 +942,7 @@ useEffect(() => {
       setSelectedFloor={setSelectedFloor}
       setSelectedRoom={setSelectedRoom}
       setSeatCapacity={setSeatCapacity}
-      disabled={isActivityStarted()}
+      disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
     />
   </div>
 </div>
@@ -880,7 +957,7 @@ useEffect(() => {
                   handleFloorChange={handleFloorChange}
                   handleRoomChange={handleRoomChange}
                   handleChange={handleFormChangeWithValidation}
-                  disabled={isActivityStarted()}
+                  disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                   seatCapacity={seatCapacity}
                   setSeatCapacity={setSeatCapacity}
                   roomConflicts={roomConflicts}
@@ -889,7 +966,7 @@ useEffect(() => {
                   currentActivityId={finalActivityId}
                 />
 
-                <ActivityLink formData={formData} handleChange={handleFormChangeWithValidation} disabled={isActivityStarted()} />
+                <ActivityLink formData={formData} handleChange={handleFormChangeWithValidation} disabled={shouldRestrictEditing()} />
                 </div>
 
                 <StatusAndSeatSection
@@ -899,7 +976,7 @@ useEffect(() => {
                   setSeatCapacity={setSeatCapacity}
                   selectedRoom={selectedRoom}
                   setFormData={setFormData}
-                  disabled={isActivityStarted()}
+                  disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                 />
 
 <div className="mt-6 max-w-xl w-full">
@@ -920,13 +997,13 @@ disabled={formData.event_format !== "Onsite"}
                   assessments={assessments}
                   handleChange={handleFormChangeWithValidation}
                   handleDateTimeChange={handleDateTimeChange}
-                  disabled={isActivityStarted()}
+                  disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                 />
 
                 <ImageUploadSection
                   previewImage={previewImage}
                   handleFileChange={handleFileChange}
-                  disabled={isActivityStarted()}
+                  disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                 />
 
                 <ActionButtonsSection

@@ -10,6 +10,7 @@ interface Props {
   handleDateTimeChange: (name: string, newValue: Dayjs | null) => void;
   disabled?: boolean;
   isEditMode?: boolean;
+  backendActivityStatus?: string; // ✅ เพิ่ม prop สำหรับ backend activity status
 }
 
 const RegisterPeriodSection: React.FC<Props> = ({
@@ -17,6 +18,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
   handleDateTimeChange,
   disabled = false,
   isEditMode = false,
+  backendActivityStatus = "",
 }) => {
   return (
 <div className="flex flex-col ml-0">
@@ -45,25 +47,31 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     formData.activity_status === "Public" &&
                     formData.special_start_register_date &&
                     (dayjs(formData.special_start_register_date).isBefore(
-                      dayjs().startOf("day"),
+                      dayjs(),
                     ) ||
                     (formData.start_register_date &&
                       dayjs(formData.special_start_register_date).isAfter(
                         dayjs(formData.start_register_date),
-                      )))
+                      ))) &&
+                    // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
+                    backendActivityStatus === "Private"
                   ),
                   helperText:
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
                     formData.activity_status === "Public" &&
                     formData.special_start_register_date &&
                     (dayjs(formData.special_start_register_date).isBefore(
-                      dayjs().startOf("day"),
-                    )
+                      dayjs(),
+                    ) &&
+                    // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
+                    backendActivityStatus === "Private"
                       ? "❌ วันลงทะเบียนพิเศษต้องไม่เป็นอดีต"
                       : formData.start_register_date &&
                         dayjs(formData.special_start_register_date).isAfter(
                           dayjs(formData.start_register_date),
-                        )
+                        ) &&
+                        // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
+                        backendActivityStatus === "Private"
                         ? "❌ วันลงทะเบียนพิเศษต้องอยู่ก่อนวันลงทะเบียนปกติ"
                         : ""),
         },
@@ -103,7 +111,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     formData.start_register_date &&
                     formData.end_register_date &&
                     (dayjs(formData.start_register_date).isBefore(
-                      dayjs().startOf("day"),
+                      dayjs(),
                     ) ||
                       dayjs(formData.start_register_date).isAfter(
                         dayjs(formData.end_register_date),
@@ -116,7 +124,9 @@ const RegisterPeriodSection: React.FC<Props> = ({
                       (formData.special_start_register_date &&
                         dayjs(formData.start_register_date).isBefore(
                           dayjs(formData.special_start_register_date),
-                        )))
+                        ))) &&
+                    // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
+                    backendActivityStatus === "Private"
                   ),
                   helperText:
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
@@ -124,7 +134,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     formData.start_register_date &&
                     formData.end_register_date &&
                     (dayjs(formData.start_register_date).isBefore(
-                      dayjs().startOf("day"),
+                      dayjs(),
                     ) ||
                       dayjs(formData.start_register_date).isAfter(
                         dayjs(formData.end_register_date),
@@ -132,12 +142,16 @@ const RegisterPeriodSection: React.FC<Props> = ({
                       dayjs(formData.start_register_date).isSame(
                         dayjs(formData.end_register_date),
                         "day",
-                      ))
+                      )) &&
+                    // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
+                    backendActivityStatus === "Private"
                       ? "❌ วันเปิดให้นิสิตลงทะเบียนต้องอยู่หลังวันนี้และไม่ตรงกับวันปิด"
                       : formData.special_start_register_date &&
                         dayjs(formData.start_register_date).isBefore(
                           dayjs(formData.special_start_register_date),
-                        )
+                        ) &&
+                        // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
+                        backendActivityStatus === "Private"
                         ? "❌ วันเปิดลงทะเบียนต้องอยู่หลังวันลงทะเบียนพิเศษ"
                         : "",
                 },
@@ -176,7 +190,9 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     formData.start_register_date &&
                     dayjs(formData.end_register_date).isBefore(
                       dayjs(formData.start_register_date),
-                    )
+                    ) &&
+                    // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
+                    backendActivityStatus === "Private"
                   ),
                   helperText:
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
@@ -185,7 +201,9 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     formData.start_register_date &&
                     dayjs(formData.end_register_date).isBefore(
                       dayjs(formData.start_register_date),
-                    )
+                    ) &&
+                    // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
+                    backendActivityStatus === "Private"
                       ? "❌ วันปิดต้องอยู่หลังวันเปิดลงทะเบียน"
                       : "",
                 },
