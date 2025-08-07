@@ -2,6 +2,26 @@ import { SelectChangeEvent } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "sonner";
 
+// ✅ ฟังก์ชัน helper สำหรับเปรียบเทียบเวลาที่ถูกต้อง
+const compareTime = (time1: string, time2: string) => {
+  try {
+    const date1 = new Date(time1);
+    const date2 = new Date(time2);
+    
+    // ✅ ตรวจสอบว่า date ถูกต้องหรือไม่
+    if (isNaN(date1.getTime()) || isNaN(date2.getTime())) {
+      console.error("❌ Invalid date format:", { time1, time2 });
+      return 0;
+    }
+    
+    const result = date1.getTime() - date2.getTime();
+    return result;
+  } catch (error) {
+    console.error("❌ Error comparing times:", error, { time1, time2 });
+    return 0;
+  }
+};
+
 // export const convertToDate = (value: string | null | undefined): string | null => {
 //   return value && value.trim() !== "" ? new Date(value).toISOString() : null;
 // };
@@ -62,7 +82,7 @@ export const handleDateTimeChange = (
 ) => {
   setFormData((prev: any) => ({
     ...prev,
-    [name]: newValue ? newValue.format("YYYY-MM-DDTHH:mm:ss") : null,
+    [name]: newValue ? newValue.format("YYYY-MM-DD HH:mm:ss") : null, // ✅ ส่ง local time ไป Backend
   }));
 };
 
@@ -103,57 +123,114 @@ export const handleFileChange = <T extends Record<string, unknown>>(
   }
 };
 
-export const validateForm = (formData: any, setErrors: any): boolean => {
+export const validateForm = (formData: any, setErrors: any, isEditMode: boolean = false): boolean => {
   const newErrors: Record<string, string> = {};
 
-  if (formData.ac_status === "Public") {
-    if (!formData.ac_name || formData.ac_name.length < 4) {
-      newErrors.ac_name = "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร";
+  // ✅ ตรวจสอบเฉพาะเมื่อ activity_status เป็น "Public"
+  if (formData.activity_status === "Public") {
+    if (!formData.activity_name || formData.activity_name.length < 4) {
+      newErrors.activity_name = "ชื่อกิจกรรมต้องมีอย่างน้อย 4 ตัวอักษร";
+    } else if (formData.activity_name.length > 50) {
+      newErrors.activity_name = "ชื่อกิจกรรมต้องไม่เกิน 50 ตัวอักษร";
     }
     if (
-      !formData.ac_company_lecturer ||
-      formData.ac_company_lecturer.length < 4
+      !formData.presenter_company_name ||
+      formData.presenter_company_name.length < 4
     ) {
-      newErrors.ac_company_lecturer = "ต้องมีอย่างน้อย 4 ตัวอักษร";
+      newErrors.presenter_company_name = "ต้องมีอย่างน้อย 4 ตัวอักษร";
+    } else if (formData.presenter_company_name.length > 50) {
+      newErrors.presenter_company_name = "ชื่อบริษัท/วิทยากรต้องไม่เกิน 50 ตัวอักษร";
     }
-    if (!formData.ac_type) {
-      newErrors.ac_type = "กรุณาเลือกประเภท";
+    if (!formData.type) {
+      newErrors.type = "กรุณาเลือกประเภท";
     }
-    if (!formData.ac_status) {
-      newErrors.ac_status = "กรุณาเลือกสถานะ";
+    if (!formData.activity_status) {
+      newErrors.activity_status = "กรุณาเลือกสถานะ";
     }
-    if (!formData.ac_start_time) {
-      newErrors.ac_start_time = "กรุณาเลือกวันและเวลาเริ่มกิจกรรม";
+    if (formData.description && formData.description.length > 2000) {
+      newErrors.description = "คำอธิบายต้องไม่เกิน 2000 ตัวอักษร";
     }
-    if (!formData.ac_end_time) {
-      newErrors.ac_end_time = "กรุณาเลือกวันและเวลาสิ้นสุดกิจกรรม";
+    if (!formData.start_activity_date) {
+      newErrors.start_activity_date = "กรุณาเลือกวันและเวลาเริ่มกิจกรรม";
+    }
+    if (!formData.end_activity_date) {
+      newErrors.end_activity_date = "กรุณาเลือกวันและเวลาสิ้นสุดกิจกรรม";
+    }
+    if (!formData.special_start_register_date) {
+      newErrors.special_start_register_date = "กรุณาเลือกวันเวลาเริ่มลงทะเบียนพิเศษ";
+    }
+    if (!formData.start_register_date) {
+      newErrors.start_register_date = "กรุณาเลือกวันเวลาเริ่มลงทะเบียน";
+    }
+    if (!formData.end_register_date) {
+      newErrors.end_register_date = "กรุณาเลือกวันเวลาปิดลงทะเบียน";
     }
     if (
-      formData.ac_location_type === "Course" &&
-      (!formData.ac_recieve_hours || Number(formData.ac_recieve_hours) <= 0)
+      formData.event_format === "Course" &&
+      (!formData.recieve_hours || Number(formData.recieve_hours) <= 0)
     ) {
-      newErrors.ac_recieve_hours =
+      newErrors.recieve_hours =
         "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0";
     }
     if (
-      formData.ac_start_assessment &&
-      formData.ac_start_time &&
-      dayjs(formData.ac_start_assessment).isBefore(
-        dayjs(formData.ac_start_time),
-      )
+      formData.start_assessment &&
+      formData.start_activity_date &&
+      compareTime(formData.start_assessment, formData.start_activity_date) < 0
     ) {
-      newErrors.ac_start_assessment =
+      newErrors.start_assessment =
         "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม";
     }
     if (
-      formData.ac_end_assessment &&
-      formData.ac_start_assessment &&
-      dayjs(formData.ac_end_assessment).isBefore(
-        dayjs(formData.ac_start_assessment),
-      )
+      formData.end_assessment &&
+      formData.start_assessment &&
+      compareTime(formData.end_assessment, formData.start_assessment) < 0
     ) {
-      newErrors.ac_end_assessment =
+      newErrors.end_assessment =
         "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน";
+    }
+    if (
+      formData.event_format === "Onsite" &&
+      !formData.room_id
+    ) {
+      newErrors.room_id = "กรุณาเลือกห้องสำหรับกิจกรรม Onsite";
+    }
+    if (
+      formData.event_format === "Onsite" &&
+      (!formData.selectedFoods || formData.selectedFoods.length === 0)
+    ) {
+      newErrors.selectedFoods = "กรุณาเลือกอาหารอย่างน้อย 1 รายการ";
+    }
+    if (
+      formData.event_format === "Course" &&
+      (!formData.url || formData.url.trim() === "")
+    ) {
+      newErrors.url = "กรุณาระบุลิ้งกิจกรรมสำหรับ Course";
+    }
+    
+    // ✅ ตรวจสอบวันที่ผ่านไปแล้ว (เฉพาะเมื่อสร้างกิจกรรมใหม่)
+    if (!isEditMode) {
+      const now = new Date();
+      const nowString = now.toISOString().slice(0, 19).replace('T', ' ');
+      
+      if (formData.special_start_register_date && compareTime(formData.special_start_register_date, nowString) < 0) {
+        newErrors.special_start_register_date = "❌ วันลงทะเบียนพิเศษต้องไม่เป็นอดีต";
+      }
+      
+      if (formData.start_register_date && compareTime(formData.start_register_date, nowString) < 0) {
+        newErrors.start_register_date = "❌ วันเปิดลงทะเบียนต้องไม่เป็นอดีต";
+      }
+      
+      if (formData.end_register_date && compareTime(formData.end_register_date, nowString) < 0) {
+        newErrors.end_register_date = "❌ วันปิดลงทะเบียนต้องไม่เป็นอดีต";
+      }
+      
+      if (formData.start_activity_date && compareTime(formData.start_activity_date, nowString) < 0) {
+        newErrors.start_activity_date = "❌ วันเริ่มกิจกรรมต้องไม่เป็นอดีต";
+      }
+      
+      if (formData.end_activity_date && compareTime(formData.end_activity_date, nowString) < 0) {
+        newErrors.end_activity_date = "❌ วันสิ้นสุดกิจกรรมต้องไม่เป็นอดีต";
+      }
     }
   }
 

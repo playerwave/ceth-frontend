@@ -46,8 +46,13 @@ export default function ActivityImage({ imageUrl }: Props) {
     ? imageUrl
     : "";
 
+  // ตรวจสอบว่าไม่มีรูปภาพหรือเป็น "ไม่ระบุ"
   const isDefault =
-    !imageSrc || imageSrc === "" || imageSrc === "/img/default.png";
+    !imageSrc || 
+    imageSrc === "" || 
+    imageSrc === "/img/default.png" ||
+    imageSrc === "ไม่ระบุ" ||
+    imageSrc === "undefined";
 
   if (isDefault) {
     return (

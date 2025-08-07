@@ -1,6 +1,7 @@
 // import { useEffect, useCallback } from "react";
 // import { useLocation, useNavigate, useParams } from "react-router-dom";
 // import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
+// import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 // import Loading from "../../../../components/Loading";
 // import ActivityHeader from "./components/ActivityHeader";
 // import ActivityImage from "./components/ActivityImage";
@@ -8,15 +9,32 @@
 // import FoodSelector from "./components/FoodSelector";
 // import ActivityFooter from "./components/ActivityFooter";
 
+// // 🔐 Import สำหรับการเข้ารหัส
+// import { useSecureParams, extractSecureParam, hasSecureParam } from "../../../../routes/secure/SecureRoute";
+
 // export default function ActivityInfoAdmin() {
 //   const { id: paramId } = useParams();
 //   const location = useLocation();
-//   const id = location.state?.id || paramId;
-//   const finalActivityId = id ? Number(id) : null;
 //   const navigate = useNavigate();
+  
+//   // 🔐 ดึงพารามิเตอร์จาก URL ที่เข้ารหัส
+//   const secureParams = useSecureParams();
 
-//   const { activity, error, fetchActivity, activityLoading } =
-//     useActivityStore();
+//   // 🔍 ดึง ID จากหลายแหล่ง (เข้ารหัส > state > params)
+//   const idFromSecure = extractSecureParam(secureParams, 'id', 0);
+//   const idFromState = location.state?.id;
+//   const idFromParams = paramId ? Number(paramId) : null;
+  
+//   const finalActivityId = idFromSecure || idFromState || idFromParams;
+
+//   const {
+//     activity,
+//     error,
+//     fetchActivity,
+//     activityLoading,
+//   } = useActivityStore();
+
+//   const { foods, fetchFoods } = useFoodStore();
 
 //   const fetchActivityData = useCallback(() => {
 //     if (finalActivityId !== null && !isNaN(finalActivityId)) {
@@ -28,24 +46,49 @@
 //     fetchActivityData();
 //   }, [fetchActivityData]);
 
-//   const handleToUpdateActivity = (id: string) => {
-//     navigate("/update-activity-admin", { state: { id } });
+//   useEffect(() => {
+//     if (foods.length === 0) {
+//       fetchFoods();
+//     }
+//   }, [foods.length, fetchFoods]);
+
+//   const handleToUpdateActivity = (activity_id: number) => {
+//     navigate("/update-activity-admin", { state: { id: activity_id } });
 //   };
+
+//   // 🔍 ตรวจสอบแหล่งข้อมูล
+//   const dataSource = Object.keys(secureParams).length > 0 ? 'encrypted' : 'normal';
 
 //   if (activityLoading) return <Loading />;
 //   if (error)
 //     return <p className="text-center text-lg text-red-500">❌ {error}</p>;
-//   if (!activity) return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
+//   if (!activity)
+//     return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
+
+//   // ✅ แมปรายการอาหารที่เกี่ยวข้องกับกิจกรรม จาก activity.foods (ActivityFood[])
+//   const relatedFoods =
+//     Array.isArray((activity as any).foods) && (activity as any).foods.length > 0
+//       ? foods.filter((food) =>
+//           (activity as any).foods.some((af: any) => af.food_id === food.food_id)
+//         )
+//       : [];
 
 //   return (
 //     <div className="justify-items-center">
+//       {/* 🔐 แสดงแหล่งข้อมูล (สำหรับ debug) */}
+//       {import.meta.env.DEV && (
+//         <div className="w-320 mx-auto ml-2xl mt-2 mb-2 bg-blue-50 p-2 border border-blue-200 rounded text-xs">
+//           <span className="font-semibold">แหล่งข้อมูล:</span> {dataSource === 'encrypted' ? 'URL ที่เข้ารหัส' : 'URL ปกติ'} 
+//           | ID: {finalActivityId}
+//         </div>
+//       )}
+
 //       <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
 //         <ActivityHeader
-//           name={activity.name}
-//           registeredCount={activity.registered_count}
+//           name={activity.activity_name}
 //           seat={activity.seat}
 //           onClickRegistered={() =>
-//             navigate(`/enrolled_list_admin/${activity.id}`)
+//             navigate(`/enrolled_list_admin/${activity.activity_id}`)
 //           }
 //         />
 
@@ -54,18 +97,18 @@
 //         <ActivityDetails activity={activity} />
 
 //         <FoodSelector
-//           foodList={activity.food}
-//           locationType={activity.location_type}
+//           foodList={relatedFoods}
+//           locationType={activity.event_format}
 //         />
 
 //         <ActivityFooter
-//           startTime={activity.start_time}
-//           endTime={activity.end_time}
-//           state={activity.state}
+//           startTime={activity.start_activity_date}
+//           endTime={activity.end_activity_date}
+//           state={activity.activity_state}
 //           onBack={() =>
 //             navigate("/list-activity-admin", { state: { reload: true } })
 //           }
-//           onEdit={() => handleToUpdateActivity(activity.id)}
+//           onEdit={() => handleToUpdateActivity(activity.activity_id)}
 //         />
 //       </div>
 //     </div>
@@ -73,29 +116,29 @@
 // }
 
 import { useEffect, useCallback } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
+import {
+  useSecureParams,
+  extractSecureParam,
+  useSecureLink,
+} from "../../../../routes/secure/SecureRoute";
+
 import Loading from "../../../../components/Loading";
 import ActivityHeader from "./components/ActivityHeader";
 import ActivityImage from "./components/ActivityImage";
 import ActivityDetails from "./components/ActivityDetails";
 import FoodSelector from "./components/FoodSelector";
 import ActivityFooter from "./components/ActivityFooter";
-import {ActivityFood} from "../../../../types/model"
-
+import ActivityUrl from "./components/ActivityUrl";
 
 export default function ActivityInfoAdmin() {
-  const { id: paramId } = useParams();
-  const location = useLocation();
   const navigate = useNavigate();
+  const params = useSecureParams();
+  const { createSecureLink } = useSecureLink();
 
-  const idFromState = location.state?.id;
-  const finalActivityId = idFromState
-    ? Number(idFromState)
-    : paramId
-    ? Number(paramId)
-    : null;
+  const finalActivityId = extractSecureParam(params, 'id', 0);
 
   const {
     activity,
@@ -107,7 +150,7 @@ export default function ActivityInfoAdmin() {
   const { foods, fetchFoods } = useFoodStore();
 
   const fetchActivityData = useCallback(() => {
-    if (finalActivityId !== null && !isNaN(finalActivityId)) {
+    if (finalActivityId) {
       fetchActivity(finalActivityId);
     }
   }, [finalActivityId, fetchActivity]);
@@ -123,33 +166,47 @@ export default function ActivityInfoAdmin() {
   }, [foods.length, fetchFoods]);
 
   const handleToUpdateActivity = (activity_id: number) => {
-    navigate("/update-activity-admin", { state: { id: activity_id } });
+    // สร้าง URL ที่เข้ารหัสสำหรับหน้า update
+    const encryptedUrl = createSecureLink("/update-activity-admin", {
+      id: activity_id,
+      name: "Update Activity",
+      type: "update",
+      isActive: true,
+      timestamp: Date.now(),
+    });
+    
+    console.log("🔄 Navigating to update activity:", activity_id);
+    console.log("🔐 Generated update URL:", encryptedUrl);
+    
+    window.location.href = encryptedUrl;
   };
 
   if (activityLoading) return <Loading />;
-  if (error)
-    return <p className="text-center text-lg text-red-500">❌ {error}</p>;
-  if (!activity)
-    return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
+  if (error) return <p className="text-center text-lg text-red-500">❌ {error}</p>;
+  if (!activity) return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
 
-  // ✅ แมปรายการอาหารที่เกี่ยวข้องกับกิจกรรม จาก activity.foods (ActivityFood[])
-  // const relatedFoods =
-  //   Array.isArray(activity.foods) && activity.foods.length > 0
-  //     ? foods.filter((food) =>
-  //         activity.foods.some((af) => af.food_id === food.food_id)
-  //       )
-  //     : [];
+  // Debug: Log activity data to see the structure
+  console.log("🔍 Activity data:", activity);
+  console.log("🔍 Foods data:", foods);
+  console.log("🔍 Activity foods:", activity.activityFood);
+  console.log("🔍 Activity foods (alternative):", (activity as any).foods);
+  console.log("🔍 Image URL:", activity.image_url);
+  console.log("🔍 Image URL type:", typeof activity.image_url);
+
   const relatedFoods =
-  Array.isArray(activity.activityFood) && activity.activityFood.length > 0
-    ? foods.filter((food) =>
-        activity.activityFood.some((af: ActivityFood) => af.food_id === food.food_id)
-      )
-    : [];
-
+    Array.isArray(activity.activityFood) && activity.activityFood.length > 0
+      ? foods.filter((food) =>
+          activity.activityFood.some((af) => af.food_id === food.food_id)
+        )
+      : Array.isArray((activity as any).foods) && (activity as any).foods.length > 0
+      ? foods.filter((food) =>
+          (activity as any).foods.some((af: any) => af.food_id === food.food_id)
+        )
+      : [];
 
   return (
     <div className="justify-items-center">
-      <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
+      <div className="w-320 h-auto min-h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <ActivityHeader
           name={activity.activity_name}
           seat={activity.seat}
@@ -160,14 +217,39 @@ export default function ActivityInfoAdmin() {
 
         <ActivityImage imageUrl={activity.image_url} />
 
+        <div className="mt-10">
         <ActivityDetails activity={activity} />
+        </div>
 
-        <FoodSelector
+        {/* Debug: Show food data info */}
+        {/* {import.meta.env.DEV && (
+          <div className="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+            <p>🔍 Debug Food Info:</p>
+            <p>Activity Foods: {JSON.stringify(activity.activityFood)}</p>
+            <p>Alternative Foods: {JSON.stringify((activity as any).foods)}</p>
+            <p>Related Foods Count: {relatedFoods.length}</p>
+            <p>All Foods Count: {foods.length}</p>
+          </div>
+        )} */}
+
+<div className="mt-8">
+<FoodSelector
           foodList={relatedFoods}
           locationType={activity.event_format}
         />
+</div>
+        
 
-        <ActivityFooter
+<div className="mt-8">
+<ActivityUrl
+         url={activity.url || ""}
+         label={activity.url || "-"}
+       />
+</div>
+     
+
+<div className="mt-8">
+<ActivityFooter
           startTime={activity.start_activity_date}
           endTime={activity.end_activity_date}
           state={activity.activity_state}
@@ -176,8 +258,9 @@ export default function ActivityInfoAdmin() {
           }
           onEdit={() => handleToUpdateActivity(activity.activity_id)}
         />
+</div>
+        
       </div>
     </div>
   );
 }
-

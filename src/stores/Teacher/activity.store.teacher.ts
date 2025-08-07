@@ -10,16 +10,17 @@ interface ActivityStore {
   fetchActivities: () => Promise<void>;
   selectActivity: (id: number) => Promise<void>;
   clearSelectedActivity: () => void;
-  createActivity: (activity: Partial<Activity>) => Promise<void>;
+  createActivity: (activity: Partial<Activity>) => Promise<number | undefined>;
 
   searchActivities?: (searchName: string) => Promise<void>;
-  fetchActivity: (id: number) => Promise<void>;
+  fetchActivity: (id: number) => Promise<Activity | null>;
   fetchEnrolledStudents?: (id: number) => Promise<void>;
-  updateActivity: (activity: Activity) => Promise<void>;
+  updateActivity: (activity: Activity) => Promise<number | undefined>;
   updateActivityStatus: (
     id: string,
     status: "Public" | "Private"
   ) => Promise<void>;
+  deleteActivity: (id: number) => Promise<void>; // ✅ เพิ่มฟังก์ชันลบกิจกรรม
   setMockActivities?: (activities: Activity[]) => void;
   activityLoading?: boolean;
   activityError?: string | null;
@@ -47,11 +48,13 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     console.log("📤 createActivity payload:", activityData);
     set({ loading: true, error: null });
     try {
-      await activityService.createActivity(activityData);
+      const result = await activityService.createActivity(activityData);
       const updatedList = await activityService.fetchAllActivities(); // อัปเดตรายการ
       set({ activities: updatedList });
+      return result; // ✅ ส่งคืน activity_id
     } catch (err) {
       set({ error: "Failed to create activity" });
+      throw err; // ✅ re-throw error
     } finally {
       set({ loading: false });
     }
@@ -124,9 +127,11 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     try {
       const activity = await activityService.getActivityById(id);
       set({ activity });
+      return activity; // ✅ ส่งคืนข้อมูล activity
     } catch (error) {
       console.error("❌ Error fetching activity:", error);
       set({ activityError: "ไม่สามารถโหลดกิจกรรมนี้ได้" });
+      return null;
     } finally {
       set({ activityLoading: false });
     }
@@ -149,10 +154,12 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   //--------------------- updateActivity ---------------------------
   updateActivity: async (activity: Activity) => {
     try {
-      await activityService.updateActivity(activity);
+      const result = await activityService.updateActivity(activity);
       await useActivityStore.getState().fetchActivities();
+      return result; // ✅ ส่งคืน activity_id
     } catch (error) {
       console.error("❌ Error updating activity:", error);
+      throw error; // ✅ re-throw error
     }
   },
   //----------------------------------------------------------------
@@ -192,8 +199,17 @@ export const useActivityStore = create<ActivityStore>((set) => ({
 
   //--------------------- addFoodToActivity -----------------------
   addFoodToActivity: async (activity_id: number, food_id: number) => {
-    await activityService.addFoodToActivity(activity_id, food_id);
-    await useActivityStore.getState().fetchActivity(activity_id);
+    console.log("🔄 Store: Adding food to activity:", { activity_id, food_id });
+    try {
+      await activityService.addFoodToActivity(activity_id, food_id);
+      console.log(
+        "✅ Store: Food added successfully, refreshing activity data"
+      );
+      await useActivityStore.getState().fetchActivity(activity_id);
+    } catch (error) {
+      console.error("❌ Store: Error adding food to activity:", error);
+      throw error;
+    }
     //----------------------------------------------------------------
   },
 
@@ -202,8 +218,35 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     activity_food_id: number,
     activity_id: number
   ) => {
-    await activityService.removeFoodFromActivity(activity_food_id);
-    await useActivityStore.getState().fetchActivity(activity_id);
+    console.log("🔄 Store: Removing food from activity:", {
+      activity_food_id,
+      activity_id,
+    });
+    try {
+      await activityService.removeFoodFromActivity(activity_food_id);
+      console.log(
+        "✅ Store: Food removed successfully, refreshing activity data"
+      );
+      await useActivityStore.getState().fetchActivity(activity_id);
+    } catch (error) {
+      console.error("❌ Store: Error removing food from activity:", error);
+      throw error;
+    }
+  },
+  //----------------------------------------------------------------
+
+  //--------------------- deleteActivity -----------------------
+  deleteActivity: async (id: number) => {
+    console.log("🗑️ Store: Deleting activity with ID:", id);
+    try {
+      await activityService.deleteActivity(id);
+      console.log("✅ Store: Activity deleted successfully");
+      // โหลดรายการกิจกรรมใหม่หลังจากลบ
+      await useActivityStore.getState().fetchActivities();
+    } catch (error) {
+      console.error("❌ Store: Error deleting activity:", error);
+      throw error;
+    }
   },
   //----------------------------------------------------------------
 }));

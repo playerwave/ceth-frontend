@@ -22,45 +22,30 @@ export default function ActivityInfoStudent() {
     activityLoading,
     activityError,
     fetchActivity,
-    enrollActivity,
     enrolledActivities,
     fetchEnrolledActivities,
-    unEnrollActivity,
+    enrollActivity,
+    unenrollActivity,
   } = useActivityStore();
 
   const { user } = useAuthStore(); 
-  const userId = user?.userId;
+  const userId = user?.userId || 8; // ใช้ userId จริงหรือ fallback เป็น 8
 
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [selectedFood, setSelectedFood] = useState<string>("");
 
-  // ✅ ตรวจว่า userId มีค่าก่อนค่อย fetch
-  // useEffect(() => {
-  //   if (id && userId) {
-  //     fetchActivity(id, userId);
-  //   }
-  // }, [id, userId]);
-
-  // useEffect(() => {
-  //   if (!userId) return;
-
-  //   fetchEnrolledActivities(userId);
-  //   fetchActivity(id, userId);
-  // }, [id, userId, fetchActivity, fetchEnrolledActivities]);
+  useEffect(() => {
+    fetchEnrolledActivities(userId);
+  }, [userId]);
 
   useEffect(() => {
-  if (!userId) return;
-
-  fetchEnrolledActivities(userId);
-  fetchActivity(id, userId);
-}, [id, userId, fetchActivity, fetchEnrolledActivities]);
-
+    fetchActivity(id, userId);
+  }, [id, userId]);
 
   useEffect(() => {
-    if (!id || enrolledActivities.length === 0) return;
-
+    if (enrolledActivities.length === 0) return;
     const isUserEnrolled = enrolledActivities.some(
-      (act) => Number(act.activity_id) === Number(id)
+      (act) => Number(act.activity_id) === Number(id),
     );
     setIsEnrolled(isUserEnrolled);
   }, [enrolledActivities, id]);
@@ -71,50 +56,32 @@ export default function ActivityInfoStudent() {
 
   if (activityLoading) return <Loading />;
   if (activityError)
-    return (
-      <p className="text-center text-lg text-red-500">
-        ❌ {activityError}
-      </p>
-    );
-  if (!activity)
-    return (
-      <p className="text-center text-lg">
-        ⚠️ ไม่พบกิจกรรม
-      </p>
-    );
+    return <p className="text-center text-lg text-red-500">❌ {activityError}</p>;
+  if (!activity) return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
 
   return (
     <div className="justify-items-center">
       <div className="w-320 h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <ActivityHeader activity={activity} />
-        <ActivityImage imageUrl={activity.image_url} />
+        <ActivityImage imageUrl={typeof activity.image_url === "string" ? activity.image_url : null} />
         <ActivityDetails activity={activity} />
         <FoodSelector
           activity={activity}
-          selectedFood={selectedFood} // ส่ง selectedFood ไปให้ FoodSelector
-          setSelectedFood={setSelectedFood} // ฟังก์ชันตั้งค่า selectedFood
-          isEnrolled={isEnrolled} // ส่ง isEnrolled ไปด้วย
+          selectedFood={selectedFood}
+          setSelectedFood={setSelectedFood}
+          isEnrolled={isEnrolled}
         />
         <ActivityFooter
           activity={activity}
-          isEnrolled={false}
-          enrollActivity={() => {}} // ❌ ปิดระบบลงทะเบียน
-          unenrollActivity={() => {}} // ❌ ปิดยกเลิกลงทะเบียน
-          setIsEnrolled={() => {}} // ❌ ไม่ต้องเปลี่ยนสถานะ
-          navigate={navigate}
-          enrolledActivities={[]} // ❌ ไม่แสดงรายชื่อที่ลงทะเบียน
-          selectedFood={selectedFood}
-        />
-        {/* <ActivityFooter
-          activity={activity}
           isEnrolled={isEnrolled}
           enrollActivity={enrollActivity}
-          unenrollActivity={unEnrollActivity}
+          unenrollActivity={unenrollActivity}
           setIsEnrolled={setIsEnrolled}
           navigate={navigate}
           enrolledActivities={enrolledActivities}
-          selectedFood={selectedFood} // ส่ง selectedFood ไปที่ ActivityFooter
-        /> */}
+          selectedFood={selectedFood}
+          userId={userId}
+        />
       </div>
     </div>
   );

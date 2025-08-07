@@ -11,11 +11,28 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { MapPin } from "lucide-react"; // เพิ่มไอคอน ChevronDown
+
+// 🔧 Custom MapPin icon แทน lucide-react
+const MapPin = ({ size, color }: { size: number; color: string }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
 
 import Button from "./Button"; // ปรับเส้นทางให้ตรงกับที่เก็บ Button
 
 import { Activity } from "../types/model"; // ปรับเส้นทางให้ตรงกับที่เก็บ Activity
+import { useAuthStore } from "../stores/Visitor/auth.store";
 
 export interface TableRedesignProps {
   height?: number | string;
@@ -41,11 +58,27 @@ export default function TableRedesign({
 }: TableRedesignProps) {
   const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
+  const user = useAuthStore.getState().user;
 
   const handleRowClick: GridEventListener<"rowClick"> = (params) => {
     const id = params.row.activity_id;
     if (id) {
-      navigate(`/activity-info-admin/${id}`); // ✅ ใช้ path parameter
+      const role = typeof user?.role === "string" ? user.role : user?.role?.role_name;
+      if (role === "Student") {
+        navigate(`/activity-info-student/${id}`);
+      } else {
+        navigate(`/activity-info-admin/${id}`);
+      }
+    }
+  };
+
+  // 🔗 เพิ่มฟังก์ชันสำหรับ double-click
+  const handleRowDoubleClick: GridEventListener<"rowDoubleClick"> = (params) => {
+    console.log('🔍 TableRedesign: Double-click detected!');
+    console.log('🔍 TableRedesign: Row data:', params.row);
+    
+    if (onRowDoubleClick) {
+      onRowDoubleClick(params.row);
     }
   };
 
@@ -54,11 +87,11 @@ export default function TableRedesign({
   };
 
   const filteredRows = locationFilter
-    ? rows.filter((row) => row.location_type === locationFilter)
+    ? rows.filter((row) => row.event_format === locationFilter)
     : rows;
 
   const columnsWithDropdown = columns.map((col) => {
-    if (col.field === "location_type") {
+    if (col.field === "event_format") {
       return {
         ...col,
         renderHeader: () => (
@@ -144,15 +177,15 @@ export default function TableRedesign({
       >
         <Box
           sx={{
+            width: "100%",
             minWidth: "100%",
-            width: "max-content",
           }}
         >
           <DataGrid
             columns={columnsWithDropdown}
             rows={filteredRows}
             getRowId={(row) => row.activity_id}
-            onRowDoubleClick={(params) => onRowDoubleClick?.(params.row)}
+            onRowDoubleClick={handleRowDoubleClick}
             pageSizeOptions={[5, 10, 20]}
             initialState={{
               pagination: {
@@ -162,6 +195,10 @@ export default function TableRedesign({
             disableRowSelectionOnClick
             autoHeight={false}
             sx={{
+              width: "100%",
+              "& .MuiDataGrid-root": {
+                width: "100%",
+              },
               border: "none",
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: "#1E3A8A",

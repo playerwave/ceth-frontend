@@ -486,10 +486,18 @@ useEffect(() => {
   if (formData.event_format !== "Onsite") return null;
 
   return (
-    <Paper className="w-140 mt-5 p-6 bg-white border border-gray-300 rounded-lg shadow-sm">
+    <Paper className={`w-140 mt-5 p-6 bg-white border border-gray-300 rounded-lg shadow-sm ${
+      formData.event_format !== "Onsite" ? "opacity-50" : ""
+    }`}>
       <Typography variant="h6" className="font-semibold mb-2">
-        อาหาร *
+        อาหาร {formData.event_format !== "Onsite" ? "(ไม่จำเป็น)" : "*"}
       </Typography>
+
+      {formData.event_format !== "Onsite" && (
+        <Typography variant="body2" color="textSecondary" className="mb-3">
+          อาหารไม่จำเป็นสำหรับกิจกรรมแบบ {formData.event_format}
+        </Typography>
+      )}
 
       {foodLoading && <Typography>กำลังโหลดข้อมูลอาหาร...</Typography>}
       {foodError && <Typography color="error">{foodError}</Typography>}

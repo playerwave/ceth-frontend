@@ -1,6 +1,8 @@
 import ListActivityHistoryTeacher from "../pages/Teacher/manage-activity-history-teacher/list-activity-history/list.activity.history.teacher";
 import ActivityHistoryInfoTeacher from "../pages/Teacher/manage-activity-history-teacher/activity-history-info/activity.history.info.teacher"
 
+import { ProtectionLevel } from "./secure/urlEnCryption";
+
 import type { Roles } from "../types/model";
 type RoleName = Roles["role_name"];
 
@@ -11,7 +13,8 @@ export const activityHistoryRoutes = [
     label: "ประวัติกิจกรรม",
     icon: "History",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: true
+    visibleInSidebar: true,
+    protectionLevel: ProtectionLevel.NONE
   },
    {
     path: "/activity-history-info-teacher",

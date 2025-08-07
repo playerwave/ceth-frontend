@@ -11,7 +11,7 @@ const SoftHardSkillCards = () => {
           className="w-full max-w-[300px] p-6 text-center rounded-[12px] shadow-xl"
         >
           <h2 className="text-base font-bold mb-4">Soft Skill ปัจจุบัน</h2>
-          <p className="text-[50px] font-bold text-blue-600">5</p>
+          <p className="text-[50px] font-bold text-blue-600">9</p>
         </CustomCard>
 
         <CustomCard
@@ -19,7 +19,7 @@ const SoftHardSkillCards = () => {
           className="w-full max-w-[300px] p-6 text-center rounded-[12px] shadow-xl"
         >
           <h2 className="text-base font-bold mb-4">Hard Skill ปัจจุบัน</h2>
-          <p className="text-[50px] font-bold text-orange-600">7</p>
+          <p className="text-[50px] font-bold text-orange-600">8</p>
         </CustomCard>
       </div>
     </div>

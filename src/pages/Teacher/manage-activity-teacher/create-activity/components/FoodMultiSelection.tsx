@@ -5,12 +5,14 @@ interface Props {
   foods: Food[];
   selectedFoodIds: number[];
   setSelectedFoodIds: (val: number[]) => void;
+  disabled?: boolean;
 }
 
 const FoodMultiSelect: React.FC<Props> = ({
   foods,
   selectedFoodIds,
   setSelectedFoodIds,
+  disabled = false,
 }) => {
   const selectedFoods = foods.filter((f) =>
     selectedFoodIds.includes(f.food_id),
@@ -25,6 +27,7 @@ const FoodMultiSelect: React.FC<Props> = ({
       onChange={(_, newValues) => {
         setSelectedFoodIds(newValues.map((f) => f.food_id));
       }}
+      disabled={disabled}
       isOptionEqualToValue={(opt, val) => opt.food_id === val.food_id}
       renderTags={(value, getTagProps) =>
         value.map((option, index) => (
@@ -36,14 +39,18 @@ const FoodMultiSelect: React.FC<Props> = ({
         ))
       }
       renderInput={(params) => (
-        <TextField {...params}  variant="outlined" />
+        <TextField 
+          {...params}  
+          variant="outlined"
+          placeholder={disabled ? "อาหารไม่จำเป็นสำหรับกิจกรรมนี้" : "เลือกอาหาร"}
+        />
       )}
-    //   sx={{ minWidth: 300 }}
-    sx={{
-  minWidth: 564,
-  maxWidth: 56, // ✅ หรือ 100% ถ้ามี parent คุมความกว้าง
-  width: "100%", // ✅ เพื่อให้ responsive ตาม container
-}}
+      sx={{
+        minWidth: 564,
+        maxWidth: 56, // ✅ หรือ 100% ถ้ามี parent คุมความกว้าง
+        width: "100%", // ✅ เพื่อให้ responsive ตาม container
+        opacity: disabled ? 0.5 : 1,
+      }}
     />
   );
 };

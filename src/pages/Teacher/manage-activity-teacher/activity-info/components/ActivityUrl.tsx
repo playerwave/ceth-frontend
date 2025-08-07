@@ -7,8 +7,8 @@ interface ActivityLinkProps {
 
 const ActivityLink: React.FC<ActivityLinkProps> = ({ url, label }) => {
   return (
-    <div className="flex items-center gap-2 font-[Sarabun] font-semibold text-sm text-gray-700 cursor-default">
-      <span>ลิงก์กิจกรรม:</span>
+    <div className="flex items-center gap-2 font-[Sarabun] font-semibold cursor-default">
+      <p>ลิ้งค์กิจกรรม: {""}</p>
       <a
         href={url}
         target="_blank"

@@ -9,9 +9,11 @@ import { Box } from "@mui/material";
 // import { Delete, Add } from "@mui/icons-material";
 import { SelectChangeEvent } from "@mui/material"; // ✅ นำเข้า SelectChangeEvent
 import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
+import { useSecureLink } from "../../../../routes/secure/SecureRoute";
 import { Activity } from "../../../../types/model";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
+import roomService from "../../../../service/Teacher/room.service";
 
 import {
   handleChange,
@@ -41,6 +43,7 @@ export interface CreateActivityForm extends Partial<Activity> {
 
 const CreateActivityAdmin: React.FC = () => {
   const { createActivity, activityLoading } = useActivityStore(); //
+  const { createSecureLink } = useSecureLink();
   const savedFoods = JSON.parse(localStorage.getItem("selectedFoods") || "[]");
   const [formData, setFormData] = useState<CreateActivityForm>({
   activity_name: "",
@@ -74,7 +77,14 @@ const CreateActivityAdmin: React.FC = () => {
   const { assessments, fetchAssessments } = useAssessmentStore();
   const foods = useFoodStore((state) => state.foods); // ✅ ต้องมีตรงนี้ก่อน
   const fetchFoods = useFoodStore((state) => state.fetchFoods);
-  const { rooms, fetchRooms } = useRoomStore();
+  const { 
+    rooms, 
+    fetchRooms, 
+    roomConflicts, 
+    checkingAvailability, 
+    checkRoomConflicts,
+    clearAvailabilityCheck 
+  } = useRoomStore();
 
 useEffect(() => {
   fetchRooms(); // ✅ โหลดข้อมูลห้องเมื่อ component mount
@@ -130,10 +140,13 @@ useEffect(() => {
   const handleFloorChange = (event: SelectChangeEvent) => {
   setSelectedFloor(event.target.value);
   setSelectedRoom("");
-  setSeatCapacity("");
+  // ✅ ไม่รีเซ็ต seatCapacity เพื่อให้สามารถกำหนดเองได้สำหรับ Online
+  if (formData.event_format !== "Online") {
+    setSeatCapacity("");
+  }
 };
 
-const handleRoomChange = (event: SelectChangeEvent) => {
+  const handleRoomChange = (event: SelectChangeEvent) => {
   const roomName = event.target.value;
   setSelectedRoom(roomName);
 
@@ -149,6 +162,15 @@ const handleRoomChange = (event: SelectChangeEvent) => {
       ? parseInt(newSeatCapacity)
       : newSeatCapacity, // ✅ แปลงให้เป็น number
   }));
+
+  // ✅ ตรวจสอบ room conflicts เมื่อเลือกห้องและมีวันที่เวลา
+  if (selectedRoomObj?.room_id && formData.start_activity_date && formData.end_activity_date) {
+    checkRoomConflicts(
+      selectedRoomObj.room_id,
+      formData.start_activity_date,
+      formData.end_activity_date
+    );
+  }
 };
 
 
@@ -193,6 +215,27 @@ const handleRoomChange = (event: SelectChangeEvent) => {
       return;
     }
 
+    // ✅ ตรวจสอบ room conflicts ก่อนบันทึก
+    if (formData.event_format === "Onsite" && formData.room_id && 
+        formData.start_activity_date && formData.end_activity_date) {
+      try {
+        const conflicts = await roomService.getRoomConflicts(
+          formData.room_id,
+          formData.start_activity_date,
+          formData.end_activity_date
+        );
+        
+        if (conflicts.length > 0) {
+          toast.error("ห้องที่เลือกถูกใช้งานในช่วงเวลานี้ กรุณาเลือกห้องอื่นหรือเปลี่ยนเวลา");
+          return;
+        }
+      } catch (error) {
+        console.error("❌ Error checking room conflicts:", error);
+        toast.error("ไม่สามารถตรวจสอบห้องที่ว่างได้");
+        return;
+      }
+    }
+
     if (imageFile) {
       await uploadImageToCloudinary(imageFile);
     }
@@ -212,7 +255,8 @@ const handleRoomChange = (event: SelectChangeEvent) => {
       acRecieveHours = duration > 0 ? duration : 0; // ✅ ป้องกันค่าติดลบ
     }
 
-    if (!formData.start_register_date) {
+    // ✅ ตรวจสอบเฉพาะเมื่อ activity_status เป็น "Public"
+    if (formData.activity_status === "Public" && !formData.start_register_date) {
       toast.error("กรุณาเลือกวันเวลาเริ่มลงทะเบียน");
       return;
     }
@@ -225,11 +269,27 @@ const handleRoomChange = (event: SelectChangeEvent) => {
     console.log("🚀 Data ที่ส่งไป store:", formData);
 
     try {
-      await createActivity(formData);
-      // navigate("/list-activity-admin");
+      // ✅ สร้างข้อมูลใหม่ที่มี recieve_hours ที่คำนวณแล้ว
+      const createData = {
+        ...formData,
+        recieve_hours: acRecieveHours,
+        // ✅ ส่ง foodIds เฉพาะเมื่อ event_format เป็น Onsite และกรอง foodIds ที่ถูกต้อง
+        foodIds: formData.event_format === "Onsite" ? 
+          (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ? 
+            formData.selectedFoods.filter(foodId => foodId > 0) : []) : [],
+        // ✅ ลบ selectedFoods ออกจาก request เมื่อไม่ใช่ Onsite
+        selectedFoods: formData.event_format === "Onsite" ? formData.selectedFoods : [],
+      };
+      
+      const result = await createActivity(createData);
+      console.log("✅ Activity created successfully:", result);
+      
+      // ✅ ส่งคืน activity_id เพื่อใช้ในการ navigate
+      return result;
     } catch (error) {
       console.error("❌ Error creating activity:", error);
       toast.error("Create failed!");
+      throw error; // ✅ re-throw เพื่อให้ ActionButtonsSection รู้ว่าเกิด error
     }
   };
 
@@ -247,7 +307,7 @@ const handleRoomChange = (event: SelectChangeEvent) => {
   function addFoodOption() {
   setFormData((prev) => ({
     ...prev,
-    selectedFoods: [...prev.selectedFoods, 0], // ✅ เพิ่มค่า food_id เช่น 0
+    selectedFoods: [...prev.selectedFoods, -1], // ✅ ใช้ -1 เป็น placeholder สำหรับ food ที่ยังไม่ได้เลือก
   }));
 }
 
@@ -263,6 +323,11 @@ useEffect(() => {
   ) {
     hasAdded.current = true;
     addFoodOption();
+  }
+  
+  // ✅ รีเซ็ต hasAdded เมื่อเปลี่ยน event_format
+  if (formData.event_format !== "Onsite") {
+    hasAdded.current = false;
   }
 }, [formData.event_format, foods, formData.selectedFoods]);
 
@@ -369,12 +434,59 @@ useEffect(() => {
 
   const handleFormChange = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
     formHandleChange(e, setFormData);
+    
+    // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
+    if (e.target.name === "event_format" && e.target.value === "Course") {
+      setFormData((prev) => ({
+        ...prev,
+        seat: 0,
+        assessment_id: undefined, // ✅ ล้างค่าแบบประเมิน
+        start_assessment: "", // ✅ ล้างค่าวันเริ่มประเมิน
+        end_assessment: "", // ✅ ล้างค่าวันสิ้นสุดประเมิน
+      }));
+    }
+    
+    // ✅ ถ้าเปลี่ยน event_format ไม่ใช่ Onsite ให้ล้างข้อมูลอาหาร
+    if (e.target.name === "event_format" && e.target.value !== "Onsite") {
+      setFormData((prev) => ({
+        ...prev,
+        selectedFoods: [], // ✅ ล้างข้อมูลอาหาร
+      }));
+      localStorage.removeItem("selectedFoods"); // ✅ ล้าง localStorage ด้วย
+      console.log("🧹 Cleared selectedFoods for non-Onsite event format");
+    }
+    
+    // ✅ ล้าง room conflicts เมื่อเปลี่ยน event_format
+    if (e.target.name === "event_format") {
+      clearAvailabilityCheck();
+    }
   };
 
   // ✅ Wrapper ที่ fix setFormData
   const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
     handleDateTimeChangeBase(name, newValue, setFormData);
   };
+
+  // ✅ useEffect เพื่อตรวจสอบ room conflicts เมื่อมีการเปลี่ยนแปลงวันที่เวลา
+  useEffect(() => {
+    if (formData.room_id && formData.start_activity_date && formData.end_activity_date) {
+      checkRoomConflicts(
+        formData.room_id,
+        formData.start_activity_date,
+        formData.end_activity_date
+      );
+    } else {
+      // ✅ ล้าง conflicts เมื่อไม่มีข้อมูลครบ
+      clearAvailabilityCheck();
+    }
+  }, [formData.room_id, formData.start_activity_date, formData.end_activity_date]);
+
+  // ✅ useEffect เพื่อล้าง conflicts เมื่อเปลี่ยน event_format
+  useEffect(() => {
+    if (formData.event_format !== "Onsite") {
+      clearAvailabilityCheck();
+    }
+  }, [formData.event_format]);
 
   return (
     <>
@@ -458,6 +570,11 @@ useEffect(() => {
                   handleFloorChange={handleFloorChange}
                   handleRoomChange={handleRoomChange}
                   handleChange={handleFormChange}
+                  seatCapacity={seatCapacity}
+                  setSeatCapacity={setSeatCapacity}
+                  roomConflicts={roomConflicts}
+                  checkingAvailability={checkingAvailability}
+                  hasTimeConflict={roomConflicts.length > 0}
                 />
 
                 <ActivityLink formData={formData} handleChange={handleFormChange} />
@@ -481,15 +598,15 @@ useEffect(() => {
 
 <div className="mt-6 max-w-xl w-full">
   <label className="block font-semibold">อาหาร *</label>
-                <FoodMultiSelect
-  foods={foods}
-  selectedFoodIds={formData.selectedFoods}
-  setSelectedFoodIds={(newIds) => {
-  localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
-  setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
-}}
-
-/>
+  <FoodMultiSelect
+    foods={foods}
+    selectedFoodIds={formData.selectedFoods}
+    setSelectedFoodIds={(newIds) => {
+      localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
+      setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
+    }}
+    disabled={formData.event_format !== "Onsite"}
+  />
 </div>
 
                 
@@ -510,6 +627,24 @@ useEffect(() => {
                   formStatus={formData.activity_status ?? "Private"}
                   isModalOpen={isModalOpen}
                   setIsModalOpen={setIsModalOpen}
+                  onSubmit={async () => {
+                    // ✅ สร้าง fake event object ที่มี preventDefault method
+                    const fakeEvent = {
+                      preventDefault: () => {},
+                    } as React.FormEvent;
+                    return await handleSubmit(fakeEvent);
+                  }}
+                  onSuccess={(activityId) => {
+                    // ✅ หลังจากสร้างกิจกรรมสำเร็จ เด้งไปหน้า activity-info-admin
+                    console.log("🎯 Navigating to activity info with ID:", activityId);
+                    if (activityId && activityId > 0) {
+                      const secureUrl = createSecureLink("/activity-info-admin", { id: activityId.toString() });
+                      console.log("🔗 Secure URL:", secureUrl);
+                      window.location.href = secureUrl;
+                    } else {
+                      console.error("❌ Invalid activity ID:", activityId);
+                    }
+                  }}
                 />
               </div>
               

@@ -1,279 +1,3 @@
-// import { useEffect, useState } from "react";
-// import React from "react";
-// import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
-// import { useNavigate } from "react-router-dom";
-
-// import Loading from "../../../../components/Loading";
-// import SearchBar from "../../../../components/Searchbar";
-// import ActivityTablePage from "./ActivityTablePage";
-// import { CopyPlus } from "lucide-react";
-// import { Activity } from "../../../../types/Admin/activity_list_type";
-
-// import { toast } from "sonner";
-// import ConfirmDialog from "./components/onfirmDialog";
-// import axiosInstance from "../../../../libs/axios";
-
-// const ListActivityTeacher: React.FC = () => {
-//   const navigate = useNavigate();
-//   const {
-//     activities,
-//     searchResults,
-//     fetchActivities,
-//     searchActivities,
-//     activityLoading,
-//     activityError,
-//     setMockActivities,
-//   } = useActivityStore();
-
-//   const [activeTab, setActiveTab] = useState<"list" | "calendar">("list");
-//   const [searchTerm, setSearchTerm] = useState("");
-// //   const [selectedRow, setSelectedRow] = useState<
-// //     (Activity & { source: "mock" | "real" }) | null
-// //   >(null);
-
-//   const [dialog, setDialog] = useState<{
-//     open: boolean;
-//     message: string;
-//     onConfirm: () => void;
-//   } | null>(null);
-
-//   useEffect(() => {
-//     fetchActivities();
-//   }, [fetchActivities]);
-
-//   const displayedActivities = searchResults ?? activities;
-
-//   const activitiesSuccess = displayedActivities.filter(
-//     (a) => a.activity_status === "Public"
-//   );
-//   const activitiesDraft = displayedActivities.filter(
-//     (a) => a.activity_status === "Private"
-//   );
-
-//   const now = new Date();
-//   const activitiesForEvaluation = mockActivities.filter((a) => {
-//     const endActivity = a.end_time ? new Date(a.end_time) : null;
-//     const endEvaluation = a.end_assessment ? new Date(a.end_assessment) : null;
-//     return (
-//       endActivity !== null &&
-//       endEvaluation !== null &&
-//       endActivity < now &&
-//       endEvaluation > now
-//     );
-//   });
-
-//   const handleSearch = (term: string) => {
-//     if (term.trim() === searchTerm.trim()) return;
-//     setSearchTerm(term);
-//     searchActivities(term);
-//   };
-
-//   const updateMockStatus = (id: string, status: "Public" | "Private") => {
-//     const updated = mockActivities.map((a) =>
-//       a.id === id ? { ...a, status } : a
-//     );
-//     setMockActivities(updated);
-//   };
-
-//   const mapToApiPayload = (activity: Activity, status: string) => ({
-//     ac_id: Number(activity.id),
-//     ac_name: activity.name,
-//     ac_company_lecturer: activity.company_lecturer,
-//     ac_description: activity.description,
-//     ac_type: activity.type,
-//     ac_room: activity.room,
-//     ac_seat: Number(activity.seat),
-//     ac_food: activity.food,
-//     ac_status: status,
-//     ac_location_type: activity.location_type,
-//     ac_start_register: activity.start_register,
-//     ac_end_register: activity.end_register,
-//     ac_create_date: activity.create_date,
-//     ac_last_update: new Date(),
-//     ac_registered_count: activity.registered_count,
-//     ac_attended_count: activity.attended_count,
-//     ac_not_attended_count: activity.not_attended_count,
-//     ac_start_time: activity.start_time,
-//     ac_end_time: activity.end_time,
-//     ac_image_url: activity.image_url,
-//     ac_state: activity.state,
-//     ac_normal_register: activity.normal_register,
-//     ac_recieve_hours: activity.recieve_hours,
-//     ac_start_assessment: activity.start_assessment,
-//     ac_end_assessment: activity.end_assessment,
-//     assessment: activity.assessment,
-//   });
-
-//   const handleStatusToggle = async (
-//     row: Activity & { source: "mock" | "real" }
-//   ) => {
-//     const currentStatus = row.status?.toLowerCase();
-//     const updatedStatus = currentStatus === "public" ? "Private" : "Public";
-
-//     console.log("🌀 CLICK TOGGLE");
-//     console.log(`👉 Toggle status: ${row.status} → ${updatedStatus}`);
-//     console.log("📎 Activity row:", row);
-
-//     setSelectedRow(row);
-
-//     const sourceList = row.source === "mock" ? mockActivities : activities;
-
-//     const target = sourceList.find((a) => String(a.id) === String(row.id));
-
-//     if (!target) {
-//       console.error("❌ ไม่พบกิจกรรมที่ต้องการอัปเดต:", {
-//         id: row.id,
-//         allIds: sourceList.map((a) => a.id),
-//       });
-//       toast.error("ไม่สามารถเปลี่ยนสถานะ: ไม่พบข้อมูลกิจกรรม");
-//       return;
-//     }
-
-//     if (!target.requiredFieldsFilled) {
-//       setDialog({
-//         open: true,
-//         message:
-//           "กรุณากรอกข้อมูลกิจกรรมให้ตรงเงื่อนไข\n(กด Confirm เพื่อไปที่หน้าแก้ไขกิจกรรม)",
-//         onConfirm: () => {
-//           setDialog(null);
-//           navigate("/update-activity-admin", { state: { id: row.id } });
-//         },
-//       });
-//       return;
-//     }
-
-//     const updatedData = mapToApiPayload(target, updatedStatus);
-
-//     try {
-//       console.log("📦 ส่ง PUT:", {
-//         url: `/admin/activity/update-activity/${row.id}`,
-//         body: updatedData,
-//       });
-
-//       await axiosInstance.put(
-//         `/admin/activity/update-activity/${row.id}`,
-//         updatedData
-//       );
-
-//       if (row.source === "mock") {
-//         updateMockStatus(row.id, updatedStatus);
-//       }
-
-//       toast.success(`เปลี่ยนสถานะเป็น ${updatedStatus} แล้ว`);
-//       await fetchActivities();
-//     } catch (err) {
-//       console.error("❌ อัปเดตสถานะล้มเหลว:", err);
-//       toast.error("ไม่สามารถเปลี่ยนสถานะกิจกรรมได้");
-//     }
-//   };
-
-//   const activitiesSuccessWithSource = activitiesSuccess.map((a) => ({
-//     ...a,
-//     source: "real" as const,
-//   }));
-
-//   const activitiesDraftWithSource = activitiesDraft.map((a) => ({
-//     ...a,
-//     source: "real" as const,
-//   }));
-
-//   const activitiesForEvaluationWithSource = activitiesForEvaluation.map(
-//     (a) => ({
-//       ...a,
-//       source: "mock" as const,
-//     })
-//   );
-
-//   return (
-//     <>
-//       <div className="max-w-screen-xl w-full mx-auto px-6 mt-10">
-//         <h1 className="text-center text-3xl font-bold mb-9 mt-4">
-//           จัดการกิจกรรม
-//         </h1>
-
-//         <div className="flex justify-center w-full mb-4">
-//           <SearchBar onSearch={handleSearch} />
-//         </div>
-
-//         <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
-//           <div className="flex space-x-4">
-//             <button
-//               className={`px-4 py-2 text-lg font-semibold flex items-center ${
-//                 activeTab === "list"
-//                   ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
-//                   : "text-gray-500"
-//               }`}
-//               onClick={() => setActiveTab("list")}
-//             >
-//               ลิสต์
-//             </button>
-//             <button
-//               className={`px-4 py-2 text-lg font-semibold flex items-center ${
-//                 activeTab === "calendar"
-//                   ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
-//                   : "text-gray-500"
-//               }`}
-//               onClick={() => setActiveTab("calendar")}
-//             >
-//               ปฏิทิน
-//             </button>
-//           </div>
-
-//           <div className="flex justify-end">
-//             <button
-//               className="w-full md:w-auto max-w-xs sm:max-w-sm bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center justify-center gap-2 hover:brightness-90 transition"
-//               onClick={() =>
-//                 navigate("/create-activity-admin", { state: { reload: true } })
-//               }
-//             >
-//               เพิ่มกิจกรรม <CopyPlus className="w-4 h-4" />
-//             </button>
-//           </div>
-//         </div>
-
-//         {activityLoading ? (
-//           <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-50 backdrop-blur-md z-40">
-//             <Loading />
-//           </div>
-//         ) : activityError ? (
-//           <p className="text-center text-red-500 p-4">
-//             ❌ เกิดข้อผิดพลาด: {activityError}
-//           </p>
-//         ) : displayedActivities.length === 0 ? (
-//           <p className="text-center text-gray-500 p-4">
-//             📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
-//           </p>
-//         ) : activeTab === "list" ? (
-//           <ActivityTablePage
-//             rows1={activitiesSuccessWithSource}
-//             rows2={activitiesDraftWithSource}
-//             rows3={activitiesForEvaluationWithSource}
-//             setDialog={setDialog}
-//             handleStatusToggle={handleStatusToggle}
-//           />
-//         ) : (
-//           <div className="text-center text-gray-500 p-6">
-//             <h2 className="text-xl font-semibold">
-//               📅 โหมดปฏิทิน (ยังไม่มีข้อมูล)
-//             </h2>
-//           </div>
-//         )}
-//       </div>
-
-//       {dialog && (
-//         <ConfirmDialog
-//           open={dialog.open}
-//           message={dialog.message}
-//           onConfirm={dialog.onConfirm}
-//           onClose={() => setDialog(null)}
-//         />
-//       )}
-//     </>
-//   );
-// };
-
-// export default ListActivityTeacher;
-
 import React, { useEffect, useState } from "react";
 import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
 import { useNavigate } from "react-router-dom";
@@ -284,12 +8,35 @@ import SearchBar from "../../../../components/Searchbar";
 import Loading from "../../../../components/Loading";
 import ActivityTablePage from "./ActivityTablePage";
 import ConfirmDialog from "./components/onfirmDialog";
-import { CopyPlus } from "lucide-react";
 
-import { isActivityValid } from "./utils/activity";
+// 🔧 Custom CopyPlus icon แทน lucide-react
+const CopyPlus = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+    <path d="m5 16 4-4 4 4" />
+    <path d="M3 20h18" />
+    <path d="M12 8v8" />
+    <path d="M8 12h8" />
+  </svg>
+);
+
+import { useSecureLink } from "../../../../routes/secure/SecureRoute";
+import { isActivityValid, validatePrivateToPublic } from "./utils/activity";
 
 const ListActivityTeacher: React.FC = () => {
   const navigate = useNavigate();
+  const { createSecureLink } = useSecureLink();
+  
   const {
     activities,
     searchResults,
@@ -312,16 +59,95 @@ const ListActivityTeacher: React.FC = () => {
   }, [fetchActivities]);
 
   const displayedActivities = searchResults ?? activities;
-  const publicActivities = displayedActivities.filter(
-    (a) => a.activity_status === "Public",
-  );
+  
+  // กิจกรรมสหกิจ: Public และยังไม่ถึง start_assessment หรือไม่มี assessment dates
+  const publicActivities = displayedActivities.filter((a) => {
+    const isPublic = a.activity_status === "Public";
+    const hasStartAssessment = a.start_assessment !== null && a.start_assessment !== undefined;
+    const hasEndAssessment = a.end_assessment !== null && a.end_assessment !== undefined;
+    
+    // ถ้าไม่มี assessment dates เลย ให้แสดงในตารางนี้
+    if (!hasStartAssessment || !hasEndAssessment) {
+      if (import.meta.env.DEV) {
+        console.log(`🔍 Activity: ${a.activity_name}`, {
+          isPublic,
+          hasStartAssessment,
+          hasEndAssessment,
+          included: isPublic,
+          reason: "No assessment dates"
+        });
+      }
+      return isPublic;
+    }
+    
+    // ถ้ามี assessment dates ให้ตรวจสอบเวลา
+    const now = new Date();
+    const startAssessmentDate = a.start_assessment ? new Date(a.start_assessment) : null;
+    const notReachedAssessment = startAssessmentDate ? now < startAssessmentDate : false;
+    
+    // Debug log
+    if (import.meta.env.DEV) {
+      console.log(`🔍 Activity: ${a.activity_name}`, {
+        isPublic,
+        hasStartAssessment,
+        hasEndAssessment,
+        startAssessmentDate: startAssessmentDate?.toISOString(),
+        now: now.toISOString(),
+        notReachedAssessment,
+        included: isPublic && notReachedAssessment,
+        reason: "Time-based filtering"
+      });
+    }
+    
+    return isPublic && notReachedAssessment;
+  });
+  
   const privateActivities = displayedActivities.filter(
     (a) => a.activity_status === "Private",
   );
-  const activitiesEvaluate = displayedActivities.filter(
-    (a) =>
-      a.activity_state === "Start Assessment" && a.start_assessment !== null,
-  );
+  
+  // กิจกรรมที่ให้นิสิตทำแบบประเมิน: Public, Active, และถึงเวลา start_assessment แต่ยังไม่ผ่าน end_assessment
+  const activitiesEvaluate = displayedActivities.filter((a) => {
+    // ต้องเป็น Public และ Active
+    const isPublic = a.activity_status === "Public";
+    const isActive = a.status === "Active";
+    if (!isPublic || !isActive) return false;
+
+    // Course ไม่สามารถแสดงในตารางนี้ได้
+    if (a.event_format === "Course") return false;
+
+    // ต้องมี start_assessment และ end_assessment
+    const hasStartAssessment = a.start_assessment !== null && a.start_assessment !== undefined;
+    const hasEndAssessment = a.end_assessment !== null && a.end_assessment !== undefined;
+    if (!hasStartAssessment || !hasEndAssessment || !a.start_assessment || !a.end_assessment) return false;
+    
+    const now = new Date();
+    const startAssessmentDate = new Date(a.start_assessment);
+    const endAssessmentDate = new Date(a.end_assessment);
+    
+    // ต้องถึงเวลา start_assessment และยังไม่ผ่าน end_assessment
+    const hasReachedStart = now >= startAssessmentDate;
+    const hasNotPassedEnd = now <= endAssessmentDate;
+    
+    // Debug log
+    if (import.meta.env.DEV) {
+      console.log(`🔍 Assessment Activity: ${a.activity_name}`, {
+        isPublic,
+        isActive,
+        eventFormat: a.event_format,
+        hasStartAssessment,
+        hasEndAssessment,
+        startAssessmentDate: startAssessmentDate.toISOString(),
+        endAssessmentDate: endAssessmentDate.toISOString(),
+        now: now.toISOString(),
+        hasReachedStart,
+        hasNotPassedEnd,
+        included: hasReachedStart && hasNotPassedEnd
+      });
+    }
+    
+    return hasReachedStart && hasNotPassedEnd;
+  });
 
   const handleSearch = (term: string) => {
     if (term.trim() === searchTerm.trim()) return;
@@ -330,24 +156,103 @@ const ListActivityTeacher: React.FC = () => {
   };
 
   const handleStatusToggle = async (activity: Activity) => {
-    const currentStatus = activity.status?.toLowerCase();
+    const currentStatus = activity.activity_status?.toLowerCase();
     const updatedStatus = currentStatus === "public" ? "Private" : "Public";
 
-    if (!isActivityValid(activity)) {
-      setDialog({
-        open: true,
-        message:
-          "กรุณากรอกข้อมูลกิจกรรมให้ตรงเงื่อนไข\n(กด Confirm เพื่อไปที่หน้าแก้ไขกิจกรรม)",
-        onConfirm: () => {
-          setDialog(null);
-          navigate("/update-activity-admin", {
-            state: { id: activity.activity_id },
-          });
-        },
-      });
-      return;
+    // ✅ เพิ่ม debug log
+    console.log("🔄 Status toggle attempt:", {
+      activity_id: activity.activity_id,
+      activity_name: activity.activity_name,
+      current_status: activity.activity_status,
+      activity_state: activity.activity_state,
+    });
+
+    // ตรวจสอบเงื่อนไขตามทิศทางการเปลี่ยน
+    if (currentStatus === "public") {
+      // เปลี่ยนจาก Public เป็น Private
+      if (!isActivityValid(activity)) {
+        console.log("❌ Public to Private validation failed, showing dialog");
+        setDialog({
+          open: true,
+          message:
+            "กรุณากรอกข้อมูลกิจกรรมให้ตรงเงื่อนไข\n(กด Confirm เพื่อไปที่หน้าแก้ไขกิจกรรม)",
+          onConfirm: () => {
+            setDialog(null);
+            // สร้าง URL ที่เข้ารหัสสำหรับหน้า update
+            const encryptedUrl = createSecureLink("/update-activity-admin", {
+              id: activity.activity_id,
+              name: "Update Activity",
+              type: "update",
+              isActive: true,
+              timestamp: Date.now(),
+            });
+            
+            console.log("🔄 Navigating to update activity:", activity.activity_id);
+            console.log("🔐 Generated update URL:", encryptedUrl);
+            
+            window.location.href = encryptedUrl;
+          },
+        });
+        return;
+      }
+    } else {
+      // เปลี่ยนจาก Private เป็น Public
+      const validation = validatePrivateToPublic(activity);
+      
+      if (!validation.isValid) {
+        console.log("❌ Private to Public validation failed:", validation.reason);
+        setDialog({
+          open: true,
+          message: validation.message,
+          onConfirm: () => {
+            setDialog(null);
+            // สร้าง URL ที่เข้ารหัสสำหรับหน้า update พร้อมข้อมูล validation
+            const encryptedUrl = createSecureLink("/update-activity-admin", {
+              id: activity.activity_id,
+              name: "Update Activity",
+              type: "update",
+              isActive: true,
+              timestamp: Date.now(),
+              // เพิ่มข้อมูล validation
+              validationError: validation.reason,
+              targetStatus: "Public", // ต้องการเปลี่ยนเป็น Public
+              showValidationErrors: true, // แสดงข้อความ error
+            });
+            
+            console.log("🔄 Navigating to update activity:", activity.activity_id);
+            console.log("🔐 Generated update URL:", encryptedUrl);
+            console.log("🔍 Validation error reason:", validation.reason);
+            
+            window.location.href = encryptedUrl;
+          },
+        });
+        return;
+      } else {
+        // ถ้าผ่าน validation แต่ยังต้องยืนยัน
+        console.log("✅ Private to Public validation passed, showing confirmation dialog");
+        setDialog({
+          open: true,
+          message: validation.message,
+          onConfirm: async () => {
+            setDialog(null);
+            try {
+              await useActivityStore
+                .getState()
+                .updateActivityStatus?.(
+                  activity.activity_id.toString(),
+                  "Public",
+                );
+              toast.success("เปลี่ยนสถานะเป็น Public แล้ว");
+            } catch (err) {
+              toast.error("ไม่สามารถเปลี่ยนสถานะกิจกรรมได้");
+            }
+          },
+        });
+        return;
+      }
     }
 
+    // สำหรับ Public เป็น Private (ผ่าน validation แล้ว)
     try {
       await useActivityStore
         .getState()
@@ -362,44 +267,78 @@ const ListActivityTeacher: React.FC = () => {
   };
 
   return (
-    <div className="max-w-screen-xl w-full mx-auto px-6 mt-10">
-      <h1 className="text-center text-3xl font-bold mb-9 mt-4">
-        จัดการกิจกรรม
-      </h1>
+    <div className="w-full flex flex-col items-center justify-center px-6 mt-10">
+      <div className="w-full max-w-screen-xl flex flex-col items-center justify-center">
+        <h1 className="text-center text-3xl font-bold mb-9 mt-4">
+          จัดการกิจกรรม
+        </h1>
 
-      <div className="flex justify-center w-full mb-4">
-        <SearchBar onSearch={handleSearch} />
-      </div>
-
-      <div className="flex flex-wrap justify-between items-center gap-2 mb-6">
-        <div className="flex space-x-4">
-          {(["list", "calendar"] as const).map((tab) => (
-            <button
-              key={tab}
-              className={`px-4 py-2 text-lg font-semibold ${
-                activeTab === tab
-                  ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
-                  : "text-gray-500"
-              }`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab === "list" ? "ลิสต์" : "ปฏิทิน"}
-            </button>
-          ))}
+        <div className="flex justify-center w-full mb-4">
+          <SearchBar onSearch={handleSearch} />
         </div>
 
-        <button
-          className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90"
-          onClick={() =>
-            navigate("/create-activity-admin", { state: { reload: true } })
-          }
-        >
-          เพิ่มกิจกรรม <CopyPlus className="w-4 h-4" />
-        </button>
-      </div>
+        {/* Debug: Show filtering info */}
+        {/* {import.meta.env.DEV && (
+          <div className="w-full max-w-screen-xl mb-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+            <p>🔍 Debug Filtering Info:</p>
+            <p>Total Activities: {displayedActivities.length}</p>
+            <p>Public Activities: {publicActivities.length}</p>
+            <p>Private Activities: {privateActivities.length}</p>
+            <p>Assessment Activities: {activitiesEvaluate.length}</p>
+            <p>Current Time: {new Date().toISOString()}</p>
+            <p>Missing Activities: {displayedActivities.length - (publicActivities.length + privateActivities.length + activitiesEvaluate.length)}</p>
+            <p>Public Activities Details:</p>
+            {publicActivities.map((activity, index) => (
+              <p key={index} className="ml-4">
+                • {activity.activity_name} (ID: {activity.activity_id}) - {activity.event_format} - 
+                Start: {activity.start_assessment} - End: {activity.end_assessment}
+              </p>
+            ))}
+            <p>Private Activities Details:</p>
+            {privateActivities.map((activity, index) => (
+              <p key={index} className="ml-4">
+                • {activity.activity_name} (ID: {activity.activity_id}) - {activity.event_format}
+              </p>
+            ))}
+            <p>Assessment Activities Details:</p>
+            {activitiesEvaluate.map((activity, index) => (
+              <p key={index} className="ml-4">
+                • {activity.activity_name} (ID: {activity.activity_id}) - {activity.event_format} - 
+                Start: {activity.start_assessment} - End: {activity.end_assessment}
+              </p>
+            ))}
+          </div>
+        )} */}
+
+                <div className="flex flex-wrap justify-between items-center gap-2 mb-6 w-full">
+          <div className="flex space-x-4">
+            {(["list", "calendar"] as const).map((tab) => (
+              <button
+                key={tab}
+                className={`px-4 py-2 text-lg font-semibold ${
+                  activeTab === tab
+                    ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
+                    : "text-gray-500"
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab === "list" ? "ลิสต์" : "ปฏิทิน"}
+              </button>
+            ))}
+          </div>
+
+          <button
+            className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90"
+            onClick={() =>
+              navigate("/create-activity-admin", { state: { reload: true } })
+            }
+          >
+            เพิ่มกิจกรรม <CopyPlus className="w-4 h-4" />
+          </button>
+        </div>
 
       {activityLoading ? (
-        <div className="fixed inset-0 flex justify-center items-center bg-white bg-opacity-50 z-40">
+        <div className="fixed inset-0 flex justify-center ml-10 items-center bg-white bg-opacity-50 z-40">
           <Loading />
         </div>
       ) : activityError ? (
@@ -417,6 +356,7 @@ const ListActivityTeacher: React.FC = () => {
           rows3={activitiesEvaluate}
           setDialog={setDialog}
           handleStatusToggle={handleStatusToggle}
+          createSecureLink={createSecureLink}
         />
       ) : (
         <div className="text-center text-gray-500 p-6">
@@ -424,16 +364,17 @@ const ListActivityTeacher: React.FC = () => {
             📅 โหมดปฏิทิน (ยังไม่มีข้อมูล)
           </h2>
         </div>
-      )}
+        )}
 
-      {dialog && (
-        <ConfirmDialog
-          open={dialog.open}
-          message={dialog.message}
-          onConfirm={dialog.onConfirm}
-          onClose={() => setDialog(null)}
-        />
-      )}
+        {dialog && (
+          <ConfirmDialog
+            open={dialog.open}
+            message={dialog.message}
+            onConfirm={dialog.onConfirm}
+            onClose={() => setDialog(null)}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -10,6 +10,8 @@ import ActivityListVisitor from "../pages/visitor/activity-list/visiter";
 import ActivityInfoVisitor from "../pages/visitor/activity-info/activity_info_visitor";
 
 import type { Roles } from "../types/model";
+import { ProtectionLevel } from "./secure/urlEnCryption";
+
 type RoleName = Roles["role_name"];
 
 export const activityRoutes = [
@@ -19,7 +21,8 @@ export const activityRoutes = [
     label: "รายการกิจกรรม",
     icon: "BookA",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: true
+    visibleInSidebar: true,
+    protectionLevel: ProtectionLevel.NONE // ไม่เข้ารหัสเพราะเป็นหน้าหลัก
   },
   {
     path: "/create-activity-admin",
@@ -27,15 +30,17 @@ export const activityRoutes = [
     label: "สร้างกิจกรรม",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED // เข้ารหัสแบบง่าย
   },
   {
-    path: "/update-activity-admin",
+    path: "/update-activity-admin/:id",
     element: <UpdateActivityAdmin />,
     label: "แก้ไขกิจกรรม",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCRYPTED // เข้ารหัสแบบเต็มเพราะมีข้อมูลสำคัญ
   },
   {
     path: "/activity-info-admin/:id",
@@ -43,7 +48,17 @@ export const activityRoutes = [
     label: "ดูข้อมูลกิจกรรม",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.NONE // ไม่เข้ารหัสสำหรับ URL แบบเก่า
+  },
+  {
+    path: "/activity-info-admin",
+    element: <ActivityInfoAdmin />,
+    label: "ดูข้อมูลกิจกรรม (เข้ารหัส)",
+    icon: "ClipboardList",
+    roles: ["Teacher", "Admin"] as RoleName[],
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCRYPTED // เข้ารหัสแบบเต็มเพราะมีข้อมูลสำคัญ
   },
   {
     path: "/list-activity-student",
@@ -51,15 +66,17 @@ export const activityRoutes = [
     label: "กิจกรรมสหกิจ",
     icon: "BookA",
     roles: ["Student"] as RoleName[],
-    visibleInSidebar: true
+    visibleInSidebar: true,
+    protectionLevel: ProtectionLevel.NONE // ไม่เข้ารหัสเพราะเป็นหน้าหลัก
   },
   {
-    path: "/activity-info-student",
+    path: "/activity-info-student/:id",
     element: <ActivityInfoStudent />,
     label: "ดูข้อมูลกิจกรรมนิสิต",
     icon: "ClipboardList",
     roles: ["Student"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCRYPTED // เข้ารหัสแบบเต็มเพราะมีข้อมูลสำคัญ
   },
   {
     path: "/activity-info-student/:id",
@@ -74,15 +91,17 @@ export const activityRoutes = [
     element: <ActivityListVisitor />,
     label: "กิจกรรมสำหรับเยี่ยมชม",
     icon: "BookA",
-    roles: ["Visitor"] as RoleName[],
-    visibleInSidebar: false
+    roles: ["Visitor", "Admin", "Teacher", "Student"] as RoleName[],
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.NONE // ไม่เข้ารหัสเพราะเป็นหน้าสาธารณะ
   },
   {
     path: "/activity-info-visitor",
     element: <ActivityInfoVisitor />,
     label: "รายละเอียดกิจกรรม",
     icon: "ClipboardList",
-    roles: ["Visitor"] as RoleName[],
-    visibleInSidebar: false
+    roles: ["Visitor", "Admin", "Teacher", "Student"] as RoleName[],
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED // เข้ารหัสแบบง่ายสำหรับข้อมูลสาธารณะ
   }
 ];

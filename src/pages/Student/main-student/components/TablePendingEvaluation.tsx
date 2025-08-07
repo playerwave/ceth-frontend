@@ -43,8 +43,8 @@ const TablePendingEvaluation: React.FC<TablePendingEvaluationProps> = ({
     handleTypeChange,
   });
 
-  return (
-    <CustomCard className="mt-6 mx-auto" width="100%">
+  return ( 
+    <CustomCard className="mt-6 mx-auto shadow-xl" width="100%" height={600}>
       <Typography variant="h6" fontWeight="bold" gutterBottom>
         ลิสต์กิจกรรมที่ยังไม่ได้ทำแบบประเมิน
       </Typography>

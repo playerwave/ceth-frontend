@@ -3,6 +3,7 @@ import PreviewCertificateTeacher from "../pages/Teacher/manage-certificate-teach
 import ListCertificateStudent from "../pages/Student/certificate-student/list-certificate-student/list.certificate.student";
 import SendCertificateStudent from "../pages/Student/certificate-student/send-certificate-student/send.certificate.student";
 
+import { ProtectionLevel } from "./secure/urlEnCryption";
 
 import type { Roles } from "../types/model";
 type RoleName = Roles["role_name"];
@@ -14,7 +15,8 @@ export const certificateRoutes = [
     label: "จัดการเกียรติบัตร",
     icon: "BadgeCheck",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: true
+    visibleInSidebar: true,
+    protectionLevel: ProtectionLevel.ENCODED
   },
    {
     path: "/preview-certificate-teacher",
@@ -22,7 +24,8 @@ export const certificateRoutes = [
     label: "",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED
   },
   {
     path: "/send-certificate-student",
@@ -30,7 +33,8 @@ export const certificateRoutes = [
     label: "",
     icon: "ClipboardList",
     roles: ["Student"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED
   },
   {
     path: "/list-certificate-student",
@@ -38,6 +42,7 @@ export const certificateRoutes = [
     label: "ยื่นเกียรติบัตร",
     icon: "BadgeCheck",
     roles: ["Student"] as RoleName[],
-    visibleInSidebar: true
+    visibleInSidebar: true,
+    protectionLevel: ProtectionLevel.ENCODED
   },
 ];

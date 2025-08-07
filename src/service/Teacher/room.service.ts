@@ -14,15 +14,12 @@ export const fetchAllRooms = async (): Promise<Room[]> => {
 };
 //----------------------------------------------------------------
 
-
 //--------------------- Fetch Room by ID -------------------------
 export const fetchRoomById = async (id: number): Promise<Room> => {
-
   const response = await axiosInstance.get<Room>(
     `${TEACHER_ROOM_PATH}/get-room/${id}`
   );
   return response.data;
-
 };
 
 //--------------------- Count Rooms ------------------------------
@@ -72,7 +69,67 @@ export const fetchAllFaculties = async (): Promise<Faculty[]> => {
   return res.data.facultyData; // ✅ ถ้า backend ส่ง facultyData ภายใน object
 };
 
+// ✅ ฟังก์ชันตรวจสอบห้องที่ว่างในช่วงเวลาที่กำหนด
+export const getAvailableRooms = async (
+  start_activity_date: string,
+  end_activity_date: string,
+  exclude_activity_id?: number
+): Promise<Room[]> => {
+  const params = new URLSearchParams({
+    start_activity_date,
+    end_activity_date,
+    ...(exclude_activity_id && {
+      exclude_activity_id: exclude_activity_id.toString(),
+    }),
+  });
 
+  const response = await axiosInstance.get<{ rooms: Room[]; count: number }>(
+    `${TEACHER_ROOM_PATH}/available-rooms?${params}`
+  );
+  return response.data.rooms;
+};
+
+// ✅ ฟังก์ชันตรวจสอบห้องที่ถูกใช้งาน
+export const getRoomConflicts = async (
+  room_id: number,
+  start_activity_date: string,
+  end_activity_date: string,
+  exclude_activity_id?: number
+): Promise<any[]> => {
+  const params = new URLSearchParams({
+    start_activity_date,
+    end_activity_date,
+    ...(exclude_activity_id && {
+      exclude_activity_id: exclude_activity_id.toString(),
+    }),
+  });
+
+  const response = await axiosInstance.get<{
+    conflicts: any[];
+    has_conflicts: boolean;
+  }>(`${TEACHER_ROOM_PATH}/room-conflicts/${room_id}?${params}`);
+  return response.data.conflicts;
+};
+
+// ✅ ฟังก์ชันตรวจสอบห้องที่ว่างทั้งหมดในช่วงเวลาที่กำหนด
+export const getAllAvailableRooms = async (
+  start_activity_date: string,
+  end_activity_date: string,
+  exclude_activity_id?: number
+): Promise<Room[]> => {
+  const params = new URLSearchParams({
+    start_activity_date,
+    end_activity_date,
+    ...(exclude_activity_id && {
+      exclude_activity_id: exclude_activity_id.toString(),
+    }),
+  });
+
+  const response = await axiosInstance.get<{ rooms: Room[]; count: number }>(
+    `${TEACHER_ROOM_PATH}/all-available-rooms?${params}`
+  );
+  return response.data.rooms;
+};
 
 //--------------------- Export Service ---------------------------
 const roomService = {
@@ -82,8 +139,11 @@ const roomService = {
   updateRoom,
   deleteRoom,
   fetchRoomById,
-  fetchAllBuildings,       // ✅ เพิ่มได้
-  fetchAllFaculties,       // ✅ เพิ่มได้
+  fetchAllBuildings, // ✅ เพิ่มได้
+  fetchAllFaculties, // ✅ เพิ่มได้
+  getAvailableRooms, // ✅ เพิ่มฟังก์ชันใหม่
+  getRoomConflicts, // ✅ เพิ่มฟังก์ชันใหม่
+  getAllAvailableRooms, // ✅ เพิ่มฟังก์ชันใหม่
 };
 
 export default roomService;

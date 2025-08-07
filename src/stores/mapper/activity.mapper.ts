@@ -43,3 +43,7 @@ export function mapApiToActivity(a: ApiActivity): Activity {
 export function mapApiToActivities(arr: ApiActivity[]): Activity[] {
   return arr.map(mapApiToActivity);
 }
+
+export function mapApiToEnrolledActivities(arr: ApiActivity[]): Activity[] {
+  return arr.map(mapApiToActivity);
+}

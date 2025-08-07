@@ -19,19 +19,23 @@ export const getActivityById = async (id: number): Promise<Activity> => {
   const response = await axiosInstance.get<Activity>(
     `${TEACHER_ACTIVITY_PATH}/get-activity/${id}`
   );
+  console.log("🔍 Activity data service:", response.data);
   return response.data;
 };
 //------------------------------------------------------------------
 
 //--------------------- Create Activity ----------------------------
-export const createActivity = async (payload: Partial<Activity>) => {
+export const createActivity = async (
+  payload: Partial<Activity>
+): Promise<number> => {
   console.log("📤 Creating activity with payload:", payload);
 
   const response = await axiosInstance.post(
     `${TEACHER_ACTIVITY_PATH}/create-activity`,
     payload
   );
-  return response.data;
+  console.log("📥 Create activity response:", response.data);
+  return response.data.activity_id; // ✅ ส่งคืน activity_id จาก response
 };
 //------------------------------------------------------------------
 
@@ -62,42 +66,67 @@ export const updateActivityStatus = async (
   id: string,
   status: "Public" | "Private"
 ): Promise<void> => {
-  await axiosInstance.put(`${TEACHER_ACTIVITY_PATH}/update-activity/${id}`, {
-    status,
-    last_update: new Date(),
-  });
-};
-//------------------------------------------------------------------
-
-//--------------------- Update Activity ----------------------------
-export const updateActivity = async (activity: Activity): Promise<void> => {
-  await axiosInstance.put(
-    `${TEACHER_ACTIVITY_PATH}/update-activity/${activity.activity_id}`,
+  await axiosInstance.patch(
+    `${TEACHER_ACTIVITY_PATH}/update-activity-status/${id}`,
     {
-      ...activity,
+      activity_status: status,
       last_update: new Date(),
     }
   );
 };
 //------------------------------------------------------------------
 
+//--------------------- Update Activity ----------------------------
+export const updateActivity = async (activity: Activity): Promise<number> => {
+  console.log("update activity: ", activity);
+  const response = await axiosInstance.put(
+    `${TEACHER_ACTIVITY_PATH}/update-activity/${activity.activity_id}`,
+    {
+      ...activity,
+      last_update: new Date(),
+    }
+  );
+  console.log("📥 Update activity response:", response.data);
+  return activity.activity_id; // ✅ ส่งคืน activity_id จาก input
+};
+//--------------------------------------------------------------------
+
 //--------------------- addFoodToActivity ----------------------------
 export const addFoodToActivity = async (
   activity_id: number,
   food_id: number
 ) => {
-  return axiosInstance.post(`/teacher/activity/${activity_id}/add-food`, {
-    food_id,
-  });
+  console.log("🍽️ Adding food to activity:", { activity_id, food_id });
+  const response = await axiosInstance.post(
+    `/teacher/activity/${activity_id}/add-food`,
+    {
+      food_id,
+    }
+  );
+  console.log("✅ Add food response:", response.data);
+  return response;
 };
 //------------------------------------------------------------------
 
 //--------------------- removeFoodFromActivity ----------------------------
 
 export const removeFoodFromActivity = async (activity_food_id: number) => {
-  return axiosInstance.delete(
+  console.log("🗑️ Removing food from activity:", { activity_food_id });
+  const response = await axiosInstance.delete(
     `/teacher/activity/remove-food/${activity_food_id}`
   );
+  console.log("✅ Remove food response:", response.data);
+  return response;
+};
+//------------------------------------------------------------------
+
+//--------------------- Delete Activity ----------------------------
+export const deleteActivity = async (id: number): Promise<void> => {
+  console.log("🗑️ Deleting activity with ID:", id);
+  const response = await axiosInstance.delete(
+    `${TEACHER_ACTIVITY_PATH}/delete-activity/${id}`
+  );
+  console.log("✅ Delete activity response:", response.data);
 };
 //------------------------------------------------------------------
 
@@ -113,6 +142,7 @@ const activityService = {
   updateActivity,
   addFoodToActivity,
   removeFoodFromActivity,
+  deleteActivity, // ✅ เพิ่มฟังก์ชันลบกิจกรรม
 };
 //------------------------------------------------------------------
 

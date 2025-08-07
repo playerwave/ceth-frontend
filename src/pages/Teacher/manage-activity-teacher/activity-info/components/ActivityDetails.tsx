@@ -265,7 +265,7 @@ export default function ActivityDetails({ activity }: Props) {
         </div>
       </div>
 
-      <p className="mt-2 text-xs sm:text-sm md:text-base font-sans break-words overflow-hidden">
+      <p className="mt-8 text-xs sm:text-sm md:text-base font-sans break-words overflow-hidden">
         {activity.description}
       </p>
     </>

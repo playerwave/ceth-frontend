@@ -1,48 +1,97 @@
 import { IconButton, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
-const Complacent = ({ onDelete }: { onDelete: () => void }) => {
-  const [questions, setQuestions] = useState([{ id: 1, text: '' }]);
+type ComplacentData = {
+  type: "scale";
+  topic: string;
+  questions: {
+    id: number;
+    question: string; // เปลี่ยนจาก text เป็น question
+  }[];
+};
+
+type Props = {
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onChange: (data: ComplacentData) => void;
+};
+
+const Complacent = ({ onDelete, onDuplicate, onChange }: Props) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const [questions, setQuestions] = useState([{ id: 1, question: '' }]);
   const [nextId, setNextId] = useState(2);
-
+  const [topicTitle, setTopicTitle] = useState('');
   const addQuestion = () => {
-    setQuestions([...questions, { id: nextId, text: '' }]);
+    setQuestions([...questions, { id: nextId, question: '' }]);
     setNextId(nextId + 1);
   };
 
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => setAnchorEl(null);
   const deleteQuestion = (id: number) => {
     const filtered = questions.filter((q) => q.id !== id);
     const reIndexed = filtered.map((q, idx) => ({ ...q, id: idx + 1 }));
     setQuestions(reIndexed);
     setNextId(reIndexed.length + 1);
   };
-
   const handleTextChange = (id: number, newText: string) => {
     setQuestions(
-      questions.map((q) => (q.id === id ? { ...q, text: newText } : q))
+      questions.map((q) => (q.id === id ? { ...q, question: newText } : q))
     );
   };
 
-  const deleteAllQuestions = () => {
+  const handleDeleteAll = () => {
     setQuestions([]);
     setNextId(1);
-    onDelete(); // 💥 ลบตัวเองจากหน้าแม่
+    onDelete();
+    handleClose();
   };
 
+  const handleDuplicate = () => {
+    onDuplicate();
+    handleClose();
+  };
+
+
+  const stableOnChange = useCallback(onChange, []);
+
+  useEffect(() => {
+    const payload: ComplacentData = {
+      type: "scale",
+      topic: topicTitle,
+      questions: questions.map((q) => ({
+        id: q.id,
+        question: q.question, // เปลี่ยนตรงนี้
+      })),
+    };
+    stableOnChange(payload);
+  }, [questions]);
+
   return (
-    <div className="border w-180 rounded-md p-4 bg-white">
-      <div className="flex items-center  mt-5 ml-3 mr-3">
+    <div className="border border-gray-400 w-180 rounded-md p-4 bg-white">
+      <div className="flex items-center justify-between mt-5 ml-3 mr-3">
         <TextField
           name="activity_name"
           placeholder="หัวเรื่องแบบประเมิน"
           className="w-140"
+          value={topicTitle}
+          onChange={(e) => setTopicTitle(e.target.value)}
         />
-        <div >
-        <IconButton color="error" onClick={deleteAllQuestions}>
-          <DeleteIcon />
+        <IconButton onClick={handleMenuClick}>
+          <MoreVertIcon />
         </IconButton>
-        </div>
+
+        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+          <MenuItem onClick={handleDuplicate}>ทำซ้ำคำถาม</MenuItem>
+          <MenuItem onClick={handleDeleteAll}>ลบทั้งหมด</MenuItem>
+        </Menu>
       </div>
 
       <div>
@@ -55,6 +104,7 @@ const Complacent = ({ onDelete }: { onDelete: () => void }) => {
                     <span className="mb-0.5">{level}</span>
                     <input
                       type="radio"
+                      disabled
                       name={`complacent-satisfaction-${q.id}-${q.id}`}
                       value={level}
                       className="scale-125"
@@ -70,7 +120,7 @@ const Complacent = ({ onDelete }: { onDelete: () => void }) => {
                   name="question"
                   placeholder={`คำถามที่ ${q.id}`}
                   className="w-140"
-                  value={q.text}
+                  value={q.question}
                   onChange={(e) => handleTextChange(q.id, e.target.value)}
                 />
               </div>

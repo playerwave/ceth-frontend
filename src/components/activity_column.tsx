@@ -10,6 +10,7 @@ import {
   Menu, // ✅ เพิ่ม
   MenuItem, // ✅ เพิ่ม
 } from "@mui/material";
+import Toggle from "./Toggle";
 import {
   Album,
   HouseWifi,
@@ -32,6 +33,7 @@ type ColumnOptions = {
   includeRecommend?: boolean;
   selectedLocations?: string[];
   handleLocationChange?: (locationType: string) => void;
+  disableStatusToggle?: boolean; // ✅ เพิ่ม option สำหรับปิดปุ่ม Toggle
 };
 
 // ✅ Custom Header Component สำหรับคอลัมน์สถานที่ (event_format)
@@ -126,7 +128,7 @@ export const getActivityColumns = (
     {
       field: "presenter_company_name",
       headerName: "ชื่อบริษัท/วิทยากร",
-      width: 170,
+      width: 200,
       renderCell: (params) => {
         const companyLecturer = params.value ?? "ไม่มีชื่อ";
         return <span>{companyLecturer}</span>;
@@ -135,7 +137,7 @@ export const getActivityColumns = (
     {
       field: "type",
       headerName: "ประเภท",
-      width: 220,
+      width: 250,
       renderHeader: () => (
         <Box display="flex" alignItems="center" gap={1}>
           <Typography fontWeight={600} mr={1}>
@@ -197,7 +199,7 @@ export const getActivityColumns = (
     {
       field: "activity_name",
       headerName: "ชื่อกิจกรรม",
-      width: 240,
+      width: 280,
       renderCell: (params) =>
         typeof params.value === "string" && params.value.length > 40
           ? params.value.slice(0, 40) + "..."
@@ -206,13 +208,16 @@ export const getActivityColumns = (
     {
       field: "start_register_date",
       headerName: "วันที่จัดกิจกรรม",
-      flex: 1,
+      width: 300,
       sortable: true,
       renderCell: (params) => {
-        const start = params.row.start_register_date;
-        const end = params.row.end_register_date;
-        if (!start || !end) return <span>ยังไม่ได้กำหนด</span>;
-        const formatDate = (dateStr: string) => {
+        const eventFormat = params.row.event_format;
+        const startActivityDate = params.row.start_activity_date;
+        const endActivityDate = params.row.end_activity_date;
+
+        // ✅ ฟังก์ชันสำหรับแปลงวันที่ให้เป็นรูปแบบ วัน/เดือน/ปี
+        const formatDateOnly = (dateStr: string) => {
+          if (!dateStr) return "";
           const date = new Date(dateStr);
           return date.toLocaleDateString("th-TH", {
             day: "2-digit",
@@ -220,31 +225,32 @@ export const getActivityColumns = (
             year: "numeric",
           });
         };
-        const formatTime = (dateStr: string) => {
-          const date = new Date(dateStr);
-          return `${date.getHours().toString().padStart(2, "0")}.${date
-            .getMinutes()
-            .toString()
-            .padStart(2, "0")}`;
-        };
-        const isSameDay =
-          new Date(start).toDateString() === new Date(end).toDateString();
-        return (
-          <span>
-            {isSameDay
-              ? `${formatDate(start)} - ${formatTime(start)} - ${formatTime(
-                  end
-                )} น.`
-              : `${formatDate(start)} - ${formatTime(end)}`}
-          </span>
-        );
+
+        // ✅ ตรวจสอบ event_format และแสดงผลตามเงื่อนไข
+        if (eventFormat === "Course") {
+          // ✅ สำหรับ Course แสดง start_activity_date - end_activity_date
+          if (!startActivityDate || !endActivityDate) {
+            return <span>ยังไม่ได้กำหนด</span>;
+          }
+          return (
+            <span>
+              {formatDateOnly(startActivityDate)} - {formatDateOnly(endActivityDate)}
+            </span>
+          );
+        } else {
+          // ✅ สำหรับ Onsite และ Online แสดงแค่ start_activity_date
+          if (!startActivityDate) {
+            return <span>ยังไม่ได้กำหนด</span>;
+          }
+          return <span>{formatDateOnly(startActivityDate)}</span>;
+        }
       },
     },
 
     {
-      field: "location_type",
+      field: "event_format",
       headerName: "สถานที่",
-      width: 90,
+      width: 120,
       renderHeader: () => (
         <Box display="flex" alignItems="center" gap={1}>
           <MapPin fontSize="small" />
@@ -263,12 +269,21 @@ export const getActivityColumns = (
     {
       field: "seat",
       headerName: "ที่นั่ง",
-      width: 100,
+      width: 130,
       renderCell: (params) => {
         const totalSeats = params.row.seat;
+        const eventFormat = params.row.event_format;
+        const enrolledCount = (params.row as any).enrolled_count || 0; // ✅ ใช้ any type เพื่อหลีกเลี่ยง linter error
+        
+        // ✅ ถ้าเป็น Course ให้แสดง "-"
+        if (eventFormat === "Course") {
+          return <span>-</span>;
+        }
+        
         return (
           <Box display="flex" alignItems="center" gap={1}>
-            {totalSeats != null ? `${totalSeats} ` : "- "} <User />
+            <span>{enrolledCount}/{totalSeats != null ? totalSeats : "-"}</span>
+            <User />
           </Box>
         );
       },
@@ -278,58 +293,40 @@ export const getActivityColumns = (
   if (options.includeStatus) {
     columns.push(
     {
-  field: "activity_status",
-  headerName: "สถานะ",
-  width: 100,
+      field: "activity_status",
+      headerName: "สถานะ",
+      width: 150,
   renderCell: (params) => {
     const isPublic = params.value === "Public";
-    return (
-      <Box
-        onClick={() => options.handleStatusToggle?.(params.row)} // ✅ เรียกฟังก์ชัน toggle ที่ส่งมา
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          bgcolor: isPublic ? "#22c55e" : "#ef4444",
-          color: "white",
-          px: 2,
-          py: 1,
-          borderRadius: "9999px",
-          fontSize: 14,
-          fontWeight: 600,
-          gap: 1.5,
-          minWidth: "100px",
-          justifyContent: "space-between",
-          cursor: "pointer",
-          height: 32,
-        }}
-      >
-        {isPublic ? (
-          <>
-            {params.value}
-            <Box
-              sx={{
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                bgcolor: "white",
-              }}
-            />
-          </>
-        ) : (
-          <>
-            <Box
-              sx={{
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                bgcolor: "white",
-              }}
-            />
-            {params.value}
-          </>
-        )}
-      </Box>
-    );
+    const isEvaluating = params.row.activity_state === "Start Assessment";
+    const isDisabled = options.disableStatusToggle || isEvaluating;
+    
+    if (isEvaluating) {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            px: 2,
+            py: 1,
+            fontSize: 14,
+            fontWeight: 600,
+            height: 32,
+          }}
+        >
+          {params.row.activity_state}
+        </Box>
+      );
+    }
+
+            return (
+              <Toggle
+                isPublic={isPublic}
+                onToggle={() => options.handleStatusToggle?.(params.row)}
+                disabled={isDisabled}
+              />
+            );
   },
 }
 
