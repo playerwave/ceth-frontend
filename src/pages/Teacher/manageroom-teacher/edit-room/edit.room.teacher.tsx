@@ -349,13 +349,10 @@ const EditRoomAdmin = () => {
               ยกเลิก
             </Button>
             <Button
-            </Button>
-            <Button
               type="submit"
               bgColor="#1E3A8A"
             >
               บันทึก
-            </Button>
             </Button>
           </div>
         </form>

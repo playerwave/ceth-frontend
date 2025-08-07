@@ -5,7 +5,6 @@ import { useRoomStore } from "../../../../stores/Teacher/room.store";
 import Button from "../../../../components/Button";
 import { toast } from "sonner";
 import Loading from "../../../../components/Loading";
-import Button from "../../../../components/Button";
 
 
 
@@ -258,20 +257,15 @@ const CreateRoomAdmin = () => {
 
           <div className="flex justify-end gap-4 mt-6">
             <Button
-            <Button
               type="button"
               onClick={() => navigate("/list-room-teacher")}
               bgColor="#dc2626"
-              bgColor="red"
             >
               ยกเลิก
             </Button>
             <Button
-            </Button>
-            <Button
               type="submit"
               bgColor="#1E3A8A"
-              bgColor="blue"
             >
               บันทึก
             </Button>
