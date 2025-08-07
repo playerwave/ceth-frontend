@@ -12,13 +12,6 @@ type Props = {
   rows2: Activity[];
   rows3: Activity[];
   handleStatusToggle: (row: Activity) => void;
-  setDialog: React.Dispatch<
-    React.SetStateAction<{
-      open: boolean;
-      message: string;
-      onConfirm: () => void;
-    } | null>
-  >;
   createSecureLink: (path: string, params: Record<string, any>) => string;
 };
 

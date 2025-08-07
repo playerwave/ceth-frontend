@@ -7,7 +7,8 @@ import { Activity } from "../../../../types/model";
 import SearchBar from "../../../../components/Searchbar";
 import Loading from "../../../../components/Loading";
 import ActivityTablePage from "./ActivityTablePage";
-import ConfirmDialog from "./components/onfirmDialog";
+import Dialog2 from "../../../../components/Dialog2";
+import { AlertCircle } from "lucide-react";
 
 // 🔧 Custom CopyPlus icon แทน lucide-react
 const CopyPlus = ({ className }: { className?: string }) => (
@@ -50,6 +51,7 @@ const ListActivityTeacher: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [dialog, setDialog] = useState<{
     open: boolean;
+    title: string;
     message: string;
     onConfirm: () => void;
   } | null>(null);
@@ -174,6 +176,7 @@ const ListActivityTeacher: React.FC = () => {
         console.log("❌ Public to Private validation failed, showing dialog");
         setDialog({
           open: true,
+          title: "แจ้งเตือน",
           message:
             "กรุณากรอกข้อมูลกิจกรรมให้ตรงเงื่อนไข\n(กด Confirm เพื่อไปที่หน้าแก้ไขกิจกรรม)",
           onConfirm: () => {
@@ -203,6 +206,7 @@ const ListActivityTeacher: React.FC = () => {
         console.log("❌ Private to Public validation failed:", validation.reason);
         setDialog({
           open: true,
+          title: "แจ้งเตือน",
           message: validation.message,
           onConfirm: () => {
             setDialog(null);
@@ -232,6 +236,7 @@ const ListActivityTeacher: React.FC = () => {
         console.log("✅ Private to Public validation passed, showing confirmation dialog");
         setDialog({
           open: true,
+          title: "ยืนยันการเปลี่ยนสถานะ",
           message: validation.message,
           onConfirm: async () => {
             setDialog(null);
@@ -354,7 +359,6 @@ const ListActivityTeacher: React.FC = () => {
           rows1={publicActivities}
           rows2={privateActivities}
           rows3={activitiesEvaluate}
-          setDialog={setDialog}
           handleStatusToggle={handleStatusToggle}
           createSecureLink={createSecureLink}
         />
@@ -367,11 +371,13 @@ const ListActivityTeacher: React.FC = () => {
         )}
 
         {dialog && (
-          <ConfirmDialog
+          <Dialog2
             open={dialog.open}
+            title={dialog.title}
             message={dialog.message}
-            onConfirm={dialog.onConfirm}
+            icon={<AlertCircle className="w-6 h-6 text-red-500" />}
             onClose={() => setDialog(null)}
+            onConfirm={dialog.onConfirm}
           />
         )}
       </div>
