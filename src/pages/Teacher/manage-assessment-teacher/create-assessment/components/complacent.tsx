@@ -1,147 +1,212 @@
-import { IconButton, TextField } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import React, { useCallback, useEffect, useState } from 'react';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  TextField,
+  IconButton,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+  DroppableProvided,
+  DraggableProvided,
+} from "@hello-pangea/dnd";
 
-type ComplacentData = {
-  type: "scale";
-  topic: string;
-  questions: {
-    id: number;
-    question: string; // เปลี่ยนจาก text เป็น question
-  }[];
-};
+import { QuestionItem, TopicData } from "../type/type.create";
+import ButtonAdd from "./buttonAdd";
+import QuestionCard from "./QuestionCard";
 
 type Props = {
   onDelete: () => void;
   onDuplicate: () => void;
-  onChange: (data: ComplacentData) => void;
+  onChange: (data: TopicData) => void;
 };
 
-const Complacent = ({ onDelete, onDuplicate, onChange }: Props) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const [questions, setQuestions] = useState([{ id: 1, question: '' }]);
+const Complacent: React.FC<Props> = ({ onDelete, onDuplicate, onChange }) => {
+  const [questionSets, setQuestionSets] = useState<QuestionItem[]>([
+    { id: 1, type: "complacent", question: "" },
+  ]);
   const [nextId, setNextId] = useState(2);
-  const [topicTitle, setTopicTitle] = useState('');
-  const addQuestion = () => {
-    setQuestions([...questions, { id: nextId, question: '' }]);
-    setNextId(nextId + 1);
-  };
+  const [topicTitle, setTopicTitle] = useState("");
+  const [addAnchorEl, setAddAnchorEl] = useState<null | HTMLElement>(null);
+  const addMenuOpen = Boolean(addAnchorEl);
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => setAnchorEl(null);
-  const deleteQuestion = (id: number) => {
-    const filtered = questions.filter((q) => q.id !== id);
-    const reIndexed = filtered.map((q, idx) => ({ ...q, id: idx + 1 }));
-    setQuestions(reIndexed);
-    setNextId(reIndexed.length + 1);
-  };
-  const handleTextChange = (id: number, newText: string) => {
-    setQuestions(
-      questions.map((q) => (q.id === id ? { ...q, question: newText } : q))
-    );
-  };
+  const handleAddMenuClick = (e: React.MouseEvent<HTMLElement>) =>
+    setAddAnchorEl(e.currentTarget);
+  const handleAddMenuClose = () => setAddAnchorEl(null);
 
   const handleDeleteAll = () => {
-    setQuestions([]);
-    setNextId(1);
+    setQuestionSets([{ id: 1, type: "complacent", question: "" }]);
+    setNextId(2);
     onDelete();
-    handleClose();
   };
 
   const handleDuplicate = () => {
     onDuplicate();
-    handleClose();
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    setQuestionSets((prev) => {
+      const reordered = Array.from(prev);
+      const [removed] = reordered.splice(result.source.index, 1);
+      reordered.splice(result.destination!.index, 0, removed);
+      return reordered;
+    });
+  };
+
+  const addQuestionSet = (type: QuestionItem["type"]) => {
+    let newQuestion: QuestionItem;
+    switch (type) {
+      case "complacent":
+        newQuestion = { id: nextId, type: "complacent", question: "" };
+        break;
+      case "choice":
+        newQuestion = { id: nextId, type: "choice", question: "", choices: [""] };
+        break;
+      case "checkbox":
+        newQuestion = { id: nextId, type: "checkbox", question: "", choices: [""] };
+        break;
+      case "openques":
+        newQuestion = { id: nextId, type: "openques", question: "" };
+        break;
+      default:
+        throw new Error("Unknown question type");
+    }
+    setQuestionSets((prev) => [...prev, newQuestion]);
+    setNextId((id) => id + 1);
+    handleAddMenuClose();
+  };
+
+  const updateQuestionText = (id: number, text: string) => {
+    setQuestionSets((prev) =>
+      prev.map((q) => (q.id === id ? { ...q, question: text } : q))
+    );
+  };
+
+  const updateChoiceText = (id: number, idx: number, text: string) => {
+    setQuestionSets((prev) =>
+      prev.map((q) => {
+        if (q.id === id && "choices" in q) {
+          const choices = [...q.choices];
+          choices[idx] = text;
+          return { ...q, choices };
+        }
+        return q;
+      })
+    );
+  };
+
+  const addChoice = (id: number) => {
+    setQuestionSets((prev) =>
+      prev.map((q) =>
+        q.id === id && "choices" in q
+          ? { ...q, choices: [...q.choices, ""] }
+          : q
+      )
+    );
+  };
+
+  const removeChoice = (id: number, idx: number) => {
+    setQuestionSets((prev) =>
+      prev.map((q) => {
+        if (q.id === id && "choices" in q) {
+          const choices = q.choices.filter((_, i) => i !== idx);
+          return { ...q, choices: choices.length ? choices : [""] };
+        }
+        return q;
+      })
+    );
+  };
+
+  const removeQuestionSet = (id: number) => {
+    setQuestionSets((prev) => {
+      const remain = prev.filter((q) => q.id !== id);
+      return remain.length
+        ? remain
+        : [{ id: 1, type: "complacent", question: "" }];
+    });
   };
 
 
-  const stableOnChange = useCallback(onChange, []);
+const prevDataRef = useRef<string>("");
 
-  useEffect(() => {
-    const payload: ComplacentData = {
-      type: "scale",
-      topic: topicTitle,
-      questions: questions.map((q) => ({
-        id: q.id,
-        question: q.question, // เปลี่ยนตรงนี้
-      })),
-    };
-    stableOnChange(payload);
-  }, [questions]);
+useEffect(() => {
+  const payload: TopicData = {
+    topic: topicTitle,
+    questions: questionSets,
+  };
+
+  const serialized = JSON.stringify(payload);
+  if (serialized !== prevDataRef.current) {
+    prevDataRef.current = serialized;
+    onChange(payload);
+  }
+}, [topicTitle, questionSets]);
+
+
 
   return (
     <div className="border border-gray-400 w-180 rounded-md p-4 bg-white">
-      <div className="flex items-center justify-between mt-5 ml-3 mr-3">
+      <div className="flex items-center justify-between mb-3 px-3">
         <TextField
-          name="activity_name"
           placeholder="หัวเรื่องแบบประเมิน"
           className="w-140"
           value={topicTitle}
           onChange={(e) => setTopicTitle(e.target.value)}
         />
-        <IconButton onClick={handleMenuClick}>
-          <MoreVertIcon />
-        </IconButton>
-
-        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-          <MenuItem onClick={handleDuplicate}>ทำซ้ำคำถาม</MenuItem>
-          <MenuItem onClick={handleDeleteAll}>ลบทั้งหมด</MenuItem>
-        </Menu>
+        <div className="flex gap-2">
+          <IconButton type="button" onClick={handleDuplicate}>
+            <ContentCopyIcon />
+          </IconButton>
+          <IconButton type="button" color="error" onClick={handleDeleteAll}>
+            <DeleteIcon />
+          </IconButton>
+        </div>
       </div>
 
-      <div>
-        {questions.map((q) => (
-          <div key={q.id}>
-            <div className="ml-4 mt-4">
-              <div className="flex ml-35 gap-5 space-x-2 mt-4 mb-2">
-                {['น้อยที่สุด', 'น้อย', 'ปานกลาง', 'มาก', 'มากที่สุด'].map((level, i) => (
-                  <label key={i} className="flex flex-col items-center text-xs">
-                    <span className="mb-0.5">{level}</span>
-                    <input
-                      type="radio"
-                      disabled
-                      name={`complacent-satisfaction-${q.id}-${q.id}`}
-                      value={level}
-                      className="scale-125"
-                    />
-                  </label>
-                ))}
-              </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="questions-droppable">
+          {(provided: DroppableProvided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {questionSets.map((q, idx) => (
+                <Draggable key={q.id} draggableId={`question-${q.id}`} index={idx}>
+                  {(provided: DraggableProvided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="bg-white rounded-xl shadow border border-gray-200 mb-4 p-4"
+                    >
+                      <QuestionCard
+                        question={q}
+                        updateQuestionText={updateQuestionText}
+                        updateChoiceText={updateChoiceText}
+                        addChoice={addChoice}
+                        removeChoice={removeChoice}
+                        removeQuestionSet={removeQuestionSet}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
-            <div className="flex">
-              <div className="flex ml-3 mt-5">
-                <TextField
-                  name="question"
-                  placeholder={`คำถามที่ ${q.id}`}
-                  className="w-140"
-                  value={q.question}
-                  onChange={(e) => handleTextChange(q.id, e.target.value)}
-                />
-              </div>
-
-              <div className="mt-8">
-                <IconButton color="error" className="ml-10" onClick={() => deleteQuestion(q.id)}>
-                  <DeleteIcon />
-                </IconButton>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="flex justify-center mt-6">
+        <ButtonAdd
+          anchorEl={addAnchorEl}
+          menuOpen={addMenuOpen}
+          onMenuClick={handleAddMenuClick}
+          onMenuClose={handleAddMenuClose}
+          onAdd={addQuestionSet}
+        />
       </div>
-
-      <button
-        type="button"
-        className="mt-5 ml-118 mb-5 w-25 bg-[#1E3A8A] text-white p-1 rounded-4xl border-none"
-        onClick={addQuestion}
-      >
-        เพิ่มคำถาม
-      </button>
     </div>
   );
 };

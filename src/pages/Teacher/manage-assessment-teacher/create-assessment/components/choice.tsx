@@ -1,51 +1,79 @@
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TextField, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import React, { useCallback, useEffect, useState } from 'react';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
-// type
-type ChoiceData = {
-  type: "choice";
-  topic: string;
-  questions: {
-    id: number;
-    question: string;
-    choices: string[];
-  }[];
-};
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+  DroppableProvided,
+  DraggableProvided,
+} from "@hello-pangea/dnd";
+
+import ButtonAdd from './buttonAdd';
+import QuestionCard from './QuestionCard';
+
+// ✅ Import types จากไฟล์รวม type
+import { QuestionItem, TopicData } from '../type/type.create';
 
 type Props = {
   onDelete: () => void;
   onDuplicate: () => void;
-  onChange: (data: ChoiceData) => void;
+  onChange: (data: TopicData) => void;
 };
 
 const Choice = ({ onDelete, onDuplicate, onChange }: Props) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const [questionSets, setQuestionSets] = useState([{ id: 1, question: '', choices: [''] }]);
+  const [questionSets, setQuestionSets] = useState<QuestionItem[]>([
+    { id: 1, type: "choice", question: '', choices: [''] }
+  ]);
   const [nextId, setNextId] = useState(2);
   const [topicTitle, setTopicTitle] = useState('');
+  const [addAnchorEl, setAddAnchorEl] = useState<null | HTMLElement>(null);
+  const addMenuOpen = Boolean(addAnchorEl);
 
-  const addQuestionSet = () => {
-    setQuestionSets([...questionSets, { id: nextId, question: '', choices: [''] }]);
+  const handleAddMenuClick = (e: React.MouseEvent<HTMLElement>) => setAddAnchorEl(e.currentTarget);
+  const handleAddMenuClose = () => setAddAnchorEl(null);
+
+  const addQuestionSet = (type: QuestionItem["type"]) => {
+    let newQuestion: QuestionItem;
+    switch (type) {
+      case "choice":
+        newQuestion = { id: nextId, type: "choice", question: '', choices: [''] };
+        break;
+      case "checkbox":
+        newQuestion = { id: nextId, type: "checkbox", question: '', choices: [''] };
+        break;
+      case "openques":
+        newQuestion = { id: nextId, type: "openques", question: '' };
+        break;
+      case "complacent":
+        newQuestion = { id: nextId, type: "complacent", question: '' };
+        break;
+      default:
+        return;
+    }
+    setQuestionSets([...questionSets, newQuestion]);
     setNextId(nextId + 1);
+    handleAddMenuClose();
   };
 
   const addChoice = (id: number) => {
     setQuestionSets(
       questionSets.map((q) =>
-        q.id === id ? { ...q, choices: [...q.choices, ''] } : q
+        q.id === id && 'choices' in q
+          ? { ...q, choices: [...q.choices, ''] }
+          : q
       )
     );
   };
 
+
   const updateChoiceText = (questionId: number, choiceIndex: number, newText: string) => {
     setQuestionSets(
       questionSets.map((q) => {
-        if (q.id === questionId) {
+        if (q.id === questionId && 'choices' in q) {
           const updatedChoices = [...q.choices];
           updatedChoices[choiceIndex] = newText;
           return { ...q, choices: updatedChoices };
@@ -54,6 +82,7 @@ const Choice = ({ onDelete, onDuplicate, onChange }: Props) => {
       })
     );
   };
+
 
   const updateQuestionText = (questionId: number, newText: string) => {
     setQuestionSets(
@@ -65,124 +94,113 @@ const Choice = ({ onDelete, onDuplicate, onChange }: Props) => {
 
   const removeQuestionSet = (id: number) => {
     const filtered = questionSets.filter(q => q.id !== id);
-    setQuestionSets(filtered.length ? filtered : [{ id: 1, question: '', choices: [''] }]);
+    setQuestionSets(filtered.length ? filtered : [{ id: 1, type: "choice", question: '', choices: [''] }]);
   };
 
   const removeChoice = (questionId: number, choiceIndex: number) => {
     setQuestionSets(
       questionSets.map((q) => {
-        if (q.id === questionId) {
+        if (q.id === questionId && 'choices' in q) {
           const updatedChoices = q.choices.filter((_, idx) => idx !== choiceIndex);
-          return { ...q, choices: updatedChoices };
+          return { ...q, choices: updatedChoices.length ? updatedChoices : [''] };
         }
         return q;
       })
     );
   };
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => setAnchorEl(null);
-
   const handleDeleteAll = () => {
-    setQuestionSets([{ id: 1, question: '', choices: [''] }]);
+    setQuestionSets([{ id: 1, type: "choice", question: '', choices: [''] }]);
     setNextId(2);
     onDelete();
-    handleClose();
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const reordered = Array.from(questionSets);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+    setQuestionSets(reordered);
   };
 
   const handleDuplicate = () => {
     onDuplicate();
-    handleClose();
   };
 
-  const stableOnChange = useCallback(onChange, []);
+const prevDataRef = useRef<string>("");
 
-  useEffect(() => {
-    const payload: ChoiceData = {
-      type: "choice",
-      topic: topicTitle,
-      questions: questionSets.map((q) => ({
-        id: q.id,
-        question: q.question,
-        choices: q.choices,
-      })),
-    };
-    stableOnChange(payload);
-  }, [questionSets, topicTitle]);
+useEffect(() => {
+  const payload: TopicData = {
+    topic: topicTitle,
+    questions: questionSets,
+  };
+
+  const serialized = JSON.stringify(payload);
+  if (serialized !== prevDataRef.current) {
+    prevDataRef.current = serialized;
+    onChange(payload);
+  }
+}, [topicTitle, questionSets]);
 
   return (
     <div className='border border-gray-400 w-180 rounded-md p-4 bg-white'>
-      <div className='flex items-center justify-between mb-3 ml-3 mr-3'>
+      <div className="flex items-center justify-between mb-3 px-3">
         <TextField
-          name="activity_name"
           placeholder="หัวเรื่องแบบประเมิน"
           className="w-140"
           value={topicTitle}
           onChange={(e) => setTopicTitle(e.target.value)}
         />
-        <IconButton onClick={handleMenuClick}>
-          <MoreVertIcon />
-        </IconButton>
-        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-          <MenuItem onClick={handleDuplicate}>ทำซ้ำคำถาม</MenuItem>
-          <MenuItem onClick={handleDeleteAll}>ลบทั้งหมด</MenuItem>
-        </Menu>
+        <div className="flex gap-2">
+          <IconButton type="button" onClick={handleDuplicate}>
+            <ContentCopyIcon />
+          </IconButton>
+          <IconButton type="button" color="error" onClick={handleDeleteAll}>
+            <DeleteIcon />
+          </IconButton>
+        </div>
       </div>
 
-      {questionSets.map((q, idx) => (
-        <div key={q.id} className="mb-4 p-3">
-          <div className='flex items-center mb-2'>
-            <TextField
-              name="question"
-              placeholder="คำถาม"
-              className="w-140"
-              value={q.question}
-              onChange={(e) => updateQuestionText(q.id, e.target.value)}
-            />
-            <IconButton color="error" className="ml-2" onClick={() => removeQuestionSet(q.id)}>
-              <DeleteIcon />
-            </IconButton>
-          </div>
-
-          {q.choices.map((choice, choiceIdx) => (
-            <div key={choiceIdx} className='flex items-center mt-2 mb-2'>
-              <input type="radio" disabled name={`satisfaction-${q.id}`} className="mr-2" />
-              <TextField
-                name={`choice-${q.id}-${choiceIdx}`}
-                placeholder={`ตัวเลือก ${choiceIdx + 1}`}
-                className="w-140"
-                value={choice}
-                onChange={e => updateChoiceText(q.id, choiceIdx, e.target.value)}
-              />
-              <IconButton color="error" className="ml-2" onClick={() => removeChoice(q.id, choiceIdx)}>
-                <DeleteIcon />
-              </IconButton>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="questions-droppable">
+          {(provided: DroppableProvided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {questionSets.map((q, idx) => (
+                <Draggable key={q.id} draggableId={`question-${q.id}`} index={idx}>
+                  {(provided: DraggableProvided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="bg-white rounded-xl shadow border border-gray-200 mb-4 p-4"
+                    >
+                      <QuestionCard
+                        question={q}
+                        updateQuestionText={updateQuestionText}
+                        updateChoiceText={updateChoiceText}
+                        addChoice={addChoice}
+                        removeChoice={removeChoice}
+                        removeQuestionSet={removeQuestionSet}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
-          ))}
+          )}
+        </Droppable>
+      </DragDropContext>
 
-          <div className='flex gap-2 ml-92'>
-            <button
-              type="button"
-              onClick={() => addChoice(q.id)}
-              className="mt-5 mb-5 w-25 bg-[#1E3A8A] text-white p-1 rounded-4xl border-none"
-            >
-              เพิ่มตัวเลือก
-            </button>
-            {idx === questionSets.length - 1 && (
-              <button
-                type="button"
-                onClick={addQuestionSet}
-                className="mt-5 mb-5 w-25 bg-[#1E3A8A] text-white p-1 rounded-4xl border-none"
-              >
-                เพิ่มคำถาม
-              </button>
-            )}
-          </div>
-        </div>
-      ))}
+      <div className="flex justify-center mt-6">
+        <ButtonAdd
+          anchorEl={addAnchorEl}
+          menuOpen={addMenuOpen}
+          onMenuClick={handleAddMenuClick}
+          onMenuClose={handleAddMenuClose}
+          onAdd={addQuestionSet}
+        />
+      </div>
     </div>
   );
 };

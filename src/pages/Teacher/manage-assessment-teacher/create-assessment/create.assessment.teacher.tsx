@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { TextField } from "@mui/material";
 import Complacent from "./components/complacent";
 import Choice from "./components/choice";
@@ -6,7 +6,6 @@ import Checkbox from "./components/checkbox";
 import Openques from "./components/openques";
 import QuestionTypeSelector from "./components/questionTypeSelector";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-
 
 type QuestionItem = { id: string; type: string };
 
@@ -17,53 +16,49 @@ const CreateAssessmentTeacher = () => {
     { id: "3", type: "checkbox" },
     { id: "4", type: "openques" },
   ];
- const [questionIdCounter, setQuestionIdCounter] = useState(defaultQuestionTypes.length + 1);
-
-
+  const [questionIdCounter, setQuestionIdCounter] = useState(defaultQuestionTypes.length + 1);
   const [questions, setQuestions] = useState<QuestionItem[]>(defaultQuestionTypes);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isAdding, setIsAdding] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const handleAddQuestion = (type: string) => {
-  const newId = String(questionIdCounter); // id จะเป็น "1", "2", "3"...
-  const newQuestion = { id: newId, type };
+    const newId = String(questionIdCounter);
+    const newQuestion = { id: newId, type };
 
-  setQuestions(prev => [...prev, newQuestion]);
-  setQuestionIdCounter(prev => prev + 1); // เพิ่มลำดับ
-  setIsAdding(true);
-};
+    setQuestions(prev => [...prev, newQuestion]);
+    setQuestionIdCounter(prev => prev + 1);
+    setIsAdding(true);
+  };
 
- const handleDuplicateQuestion = (type: string, idToDuplicate: string) => {
-  const newId = String(questionIdCounter);
-  const duplicatedQuestion = { id: newId, type };
+  const handleDuplicateQuestion = (type: string, idToDuplicate: string) => {
+    const newId = String(questionIdCounter);
+    const duplicatedQuestion = { id: newId, type };
 
-  setQuestions(prev => {
-    const index = prev.findIndex(q => q.id === idToDuplicate);
-    return [
-      ...prev.slice(0, index + 1),
-      duplicatedQuestion,
-      ...prev.slice(index + 1)
-    ];
-  });
+    setQuestions(prev => {
+      const index = prev.findIndex(q => q.id === idToDuplicate);
+      return [
+        ...prev.slice(0, index + 1),
+        duplicatedQuestion,
+        ...prev.slice(index + 1)
+      ];
+    });
 
-  setFormData(prev => ({
-    ...prev,
-    [newId]: prev[idToDuplicate] ? { ...prev[idToDuplicate] } : null
-  }));
+    setFormData(prev => ({
+      ...prev,
+      [newId]: prev[idToDuplicate] ? { ...prev[idToDuplicate] } : null
+    }));
 
-  setQuestionIdCounter(prev => prev + 1);
-  setIsAdding(true);
-};
+    setQuestionIdCounter(prev => prev + 1);
+    setIsAdding(true);
+  };
 
-
-
-  const updateQuestionData = (id: string, data: any) => {
+  const updateQuestionData = useCallback((id: string, data: any) => {
     setFormData(prev => ({
       ...prev,
       [id]: data
     }));
-  };
+  }, []);
 
   const handleDeleteQuestionById = (id: string) => {
     setQuestions(prev => prev.filter(q => q.id !== id));
@@ -74,7 +69,6 @@ const CreateAssessmentTeacher = () => {
     });
   };
 
-
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
@@ -82,8 +76,9 @@ const CreateAssessmentTeacher = () => {
     const [moved] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, moved);
 
-    setQuestions(reordered); // ✅ formData ไม่ต้องขยับ เพราะมันอิงตาม id
+    setQuestions(reordered);
   };
+
   useEffect(() => {
     if (isAdding && bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
@@ -95,7 +90,8 @@ const CreateAssessmentTeacher = () => {
     const commonProps = {
       onDelete: () => handleDeleteQuestionById(id),
       onDuplicate: () => handleDuplicateQuestion(type, id),
-      onChange: (data: any) => updateQuestionData(id, data)
+      onChange: (data: any) => updateQuestionData(id, data),
+      data: formData[id] || null, // ✅ ส่งข้อมูลเข้า component
     };
 
     switch (type) {
@@ -136,8 +132,8 @@ const CreateAssessmentTeacher = () => {
               <Droppable droppableId="questions">
                 {(provided) => (
                   <div ref={provided.innerRef} {...provided.droppableProps}>
-                    {questions.map((q) => (
-                      <Draggable key={q.id} draggableId={q.id} index={questions.findIndex(i => i.id === q.id)}>
+                    {questions.map((q, index) => (
+                      <Draggable key={q.id} draggableId={q.id} index={index}>
                         {(provided) => (
                           <div
                             ref={provided.innerRef}

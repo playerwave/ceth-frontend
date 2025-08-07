@@ -1,42 +1,48 @@
-import { TextField, IconButton } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  TextField,
+  IconButton,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  DragDropContext,
+  Draggable,
+  DropResult,
+  DraggableProvided,
+} from "@hello-pangea/dnd";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
-type ChoiceData = {
-  type: "choice";
-  topic: string;
-  questions: {
-    id: number;
-    question: string; // เปลี่ยนจาก text เป็น question
-    choices: string[];
-    // other?: string; // ถ้ามี
-  }[];
-};
+import { QuestionItem, TopicData } from "../type/type.create";
+import ButtonAdd from "./buttonAdd";
+import QuestionCard from "./QuestionCard";
 
 type Props = {
   onDelete: () => void;
   onDuplicate: () => void;
-  onChange: (data: ChoiceData) => void;
+  onChange: (data: TopicData) => void;
 };
 
-const Checkbox = ({ onDelete, onDuplicate, onChange }: Props) => {
-  const [questionSets, setQuestionSets] = useState([{ id: 1, question: '', choices: [''] }]);
+const Checkbox: React.FC<Props> = ({
+  onDelete,
+  onDuplicate,
+  onChange,
+}) => {
+  const [questionSets, setQuestionSets] = useState<QuestionItem[]>([
+    { id: 1, type: "checkbox", question: "", choices: [""] },
+  ]);
   const [nextId, setNextId] = useState(2);
-  const [topicTitle, setTopicTitle] = useState('');
+  const [topicTitle, setTopicTitle] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const [otherText, setOtherText] = useState('');
+  const [addAnchorEl, setAddAnchorEl] = useState<null | HTMLElement>(null);
+  const addMenuOpen = Boolean(addAnchorEl);
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
   const handleClose = () => setAnchorEl(null);
+  const handleAddMenuClick = (e: React.MouseEvent<HTMLElement>) =>
+    setAddAnchorEl(e.currentTarget);
+  const handleAddMenuClose = () => setAddAnchorEl(null);
 
   const handleDeleteAll = () => {
-    setQuestionSets([{ id: 1, question: '', choices: [''] }]);
+    setQuestionSets([{ id: 1, type: "checkbox", question: "", choices: [""] }]);
     setNextId(2);
     onDelete();
     handleClose();
@@ -47,143 +53,172 @@ const Checkbox = ({ onDelete, onDuplicate, onChange }: Props) => {
     handleClose();
   };
 
-  const addQuestionSet = () => {
-    setQuestionSets([...questionSets, { id: nextId, question: '', choices: [''] }]);
-    setNextId(nextId + 1);
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const reordered = Array.from(questionSets);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+    setQuestionSets(reordered);
   };
 
-  const addChoice = (id: number) => {
-    setQuestionSets(questionSets.map(q =>
-      q.id === id ? { ...q, choices: [...q.choices, ''] } : q
-    ));
+  const addQuestionSet = (type: QuestionItem["type"]) => {
+    let newQuestion: QuestionItem;
+    switch (type) {
+      case "choice":
+        newQuestion = {
+          id: nextId,
+          type: "choice",
+          question: "",
+          choices: [""],
+        };
+        break;
+      case "checkbox":
+        newQuestion = {
+          id: nextId,
+          type: "checkbox",
+          question: "",
+          choices: [""],
+        };
+        break;
+      case "openques":
+        newQuestion = {
+          id: nextId,
+          type: "openques",
+          question: "",
+        };
+        break;
+      case "complacent":
+        newQuestion = {
+          id: nextId,
+          type: "complacent",
+          question: "",
+        };
+        break;
+      default:
+        throw new Error("Unknown question type");
+    }
+    setQuestionSets((prev) => [...prev, newQuestion]);
+    setNextId((id) => id + 1);
+    handleClose();
   };
 
-  const updateQuestionText = (questionId: number, newText: string) => {
-    setQuestionSets(prev =>
-      prev.map(q => q.id === questionId ? { ...q, question: newText } : q)
+  const updateQuestionText = (id: number, text: string) => {
+    setQuestionSets((prev) =>
+      prev.map((q) => (q.id === id ? { ...q, question: text } : q))
     );
   };
 
-  const updateChoiceText = (questionId: number, choiceIndex: number, newText: string) => {
-    setQuestionSets(questionSets.map(q => {
-      if (q.id === questionId) {
-        const updatedChoices = [...q.choices];
-        updatedChoices[choiceIndex] = newText;
-        return { ...q, choices: updatedChoices };
-      }
-      return q;
-    }));
+  const updateChoiceText = (id: number, idx: number, text: string) => {
+    setQuestionSets((prev) =>
+      prev.map((q) => {
+        if (q.id === id && "choices" in q) {
+          const choices = [...q.choices];
+          choices[idx] = text;
+          return { ...q, choices };
+        }
+        return q;
+      })
+    );
+  };
+
+  const addChoice = (id: number) => {
+    setQuestionSets((prev) =>
+      prev.map((q) =>
+        q.id === id && "choices" in q
+          ? { ...q, choices: [...q.choices, ""] }
+          : q
+      )
+    );
+  };
+
+  const removeChoice = (id: number, idx: number) => {
+    setQuestionSets((prev) =>
+      prev.map((q) => {
+        if (q.id === id && "choices" in q) {
+          const choices = q.choices.filter((_, i) => i !== idx);
+          return { ...q, choices: choices.length ? choices : [""] };
+        }
+        return q;
+      })
+    );
   };
 
   const removeQuestionSet = (id: number) => {
-    const updated = questionSets.filter(q => q.id !== id);
-    setQuestionSets(updated.length > 0 ? updated : [{ id: 1, question: '', choices: [''] }]);
+    const remain = questionSets.filter((q) => q.id !== id);
+    setQuestionSets(
+      remain.length
+        ? remain
+        : [{ id: 1, type: "checkbox", question: "", choices: [""] }]
+    );
   };
 
-  const removeChoice = (questionId: number, choiceIndex: number) => {
-    setQuestionSets(questionSets.map(q => {
-      if (q.id === questionId) {
-        const updatedChoices = q.choices.filter((_, idx) => idx !== choiceIndex);
-        return { ...q, choices: updatedChoices.length ? updatedChoices : [''] };
-      }
-      return q;
-    }));
+const prevDataRef = useRef<string>("");
+
+useEffect(() => {
+  const payload: TopicData = {
+    topic: topicTitle,
+    questions: questionSets,
   };
- const stableOnChange = useCallback(onChange, []);
-  useEffect(() => {
-    const payload: ChoiceData = {
-      type: "choice",
-      topic: topicTitle,
-      questions: questionSets.map(q => ({
-        id: q.id,
-        question: q.question, // เปลี่ยนตรงนี้
-        choices: q.choices,
-        // other: q.other, // ถ้ามี
-      })),
-    };
-     stableOnChange(payload);
-  }, [questionSets, topicTitle, ]);
+
+  const serialized = JSON.stringify(payload);
+  if (serialized !== prevDataRef.current) {
+    prevDataRef.current = serialized;
+    onChange(payload);
+  }
+}, [topicTitle, questionSets]);
 
   return (
     <div className="border border-gray-400 w-180 rounded-md p-4 bg-white">
-      <div className="flex items-center justify-between mb-3 ml-3 mr-3">
+      <div className="flex items-center justify-between mb-3 px-3">
         <TextField
-          name="activity_name"
           placeholder="หัวเรื่องแบบประเมิน"
           className="w-140"
           value={topicTitle}
           onChange={(e) => setTopicTitle(e.target.value)}
         />
-        <IconButton onClick={handleMenuClick}>
-          <MoreVertIcon />
-        </IconButton>
-        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-          <MenuItem onClick={handleDuplicate}>ทำซ้ำคำถาม</MenuItem>
-          <MenuItem onClick={handleDeleteAll}>ลบทั้งหมด</MenuItem>
-        </Menu>
+        <div className="flex gap-2">
+          <IconButton type="button" onClick={handleDuplicate}>
+            <ContentCopyIcon />
+          </IconButton>
+          <IconButton type="button" color="error" onClick={handleDeleteAll}>
+            <DeleteIcon />
+          </IconButton>
+        </div>
       </div>
 
-      {questionSets.map((q, idx) => (
-        <div key={q.id} className="mb-4 p-3">
-          <div className="flex items-center mb-2">
-            <TextField
-              placeholder="คำถาม"
-              fullWidth
-              value={q.question}
-              onChange={(e) => updateQuestionText(q.id, e.target.value)}
-              className="mb-4"
-            />
-            <IconButton color="error" className="ml-2" onClick={() => removeQuestionSet(q.id)}>
-              <DeleteIcon />
-            </IconButton>
-          </div>
-
-          {q.choices.map((choice, cidx) => (
-            <div key={cidx} className="flex items-center mt-2 mb-2">
-              <input type="checkbox" disabled className="mr-2" />
-              <TextField
-                placeholder={`ตัวเลือก ${cidx + 1}`}
-                className="w-140"
-                value={choice}
-                onChange={(e) => updateChoiceText(q.id, cidx, e.target.value)}
-              />
-              <IconButton color="error" className="ml-2" onClick={() => removeChoice(q.id, cidx)}>
-                <DeleteIcon />
-              </IconButton>
-            </div>
-          ))}
-
-          <div className="flex items-center mb-2">
-            <input type="checkbox" disabled className="mr-2" />
-            <TextField
-              placeholder="อื่นๆ.."
-              className="w-140"
-              disabled
-              value={otherText}
-              onChange={(e) => setOtherText(e.target.value)}
-            />
-          </div>
-
-          <div className="flex gap-2 ml-92">
-            <button
-              type="button"
-              onClick={() => addChoice(q.id)}
-              className="mt-5 mb-5 w-25 bg-[#1E3A8A] text-white p-1 rounded-4xl border-none"
-            >
-              เพิ่มตัวเลือก
-            </button>
-            {idx === questionSets.length - 1 && (
-              <button
-                type="button"
-                onClick={addQuestionSet}
-                className="mt-5 mb-5 w-25 bg-[#1E3A8A] text-white p-1 rounded-4xl border-none"
+      <DragDropContext onDragEnd={handleDragEnd}>
+        {questionSets.map((q, idx) => (
+          <Draggable key={q.id} draggableId={`question-${q.id}`} index={idx}>
+            {(provided: DraggableProvided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                className="bg-white rounded-xl shadow border border-gray-200 mb-4 p-4"
               >
-                เพิ่มคำถาม
-              </button>
+                <QuestionCard
+                  question={q}
+                  updateQuestionText={updateQuestionText}
+                  updateChoiceText={updateChoiceText}
+                  addChoice={addChoice}
+                  removeChoice={removeChoice}
+                  removeQuestionSet={removeQuestionSet}
+                />
+              </div>
             )}
-          </div>
-        </div>
-      ))}
+          </Draggable>
+        ))}
+      </DragDropContext>
+
+      <div className="flex justify-center mt-6">
+        <ButtonAdd
+          anchorEl={addAnchorEl}
+          menuOpen={addMenuOpen}
+          onMenuClick={handleAddMenuClick}
+          onMenuClose={handleAddMenuClose}
+          onAdd={addQuestionSet}
+        />
+      </div>
     </div>
   );
 };
