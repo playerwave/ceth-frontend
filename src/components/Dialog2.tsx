@@ -44,14 +44,14 @@ const Dialog2: React.FC<Dialog2Props> = ({
             onClick={onClose}
             className="text-red-600 font-medium hover:underline whitespace-nowrap"
           >
-            ยกเลิก
+            Cancel
           </button>
           <button
             onClick={onConfirm}
             type={type}
             className="bg-[#1E3A8A] text-white font-semibold px-4 py-2 rounded hover:bg-blue-800 transition whitespace-nowrap"
           >
-            ยืนยัน
+            CONFIRM
           </button>
         </div>
       </div>
