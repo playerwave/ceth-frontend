@@ -465,21 +465,33 @@ useEffect(() => {
   // ✅ Wrapper ที่ fix setFormData
   const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
     handleDateTimeChangeBase(name, newValue, setFormData);
-  };
-
-  // ✅ useEffect เพื่อตรวจสอบ room conflicts เมื่อมีการเปลี่ยนแปลงวันที่เวลา
-  useEffect(() => {
-    if (formData.room_id && formData.start_activity_date && formData.end_activity_date) {
-      checkRoomConflicts(
-        formData.room_id,
-        formData.start_activity_date,
-        formData.end_activity_date
-      );
-    } else {
-      // ✅ ล้าง conflicts เมื่อไม่มีข้อมูลครบ
-      clearAvailabilityCheck();
+    
+    // ✅ เช็คห้องที่ว่างเฉพาะเมื่อปิด dialog เลือกวันที่และเวลา และเป็น Onsite เท่านั้น
+    if (newValue && (name === "start_activity_date" || name === "end_activity_date")) {
+      // รอให้ formData อัปเดตก่อน
+      setTimeout(() => {
+        const updatedFormData = {
+          ...formData,
+          [name]: newValue.format("YYYY-MM-DD HH:mm:ss")
+        };
+        
+        // เช็คเฉพาะเมื่อเป็น Onsite และมีข้อมูลครบ
+        if (updatedFormData.event_format === "Onsite" && 
+            updatedFormData.room_id && 
+            updatedFormData.start_activity_date && 
+            updatedFormData.end_activity_date) {
+          checkRoomConflicts(
+            updatedFormData.room_id,
+            updatedFormData.start_activity_date,
+            updatedFormData.end_activity_date
+          );
+        } else if (updatedFormData.event_format !== "Onsite") {
+          // ล้าง conflicts เมื่อไม่ใช่ Onsite
+          clearAvailabilityCheck();
+        }
+      }, 100);
     }
-  }, [formData.room_id, formData.start_activity_date, formData.end_activity_date]);
+  };
 
   // ✅ useEffect เพื่อล้าง conflicts เมื่อเปลี่ยน event_format
   useEffect(() => {

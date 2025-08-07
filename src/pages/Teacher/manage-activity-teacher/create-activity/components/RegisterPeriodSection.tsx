@@ -4,6 +4,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { CreateActivityForm } from "../create_activity_admin";
+import { convertBackendTimeToLocal, convertToLocalTimeForPicker } from "../utils/timeUtils";
 
 interface Props {
   formData: CreateActivityForm;
@@ -46,11 +47,11 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
                     formData.activity_status === "Public" &&
                     formData.special_start_register_date &&
-                    (dayjs(formData.special_start_register_date).isBefore(
+                    (dayjs(formData.special_start_register_date)?.isBefore(
                       dayjs(),
                     ) ||
                     (formData.start_register_date &&
-                      dayjs(formData.special_start_register_date).isAfter(
+                      dayjs(formData.special_start_register_date)?.isAfter(
                         dayjs(formData.start_register_date),
                       ))) &&
                     // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
@@ -60,14 +61,14 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
                     formData.activity_status === "Public" &&
                     formData.special_start_register_date &&
-                    (dayjs(formData.special_start_register_date).isBefore(
+                    (dayjs(formData.special_start_register_date)?.isBefore(
                       dayjs(),
                     ) &&
                     // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
                     backendActivityStatus === "Private"
                       ? "❌ วันลงทะเบียนพิเศษต้องไม่เป็นอดีต"
                       : formData.start_register_date &&
-                        dayjs(formData.special_start_register_date).isAfter(
+                        dayjs(formData.special_start_register_date)?.isAfter(
                           dayjs(formData.start_register_date),
                         ) &&
                         // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
@@ -110,19 +111,19 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     formData.activity_status === "Public" &&
                     formData.start_register_date &&
                     formData.end_register_date &&
-                    (dayjs(formData.start_register_date).isBefore(
+                    (dayjs(formData.start_register_date)?.isBefore(
                       dayjs(),
                     ) ||
-                      dayjs(formData.start_register_date).isAfter(
+                      dayjs(formData.start_register_date)?.isAfter(
                         dayjs(formData.end_register_date),
                       ) ||
-                      dayjs(formData.start_register_date).isSame(
+                      dayjs(formData.start_register_date)?.isSame(
                         dayjs(formData.end_register_date),
                         "day",
                       ) ||
                       // ✅ เพิ่มการตรวจสอบ: start_register_date ห้ามอยู่ก่อน special_start_register_date
                       (formData.special_start_register_date &&
-                        dayjs(formData.start_register_date).isBefore(
+                        dayjs(formData.start_register_date)?.isBefore(
                           dayjs(formData.special_start_register_date),
                         ))) &&
                     // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
@@ -133,13 +134,13 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     formData.activity_status === "Public" &&
                     formData.start_register_date &&
                     formData.end_register_date &&
-                    (dayjs(formData.start_register_date).isBefore(
+                    (dayjs(formData.start_register_date)?.isBefore(
                       dayjs(),
                     ) ||
-                      dayjs(formData.start_register_date).isAfter(
+                      dayjs(formData.start_register_date)?.isAfter(
                         dayjs(formData.end_register_date),
                       ) ||
-                      dayjs(formData.start_register_date).isSame(
+                      dayjs(formData.start_register_date)?.isSame(
                         dayjs(formData.end_register_date),
                         "day",
                       )) &&
@@ -147,7 +148,8 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     backendActivityStatus === "Private"
                       ? "❌ วันเปิดให้นิสิตลงทะเบียนต้องอยู่หลังวันนี้และไม่ตรงกับวันปิด"
                       : formData.special_start_register_date &&
-                        dayjs(formData.start_register_date).isBefore(
+                        formData.start_register_date &&
+                        dayjs(formData.start_register_date)?.isBefore(
                           dayjs(formData.special_start_register_date),
                         ) &&
                         // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
@@ -170,7 +172,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
               className="w-77.5"
-              minDate={dayjs(formData.start_register_date)}
+              minDate={formData.start_register_date ? dayjs(formData.start_register_date) : dayjs()}
               value={
                 formData.end_register_date
                   ? dayjs(formData.end_register_date)
@@ -188,7 +190,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     formData.activity_status === "Public" &&
                     formData.end_register_date &&
                     formData.start_register_date &&
-                    dayjs(formData.end_register_date).isBefore(
+                    dayjs(formData.end_register_date)?.isBefore(
                       dayjs(formData.start_register_date),
                     ) &&
                     // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
@@ -199,7 +201,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     formData.activity_status === "Public" &&
                     formData.end_register_date &&
                     formData.start_register_date &&
-                    dayjs(formData.end_register_date).isBefore(
+                    dayjs(formData.end_register_date)?.isBefore(
                       dayjs(formData.start_register_date),
                     ) &&
                     // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public

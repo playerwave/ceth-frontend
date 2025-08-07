@@ -5,6 +5,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { CreateActivityForm } from "../create_activity_admin";
+import { convertBackendTimeToLocal, convertToLocalTimeForPicker } from "../utils/timeUtils";
 
 interface Props {
   formData: CreateActivityForm;
@@ -32,7 +33,7 @@ const ActivityTimeSection: React.FC<Props> = ({
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateTimePicker
                   className="w-77.5"
-                  minDate={dayjs(formData.end_register_date)}
+                  minDate={formData.end_register_date ? dayjs(formData.end_register_date) : dayjs()}
                   value={
                     formData.start_activity_date
                       ? dayjs(formData.start_activity_date)
@@ -49,11 +50,11 @@ const ActivityTimeSection: React.FC<Props> = ({
                         formData.activity_status === "Public" &&
                         formData.start_activity_date &&
                         ((formData.end_register_date &&
-                          dayjs(formData.start_activity_date).isBefore(
+                          dayjs(formData.start_activity_date)?.isBefore(
                             dayjs(formData.end_register_date),
                           )) ||
                           (formData.start_register_date &&
-                            dayjs(formData.start_activity_date).isBefore(
+                            dayjs(formData.start_activity_date)?.isBefore(
                               dayjs(formData.start_register_date),
                             )))
                       ),
@@ -61,12 +62,12 @@ const ActivityTimeSection: React.FC<Props> = ({
                         formData.activity_status === "Public" &&
                         formData.start_activity_date
                           ? formData.end_register_date &&
-                            dayjs(formData.start_activity_date).isBefore(
+                            dayjs(formData.start_activity_date)?.isBefore(
                               dayjs(formData.end_register_date),
                             )
                             ? "❌ วันและเวลาการดำเนินกิจกรรมต้องมากกว่าวันที่ปิดลงทะเบียน"
                             : formData.start_register_date &&
-                                dayjs(formData.start_activity_date).isBefore(
+                                dayjs(formData.start_activity_date)?.isBefore(
                                   dayjs(formData.start_register_date),
                                 )
                               ? "❌ วันและเวลาการดำเนินกิจกรรมต้องอยู่หลังวันที่เปิดให้นิสิตสถานะ normal ลงทะเบียน"
@@ -88,7 +89,7 @@ const ActivityTimeSection: React.FC<Props> = ({
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateTimePicker
                   className="w-77.5"
-                  minDate={dayjs(formData.start_activity_date)}
+                  minDate={formData.start_activity_date ? dayjs(formData.start_activity_date) : dayjs()}
                   value={
                     formData.end_activity_date ? dayjs(formData.end_activity_date) : null
                   }
@@ -117,18 +118,18 @@ const ActivityTimeSection: React.FC<Props> = ({
                       
                       helperText:
                         formData.activity_status === "Public" && formData.end_activity_date
-                          ? formData.start_activity_date &&
-                            dayjs(formData.end_activity_date).isBefore(
-                              dayjs(formData.start_activity_date),
-                            )
-                            ? "❌ วันที่ หรือ เวลาต้องมากกว่าช่วงเริ่มต้น"
-                            : formData.start_register_date &&
-                                dayjs(formData.end_activity_date).isBefore(
+                                                      ? formData.start_activity_date &&
+                              dayjs(formData.end_activity_date)?.isBefore(
+                                dayjs(formData.start_activity_date),
+                              )
+                              ? "❌ วันที่ หรือ เวลาต้องมากกว่าช่วงเริ่มต้น"
+                              : formData.start_register_date &&
+                                dayjs(formData.end_activity_date)?.isBefore(
                                   dayjs(formData.start_register_date),
                                 )
                               ? "❌ วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาที่เปิดให้นิสิตที่มีสถานะ"
                               : formData.end_register_date &&
-                                  dayjs(formData.end_activity_date).isBefore(
+                                  dayjs(formData.end_activity_date)?.isBefore(
                                     dayjs(formData.end_register_date),
                                   )
                                 ? "❌ วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาปิดการลงทะเบียน"
@@ -154,6 +155,7 @@ const ActivityTimeSection: React.FC<Props> = ({
         formData.end_activity_date && (() => {
           const startTime = dayjs(formData.start_activity_date);
           const endTime = dayjs(formData.end_activity_date);
+          if (!startTime || !endTime) return false;
           const lunchStart = startTime.hour(12).minute(0).second(0);
           const lunchEnd = startTime.hour(13).minute(0).second(0);
           const hasLunchBreak = startTime.isBefore(lunchStart) && endTime.isAfter(lunchEnd);
@@ -173,9 +175,11 @@ const ActivityTimeSection: React.FC<Props> = ({
             formData.event_format !== "Course" &&
             formData.start_activity_date &&
             formData.end_activity_date
-              ? (() => {
+                              ? (() => {
                   const startTime = dayjs(formData.start_activity_date);
                   const endTime = dayjs(formData.end_activity_date);
+                  if (!startTime || !endTime) return formData.recieve_hours || "";
+                  
                   const totalHours = endTime.diff(startTime, "hour", true);
                   
                   // ✅ ตรวจสอบว่ากิจกรรมคาบเกี่ยวช่วงเที่ยงหรือไม่
@@ -185,7 +189,9 @@ const ActivityTimeSection: React.FC<Props> = ({
                   // ถ้าเริ่มก่อนเที่ยงและจบหลังเที่ยง ให้ลบ 1 ชั่วโมง
                   const hasLunchBreak = startTime.isBefore(lunchStart) && endTime.isAfter(lunchEnd);
                   
-                  return hasLunchBreak ? Math.max(0, totalHours - 1) : totalHours;
+                  // ✅ แปลงเป็นจำนวนเต็ม
+                  const finalHours = hasLunchBreak ? Math.max(0, totalHours - 1) : totalHours;
+                  return Math.round(finalHours);
                 })()
               : formData.recieve_hours || ""
           }

@@ -624,25 +624,37 @@ useEffect(() => {
     }
   };
 
-  // ✅ Wrapper ที่ fix setFormData
+  // ✅ Wrapper ที่ fix setFormData และเช็คห้องที่ว่างเฉพาะตอนปิด dialog
   const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
     handleDateTimeChangeBase(name, newValue, setFormData);
-  };
-
-  // ✅ useEffect เพื่อตรวจสอบ room conflicts เมื่อมีการเปลี่ยนแปลงวันที่เวลา
-  useEffect(() => {
-    if (formData.room_id && formData.start_activity_date && formData.end_activity_date) {
-      checkRoomConflicts(
-        formData.room_id,
-        formData.start_activity_date,
-        formData.end_activity_date,
-        finalActivityId // ✅ ส่ง activity_id เพื่อ exclude กิจกรรมปัจจุบัน
-      );
-    } else {
-      // ✅ ล้าง conflicts เมื่อไม่มีข้อมูลครบ
-      clearAvailabilityCheck();
+    
+    // ✅ เช็คห้องที่ว่างเฉพาะเมื่อปิด dialog เลือกวันที่และเวลา และเป็น Onsite เท่านั้น
+    if (newValue && (name === "start_activity_date" || name === "end_activity_date")) {
+      // รอให้ formData อัปเดตก่อน
+      setTimeout(() => {
+        const updatedFormData = {
+          ...formData,
+          [name]: newValue.format("YYYY-MM-DD HH:mm:ss")
+        };
+        
+        // เช็คเฉพาะเมื่อเป็น Onsite และมีข้อมูลครบ
+        if (updatedFormData.event_format === "Onsite" && 
+            updatedFormData.room_id && 
+            updatedFormData.start_activity_date && 
+            updatedFormData.end_activity_date) {
+          checkRoomConflicts(
+            updatedFormData.room_id,
+            updatedFormData.start_activity_date,
+            updatedFormData.end_activity_date,
+            finalActivityId
+          );
+        } else if (updatedFormData.event_format !== "Onsite") {
+          // ล้าง conflicts เมื่อไม่ใช่ Onsite
+          clearAvailabilityCheck();
+        }
+      }, 100);
     }
-  }, [formData.room_id, formData.start_activity_date, formData.end_activity_date, finalActivityId]);
+  };
 
   // ✅ useEffect เพื่อล้าง conflicts เมื่อเปลี่ยน event_format
   useEffect(() => {
@@ -744,12 +756,14 @@ useEffect(() => {
     }
   }, [errors]);
 
-  // ✅ ฟังก์ชันแปลง UTC เป็น local time (ไม่ลบ 7 ชั่วโมง)
+  // ✅ ฟังก์ชันแปลง UTC เป็น local time (ลด 7 ชั่วโมง)
   const convertUTCToLocal = (utcString: string): string => {
     if (!utcString) return "";
     try {
       const date = new Date(utcString);
-      // ✅ ใช้เวลาจาก backend โดยตรง ไม่แปลงเป็น UTC อีกครั้ง
+      // ✅ ลดเวลา 7 ชั่วโมงจาก backend
+      date.setHours(date.getHours() - 7);
+      
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');

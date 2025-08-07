@@ -285,7 +285,7 @@ const RoomSelectionSection: React.FC<Props> = ({
           </Select>
           
           {/* ✅ แสดง helper text สำหรับห้องที่เลือก */}
-          {selectedRoomConflict && hasDateTimeSet && !checkingAvailability && (
+          {selectedRoomConflict && hasDateTimeSet && !checkingAvailability && formData.event_format === "Onsite" && (
             <FormHelperText 
               error={!currentActivityId || selectedRoomConflict.activity_id !== currentActivityId}
               sx={{ mt: 1 }}
@@ -299,7 +299,7 @@ const RoomSelectionSection: React.FC<Props> = ({
           )}
           
           {/* ✅ แสดง helper text เมื่อกำลังตรวจสอบ */}
-          {checkingAvailability && hasDateTimeSet && (
+          {checkingAvailability && hasDateTimeSet && formData.event_format === "Onsite" && (
             <FormHelperText sx={{ mt: 1, color: 'info.main' }}>
               กำลังตรวจสอบห้องที่ว่าง...
             </FormHelperText>
@@ -308,14 +308,14 @@ const RoomSelectionSection: React.FC<Props> = ({
           {/* ✅ แสดง helper text เมื่อยังไม่ได้เลือกวันที่ */}
           {!hasDateTimeSet && formData.event_format === "Onsite" && (
             <FormHelperText sx={{ mt: 1, color: 'text.secondary' }}>
-              เลือกวันที่และเวลากิจกรรมเพื่อดูห้องที่ว่าง
+              เลือกวันที่และเวลากิจกรรมเพื่อตรวจสอบห้องที่ว่าง
             </FormHelperText>
           )}
         </div>
       </div>
 
       {/* ✅ แสดงข้อความแจ้งเตือนเมื่อมี time conflict */}
-      {hasTimeConflict && hasDateTimeSet && (
+      {hasTimeConflict && hasDateTimeSet && formData.event_format === "Onsite" && (
         <div className="w-140 p-3 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
