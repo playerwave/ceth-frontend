@@ -49,7 +49,7 @@ const Dialog2: React.FC<Dialog2Props> = ({
           <button
             onClick={onConfirm}
             type={type}
-            className="bg-[#1D4ED8] text-white font-semibold px-4 py-2 rounded hover:bg-blue-800 transition whitespace-nowrap"
+            className="bg-[#1E3A8A] text-white font-semibold px-4 py-2 rounded hover:bg-blue-800 transition whitespace-nowrap"
           >
             ยืนยัน
           </button>

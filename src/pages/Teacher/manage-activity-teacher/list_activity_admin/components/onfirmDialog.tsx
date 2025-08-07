@@ -67,7 +67,7 @@ const ConfirmDialog = ({
         sx={{ backgroundColor: "rgba(0, 0, 0, 0.04)", px: 3, py: 2 }}
       >
         <Button onClick={onClose} color="error">
-          Cancel
+          ยกเลิก
         </Button>
         <Button
           onClick={onConfirm}
@@ -78,7 +78,7 @@ const ConfirmDialog = ({
             "&:hover": { backgroundColor: "#173f7f" },
           }}
         >
-          CONFIRM
+          ยืนยัน
         </Button>
       </DialogActions>
     </Dialog>
