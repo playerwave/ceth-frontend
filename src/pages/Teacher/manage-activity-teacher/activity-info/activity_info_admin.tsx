@@ -192,6 +192,12 @@ export default function ActivityInfoAdmin() {
   console.log("🔍 Activity foods (alternative):", (activity as any).foods);
   console.log("🔍 Image URL:", activity.image_url);
   console.log("🔍 Image URL type:", typeof activity.image_url);
+  
+  // ✅ Debug: Log time data from backend
+  console.log("🕐 Start time from backend:", activity.start_activity_date);
+  console.log("🕐 End time from backend:", activity.end_activity_date);
+  console.log("🕐 Start time type:", typeof activity.start_activity_date);
+  console.log("🕐 End time type:", typeof activity.end_activity_date);
 
   const relatedFoods =
     Array.isArray(activity.activityFood) && activity.activityFood.length > 0

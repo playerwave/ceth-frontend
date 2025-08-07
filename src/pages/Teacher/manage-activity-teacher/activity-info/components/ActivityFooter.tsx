@@ -118,24 +118,48 @@ interface Props {
 
 const formatDate = (dateInput?: string | Date | null) => {
   if (!dateInput) return "ไม่ระบุ";
+  
+  // ✅ Debug: Log raw date data
+  console.log("📅 Raw date input:", dateInput);
+  console.log("📅 Raw date type:", typeof dateInput);
+  
+  // ✅ ใช้เวลาจาก backend โดยตรง ไม่ผ่านฟังก์ชันที่เพิ่ม 7 ชั่วโมง
   const date = new Date(dateInput);
+  console.log("📅 Date object:", date);
+  
   const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
   const month =
     date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
   const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
+  const result = `${day}/${month}/${year}`;
+  
+  console.log("📅 Formatted date result:", result);
+  return result;
 };
 
 const formatTime = (dateInput?: string | Date | null) => {
   if (!dateInput) return "ไม่ระบุ";
+  
+  // ✅ Debug: Log raw time data
+  console.log("🕐 Raw time input:", dateInput);
+  console.log("🕐 Raw time type:", typeof dateInput);
+  
+  // ✅ ใช้เวลาจาก backend โดยตรง ไม่ผ่านฟังก์ชันที่เพิ่ม 7 ชั่วโมง
   const date = new Date(dateInput);
+  console.log("🕐 Date object:", date);
+  console.log("🕐 Date hours:", date.getHours());
+  console.log("🕐 Date minutes:", date.getMinutes());
+  
   let hours = date.getHours();
   let minutes = date.getMinutes();
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
   const formattedHours = hours.toString().padStart(2, "0");
   const formattedMinutes = minutes.toString().padStart(2, "0");
-  return `${formattedHours}:${formattedMinutes} ${ampm}`;
+  const result = `${formattedHours}:${formattedMinutes} ${ampm}`;
+  
+  console.log("🕐 Formatted time result:", result);
+  return result;
 };
 
 const formatDateTimeRange = (
@@ -144,10 +168,21 @@ const formatDateTimeRange = (
 ) => {
   if (!startTime && !endTime) return "ไม่ระบุ";
 
-  const startDate = formatDate(startTime);
-  const startFormattedTime = formatTime(startTime);
-  const endDate = formatDate(endTime);
-  const endFormattedTime = formatTime(endTime);
+  // ลบ 7 ชั่วโมงก่อนแสดงผล
+  const adjustTime = (timeInput?: string | Date | null) => {
+    if (!timeInput) return null;
+    const date = new Date(timeInput);
+    date.setHours(date.getHours() - 7);
+    return date;
+  };
+
+  const adjustedStartTime = adjustTime(startTime);
+  const adjustedEndTime = adjustTime(endTime);
+
+  const startDate = formatDate(adjustedStartTime);
+  const startFormattedTime = formatTime(adjustedStartTime);
+  const endDate = formatDate(adjustedEndTime);
+  const endFormattedTime = formatTime(adjustedEndTime);
 
   return `${startDate}(${startFormattedTime}) - ${endDate}(${endFormattedTime})`;
 };
