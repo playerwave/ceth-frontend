@@ -27,6 +27,7 @@ import { Activity } from "../types/model"; // ตรวจสอบเส้น�
 type ColumnOptions = {
   enableTypeFilter?: boolean;
   includeStatus?: boolean;
+  visitorStatus?: boolean;
   selectedTypes?: string[];
   handleTypeChange?: (type: string) => void;
   handleStatusToggle?: (row: Activity) => void;
@@ -173,23 +174,25 @@ export const getActivityColumns = (
       ),
       renderCell: (params) => {
         const value = params.value ?? "ไม่ได้ระบุ";
+
+        const styleMap: Record<string, { bg: string; color: string }> = {
+          Hard: { bg: "#FFF4CC", color: "#FBBF24" },
+          Soft: { bg: "#EDE7F6", color: "#5E35B1" },
+          ไม่ได้ระบุ: { bg: "transparent", color: "black" },
+        };
+
+        const chipStyle = styleMap[value] ?? {
+          bg: "#F3F4F6",
+          color: "#374151",
+        };
+
         return (
           <Chip
             label={value}
             size="small"
             sx={{
-              backgroundColor:
-                value === "ไม่ได้ระบุ"
-                  ? "transparent"
-                  : value === "Hard"
-                    ? "#FFF4CC"
-                    : "#EDE7F6",
-              color:
-                value === "Hard"
-                  ? "#FBBF24"
-                  : value === "ไม่ได้ระบุ"
-                    ? "black"
-                    : "#5E35B1",
+              backgroundColor: chipStyle.bg,
+              color: chipStyle.color,
               fontWeight: "bold",
             }}
           />
@@ -234,7 +237,8 @@ export const getActivityColumns = (
           }
           return (
             <span>
-              {formatDateOnly(startActivityDate)} - {formatDateOnly(endActivityDate)}
+              {formatDateOnly(startActivityDate)} -{" "}
+              {formatDateOnly(endActivityDate)}
             </span>
           );
         } else {
@@ -274,15 +278,17 @@ export const getActivityColumns = (
         const totalSeats = params.row.seat;
         const eventFormat = params.row.event_format;
         const enrolledCount = (params.row as any).enrolled_count || 0; // ✅ ใช้ any type เพื่อหลีกเลี่ยง linter error
-        
+
         // ✅ ถ้าเป็น Course ให้แสดง "-"
         if (eventFormat === "Course") {
           return <span>-</span>;
         }
-        
+
         return (
           <Box display="flex" alignItems="center" gap={1}>
-            <span>{enrolledCount}/{totalSeats != null ? totalSeats : "-"}</span>
+            <span>
+              {enrolledCount}/{totalSeats != null ? totalSeats : "-"}
+            </span>
             <User />
           </Box>
         );
@@ -291,47 +297,67 @@ export const getActivityColumns = (
   ];
 
   if (options.includeStatus) {
-    columns.push(
-    {
+    columns.push({
       field: "activity_status",
       headerName: "สถานะ",
       width: 150,
-  renderCell: (params) => {
-    const isPublic = params.value === "Public";
-    const isEvaluating = params.row.activity_state === "Start Assessment";
-    const isDisabled = options.disableStatusToggle || isEvaluating;
-    
-    if (isEvaluating) {
-      return (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            px: 2,
-            py: 1,
-            fontSize: 14,
-            fontWeight: 600,
-            height: 32,
-          }}
-        >
-          {params.row.activity_state}
-        </Box>
-      );
-    }
+      renderCell: (params) => {
+        const isPublic = params.value === "Public";
+        const isEvaluating = params.row.activity_state === "Start Assessment";
+        const isDisabled = options.disableStatusToggle || isEvaluating;
 
-            return (
-              <Toggle
-                isPublic={isPublic}
-                onToggle={() => options.handleStatusToggle?.(params.row)}
-                disabled={isDisabled}
-              />
-            );
-  },
-}
+        if (isEvaluating) {
+          return (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                px: 2,
+                py: 1,
+                fontSize: 14,
+                fontWeight: 600,
+                height: 32,
+              }}
+            >
+              {params.row.activity_state}
+            </Box>
+          );
+        }
 
-    );
+        return (
+          <Toggle
+            isPublic={isPublic}
+            onToggle={() => options.handleStatusToggle?.(params.row)}
+            disabled={isDisabled}
+          />
+        );
+      },
+    });
   }
 
+  if (options.visitorStatus) {
+    columns.push({
+      field: "start_register",
+      headerName: "เปิดให้ลงทะเบียน",
+      width: 130,
+      renderCell: (params) => {
+        const acStartRegisterRaw = params.row.activity_state;
+
+        if (!acStartRegisterRaw) {
+          return <span>-</span>; // ถ้าไม่มีสถานะ ให้แสดง "-"
+        }
+
+        console.log(`Status : ${acStartRegisterRaw}`);
+        if (acStartRegisterRaw=== "Not Start") {
+          return <span>ปิด</span>;
+        } else if (acStartRegisterRaw=="Special Open Register") {
+          return <span>รอบพิเศษ</span>;
+        } else if (acStartRegisterRaw=="Open Register") {
+          return <span>รอบปกติ</span>;
+        }
+      },
+    });
+  }
   return columns;
 };
