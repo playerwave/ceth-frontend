@@ -90,12 +90,7 @@ const Button: React.FC<ButtonProps> = ({
       type={type}
       onClick={onClick}
       className={clsx(
-        "font-semibold transition duration-200 shadow-md rounded-[20px]",
-        // ✅ responsive font
-        "text-[12px] sm:text-[13px] md:text-[14px] lg:text-[16px]",
-        // ✅ responsive padding
-        "px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2.5 lg:px-6 lg:py-3",
-        "font-semibold transition duration-200 shadow-md rounded-[20px]",
+        "font-semibold transition duration-200 shadow-md rounded-[20px] flex items-center justify-center",
         // ✅ responsive font
         "text-[12px] sm:text-[13px] md:text-[14px] lg:text-[16px]",
         // ✅ responsive padding
