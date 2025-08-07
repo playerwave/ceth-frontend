@@ -1,12 +1,14 @@
 import { Box, MenuItem, TextField } from "@mui/material";
-import { Trash2 } from "lucide-react";
+import { Trash2, AlertCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import DeleteConfirmDialog from "./components/delete.dialog.food";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
 import { fetchRoomById, updateRoom } from "../../../../service/Teacher/room.service";
 import { Room } from "../../../../types/model";
 import Button from "../../../../components/Button";
+import Dialog2 from "../../../../components/Dialog2";
+import { toast } from "sonner";
+import Loading from "../../../../components/Loading";
 
 const EditRoomAdmin = () => {
 
@@ -18,6 +20,7 @@ const EditRoomAdmin = () => {
   const [roomData, setRoomData] = useState<Room | null>(null);
   const [roomName, setRoomName] = useState("");
   const [seatCount, setSeatCount] = useState("");
+  const [loading, setLoading] = useState(false);
   const handleFloorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFloor(e.target.value);
   };
@@ -38,7 +41,8 @@ const EditRoomAdmin = () => {
         setRoomName(result.room_name);
         setFloor(result.floor);
         setSeatCount(result.seat_number.toString());
-        // ...
+        setFacultyId(result.faculty_id);
+        setBuildingId(result.building_id);
       } else {
         alert("❌ ไม่พบห้องนี้");
         navigate("/list-room-teacher");
@@ -61,7 +65,11 @@ const EditRoomAdmin = () => {
       return;
     }
 
+    setLoading(true);
     try {
+      // ✅ invalidate cache ก่อน update
+      useRoomStore.getState().invalidateCache();
+      
       await useRoomStore.getState().updateRoom({
         room_id: roomId,
         room_name: roomName,
@@ -72,26 +80,32 @@ const EditRoomAdmin = () => {
         status: "Active"
       });
 
-      alert("✅ อัปเดตห้องเรียบร้อยแล้ว");
-      navigate("/list-room-teacher");
+      toast.success("อัปเดตห้องเรียบร้อยแล้ว");
+      // ไม่ navigate ไปหน้า list แล้ว ให้อยู่ที่หน้าแก้ไข
     } catch (err) {
       console.error("❌ Error updating room:", err);
-      alert("❌ ไม่สามารถอัปเดตห้องได้");
+      toast.error("ไม่สามารถอัปเดตห้องได้");
+    } finally {
+      setLoading(false);
     }
   };
-
-
 
   const handleDelete = async () => {
     if (!roomId) return;
 
+    setLoading(true);
     try {
+      // ✅ invalidate cache ก่อน delete
+      useRoomStore.getState().invalidateCache();
+      
       await deleteRoom(roomId);
-      alert("✅ ลบห้องเรียบร้อยแล้ว");
+      toast.success("ลบห้องเรียบร้อยแล้ว");
       navigate("/list-room-teacher");
     } catch (error) {
       console.error("❌ ลบห้องไม่สำเร็จ:", error);
-      alert("❌ เกิดข้อผิดพลาดในการลบห้อง");
+      toast.error("เกิดข้อผิดพลาดในการลบห้อง");
+    } finally {
+      setLoading(false);
     }
 
     setOpen(false);
@@ -104,21 +118,26 @@ const EditRoomAdmin = () => {
 
   return (
     <>
+      {loading && <Loading />}
+      
       {/* 📱 Mobile Layout */}
       <Box className="lg:hidden h-screen bg-white flex flex-col">
         <div className="p-4 pb-[120px]">
           <h2 className="text-xl font-bold mb-4 text-gray-800 text-center">
             แก้ไขห้อง
+            แก้ไขห้อง
           </h2>
 
           {/* 🔴 ปุ่มลบบน Mobile */}
           <div className="flex justify-end mb-4">
-            <Trash2
-              size={20}
-              type="button"
+            <Button
               onClick={() => setOpen(true)}
-              className="text-red-500  "
-            />
+              bgColor="#dc2626"
+              startIcon={<Trash2 size={16} />}
+              className="!px-3 !py-1 whitespace-nowrap"
+            >
+              ลบห้อง
+            </Button>
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -203,19 +222,20 @@ const EditRoomAdmin = () => {
             </div>
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:hidden">
               <div className="flex justify-between gap-4">
-                <button
-                  type="button"
+                <Button
                   onClick={() => navigate("/list-room-teacher")}
-                  className=" w-30 px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-bold rounded-full text-md"
+                  bgColor="#dc2626"
+                  width="30%"
                 >
                   ยกเลิก
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className=" w-30 px-4 py-1 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-full text-md"
+                  bgColor="#1E3A8A"
+                  width="30%"
                 >
-                  บันทึกเมนู
-                </button>
+                  บันทึก
+                </Button>
               </div>
             </div>
           </form>
@@ -230,13 +250,14 @@ const EditRoomAdmin = () => {
         <div className="flex w-full mb-5">
           <h1 className="text-4xl font-bold w-full ">แก้ไขห้อง</h1>
 
-          <button
-            type="button"
+          <Button
             onClick={() => setOpen(true)}
-            className="bg-red-600 text-white w-36 h-10 rounded-lg hover:bg-red-700 items-center justify-center flex"
+            bgColor="#dc2626"
+            startIcon={<Trash2 size={16} />}
+            className="whitespace-nowrap"
           >
-            <Trash2 /> ลบเมนูอาหาร
-          </button>
+            ลบห้อง
+          </Button>
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -322,25 +343,30 @@ const EditRoomAdmin = () => {
 
           <div className="flex justify-end gap-4 mt-6">
             <Button
-              type="button"
               onClick={() => navigate("/list-room-teacher")}
-              bgColor="red"
+              bgColor="#dc2626"
             >
               ยกเลิก
             </Button>
             <Button
+            </Button>
+            <Button
               type="submit"
-              bgColor="blue"
+              bgColor="#1E3A8A"
             >
               บันทึก
+            </Button>
             </Button>
           </div>
         </form>
       </Box>
 
-      {/* ✅ ย้าย Dialog มาไว้ใน return */}
-      <DeleteConfirmDialog
+      {/* ✅ ใช้ Dialog2 แทน ConfirmDialog */}
+      <Dialog2
         open={open}
+        title="ลบห้อง"
+        message="คุณแน่ใจหรือไม่ที่ต้องการลบห้องนี้\nลบแล้วไม่สามารถกู้คืนห้องได้ *"
+        icon={<AlertCircle className="w-6 h-6 text-red-500" />}
         onClose={() => setOpen(false)}
         onConfirm={handleDelete}
       />

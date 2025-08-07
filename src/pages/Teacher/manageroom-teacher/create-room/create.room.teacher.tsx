@@ -3,6 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
 import Button from "../../../../components/Button";
+import { toast } from "sonner";
+import Loading from "../../../../components/Loading";
+import Button from "../../../../components/Button";
 
 
 
@@ -10,19 +13,20 @@ const CreateRoomAdmin = () => {
   const faculties = useRoomStore((state) => state.faculties);
   const fetchFaculties = useRoomStore((state) => state.fetchFaculties);
   const fetchBuildings = useRoomStore((state) => state.fetchBuildings);
-  useEffect(() => {
-    fetchFaculties(); // ✅ ดึงข้อมูลคณะ
-    fetchBuildings();   // ✅ ดึงข้อมูลอาคาร
-  }, []);
-
   const buildings = useRoomStore((state) => state.buildings);
+  
   const [floor, setFloor] = useState("");
   const navigate = useNavigate();
   const [roomName, setRoomName] = useState("");
   const [seatNumber, setSeatNumber] = useState("");
-  const [facultyId, setFacultyId] = useState<number>(1); // ค่า default หากมีแค่หนึ่งคณะ
-
+  const [facultyId, setFacultyId] = useState<number>(1);
   const [buildingId, setBuildingId] = useState<number>(1);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchFaculties(); // ✅ ดึงข้อมูลคณะ
+    fetchBuildings();   // ✅ ดึงข้อมูลอาคาร
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,22 +36,23 @@ const CreateRoomAdmin = () => {
       return;
     }
 
+    setLoading(true);
     try {
       await useRoomStore.getState().createRoom({
         room_name: roomName,
         floor: floor.toString(),
         seat_number: parseInt(seatNumber),
         faculty_id: facultyId,
-
         building_id: buildingId,
-
         status: "Active",
       });
-      alert("✅ สร้างห้องเรียบร้อยแล้ว");
+      toast.success("สร้างห้องสำเร็จ");
       navigate("/list-room-teacher");
     } catch (err) {
       console.error("❌ Error creating room:", err);
-      alert("❌ ไม่สามารถสร้างห้องได้");
+      toast.error("ไม่สามารถสร้างห้องได้");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,6 +62,8 @@ const CreateRoomAdmin = () => {
 
   return (
     <>
+      {loading && <Loading />}
+      
       {/* 📱 Mobile Layout */}
       <Box className="lg:hidden h-screen bg-white flex flex-col">
         <div className="flex-1 overflow-y-auto p-4 pb-24">
@@ -80,14 +87,12 @@ const CreateRoomAdmin = () => {
                   </MenuItem>
                 ))}
               </TextField>
-
             </div>
 
             <div>
               <label className="block font-semibold mb-2">
                 ตึก / อาคาร <span className="text-red-500">*</span>
               </label>
-
               <TextField
                 select
                 value={buildingId}
@@ -148,25 +153,24 @@ const CreateRoomAdmin = () => {
             {/* ปุ่มด้านล่างแบบ fixed */}
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:hidden">
               <div className="flex justify-between gap-4">
-                <button
-                  type="button"
+                <Button
                   onClick={() => navigate("/list-room-teacher")}
-                  className=" w-30 px-4 py-1 bg-red-600 hover:bg-red-700 text-white font-bold rounded-full text-md"
+                  bgColor="#dc2626"
+                  width="30%"
                 >
                   ยกเลิก
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className=" w-30 px-4 py-1 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-full text-md"
+                  bgColor="#1E3A8A"
+                  width="30%"
                 >
-                  บันทึกเมนู
-                </button>
+                  บันทึก
+                </Button>
               </div>
             </div>
           </form>
         </div>
-
-
       </Box>
 
       {/* 💻 Desktop Layout */}
@@ -195,7 +199,6 @@ const CreateRoomAdmin = () => {
             <label className="block font-semibold mb-2">
               ตึก / อาคาร <span className="text-red-500">*</span>
             </label>
-
             <TextField
               select
               value={buildingId}
@@ -255,14 +258,19 @@ const CreateRoomAdmin = () => {
 
           <div className="flex justify-end gap-4 mt-6">
             <Button
+            <Button
               type="button"
               onClick={() => navigate("/list-room-teacher")}
+              bgColor="#dc2626"
               bgColor="red"
             >
               ยกเลิก
             </Button>
             <Button
+            </Button>
+            <Button
               type="submit"
+              bgColor="#1E3A8A"
               bgColor="blue"
             >
               บันทึก

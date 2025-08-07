@@ -1,135 +1,3 @@
-// import { create } from "zustand";
-// import { Room } from "../../types/model";
-// import roomService from "../../service/Teacher/room.service";
-
-// interface RoomStore {
-//   rooms: Room[];
-//   selectedRoom: Room | null;
-//   room: Room | null;
-//   loading: boolean;
-//   error: string | null;
-//   roomLoading: boolean;
-//   roomError: string | null;
-
-//   fetchRooms: () => Promise<void>;
-//   fetchRoom: (id: number) => Promise<void>;
-//   selectRoom: (id: number) => Promise<void>;
-//   clearSelectedRoom: () => void;
-
-//   createRoom: (roomData: Partial<Room>) => Promise<void>;
-//   updateRoom: (room: Room) => Promise<void>;
-//   deleteRoom: (id: number) => Promise<void>;
-
-//   searchRooms?: (name: string) => Promise<void>;
-//   searchResults?: Room[] | null;
-// }
-
-// export const useRoomStore = create<RoomStore>((set) => ({
-//   rooms: [],
-//   selectedRoom: null,
-//   room: null,
-//   loading: false,
-//   error: null,
-//   roomLoading: false,
-//   roomError: null,
-//   searchResults: null,
-
-//   //------------------------------------------- Room Actions --------------------------------------------------
-
-//   fetchRooms: async () => {
-//     set({ loading: true, error: null });
-//     try {
-//       const data = await roomService.fetchAllRooms();
-//       set({ rooms: data });
-//     } catch (error) {
-//       console.error("❌ Error fetching rooms:", error);
-//       set({ error: "ไม่สามารถโหลดรายการห้องได้" });
-//     } finally {
-//       set({ loading: false });
-//     }
-//   },
-
-//   fetchRoom: async (id: number) => {
-//     set({ roomLoading: true, roomError: null });
-//     try {
-//       const room = await roomService.getRoomById(id);
-//       set({ room });
-//     } catch (error) {
-//       console.error("❌ Error fetching room:", error);
-//       set({ roomError: "ไม่สามารถโหลดข้อมูลห้องนี้ได้" });
-//     } finally {
-//       set({ roomLoading: false });
-//     }
-//   },
-
-//   selectRoom: async (id: number) => {
-//     set({ loading: true });
-//     try {
-//       const room = await roomService.getRoomById(id);
-//       set({ selectedRoom: room });
-//     } catch (error) {
-//       set({ error: "ไม่สามารถเลือกห้องได้" });
-//     } finally {
-//       set({ loading: false });
-//     }
-//   },
-
-//   clearSelectedRoom: () => set({ selectedRoom: null }),
-
-//   createRoom: async (roomData) => {
-//     set({ loading: true, error: null });
-//     try {
-//       await roomService.createRoom(roomData);
-//       const updatedList = await roomService.fetchAllRooms();
-//       set({ rooms: updatedList });
-//     } catch (error) {
-//       console.error("❌ Error creating room:", error);
-//       set({ error: "ไม่สามารถสร้างห้องได้" });
-//     } finally {
-//       set({ loading: false });
-//     }
-//   },
-
-//   updateRoom: async (room) => {
-//     try {
-//       await roomService.updateRoom(room);
-//       const updatedList = await roomService.fetchAllRooms();
-//       set({ rooms: updatedList });
-//     } catch (error) {
-//       console.error("❌ Error updating room:", error);
-//     }
-//   },
-
-//   deleteRoom: async (id) => {
-//     try {
-//       await roomService.deleteRoom(id);
-//       const updatedList = await roomService.fetchAllRooms();
-//       set({ rooms: updatedList });
-//     } catch (error) {
-//       console.error("❌ Error deleting room:", error);
-//     }
-//   },
-
-//   searchRooms: async (name: string) => {
-//     if (!name.trim()) {
-//       await useRoomStore.getState().fetchRooms();
-//       set({ searchResults: null });
-//       return;
-//     }
-
-//     set({ roomLoading: true, roomError: null });
-//     try {
-//       const results = await roomService.searchRoomsByName(name);
-//       set({ searchResults: results });
-//     } catch (error) {
-//       console.error("❌ Error searching rooms:", error);
-//       set({ roomError: "ไม่สามารถค้นหาห้องได้" });
-//     } finally {
-//       set({ roomLoading: false });
-//     }
-//   },
-// }));
-
 import { create } from "zustand";
 import { Building, Faculty, Room } from "../../types/model";
 import roomService from "../../service/Teacher/room.service";
@@ -139,11 +7,16 @@ interface RoomStore {
   selectedRoom: Room | null;
   loading: boolean;
   error: string | null;
-  buildings: Building[]; // ✅ เพิ่มตรงนี้
-  faculties: Faculty[]; // ✅ เพิ่มตรงนี้
-  availableRooms: Room[]; // ✅ ห้องที่ว่าง
-  roomConflicts: any[]; // ✅ ห้องที่ถูกใช้งาน
-  checkingAvailability: boolean; // ✅ สถานะการตรวจสอบ
+  buildings: Building[];
+  faculties: Faculty[];
+  availableRooms: Room[];
+  roomConflicts: any[];
+  checkingAvailability: boolean;
+
+  // ✅ เพิ่ม cache state
+  lastFetched: number | null;
+  cacheExpiry: number; // 5 minutes
+  isInitialized: boolean;
 
   fetchRooms: () => Promise<void>;
   selectRoom: (room: Room) => void;
@@ -153,7 +26,6 @@ interface RoomStore {
   updateRoom: (room: Room) => Promise<void>;
   deleteRoom: (id: number) => Promise<void>;
 
-  // ✅ ฟังก์ชันตรวจสอบห้องที่ว่าง
   checkAvailableRooms: (
     start_date: string,
     end_date: string,
@@ -172,31 +44,112 @@ interface RoomStore {
   ) => Promise<void>;
   clearAvailabilityCheck: () => void;
 
-  // Optional: countRooms
   roomCount?: number;
-
   fetchRoomCount?: () => Promise<void>;
-  fetchBuildings: () => Promise<void>; // ✅ ฟังก์ชันโหลดอาคาร
-  fetchFaculties: () => Promise<void>; // ✅ ฟังก์ชันโหลดคณะ
+  fetchBuildings: () => Promise<void>;
+  fetchFaculties: () => Promise<void>;
+
+  // ✅ เพิ่มฟังก์ชันใหม่
+  initializeData: () => Promise<void>;
+  refreshData: () => Promise<void>;
+  invalidateCache: () => void;
+  isCacheValid: () => boolean;
 }
 
-export const useRoomStore = create<RoomStore>((set) => ({
+export const useRoomStore = create<RoomStore>((set, get) => ({
   rooms: [],
   selectedRoom: null,
   loading: false,
   error: null,
   roomCount: undefined,
-  buildings: [], // ✅ state ใหม่
-  faculties: [], // ✅ state ใหม่
-  availableRooms: [], // ✅ ห้องที่ว่าง
-  roomConflicts: [], // ✅ ห้องที่ถูกใช้งาน
-  checkingAvailability: false, // ✅ สถานะการตรวจสอบ
+  buildings: [],
+  faculties: [],
+  availableRooms: [],
+  roomConflicts: [],
+  checkingAvailability: false,
 
-  //------------------------------------------- Room Actions --------------------------------------------------
+  // ✅ cache state
+  lastFetched: null,
+  cacheExpiry: 5 * 60 * 1000, // 5 minutes
+  isInitialized: false,
+
+  // ✅ ตรวจสอบ cache validity
+  isCacheValid: () => {
+    const { lastFetched, cacheExpiry } = get();
+    return !!(lastFetched && Date.now() - lastFetched < cacheExpiry);
+  },
+
+  // ✅ invalidate cache
+  invalidateCache: () => {
+    set({ lastFetched: null, isInitialized: false });
+  },
+
+  // ✅ โหลดข้อมูลทั้งหมดพร้อมกัน
+  initializeData: async () => {
+    const { isInitialized, isCacheValid } = get();
+
+    // ถ้าเคยโหลดแล้วและ cache ยังไม่หมดอายุ ให้ข้าม
+    if (isInitialized && isCacheValid()) {
+      return;
+    }
+
+    set({ loading: true, error: null });
+
+    try {
+      // ✅ โหลดข้อมูลแบบ parallel
+      const [roomsData, buildingsData, facultiesData] = await Promise.all([
+        roomService.fetchAllRooms(),
+        roomService.fetchAllBuildings(),
+        roomService.fetchAllFaculties(),
+      ]);
+
+      set({
+        rooms: roomsData,
+        buildings: buildingsData,
+        faculties: facultiesData,
+        lastFetched: Date.now(),
+        isInitialized: true,
+        loading: false,
+      });
+    } catch (error) {
+      console.error("❌ Error initializing data:", error);
+      set({
+        error: "ไม่สามารถโหลดข้อมูลได้",
+        loading: false,
+      });
+    }
+  },
+
+  // ✅ refresh ข้อมูลทั้งหมด
+  refreshData: async () => {
+    set({ loading: true, error: null });
+
+    try {
+      const [roomsData, buildingsData, facultiesData] = await Promise.all([
+        roomService.fetchAllRooms(),
+        roomService.fetchAllBuildings(),
+        roomService.fetchAllFaculties(),
+      ]);
+
+      set({
+        rooms: roomsData,
+        buildings: buildingsData,
+        faculties: facultiesData,
+        lastFetched: Date.now(),
+        loading: false,
+      });
+    } catch (error) {
+      console.error("❌ Error refreshing data:", error);
+      set({
+        error: "ไม่สามารถรีเฟรชข้อมูลได้",
+        loading: false,
+      });
+    }
+  },
 
   fetchFaculties: async () => {
     try {
-      const data = await roomService.fetchAllFaculties(); // ✅ ต้องมีใน roomService
+      const data = await roomService.fetchAllFaculties();
       set({ faculties: data });
     } catch (error) {
       console.error("❌ Error fetching faculties:", error);
@@ -205,15 +158,22 @@ export const useRoomStore = create<RoomStore>((set) => ({
   },
 
   fetchRooms: async () => {
+    // ✅ ใช้ cache ถ้ามี
+    if (get().isCacheValid()) {
+      return;
+    }
+
     set({ loading: true, error: null });
     try {
       const data = await roomService.fetchAllRooms();
-      set({ rooms: data });
+      set({
+        rooms: data,
+        lastFetched: Date.now(),
+        loading: false,
+      });
     } catch (error) {
       console.error("❌ Error fetching rooms:", error);
-      set({ error: "ไม่สามารถโหลดรายการห้องได้" });
-    } finally {
-      set({ loading: false });
+      set({ error: "ไม่สามารถโหลดรายการห้องได้", loading: false });
     }
   },
 
@@ -236,37 +196,41 @@ export const useRoomStore = create<RoomStore>((set) => ({
     set({ loading: true, error: null });
     try {
       await roomService.createRoom(roomData);
-      const updatedList = await roomService.fetchAllRooms();
-      set({ rooms: updatedList });
+      // ✅ invalidate cache และ refresh ข้อมูลหลังจากสร้าง
+      get().invalidateCache();
+      await get().refreshData();
     } catch (error) {
       console.error("❌ Error creating room:", error);
-      set({ error: "ไม่สามารถสร้างห้องได้" });
-    } finally {
-      set({ loading: false });
+      set({ error: "ไม่สามารถสร้างห้องได้", loading: false });
     }
   },
 
   updateRoom: async (room) => {
+    set({ loading: true, error: null });
     try {
       await roomService.updateRoom(room);
-      const updatedList = await roomService.fetchAllRooms();
-      set({ rooms: updatedList });
+      // ✅ invalidate cache และ refresh ข้อมูลหลังจากอัปเดต
+      get().invalidateCache();
+      await get().refreshData();
     } catch (error) {
       console.error("❌ Error updating room:", error);
+      set({ error: "ไม่สามารถอัปเดตห้องได้", loading: false });
     }
   },
 
   deleteRoom: async (id) => {
+    set({ loading: true, error: null });
     try {
       await roomService.deleteRoom(id);
-      const updatedList = await roomService.fetchAllRooms();
-      set({ rooms: updatedList });
+      // ✅ invalidate cache และ refresh ข้อมูลหลังจากลบ
+      get().invalidateCache();
+      await get().refreshData();
     } catch (error) {
       console.error("❌ Error deleting room:", error);
+      set({ error: "ไม่สามารถลบห้องได้", loading: false });
     }
   },
 
-  // 👉 fetch buildings
   fetchBuildings: async () => {
     try {
       const data = await roomService.fetchAllBuildings();
@@ -276,7 +240,6 @@ export const useRoomStore = create<RoomStore>((set) => ({
     }
   },
 
-  // ✅ ตรวจสอบห้องที่ว่างในช่วงเวลาที่กำหนด
   checkAvailableRooms: async (
     start_date: string,
     end_date: string,
@@ -299,7 +262,6 @@ export const useRoomStore = create<RoomStore>((set) => ({
     }
   },
 
-  // ✅ ตรวจสอบห้องที่ถูกใช้งาน
   checkRoomConflicts: async (
     room_id: number,
     start_date: string,
@@ -324,7 +286,6 @@ export const useRoomStore = create<RoomStore>((set) => ({
     }
   },
 
-  // ✅ ตรวจสอบห้องที่ว่างทั้งหมดในช่วงเวลาที่กำหนด
   checkAllAvailableRooms: async (
     start_date: string,
     end_date: string,
@@ -347,7 +308,6 @@ export const useRoomStore = create<RoomStore>((set) => ({
     }
   },
 
-  // ✅ ล้างข้อมูลการตรวจสอบ
   clearAvailabilityCheck: () => {
     set({ availableRooms: [], roomConflicts: [], checkingAvailability: false });
   },
