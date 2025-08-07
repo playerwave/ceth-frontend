@@ -14,6 +14,7 @@ export interface ParsedVisitorActivity {
   end_date: string; // ควรจะเป็น Date หรือ string ในรูปแบบ Date ที่ format ได้
   activity_status: string;
   activity_code: string;
+  activity_state: string;
   // ถ้ามี field อื่นๆ ที่คุณได้จาก parts[6] (เช่น duration) ให้เพิ่มตรงนี้
   // duration?: number;
 }

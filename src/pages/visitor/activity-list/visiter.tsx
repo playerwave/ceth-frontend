@@ -17,8 +17,6 @@ const VisitorActivityList: React.FC = () => {
     fetchPublicActivities();
   }, [fetchPublicActivities]);
 
-  // ลบเงื่อนไขการกรอง activity_status === "Open Register" ออกไป
-  // ทำให้ activitiesForDisplay คือ activities ทั้งหมดที่ได้มาจาก API
   const activitiesForDisplay = activities;
 
   const displayedActivities = activitiesForDisplay.filter((a) => {

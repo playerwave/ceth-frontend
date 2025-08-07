@@ -30,7 +30,15 @@ const convertParsedToActivity = (
     image_url: "", // กำหนดค่าเริ่มต้น
     activity_status:
       parsedActivity.activity_status === "Open Register" ? "Public" : "Private", // แปลงให้ตรงกับ Activity
-    activity_state: "Open Register", // กำหนดค่าเริ่มต้น
+    activity_state: parsedActivity.activity_state as
+    | "Open Register"
+    | "Not Start"
+    | "Special Open Register"
+    | "Close Register"
+    | "Start Activity"
+    | "End Activity"
+    | "Start Assessment"
+    | "End Assessment", // กำหนดค่าเริ่มต้น
     status: "Active", // กำหนดค่าเริ่มต้น
     last_update_activity_date: "", // กำหนดค่าเริ่มต้น
     url: null, // กำหนดค่าเริ่มต้น
@@ -75,7 +83,8 @@ const fetchPublicActivities = async (): Promise<Activity[]> => {
         start_date: cleanPart(parts[8]),
         end_date: cleanPart(parts[9]),
         activity_status: cleanPart(parts[12]),
-        activity_code: cleanPart(parts[13]),
+        activity_code: cleanPart(parts[14]),
+        activity_state: cleanPart(parts[13])
         // ถ้า parts[6] คือ type (Soft/Hard) คุณสามารถเพิ่มตรงนี้ได้:
         // type: cleanPart(parts[6]) as "Soft" | "Hard",
       } as ParsedVisitorActivity;
