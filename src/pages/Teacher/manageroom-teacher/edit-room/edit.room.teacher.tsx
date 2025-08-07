@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
 import { fetchRoomById, updateRoom } from "../../../../service/Teacher/room.service";
 import { Room } from "../../../../types/model";
+import Button from "../../../../components/Button";
 
 const EditRoomAdmin = () => {
 
@@ -107,7 +108,7 @@ const EditRoomAdmin = () => {
       <Box className="lg:hidden h-screen bg-white flex flex-col">
         <div className="p-4 pb-[120px]">
           <h2 className="text-xl font-bold mb-4 text-gray-800 text-center">
-            แก้ไขเมนูอาหาร
+            แก้ไขห้อง
           </h2>
 
           {/* 🔴 ปุ่มลบบน Mobile */}
@@ -320,19 +321,19 @@ const EditRoomAdmin = () => {
           </div>
 
           <div className="flex justify-end gap-4 mt-6">
-            <button
+            <Button
               type="button"
               onClick={() => navigate("/list-room-teacher")}
-              className="bg-red-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-red-700"
+              bgColor="red"
             >
               ยกเลิก
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="bg-blue-800 text-white px-6 py-2 rounded-xl font-semibold hover:bg-blue-900"
+              bgColor="blue"
             >
               บันทึก
-            </button>
+            </Button>
           </div>
         </form>
       </Box>

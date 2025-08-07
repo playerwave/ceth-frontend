@@ -180,12 +180,17 @@ const EditFoodAdmin = () => {
             <div className="col-span-2 flex justify-end gap-4 mt-75">
               <Button
                 type="button"
-                bgColor="red"
                 onClick={() => navigate("/list-food-teacher")}
+                bgColor="red"
               >
                 ยกเลิก
               </Button>
-              <Button type="submit">บันทึก</Button>
+              <Button
+                type="submit"
+                bgColor="blue"
+              >
+                บันทึก
+              </Button>
             </div>
           </form>
         </div>

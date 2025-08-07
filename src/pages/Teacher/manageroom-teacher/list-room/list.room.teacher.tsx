@@ -43,9 +43,8 @@ const ListRoomAdmin = () => {
   });
 
 
-
   return (
-    <div className="max-w-screen-xl w-full mx-auto px-6 mt-5 relative">
+    <div className="max-w-screen-xl w-full mx-auto px-6 mt-5">
       <h1 className="text-center text-2xl font-bold mb-4">จัดการห้อง</h1>
 
       <div className="flex justify-center items-center w-full mt-10">
@@ -62,11 +61,13 @@ const ListRoomAdmin = () => {
         <h2 className="text-left font-semibold text-black mb-4">
           ห้องที่มีอยู่ในระบบ
         </h2>
-        <RoomTable data={mappedRooms} />
-
+        <div style={{ height: 400 }}>
+          <RoomTable data={mappedRooms} />
+        </div>
       </div>
     </div>
   );
+
 };
 
 export default ListRoomAdmin;

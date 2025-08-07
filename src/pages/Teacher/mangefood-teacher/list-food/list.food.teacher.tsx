@@ -29,17 +29,18 @@ const ListFoodAdmin = () => {
       </div>
 
       <AddFoodButton />
-      <div className="bg-white p-4 shadow-2xl rounded-lg mb-6 mt-10 h-120">
-        <h2 className="text-left font-semibold text-black p-3 rounded">
+
+      <div className="bg-white p-6 shadow-2xl rounded-lg my-10 overflow-x-auto">
+        <h2 className="text-left font-semibold text-black mb-4">
           อาหารที่มีอยู่ในระบบ
         </h2>
-
-        {/* ใช้ DataGrid Pagination ใน FoodTable เลย */}
-
-        <FoodTable data={filteredFoods} />
+        <div style={{ height: 400 }}>
+          <FoodTable data={filteredFoods} />
+        </div>
       </div>
     </div>
   );
+
 };
 
 export default ListFoodAdmin;

@@ -1,5 +1,6 @@
 import React from "react";
 import { Building2, ChevronDown } from "lucide-react";
+import Button from "../../../../../components/Button";
 
 interface Props {
   floors: number[];
@@ -22,14 +23,15 @@ const FloorDropdown: React.FC<Props> = ({
 
   return (
     <div className="relative" onClick={(e) => e.stopPropagation()}>
-      <button
+      <Button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="flex items-center gap-2 px-4 py-2 bg-blue-800 text-white rounded-xl hover:bg-blue-900"
+        className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-blue-800 text-white rounded-lg hover:bg-blue-900 min-w-[100px]"
       >
-        <span>ชั้น: {floorFilter === "all" ? " " : floorFilter}</span>
+        <span>ชั้น: {floorFilter === "all" ? "ทั้งหมด" : floorFilter}</span>
         <Building2 size={18} />
         <ChevronDown size={18} />
-      </button>
+      </Button>
+
 
       {showDropdown && (
         <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-300 rounded shadow-md z-50">
