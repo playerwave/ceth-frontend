@@ -2,6 +2,7 @@ import ListAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/li
 import CreateAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/create-assessment/create.assessment.teacher";
 import EditAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/edit-assessment/edit.assessment.teacher";
 
+import AssessmentStudent from "../pages/Student/assessment-student/assessmentStudent";
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
 import type { Roles } from "../types/model";
@@ -34,5 +35,14 @@ export const assessmentRoutes = [
     roles: ["Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false,
     protectionLevel: ProtectionLevel.ENCODED
+  },
+  ,
+     {
+    path: "/assessment-student",
+    element: <AssessmentStudent />,
+    label: "",
+    icon: "ClipboardList",
+    roles: ["Student"] as RoleName[],
+    visibleInSidebar: false,
   },
 ];
