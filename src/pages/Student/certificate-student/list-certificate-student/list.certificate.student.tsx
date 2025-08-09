@@ -4,21 +4,42 @@ import Button from "../../../../components/Button";
 import { FolderUp } from "lucide-react";
 import CustomCard from "../../../../components/Card";
 import { DataGrid, GridColDef, GridPaginationModel } from "@mui/x-data-grid";
+import { useNavigate } from "react-router-dom";
 
 type Row = { id: number; name: string; sentAt: string; status: string };
 
 export default function ListCertificateStudent() {
   // ข้อมูลตามภาพ
   const rows: Row[] = [
-    { id: 1, name: "Click next", sentAt: "14 May 2025, 01:45 PM", status: "รอตรวจสอบ" },
-    { id: 2, name: "Ai Thai",    sentAt: "14 May 2025, 01:45 PM", status: "รอตรวจสอบ" },
-    { id: 3, name: "Ai Buu",     sentAt: "14 May 2025, 01:45 PM", status: "รอตรวจสอบ" },
+    {
+      id: 1,
+      name: "Click next",
+      sentAt: "14 May 2025, 01:45 PM",
+      status: "รอตรวจสอบ",
+    },
+    {
+      id: 2,
+      name: "Ai Thai",
+      sentAt: "14 May 2025, 01:45 PM",
+      status: "รอตรวจสอบ",
+    },
+    {
+      id: 3,
+      name: "Ai Buu",
+      sentAt: "14 May 2025, 01:45 PM",
+      status: "รอตรวจสอบ",
+    },
   ];
 
   // คอลัมน์
   const columns: GridColDef<Row>[] = [
-    { field: "name",   headerName: "ชื่อเกียรติบัตร",      flex: 1,   minWidth: 220 },
-    { field: "sentAt", headerName: "วันที่ส่งเกียรติบัตร", flex: 0.8, minWidth: 200 },
+    { field: "name", headerName: "ชื่อเกียรติบัตร", flex: 1, minWidth: 220 },
+    {
+      field: "sentAt",
+      headerName: "วันที่ส่งเกียรติบัตร",
+      flex: 0.8,
+      minWidth: 200,
+    },
     {
       field: "status",
       headerName: "สถานะ",
@@ -38,7 +59,9 @@ export default function ListCertificateStudent() {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return rows;
     return rows.filter((r) =>
-      [r.name, r.sentAt, r.status].some((v) => String(v).toLowerCase().includes(q))
+      [r.name, r.sentAt, r.status].some((v) =>
+        String(v).toLowerCase().includes(q)
+      )
     );
   }, [searchTerm, rows]); // ⬅ เพิ่ม rows ใน dependency ให้ถูกต้อง
 
@@ -50,6 +73,8 @@ export default function ListCertificateStudent() {
   useEffect(() => {
     setPaginationModel((m) => ({ ...m, page: 0 }));
   }, [searchTerm]);
+
+  const navigate = useNavigate();
 
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-10">
@@ -63,7 +88,10 @@ export default function ListCertificateStudent() {
 
       {/* Action Button */}
       <div className="flex flex-wrap justify-end items-center gap-2 mb-6">
-        <Button className="flex items-center">
+        <Button
+          className="flex items-center"
+          onClick={() => navigate("/send-certificate-student")}
+        >
           อัปโหลด Certificate
           <FolderUp className="w-6 h-6 ml-2" />
         </Button>
@@ -110,15 +138,17 @@ export default function ListCertificateStudent() {
               "& .MuiTablePagination-root, & .MuiTablePagination-toolbar": {
                 color: "#000000 !important",
               },
-              "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-                color: "#000000 !important",
-              },
+              "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+                {
+                  color: "#000000 !important",
+                },
               "& .MuiSelect-select, & .MuiSvgIcon-root.MuiSelect-icon": {
                 color: "#000000 !important",
               },
-              "& .MuiTablePagination-actions button, & .MuiTablePagination-actions button svg": {
-                color: "#000000 !important",
-              },
+              "& .MuiTablePagination-actions button, & .MuiTablePagination-actions button svg":
+                {
+                  color: "#000000 !important",
+                },
             }}
           />
         </div>
