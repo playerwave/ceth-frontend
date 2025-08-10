@@ -63,7 +63,8 @@ export default function TableRedesign({
   const handleRowClick: GridEventListener<"rowClick"> = (params) => {
     const id = params.row.activity_id;
     if (id) {
-      const role = typeof user?.role === "string" ? user.role : user?.role?.role_name;
+      const role =
+        typeof user?.role === "string" ? user.role : user?.role?.role_name;
       if (role === "Student") {
         navigate(`/activity-info-student/${id}`);
       } else {
@@ -73,10 +74,12 @@ export default function TableRedesign({
   };
 
   // 🔗 เพิ่มฟังก์ชันสำหรับ double-click
-  const handleRowDoubleClick: GridEventListener<"rowDoubleClick"> = (params) => {
-    console.log('🔍 TableRedesign: Double-click detected!');
-    console.log('🔍 TableRedesign: Row data:', params.row);
-    
+  const handleRowDoubleClick: GridEventListener<"rowDoubleClick"> = (
+    params
+  ) => {
+    console.log("🔍 TableRedesign: Double-click detected!");
+    console.log("🔍 TableRedesign: Row data:", params.row);
+
     if (onRowDoubleClick) {
       onRowDoubleClick(params.row);
     }
@@ -167,45 +170,64 @@ export default function TableRedesign({
         sx={{
           height,
           width,
-          overflowX: "auto",
-          overflowY: "hidden",
+          overflowX: "hidden", // ปิดแกน X ที่ container
+          overflowY: "hidden", // ให้เลื่อนอยู่ใน DataGrid เท่านั้น
           backgroundColor: "white",
           boxShadow: 2,
           textAlign: "center",
           maxWidth: "100vw",
         }}
       >
-        <Box
-          sx={{
-            width: "100%",
-            minWidth: "100%",
-          }}
-        >
+        <Box sx={{ width: "100%", minWidth: "100%", height: "100%" }}>
           <DataGrid
             columns={columnsWithDropdown}
             rows={filteredRows}
             getRowId={(row) => row.activity_id}
             onRowDoubleClick={handleRowDoubleClick}
-            pageSizeOptions={[5, 10, 20]}
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: initialPageSize ?? 5, page: 0 },
-              },
-            }}
             disableRowSelectionOnClick
+            /* --- สกอลล์ในตาราง + มี pagination --- */
             autoHeight={false}
+            pagination
+            hideFooterPagination={false}
+            pageSizeOptions={[10, 20, 50]}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 10, page: 0 } },
+            }}
             sx={{
-              width: "100%",
-              "& .MuiDataGrid-root": {
-                width: "100%",
-              },
+              height: "100%",
               border: "none",
+              overflowX: "hidden",
+
+              "& .MuiDataGrid-main": { height: "100%", overflowX: "hidden" },
+              "& .MuiDataGrid-virtualScroller": {
+                overflowY: "auto",
+                overflowX: "hidden",
+              },
+              "& .MuiDataGrid-footerContainer": {
+                overflowX: "hidden",
+                overflowY: "hidden",
+              },
+
+              /* บังคับความกว้าง content ให้ไม่เกินกรอบ → ปิดสกอลล์ X เด็ดขาด */
+              "& .MuiDataGrid-virtualScrollerContent": {
+                minWidth: "100% !important",
+              },
+              "& .MuiDataGrid-columnHeadersInner": {
+                minWidth: "100% !important",
+              },
+
+              "& .MuiTablePagination-root": {
+                overflowY: "hidden", // กัน pagination component มีสกอลล์
+              },
+
+              /* สไตล์ของคุณเดิม */
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: "#1E3A8A",
                 color: "white",
                 fontWeight: "bold",
                 fontSize: "0.95rem",
                 textTransform: "none",
+                width: "100% !important",
               },
               "& .MuiDataGrid-columnHeader": {
                 backgroundColor: "#1E3A8A",
@@ -236,24 +258,16 @@ export default function TableRedesign({
                   width: "1px",
                   backgroundColor: "white",
                   opacity: 0,
-                  transition: "opacity 0.3s",
+                  transition: "opacity .3s",
                 },
-                "&:hover::after": {
-                  opacity: 1,
-                },
+                "&:hover::after": { opacity: 1 },
               },
               "& .MuiDataGrid-columnHeader:last-of-type::after": {
                 display: "none",
               },
-              "& .MuiDataGrid-iconSeparator": {
-                display: "none",
-              },
-              "& .MuiDataGrid-sortIcon": {
-                color: "white",
-              },
-              "& .MuiDataGrid-menuIcon": {
-                display: "none",
-              },
+              "& .MuiDataGrid-iconSeparator": { display: "none" },
+              "& .MuiDataGrid-sortIcon": { color: "white" },
+              "& .MuiDataGrid-menuIcon": { display: "none" },
               "& .MuiDataGrid-cell": {
                 fontSize: "0.9rem",
                 display: "flex",
@@ -263,6 +277,14 @@ export default function TableRedesign({
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
+              },
+
+              "& .MuiDataGrid-scrollbarFiller": {
+                display: "none", // ✅ เอาช่อง filler ที่ขาวออก
+              },
+
+              "& .MuiDataGrid-filler": {
+                display: "none", // กัน padding ขาวข้างหัวตาราง
               },
             }}
           />

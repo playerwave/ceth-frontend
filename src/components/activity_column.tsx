@@ -130,6 +130,7 @@ export const getActivityColumns = (
       field: "presenter_company_name",
       headerName: "ชื่อบริษัท/วิทยากร",
       width: 200,
+      flex: 1.2,
       renderCell: (params) => {
         const companyLecturer = params.value ?? "ไม่มีชื่อ";
         return <span>{companyLecturer}</span>;

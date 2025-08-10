@@ -1,0 +1,14 @@
+/* ความสูงรวมของ grid */
+.inner-scroll .MuiDataGrid-root {
+  height: 100%;
+}
+
+/* พื้นที่เนื้อหาด้านใน (ส่วนที่เลื่อน) ให้เกิดสกอลล์ในตารางเอง */
+.inner-scroll .MuiDataGrid-virtualScroller {
+  overflow-y: auto;
+}
+
+/* กัน DataGrid ดันตัวเองให้สูงเกิน wrapper */
+.inner-scroll .MuiDataGrid-main {
+  height: 100%;
+}

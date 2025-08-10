@@ -6,6 +6,7 @@ import CustomCard from "../../../../components/Card";
 import { GridColDef } from "@mui/x-data-grid";
 import { getActivityColumns } from "../../../../components/activity_column";
 import { Activity } from "../../../../types/model";
+import "./components/table.history.css"
 
 type Props = {
   rows1: Activity[];
@@ -41,21 +42,27 @@ const ActivityHistoryTable = ({ rows1 }: Props) => {
   );
 
   return (
-    <div style={{ padding: 24 }}>
-      <CustomCard height={730} width="1312px">
-        <h2 className="text-2xl font-semibold mb-4">รายชื่อประวัติกิจกรรมสหกิจทั้งหมด</h2>
-        <TableRedesign
-          initialPageSize={10}
-          columns={activityColumns}
-          rows={filteredRows}
-          height={650}
-          width="100%"
-          borderRadius={14}
-          // getRowId={(row) => row.activity_id}
-        />
-      </CustomCard>
+  <div style={{ padding: 24 }}>
+  <CustomCard height={730} width="1312px">
+    <h2 className="text-2xl font-semibold mb-4">รายชื่อประวัติกิจกรรมสหกิจทั้งหมด</h2>
+
+    <div className="inner-scroll" style={{ height: 650 }}>
+      <TableRedesign
+        initialPageSize={10}
+        columns={activityColumns}
+        rows={filteredRows}
+        height={650}       // ให้ตารางเองมี height (อย่า auto)
+        width="100%"
+        borderRadius={14}
+      />
     </div>
-  );
+  </CustomCard>
+</div>
+
+);
+
 };
 
 export default ActivityHistoryTable;
+
+
