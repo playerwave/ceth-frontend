@@ -45,7 +45,15 @@ const CreateRoomAdmin = () => {
         building_id: buildingId,
         status: "Active",
       });
+      
       toast.success("สร้างห้องสำเร็จ");
+      
+      // ✅ เพิ่ม delay เล็กน้อยเพื่อให้ Backend process เสร็จ
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // ✅ Refresh ข้อมูลก่อน navigate
+      await useRoomStore.getState().refreshData();
+      
       navigate("/list-room-teacher");
     } catch (err) {
       console.error("❌ Error creating room:", err);
