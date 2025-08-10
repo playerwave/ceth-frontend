@@ -192,6 +192,12 @@ const RoomSelectionSection: React.FC<Props> = ({
             if (!selected) {
               return <span className="text-black">เลือกประเภทกิจกรรม</span>;
             }
+            // แสดงชื่อเต็มภาษาไทย แต่ยังคงส่งค่า "Soft" หรือ "Hard" ไป backend
+            if (selected === "Soft") {
+              return "ชั่วโมงเตรียมความพร้อม (Soft Skill)";
+            } else if (selected === "Hard") {
+              return "ชั่วโมงทักษะทางวิชาการ (Hard Skill)";
+            }
             return selected;
           }}
           sx={{
