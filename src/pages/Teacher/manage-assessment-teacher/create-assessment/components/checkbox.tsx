@@ -14,7 +14,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import { QuestionItem, TopicData } from "../type/type.create";
 import ButtonAdd from "./buttonAdd";
-import QuestionCard from "./QuestionCard";
+import QuestionCard from "./questionCard";
 
 type Props = {
   onDelete: () => void;

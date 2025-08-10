@@ -13,7 +13,7 @@ import {
 } from "@hello-pangea/dnd";
 
 import ButtonAdd from './buttonAdd';
-import QuestionCard from './QuestionCard';
+import QuestionCard from './questionCard';
 
 // ✅ Import types จากไฟล์รวม type
 import { QuestionItem, TopicData } from '../type/type.create';

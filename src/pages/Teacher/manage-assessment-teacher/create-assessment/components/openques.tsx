@@ -15,7 +15,7 @@ import {
 } from "@hello-pangea/dnd";
 
 import { QuestionItem, TopicData } from "../type/type.create";
-import QuestionCard from "./QuestionCard";
+import QuestionCard from "./questionCard";
 import ButtonAdd from "./buttonAdd"; // ปุ่มเพิ่มคำถามแบบเลือกประเภท
 
 type Props = {
