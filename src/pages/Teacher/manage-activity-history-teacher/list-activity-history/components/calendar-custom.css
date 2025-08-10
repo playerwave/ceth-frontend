@@ -1,0 +1,127 @@
+/* ===== ปรับหัวเดือนและปีให้ชัดขึ้น ===== */
+.react-calendar__navigation button {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white; /* น้ำเงินเข้ม */
+  background: none;
+}
+
+.react-calendar__navigation button:disabled {
+  color: #ccc;
+}
+
+.react-calendar__navigation button:hover {
+  background-color: #e5e7eb; /* hover เทาอ่อน */
+  border-radius: 6px;
+}
+
+/* ===== ปรับตัวเลขวันที่ ===== */
+.react-calendar__tile {
+  font-size: 1rem;
+  font-weight: 500;
+  color: black;
+  background:white;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: #dc2626; /* แดงสำหรับเสาร์-อาทิตย์ */
+}
+
+/* ===== วันที่เลือก ===== */
+.react-calendar__tile--active {
+  background: #2563eb !important; /* น้ำเงินสด */
+  color: white !important;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+/* ===== วันที่ hover ===== */
+.react-calendar__tile:hover {
+  background: #bfdbfe; /* ฟ้าจาง */
+  border-radius: 50%;
+}
+
+/* ===== ช่องวันที่วันนี้ ===== */
+.react-calendar__tile--now {
+  background: #fef08a !important;
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px #ffffff;
+  font-weight: normal; /* ไม่หนา */
+}
+
+/* ===== ชื่อวัน (อ, จ, พ, พฤ, ศ, ส) ===== */
+.react-calendar__month-view__weekdays {
+  font-size: 1rem;
+  font-weight: bold;
+  color: black; /* น้ำเงินเข้ม */
+  text-transform: none; /* ป้องกัน uppercase */
+  background:white;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  padding: 8px 0;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none; /* เอาเส้นใต้ของ <abbr> ออก */
+}
+
+
+
+.react-calendar {
+  background-color: #1E3A8A !important;
+  border: none !important;
+  border-radius: 12px; /* มุมโค้ง */
+  padding: 8px;
+}
+
+/* ===== กล่องกริด (วันทั้งเดือน) เป็นพื้นหลังสีขาว ===== */
+.react-calendar__viewContainer,
+.react-calendar__month-view {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 8px 10px 12px;
+}
+
+/* เอาพื้นหลังของแถบชื่อวันให้โปร่ง เพื่อเห็นกล่องขาวด้านหลัง */
+.react-calendar__month-view__weekdays {
+  background: transparent;
+}
+
+/* วันของเดือนอื่นให้จางลงนิดนึง และพื้นหลังโปร่ง */
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #9ca3af;
+  background: transparent;
+}
+
+/* ===== วันที่เลือก: วงกลมน้ำเงิน + white ring ล้อมรอบ ===== */
+.react-calendar__tile--active {
+  background: #2563eb !important;
+  color: #fff !important;
+  border-radius: 50%;
+  font-weight: bold;
+  /* วงแหวนสีขาวให้ดูมีพื้นที่ข้างหลังเป็นสีขาว */
+  box-shadow: 0 0 0 6px #ffffff;
+}
+
+/* Hover: ใช้วงแหวนขาวเหมือนกัน จะดูกลมกลืนกับกล่องขาว */
+.react-calendar__tile:hover {
+  background: #fce7f3;          /* ชมพูอ่อน (ปรับได้) */
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px #ffffff; /* วงแหวนขาว */
+}
+
+/* วันนี้: วงกลมเหลืองอ่อน + ring ขาว */
+.react-calendar__tile--now {
+  background: #fef08a !important;
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px #ffffff;
+}
+
+.react-calendar__month-view__days__day--weekend,
+.react-calendar__tile--now.react-calendar__month-view__days__day--weekend {
+  color: #dc2626 !important; /* แดง */
+  font-weight: normal;       /* ไม่หนา */
+}
+
+
