@@ -35,51 +35,26 @@ export const countRooms = async (): Promise<number> => {
 export const createRoom = async (payload: Partial<Room>): Promise<Room> => {
   console.log("📤 Creating room with payload:", payload);
 
-  try {
-    const response = await axiosInstance.post(
-      `${TEACHER_ROOM_PATH}/create-room`,
-      payload
-    );
-    
-    // ✅ เพิ่ม delay เล็กน้อยเพื่อให้ Backend process เสร็จ
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error creating room:", error);
-    throw error;
-  }
+  const response = await axiosInstance.post(
+    `${TEACHER_ROOM_PATH}/create-room`,
+    payload
+  );
+  return response.data;
 };
 //----------------------------------------------------------------
 
 //--------------------- Update Room ------------------------------
 export const updateRoom = async (room: Room): Promise<void> => {
-  try {
-    await axiosInstance.put(`${TEACHER_ROOM_PATH}/update-room/${room.room_id}`, {
-      ...room,
-      last_update: new Date(),
-    });
-    
-    // ✅ เพิ่ม delay เล็กน้อยเพื่อให้ Backend process เสร็จ
-    await new Promise(resolve => setTimeout(resolve, 100));
-  } catch (error) {
-    console.error("❌ Error updating room:", error);
-    throw error;
-  }
+  await axiosInstance.put(`${TEACHER_ROOM_PATH}/update-room/${room.room_id}`, {
+    ...room,
+    last_update: new Date(),
+  });
 };
 //----------------------------------------------------------------
 
 //--------------------- Delete Room ------------------------------
 export const deleteRoom = async (id: number): Promise<void> => {
-  try {
-    await axiosInstance.delete(`${TEACHER_ROOM_PATH}/delete-room/${id}`);
-    
-    // ✅ เพิ่ม delay เล็กน้อยเพื่อให้ Backend process เสร็จ
-    await new Promise(resolve => setTimeout(resolve, 100));
-  } catch (error) {
-    console.error("❌ Error deleting room:", error);
-    throw error;
-  }
+  await axiosInstance.delete(`${TEACHER_ROOM_PATH}/delete-room/${id}`);
 };
 //----------------------------------------------------------------
 // 🔧 Fetch all buildings

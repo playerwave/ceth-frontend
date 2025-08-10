@@ -586,7 +586,7 @@ useEffect(() => {
                   setSeatCapacity={setSeatCapacity}
                   roomConflicts={roomConflicts}
                   checkingAvailability={checkingAvailability}
-                  hasTimeConflict={roomConflicts && roomConflicts.length > 0}
+                  hasTimeConflict={roomConflicts.length > 0}
                 />
 
                 <ActivityLink formData={formData} handleChange={handleFormChange} />
