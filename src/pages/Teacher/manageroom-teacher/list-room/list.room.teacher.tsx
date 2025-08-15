@@ -82,9 +82,9 @@ const ListRoomAdmin = () => {
   // });
 
   // ✅ Loading component
-  if (loading) {
-    return <Loading />;
-  }
+  // if (loading) {
+  //   return <Loading />;
+  // }
 
   // ✅ Error component
   if (error) {
@@ -116,7 +116,7 @@ const ListRoomAdmin = () => {
       </div>
 
       <div className="flex justify-center items-center w-full mt-10">
-  <Searchbar key={`searchbar-${searchbarKey}`} onSearch={(term: string) => handleSearch(term)} />
+    <Searchbar onSearch={handleSearch} />
 </div>
 
       <RoomToolbar
