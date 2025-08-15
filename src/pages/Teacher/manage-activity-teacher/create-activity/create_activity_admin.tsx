@@ -14,6 +14,9 @@ import { Activity } from "../../../../types/model";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
 import roomService from "../../../../service/Teacher/room.service";
+import { useLocation } from 'react-router-dom';
+
+
 
 import {
   handleChange,
@@ -46,55 +49,56 @@ const CreateActivityAdmin: React.FC = () => {
   const { createSecureLink } = useSecureLink();
   const savedFoods = JSON.parse(localStorage.getItem("selectedFoods") || "[]");
   const [formData, setFormData] = useState<CreateActivityForm>({
-  activity_name: "",
-  presenter_company_name: "",
-  description: "",
-  type: "Soft",
-  seat: 0,
-  recieve_hours: 0,
-  event_format: "Onsite",
-  activity_status: "Private",
-  activity_state: "Not Start",
-  create_activity_date: "",
-  last_update_activity_date: "",
-  start_register_date: "",
-  special_start_register_date: "",
-  end_register_date: "",
-  start_activity_date: "",
-  end_activity_date: "",
-  image_url: "",
-  assessment_id: undefined,
-  room_id: undefined,
-  start_assessment: "",
-  end_assessment: "",
-  status: "Active",
-  url: "",
-  selectedFoods: savedFoods,
-});
+    activity_name: "",
+    presenter_company_name: "",
+    description: "",
+    type: "Soft",
+    seat: 0,
+    recieve_hours: 0,
+    event_format: "Onsite",
+    activity_status: "Private",
+    activity_state: "Not Start",
+    create_activity_date: "",
+    last_update_activity_date: "",
+    start_register_date: "",
+    special_start_register_date: "",
+    end_register_date: "",
+    start_activity_date: "",
+    end_activity_date: "",
+    image_url: "",
+    assessment_id: undefined,
+    room_id: undefined,
+    start_assessment: "",
+    end_assessment: "",
+    status: "Active",
+    url: "",
+    selectedFoods: savedFoods,
+  });
 
-
+  const location = useLocation();
+  const fromPage = location.state?.from ?? 'list'; // fallback เป็น list
   const navigate = useNavigate();
   const { assessments, fetchAssessments } = useAssessmentStore();
   const foods = useFoodStore((state) => state.foods); // ✅ ต้องมีตรงนี้ก่อน
   const fetchFoods = useFoodStore((state) => state.fetchFoods);
-  const { 
-    rooms, 
-    fetchRooms, 
-    roomConflicts, 
-    checkingAvailability, 
+  const {
+    rooms,
+    fetchRooms,
+    roomConflicts,
+    checkingAvailability,
     checkRoomConflicts,
-    clearAvailabilityCheck 
+    clearAvailabilityCheck
   } = useRoomStore();
 
-useEffect(() => {
-  fetchRooms(); // ✅ โหลดข้อมูลห้องเมื่อ component mount
-}, []);
+  useEffect(() => {
+    fetchRooms(); // ✅ โหลดข้อมูลห้องเมื่อ component mount
+  }, []);
 
-useEffect(() => {
-  fetchFoods(); // ✅ เรียก API หรือโหลดรายการอาหาร
-}, []);
+  useEffect(() => {
+    fetchFoods(); // ✅ เรียก API หรือโหลดรายการอาหาร
+  }, []);
 
-useEffect(() => {
+  useEffect(() => {
     fetchAssessments(); // ✅ โหลดข้อมูลเมื่อ component mount
   }, []);
 
@@ -138,40 +142,40 @@ useEffect(() => {
   // };
 
   const handleFloorChange = (event: SelectChangeEvent) => {
-  setSelectedFloor(event.target.value);
-  setSelectedRoom("");
-  // ✅ ไม่รีเซ็ต seatCapacity เพื่อให้สามารถกำหนดเองได้สำหรับ Online
-  if (formData.event_format !== "Online") {
-    setSeatCapacity("");
-  }
-};
+    setSelectedFloor(event.target.value);
+    setSelectedRoom("");
+    // ✅ ไม่รีเซ็ต seatCapacity เพื่อให้สามารถกำหนดเองได้สำหรับ Online
+    if (formData.event_format !== "Online") {
+      setSeatCapacity("");
+    }
+  };
 
   const handleRoomChange = (event: SelectChangeEvent) => {
-  const roomName = event.target.value;
-  setSelectedRoom(roomName);
+    const roomName = event.target.value;
+    setSelectedRoom(roomName);
 
-  const selectedRoomObj = filteredRooms.find((r) => r.room_name === roomName);
-  const newSeatCapacity = selectedRoomObj?.seat_number ?? "";
+    const selectedRoomObj = filteredRooms.find((r) => r.room_name === roomName);
+    const newSeatCapacity = selectedRoomObj?.seat_number ?? "";
 
-  setSeatCapacity(newSeatCapacity.toString());
+    setSeatCapacity(newSeatCapacity.toString());
 
-  setFormData((prev) => ({
-    ...prev,
-    room_id: selectedRoomObj?.room_id,
-    seat: typeof newSeatCapacity === "string"
-      ? parseInt(newSeatCapacity)
-      : newSeatCapacity, // ✅ แปลงให้เป็น number
-  }));
+    setFormData((prev) => ({
+      ...prev,
+      room_id: selectedRoomObj?.room_id,
+      seat: typeof newSeatCapacity === "string"
+        ? parseInt(newSeatCapacity)
+        : newSeatCapacity, // ✅ แปลงให้เป็น number
+    }));
 
-  // ✅ ตรวจสอบ room conflicts เมื่อเลือกห้องและมีวันที่เวลา
-  if (selectedRoomObj?.room_id && formData.start_activity_date && formData.end_activity_date) {
-    checkRoomConflicts(
-      selectedRoomObj.room_id,
-      formData.start_activity_date,
-      formData.end_activity_date
-    );
-  }
-};
+    // ✅ ตรวจสอบ room conflicts เมื่อเลือกห้องและมีวันที่เวลา
+    if (selectedRoomObj?.room_id && formData.start_activity_date && formData.end_activity_date) {
+      checkRoomConflicts(
+        selectedRoomObj.room_id,
+        formData.start_activity_date,
+        formData.end_activity_date
+      );
+    }
+  };
 
 
 
@@ -216,15 +220,15 @@ useEffect(() => {
     }
 
     // ✅ ตรวจสอบ room conflicts ก่อนบันทึก
-    if (formData.event_format === "Onsite" && formData.room_id && 
-        formData.start_activity_date && formData.end_activity_date) {
+    if (formData.event_format === "Onsite" && formData.room_id &&
+      formData.start_activity_date && formData.end_activity_date) {
       try {
         const conflicts = await roomService.getRoomConflicts(
           formData.room_id,
           formData.start_activity_date,
           formData.end_activity_date
         );
-        
+
         if (conflicts.length > 0) {
           toast.error("ห้องที่เลือกถูกใช้งานในช่วงเวลานี้ กรุณาเลือกห้องอื่นหรือเปลี่ยนเวลา");
           return;
@@ -260,7 +264,7 @@ useEffect(() => {
       const start = dayjs(formData.start_activity_date);
       const end = dayjs(formData.end_activity_date);
       const duration = end.diff(start, "hour", true);
-      
+
       if (duration < 1) {
         toast.error("❌ วันและเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง");
         return;
@@ -293,27 +297,27 @@ useEffect(() => {
     }
 
     if (
-  isPublic &&
-  isOnsiteOrOnline &&
-  formData.end_register_date &&
-  formData.start_activity_date
-) {
-  const endReg = dayjs(formData.end_register_date).startOf("day");
-  const startAct = dayjs(formData.start_activity_date).startOf("day");
-  if (!startAct.isAfter(endReg)) {
-    toast.error("❌ วันเริ่มกิจกรรมต้องเป็นวันถัดไปหลังวันปิดลงทะเบียน (อย่างน้อย 1 วัน)");
-    return;
-  }
-}
+      isPublic &&
+      isOnsiteOrOnline &&
+      formData.end_register_date &&
+      formData.start_activity_date
+    ) {
+      const endReg = dayjs(formData.end_register_date).startOf("day");
+      const startAct = dayjs(formData.start_activity_date).startOf("day");
+      if (!startAct.isAfter(endReg)) {
+        toast.error("❌ วันเริ่มกิจกรรมต้องเป็นวันถัดไปหลังวันปิดลงทะเบียน (อย่างน้อย 1 วัน)");
+        return;
+      }
+    }
 
-if (isPublic && isOnsiteOrOnline && formData.start_assessment && formData.end_activity_date) {
-  const startAsm = dayjs(formData.start_assessment);
-  const endAct   = dayjs(formData.end_activity_date);
-  if (startAsm.isBefore(endAct)) {
-    toast.error("❌ วันที่และเวลาเปิดให้ทำแบบประเมินต้องอยู่วันที่เดียวกันหรือหลังวันที่จบกิจกรรมและเวลาต้องอยู่เท่ากับหรือหลังจากเวลาจบกิจกรรม");
-    return;
-  }
-}
+    if (isPublic && isOnsiteOrOnline && formData.start_assessment && formData.end_activity_date) {
+      const startAsm = dayjs(formData.start_assessment);
+      const endAct = dayjs(formData.end_activity_date);
+      if (startAsm.isBefore(endAct)) {
+        toast.error("❌ วันที่และเวลาเปิดให้ทำแบบประเมินต้องอยู่วันที่เดียวกันหรือหลังวันที่จบกิจกรรมและเวลาต้องอยู่เท่ากับหรือหลังจากเวลาจบกิจกรรม");
+        return;
+      }
+    }
 
     console.log("🚀 Data ที่ส่งไป store:", formData);
 
@@ -323,16 +327,16 @@ if (isPublic && isOnsiteOrOnline && formData.start_assessment && formData.end_ac
         ...formData,
         recieve_hours: acRecieveHours,
         // ✅ ส่ง foodIds เฉพาะเมื่อ event_format เป็น Onsite และกรอง foodIds ที่ถูกต้อง
-        foodIds: formData.event_format === "Onsite" ? 
-          (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ? 
+        foodIds: formData.event_format === "Onsite" ?
+          (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ?
             formData.selectedFoods.filter(foodId => foodId > 0) : []) : [],
         // ✅ ลบ selectedFoods ออกจาก request เมื่อไม่ใช่ Onsite
         selectedFoods: formData.event_format === "Onsite" ? formData.selectedFoods : [],
       };
-      
+
       const result = await createActivity(createData);
       console.log("✅ Activity created successfully:", result);
-      
+
       // ✅ ส่งคืน activity_id เพื่อใช้ในการ navigate
       return result;
     } catch (error) {
@@ -354,37 +358,37 @@ if (isPublic && isOnsiteOrOnline && formData.start_assessment && formData.end_ac
 
 
   function addFoodOption() {
-  setFormData((prev) => ({
-    ...prev,
-    selectedFoods: [...prev.selectedFoods, -1], // ✅ ใช้ -1 เป็น placeholder สำหรับ food ที่ยังไม่ได้เลือก
-  }));
-}
-
-const hasAdded = useRef(false);
-
-useEffect(() => {
-  if (
-    formData.event_format === "Onsite" &&
-    foods.length > 0 &&
-    formData.selectedFoods.length === 0 &&
-    savedFoods.length === 0 && // ✅ ต้องมี check แบบนี้
-    !hasAdded.current
-  ) {
-    hasAdded.current = true;
-    addFoodOption();
+    setFormData((prev) => ({
+      ...prev,
+      selectedFoods: [...prev.selectedFoods, -1], // ✅ ใช้ -1 เป็น placeholder สำหรับ food ที่ยังไม่ได้เลือก
+    }));
   }
-  
-  // ✅ รีเซ็ต hasAdded เมื่อเปลี่ยน event_format
-  if (formData.event_format !== "Onsite") {
-    hasAdded.current = false;
-  }
-}, [formData.event_format, foods, formData.selectedFoods]);
 
-useEffect(() => {
-  if (formData.selectedFoods.length > 0) {
-    localStorage.setItem("selectedFoods", JSON.stringify(formData.selectedFoods));
-  }
-}, [formData.selectedFoods]);
+  const hasAdded = useRef(false);
+
+  useEffect(() => {
+    if (
+      formData.event_format === "Onsite" &&
+      foods.length > 0 &&
+      formData.selectedFoods.length === 0 &&
+      savedFoods.length === 0 && // ✅ ต้องมี check แบบนี้
+      !hasAdded.current
+    ) {
+      hasAdded.current = true;
+      addFoodOption();
+    }
+
+    // ✅ รีเซ็ต hasAdded เมื่อเปลี่ยน event_format
+    if (formData.event_format !== "Onsite") {
+      hasAdded.current = false;
+    }
+  }, [formData.event_format, foods, formData.selectedFoods]);
+
+  useEffect(() => {
+    if (formData.selectedFoods.length > 0) {
+      localStorage.setItem("selectedFoods", JSON.stringify(formData.selectedFoods));
+    }
+  }, [formData.selectedFoods]);
 
 
 
@@ -392,13 +396,13 @@ useEffect(() => {
   // ฟังก์ชันแก้ไขเมนูอาหาร
 
   const updateFoodOption = (index: number, newFoodId: number) => {
-  const updated = [...formData.selectedFoods];
-  updated[index] = newFoodId;
-  setFormData((prev) => ({
-    ...prev,
-    selectedFoods: updated,
-  }));
-};
+    const updated = [...formData.selectedFoods];
+    updated[index] = newFoodId;
+    setFormData((prev) => ({
+      ...prev,
+      selectedFoods: updated,
+    }));
+  };
 
 
   // ฟังก์ชันลบเมนูอาหาร
@@ -434,40 +438,40 @@ useEffect(() => {
   // };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  if (e.target.files && e.target.files.length > 0) {
-    const file = e.target.files[0];
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!");
-      return;
+      if (!file.type.startsWith("image/")) {
+        toast.error("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น!");
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("ไฟล์ขนาดใหญ่เกินไป (ต้องไม่เกิน 5MB)");
+        return;
+      }
+
+      // ✅ แสดงตัวอย่างรูปภาพทันที
+      const localPreviewUrl = URL.createObjectURL(file);
+      setPreviewImage(localPreviewUrl);
+
+      try {
+        // ✅ อัปโหลดไปยัง Cloudinary
+        const cloudinaryUrl = await uploadImageToCloudinary(file);
+
+        // ✅ เซ็ต URL กลับเข้า formData
+        setFormData((prev) => ({
+          ...prev,
+          image_url: cloudinaryUrl,
+        }));
+
+        toast.success("📸 อัปโหลดรูปภาพสำเร็จ!");
+      } catch (error) {
+        console.error("❌ Upload failed:", error);
+        toast.error("อัปโหลดรูปภาพไม่สำเร็จ");
+      }
     }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("ไฟล์ขนาดใหญ่เกินไป (ต้องไม่เกิน 5MB)");
-      return;
-    }
-
-    // ✅ แสดงตัวอย่างรูปภาพทันที
-    const localPreviewUrl = URL.createObjectURL(file);
-    setPreviewImage(localPreviewUrl);
-
-    try {
-      // ✅ อัปโหลดไปยัง Cloudinary
-      const cloudinaryUrl = await uploadImageToCloudinary(file);
-
-      // ✅ เซ็ต URL กลับเข้า formData
-      setFormData((prev) => ({
-        ...prev,
-        image_url: cloudinaryUrl,
-      }));
-
-      toast.success("📸 อัปโหลดรูปภาพสำเร็จ!");
-    } catch (error) {
-      console.error("❌ Upload failed:", error);
-      toast.error("อัปโหลดรูปภาพไม่สำเร็จ");
-    }
-  }
-};
+  };
 
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -483,7 +487,7 @@ useEffect(() => {
 
   const handleFormChange = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
     formHandleChange(e, setFormData);
-    
+
     // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
     if (e.target.name === "event_format" && e.target.value === "Course") {
       setFormData((prev) => ({
@@ -494,7 +498,7 @@ useEffect(() => {
         end_assessment: "", // ✅ ล้างค่าวันสิ้นสุดประเมิน
       }));
     }
-    
+
     // ✅ ถ้าเปลี่ยน event_format ไม่ใช่ Onsite ให้ล้างข้อมูลอาหาร
     if (e.target.name === "event_format" && e.target.value !== "Onsite") {
       setFormData((prev) => ({
@@ -504,7 +508,7 @@ useEffect(() => {
       localStorage.removeItem("selectedFoods"); // ✅ ล้าง localStorage ด้วย
       console.log("🧹 Cleared selectedFoods for non-Onsite event format");
     }
-    
+
     // ✅ ล้าง room conflicts เมื่อเปลี่ยน event_format
     if (e.target.name === "event_format") {
       clearAvailabilityCheck();
@@ -514,7 +518,7 @@ useEffect(() => {
   // ✅ Wrapper ที่ fix setFormData
   const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
     handleDateTimeChangeBase(name, newValue, setFormData);
-    
+
     // ✅ เช็คห้องที่ว่างเฉพาะเมื่อปิด dialog เลือกวันที่และเวลา และเป็น Onsite เท่านั้น
     if (newValue && (name === "start_activity_date" || name === "end_activity_date")) {
       // รอให้ formData อัปเดตก่อน
@@ -523,12 +527,12 @@ useEffect(() => {
           ...formData,
           [name]: newValue.format("YYYY-MM-DD HH:mm:ss")
         };
-        
+
         // เช็คเฉพาะเมื่อเป็น Onsite และมีข้อมูลครบ
-        if (updatedFormData.event_format === "Onsite" && 
-            updatedFormData.room_id && 
-            updatedFormData.start_activity_date && 
-            updatedFormData.end_activity_date) {
+        if (updatedFormData.event_format === "Onsite" &&
+          updatedFormData.room_id &&
+          updatedFormData.start_activity_date &&
+          updatedFormData.end_activity_date) {
           checkRoomConflicts(
             updatedFormData.room_id,
             updatedFormData.start_activity_date,
@@ -573,7 +577,7 @@ useEffect(() => {
                     handleDateTimeChange={handleDateTimeChange}
                     backendActivityStatus="Private"
                   />
-                  
+
                 </div>
 
                 {/* แถวสอง: คำอธิบาย + วันเวลาการดำเนินกิจกรรม + จำนวนชั่วโมง */}
@@ -600,46 +604,46 @@ useEffect(() => {
                 /> */}
 
                 <div className="flex space-x-6">
-  <DescriptionSection
-    formData={formData}
-    handleChange={handleFormChange}
-  />
+                  <DescriptionSection
+                    formData={formData}
+                    handleChange={handleFormChange}
+                  />
 
-  <div className="flex flex-col space-y-3">
-    <ActivityTimeSection
-      formData={formData}
-      setFormData={setFormData}
-      handleDateTimeChange={handleDateTimeChange}
-    />
+                  <div className="flex flex-col space-y-3">
+                    <ActivityTimeSection
+                      formData={formData}
+                      setFormData={setFormData}
+                      handleDateTimeChange={handleDateTimeChange}
+                    />
 
-    <TypeAndLocationSection
-      formData={formData}
-      handleChange={(e) => handleChange(e, setFormData)}
-      setSelectedFloor={setSelectedFloor}
-      setSelectedRoom={setSelectedRoom}
-      setSeatCapacity={setSeatCapacity}
-    />
-  </div>
-</div>
+                    <TypeAndLocationSection
+                      formData={formData}
+                      handleChange={(e) => handleChange(e, setFormData)}
+                      setSelectedFloor={setSelectedFloor}
+                      setSelectedRoom={setSelectedRoom}
+                      setSeatCapacity={setSeatCapacity}
+                    />
+                  </div>
+                </div>
 
 
-<div className="flex space-x-6">
-                <RoomSelectionSection
-                  formData={formData}
-                  selectedFloor={selectedFloor}
-                  selectedRoom={selectedRoom}
-                  rooms={rooms}
-                  handleFloorChange={handleFloorChange}
-                  handleRoomChange={handleRoomChange}
-                  handleChange={handleFormChange}
-                  seatCapacity={seatCapacity}
-                  setSeatCapacity={setSeatCapacity}
-                  roomConflicts={roomConflicts}
-                  checkingAvailability={checkingAvailability}
-                  hasTimeConflict={roomConflicts.length > 0}
-                />
+                <div className="flex space-x-6">
+                  <RoomSelectionSection
+                    formData={formData}
+                    selectedFloor={selectedFloor}
+                    selectedRoom={selectedRoom}
+                    rooms={rooms}
+                    handleFloorChange={handleFloorChange}
+                    handleRoomChange={handleRoomChange}
+                    handleChange={handleFormChange}
+                    seatCapacity={seatCapacity}
+                    setSeatCapacity={setSeatCapacity}
+                    roomConflicts={roomConflicts}
+                    checkingAvailability={checkingAvailability}
+                    hasTimeConflict={roomConflicts.length > 0}
+                  />
 
-                <ActivityLink formData={formData} handleChange={handleFormChange} />
+                  <ActivityLink formData={formData} handleChange={handleFormChange} />
                 </div>
 
                 <StatusAndSeatSection
@@ -658,20 +662,20 @@ useEffect(() => {
                   updateFoodOption={updateFoodOption}
                 /> */}
 
-<div className="mt-6 max-w-xl w-full">
-  <label className="block font-semibold">อาหาร *</label>
-  <FoodMultiSelect
-    foods={foods}
-    selectedFoodIds={formData.selectedFoods}
-    setSelectedFoodIds={(newIds) => {
-      localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
-      setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
-    }}
-    disabled={formData.event_format !== "Onsite"}
-  />
-</div>
+                <div className="mt-6 max-w-xl w-full">
+                  <label className="block font-semibold">อาหาร *</label>
+                  <FoodMultiSelect
+                    foods={foods}
+                    selectedFoodIds={formData.selectedFoods}
+                    setSelectedFoodIds={(newIds) => {
+                      localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
+                      setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
+                    }}
+                    disabled={formData.event_format !== "Onsite"}
+                  />
+                </div>
 
-                
+
 
                 <AssessmentSection
                   formData={formData}
@@ -689,10 +693,11 @@ useEffect(() => {
                   formStatus={formData.activity_status ?? "Private"}
                   isModalOpen={isModalOpen}
                   setIsModalOpen={setIsModalOpen}
+                   fromPage={fromPage} // ✅ เพิ่มตรงนี้
                   onSubmit={async () => {
                     // ✅ สร้าง fake event object ที่มี preventDefault method
                     const fakeEvent = {
-                      preventDefault: () => {},
+                      preventDefault: () => { },
                     } as React.FormEvent;
                     return await handleSubmit(fakeEvent);
                   }}
@@ -709,7 +714,7 @@ useEffect(() => {
                   }}
                 />
               </div>
-              
+
             </form>
           </div>
         </Box>

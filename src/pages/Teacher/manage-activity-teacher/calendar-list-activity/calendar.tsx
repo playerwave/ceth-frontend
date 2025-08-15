@@ -1,26 +1,27 @@
-
-
-
 import React, { useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { useActivityStore } from '../../../../stores/Teacher/activity.store.teacher'
+import { useActivityStore } from '../../../../stores/Teacher/activity.store.teacher';
+import { useNavigate } from 'react-router-dom';
+import { useSecureLink } from '../../../../routes/secure/SecureRoute';
 
 const CalendarPage = () => {
     const { activities, fetchActivities } = useActivityStore();
+    const { createSecureLink } = useSecureLink();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchActivities(); // โหลดกิจกรรมทั้งหมด
     }, []);
 
-    // กรองเฉพาะกิจกรรมที่เป็น Public และมีวันเริ่มกิจกรรม
+    // กรองเฉพาะกิจกรรมที่เป็น Public และมีวันเริ่ม
     const publicEvents = activities
         .filter((a) => a.activity_status === 'Public' && a.start_activity_date)
         .map((a) => ({
             id: a.activity_id.toString(),
             title: a.activity_name,
-            date: a.start_activity_date.split('T')[0], // แปลงเป็น YYYY-MM-DD
+            date: a.start_activity_date.split('T')[0],
             extendedProps: {
                 presenter: a.presenter_company_name,
                 type: a.type,
@@ -28,6 +29,9 @@ const CalendarPage = () => {
                 url: a.url,
             },
         }));
+
+    // ใช้สำหรับจับ double-click บนวันที่ว่าง
+    let lastClickTime = 0;
 
     return (
         <div className="w-[1000px] h-[700px] p-4 bg-white shadow rounded">
@@ -37,9 +41,45 @@ const CalendarPage = () => {
                 editable={false}
                 events={publicEvents}
                 height="100%"
-                eventClick={(info) => {
-                    const { title, extendedProps } = info.event;
-                    alert(`กิจกรรม: ${title}\nบริษัท: ${extendedProps.presenter}`);
+
+                // ✅ Double-click บนกิจกรรม → ไปหน้าอัปเดตแบบเข้ารหัส
+                eventDidMount={(info) => {
+                    info.el.addEventListener('dblclick', () => {
+                        const id = info.event.id;
+                        if (id) {
+                            const encryptedUrl = createSecureLink('/update-activity-admin', {
+                                id: Number(id),
+                                name: 'Update Activity',
+                                type: 'update',
+                                isActive: true,
+                                timestamp: Date.now(),
+                                from: 'calendar', // / ✅ ส่งต้นทาง
+
+                            });
+                            window.location.href = encryptedUrl;
+                        }
+                    });
+                }}
+
+                // ✅ Double-click บนวันที่ว่าง → ไปหน้า create แบบไม่เข้ารหัส
+                dateClick={(info) => {
+                    const now = Date.now();
+                    if (now - lastClickTime < 400) {
+                        const clickedDate = info.date;
+                        const yyyyMMdd = clickedDate.toISOString().split('T')[0];
+
+                        const startDate = `${yyyyMMdd}T09:00:00`;
+                        const endDate = `${yyyyMMdd}T16:00:00`;
+
+                        navigate('/create-activity-admin', {
+                            state: {
+                                start_activity_date: startDate,
+                                end_activity_date: endDate,
+                                from: 'calendar', // ✅ ส่งต้นทาง
+                            },
+                        });
+                    }
+                    lastClickTime = now;
                 }}
             />
         </div>

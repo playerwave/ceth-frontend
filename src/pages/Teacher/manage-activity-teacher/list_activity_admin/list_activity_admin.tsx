@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Activity } from "../../../../types/model";
 
@@ -38,7 +38,7 @@ import Calendar from "../calendar-list-activity/calendar";
 const ListActivityTeacher: React.FC = () => {
   const navigate = useNavigate();
   const { createSecureLink } = useSecureLink();
-  
+
   const {
     activities,
     searchResults,
@@ -62,13 +62,25 @@ const ListActivityTeacher: React.FC = () => {
   }, [fetchActivities]);
 
   const displayedActivities = searchResults ?? activities;
+
+
   
+  // ✅ ตรวจสอบว่า location.state มี tab หรือไม่ เพื่อได้รู้ว่ามาจากหน้าปฏิทินหรือไม่
+  const location = useLocation();
+  useEffect(() => {
+    const tabFromState = location.state?.tab;
+    if (tabFromState === "calendar" || tabFromState === "list") {
+      setActiveTab(tabFromState); // ✅ set tab ตามที่ส่งกลับมา
+    }
+  }, [location.state]);
+
+
   // กิจกรรมสหกิจ: Public และยังไม่ถึง start_assessment หรือไม่มี assessment dates
   const publicActivities = displayedActivities.filter((a) => {
     const isPublic = a.activity_status === "Public";
     const hasStartAssessment = a.start_assessment !== null && a.start_assessment !== undefined;
     const hasEndAssessment = a.end_assessment !== null && a.end_assessment !== undefined;
-    
+
     // ถ้าไม่มี assessment dates เลย ให้แสดงในตารางนี้
     if (!hasStartAssessment || !hasEndAssessment) {
       if (import.meta.env.DEV) {
@@ -82,12 +94,12 @@ const ListActivityTeacher: React.FC = () => {
       }
       return isPublic;
     }
-    
+
     // ถ้ามี assessment dates ให้ตรวจสอบเวลา
     const now = new Date();
     const startAssessmentDate = a.start_assessment ? new Date(a.start_assessment) : null;
     const notReachedAssessment = startAssessmentDate ? now < startAssessmentDate : false;
-    
+
     // Debug log
     if (import.meta.env.DEV) {
       console.log(`🔍 Activity: ${a.activity_name}`, {
@@ -101,14 +113,14 @@ const ListActivityTeacher: React.FC = () => {
         reason: "Time-based filtering"
       });
     }
-    
+
     return isPublic && notReachedAssessment;
   });
-  
+
   const privateActivities = displayedActivities.filter(
     (a) => a.activity_status === "Private",
   );
-  
+
   // กิจกรรมที่ให้นิสิตทำแบบประเมิน: Public, Active, และถึงเวลา start_assessment แต่ยังไม่ผ่าน end_assessment
   const activitiesEvaluate = displayedActivities.filter((a) => {
     // ต้องเป็น Public และ Active
@@ -123,15 +135,15 @@ const ListActivityTeacher: React.FC = () => {
     const hasStartAssessment = a.start_assessment !== null && a.start_assessment !== undefined;
     const hasEndAssessment = a.end_assessment !== null && a.end_assessment !== undefined;
     if (!hasStartAssessment || !hasEndAssessment || !a.start_assessment || !a.end_assessment) return false;
-    
+
     const now = new Date();
     const startAssessmentDate = new Date(a.start_assessment);
     const endAssessmentDate = new Date(a.end_assessment);
-    
+
     // ต้องถึงเวลา start_assessment และยังไม่ผ่าน end_assessment
     const hasReachedStart = now >= startAssessmentDate;
     const hasNotPassedEnd = now <= endAssessmentDate;
-    
+
     // Debug log
     if (import.meta.env.DEV) {
       console.log(`🔍 Assessment Activity: ${a.activity_name}`, {
@@ -148,7 +160,7 @@ const ListActivityTeacher: React.FC = () => {
         included: hasReachedStart && hasNotPassedEnd
       });
     }
-    
+
     return hasReachedStart && hasNotPassedEnd;
   });
 
@@ -190,10 +202,10 @@ const ListActivityTeacher: React.FC = () => {
               isActive: true,
               timestamp: Date.now(),
             });
-            
+
             console.log("🔄 Navigating to update activity:", activity.activity_id);
             console.log("🔐 Generated update URL:", encryptedUrl);
-            
+
             window.location.href = encryptedUrl;
           },
         });
@@ -202,7 +214,7 @@ const ListActivityTeacher: React.FC = () => {
     } else {
       // เปลี่ยนจาก Private เป็น Public
       const validation = validatePrivateToPublic(activity);
-      
+
       if (!validation.isValid) {
         console.log("❌ Private to Public validation failed:", validation.reason);
         setDialog({
@@ -223,11 +235,11 @@ const ListActivityTeacher: React.FC = () => {
               targetStatus: "Public", // ต้องการเปลี่ยนเป็น Public
               showValidationErrors: true, // แสดงข้อความ error
             });
-            
+
             console.log("🔄 Navigating to update activity:", activity.activity_id);
             console.log("🔐 Generated update URL:", encryptedUrl);
             console.log("🔍 Validation error reason:", validation.reason);
-            
+
             window.location.href = encryptedUrl;
           },
         });
@@ -316,16 +328,15 @@ const ListActivityTeacher: React.FC = () => {
           </div>
         )} */}
 
-                <div className="flex flex-wrap justify-between items-center gap-2 mb-6 w-full">
+        <div className="flex flex-wrap justify-between items-center gap-2 mb-6 w-full">
           <div className="flex space-x-4">
             {(["list", "calendar"] as const).map((tab) => (
               <button
                 key={tab}
-                className={`px-4 py-2 text-lg font-semibold ${
-                  activeTab === tab
+                className={`px-4 py-2 text-lg font-semibold ${activeTab === tab
                     ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
                     : "text-gray-500"
-                }`}
+                  }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tab === "list" ? "ลิสต์" : "ปฏิทิน"}
@@ -336,37 +347,37 @@ const ListActivityTeacher: React.FC = () => {
           <button
             className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90"
             onClick={() =>
-              navigate("/create-activity-admin", { state: { reload: true } })
+              navigate("/create-activity-admin", { state: { reload: true, from: 'list' } })
             }
           >
             เพิ่มกิจกรรม <CopyPlus className="w-4 h-4" />
           </button>
         </div>
 
-      {activityLoading ? (
-        <div className="fixed inset-0 flex justify-center ml-10 items-center bg-white bg-opacity-50 z-40">
-          <Loading />
-        </div>
-      ) : activityError ? (
-        <p className="text-center text-red-500 p-4">
-          ❌ เกิดข้อผิดพลาด: {activityError}
-        </p>
-      ) : displayedActivities.length === 0 ? (
-        <p className="text-center text-gray-500 p-4">
-          📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
-        </p>
-      ) : activeTab === "list" ? (
-        <ActivityTablePage
-          rows1={publicActivities}
-          rows2={privateActivities}
-          rows3={activitiesEvaluate}
-          handleStatusToggle={handleStatusToggle}
-          createSecureLink={createSecureLink}
-        />
-      ) : (
-        <div className="text-center text-gray-500 p-6">
-         <Calendar/>
-        </div>
+        {activityLoading ? (
+          <div className="fixed inset-0 flex justify-center ml-10 items-center bg-white bg-opacity-50 z-40">
+            <Loading />
+          </div>
+        ) : activityError ? (
+          <p className="text-center text-red-500 p-4">
+            ❌ เกิดข้อผิดพลาด: {activityError}
+          </p>
+        ) : displayedActivities.length === 0 ? (
+          <p className="text-center text-gray-500 p-4">
+            📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
+          </p>
+        ) : activeTab === "list" ? (
+          <ActivityTablePage
+            rows1={publicActivities}
+            rows2={privateActivities}
+            rows3={activitiesEvaluate}
+            handleStatusToggle={handleStatusToggle}
+            createSecureLink={createSecureLink}
+          />
+        ) : (
+          <div className="text-center text-gray-500 p-6">
+            <Calendar />
+          </div>
         )}
 
         {dialog && (

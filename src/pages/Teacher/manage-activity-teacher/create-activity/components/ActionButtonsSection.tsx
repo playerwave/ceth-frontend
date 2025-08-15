@@ -4,6 +4,7 @@ import ConfirmDialog from "../../../../../components/ConfirmDialog";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
+  fromPage?: string;
   formStatus: string;
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 const ActionButtonsSection: React.FC<Props> = ({
+  fromPage, // ✅ เพิ่มตรงนี้
   formStatus,
   isModalOpen,
   setIsModalOpen,
@@ -106,7 +108,14 @@ const ActionButtonsSection: React.FC<Props> = ({
         <Button
           type="button"
           bgColor="red"
-          onClick={() => navigate("/list-activity-admin")}
+          onClick={() => {
+            if (fromPage === 'calendar') {
+              navigate('/list-activity-admin', { state: { tab: 'calendar' } }); // ✅ กลับไป tab calendar
+            } else {
+              navigate('/list-activity-admin', { state: { tab: 'list' } }); // ✅ กลับไป tab list
+            }
+          }}
+
         >
           ยกเลิก
         </Button>

@@ -53,37 +53,38 @@ const CreateActivityAdmin: React.FC = () => {
   const { createSecureLink } = useSecureLink();
   const savedFoods = JSON.parse(localStorage.getItem("selectedFoods") || "[]");
   const [formData, setFormData] = useState<CreateActivityForm>({
-  activity_id: undefined,
-  activity_name: "",
-  presenter_company_name: "",
-  description: "",
-  type: "Soft",
-  seat: undefined,
-  recieve_hours: 0,
-  event_format: "Onsite",
-  activity_status: "Private",
-  activity_state: "Not Start",
-  create_activity_date: "",
-  last_update_activity_date: "",
-  start_register_date: "",
-  special_start_register_date: "",
-  end_register_date: "",
-  start_activity_date: "",
-  end_activity_date: "",
-  image_url: "",
-  assessment_id: undefined,
-  room_id: undefined,
-  start_assessment: "",
-  end_assessment: "",
-  status: "Active",
-  url: "",
-  selectedFoods: savedFoods,
-});
+    activity_id: undefined,
+    activity_name: "",
+    presenter_company_name: "",
+    description: "",
+    type: "Soft",
+    seat: undefined,
+    recieve_hours: 0,
+    event_format: "Onsite",
+    activity_status: "Private",
+    activity_state: "Not Start",
+    create_activity_date: "",
+    last_update_activity_date: "",
+    start_register_date: "",
+    special_start_register_date: "",
+    end_register_date: "",
+    start_activity_date: "",
+    end_activity_date: "",
+    image_url: "",
+    assessment_id: undefined,
+    room_id: undefined,
+    start_assessment: "",
+    end_assessment: "",
+    status: "Active",
+    url: "",
+    selectedFoods: savedFoods,
+  });
 
   const navigate = useNavigate();
   const location = useLocation();
   const params = useSecureParams();
-  
+const secureParams = useSecureParams();
+const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
   // 🔐 ดึง ID จาก URL ที่เข้ารหัส
   const finalActivityId = extractSecureParam(params, 'id', 0);
 
@@ -99,16 +100,16 @@ const CreateActivityAdmin: React.FC = () => {
   const shouldRestrictEditing = () => {
     // ตรวจสอบว่าเป็น Public หรือไม่
     if (backendActivityStatus !== "Public") return false;
-    
+
     // ตรวจสอบ activity_state
     if (activity?.activity_state === "Start Assessment") return true;
-    
+
     // ตรวจสอบเวลา start_assessment
     if (formData.start_assessment) {
       const now = dayjs();
       const startAssessment = dayjs(formData.start_assessment);
       const endAssessment = formData.end_assessment ? dayjs(formData.end_assessment) : null;
-      
+
       // ถ้าถึงหรือเลย start_assessment แต่ยังไม่เลย end_assessment
       if (now.isAfter(startAssessment) || now.isSame(startAssessment)) {
         // ถ้ายังไม่เลย end_assessment ให้จำกัดการแก้ไข
@@ -117,14 +118,14 @@ const CreateActivityAdmin: React.FC = () => {
         }
       }
     }
-    
+
     return false;
   };
 
   // ✅ ฟังก์ชันตรวจสอบว่าแก้ไขได้หรือไม่ (อัปเดต)
   const isFieldEditable = (fieldName: string) => {
     if (!shouldRestrictEditing()) return true; // ถ้าไม่จำกัดการแก้ไข แก้ไขได้ทุก field
-    
+
     // ถ้าจำกัดการแก้ไข แก้ไขได้แค่ end_assessment
     return fieldName === 'end_assessment';
   };
@@ -132,13 +133,13 @@ const CreateActivityAdmin: React.FC = () => {
   const { assessments, fetchAssessments } = useAssessmentStore();
   const foods = useFoodStore((state) => state.foods); // ✅ ต้องมีตรงนี้ก่อน
   const fetchFoods = useFoodStore((state) => state.fetchFoods);
-  const { 
-    rooms, 
-    fetchRooms, 
-    roomConflicts, 
-    checkingAvailability, 
+  const {
+    rooms,
+    fetchRooms,
+    roomConflicts,
+    checkingAvailability,
     checkRoomConflicts,
-    clearAvailabilityCheck 
+    clearAvailabilityCheck
   } = useRoomStore();
 
   // ✅ ดึงข้อมูล activity เมื่อ component mount
@@ -155,31 +156,31 @@ const CreateActivityAdmin: React.FC = () => {
       console.log("📝 Populating form with activity data:", activity);
       console.log("🍽️ Activity foods:", (activity as any).foods);
       console.log("🍽️ Activity activityFood:", (activity as any).activityFood);
-      
+
       // 🔍 ตรวจสอบข้อมูล validation จาก URL
       const urlValidationError = extractSecureParam(params, 'validationError', '');
       const urlTargetStatus = extractSecureParam(params, 'targetStatus', '');
       const urlShowValidationErrors = extractSecureParam(params, 'showValidationErrors', false);
-      
+
       console.log("🔍 Validation data from URL:", {
         urlValidationError,
         urlTargetStatus,
         urlShowValidationErrors
       });
-      
+
       // เซ็ตค่า state สำหรับ validation
       setValidationError(urlValidationError);
       setTargetStatus(urlTargetStatus);
       setShowValidationErrors(urlShowValidationErrors);
-      
+
       // เก็บ activity_status จาก Backend
       setBackendActivityStatus(activity.activity_status || "Private");
-      
+
       // ถ้ามี validation error และต้องการเปลี่ยนเป็น Public ให้ตั้งค่า activity_status เป็น Public
-      const initialActivityStatus = (urlShowValidationErrors && urlTargetStatus && urlTargetStatus === "Public") 
-        ? "Public" 
+      const initialActivityStatus = (urlShowValidationErrors && urlTargetStatus && urlTargetStatus === "Public")
+        ? "Public"
         : (activity.activity_status || "Private");
-      
+
       setFormData({
         activity_id: activity.activity_id,
         activity_name: activity.activity_name || "",
@@ -250,14 +251,14 @@ const CreateActivityAdmin: React.FC = () => {
   // };
 
   useEffect(() => {
-  fetchRooms(); // ✅ โหลดข้อมูลห้องเมื่อ component mount
-}, []);
+    fetchRooms(); // ✅ โหลดข้อมูลห้องเมื่อ component mount
+  }, []);
 
-useEffect(() => {
-  fetchFoods(); // ✅ เรียก API หรือโหลดรายการอาหาร
-}, []);
+  useEffect(() => {
+    fetchFoods(); // ✅ เรียก API หรือโหลดรายการอาหาร
+  }, []);
 
-useEffect(() => {
+  useEffect(() => {
     fetchAssessments(); // ✅ โหลดข้อมูลเมื่อ component mount
   }, []);
 
@@ -269,12 +270,12 @@ useEffect(() => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // ✅ เพิ่ม state สำหรับ dialog ลบ
-  
+
   // ✅ เพิ่ม state สำหรับ validation
   const [validationError, setValidationError] = useState<string>('');
   const [targetStatus, setTargetStatus] = useState<string>('');
   const [showValidationErrors, setShowValidationErrors] = useState<boolean>(false);
-  
+
   // ✅ เพิ่ม state สำหรับเก็บ error และ activity_status จาก Backend
   const [backendActivityStatus, setBackendActivityStatus] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -311,38 +312,38 @@ useEffect(() => {
   // };
 
   const handleFloorChange = (event: SelectChangeEvent) => {
-  setSelectedFloor(event.target.value);
-  setSelectedRoom("");
-  setSeatCapacity("");
-};
+    setSelectedFloor(event.target.value);
+    setSelectedRoom("");
+    setSeatCapacity("");
+  };
 
-const handleRoomChange = (event: SelectChangeEvent) => {
-  const roomName = event.target.value;
-  setSelectedRoom(roomName);
+  const handleRoomChange = (event: SelectChangeEvent) => {
+    const roomName = event.target.value;
+    setSelectedRoom(roomName);
 
-  const selectedRoomObj = filteredRooms.find((r) => r.room_name === roomName);
-  const newSeatCapacity = selectedRoomObj?.seat_number ?? "";
+    const selectedRoomObj = filteredRooms.find((r) => r.room_name === roomName);
+    const newSeatCapacity = selectedRoomObj?.seat_number ?? "";
 
-  setSeatCapacity(newSeatCapacity.toString());
+    setSeatCapacity(newSeatCapacity.toString());
 
-  setFormData((prev) => ({
-    ...prev,
-    room_id: selectedRoomObj?.room_id,
-    seat: typeof newSeatCapacity === "string"
-      ? parseInt(newSeatCapacity)
-      : newSeatCapacity, // ✅ แปลงให้เป็น number
-  }));
+    setFormData((prev) => ({
+      ...prev,
+      room_id: selectedRoomObj?.room_id,
+      seat: typeof newSeatCapacity === "string"
+        ? parseInt(newSeatCapacity)
+        : newSeatCapacity, // ✅ แปลงให้เป็น number
+    }));
 
-  // ✅ ตรวจสอบ room conflicts เมื่อเลือกห้องและมีวันที่เวลา
-  if (selectedRoomObj?.room_id && formData.start_activity_date && formData.end_activity_date) {
-    checkRoomConflicts(
-      selectedRoomObj.room_id,
-      formData.start_activity_date,
-      formData.end_activity_date,
-      finalActivityId // ✅ ส่ง activity_id เพื่อ exclude กิจกรรมปัจจุบัน
-    );
-  }
-};
+    // ✅ ตรวจสอบ room conflicts เมื่อเลือกห้องและมีวันที่เวลา
+    if (selectedRoomObj?.room_id && formData.start_activity_date && formData.end_activity_date) {
+      checkRoomConflicts(
+        selectedRoomObj.room_id,
+        formData.start_activity_date,
+        formData.end_activity_date,
+        finalActivityId // ✅ ส่ง activity_id เพื่อ exclude กิจกรรมปัจจุบัน
+      );
+    }
+  };
 
 
 
@@ -383,15 +384,15 @@ const handleRoomChange = (event: SelectChangeEvent) => {
 
     // ✅ เรียก validateForm และเก็บผลลัพธ์
     const isValid = validateForm(formData, setErrors, !!finalActivityId);
-    
+
     if (!isValid) {
       // ✅ useEffect จะจัดการแสดง error toast ให้
       return;
     }
 
     // ✅ ตรวจสอบ room conflicts ก่อนบันทึก
-    if (formData.event_format === "Onsite" && formData.room_id && 
-        formData.start_activity_date && formData.end_activity_date) {
+    if (formData.event_format === "Onsite" && formData.room_id &&
+      formData.start_activity_date && formData.end_activity_date) {
       try {
         const conflicts = await roomService.getRoomConflicts(
           formData.room_id,
@@ -399,7 +400,7 @@ const handleRoomChange = (event: SelectChangeEvent) => {
           formData.end_activity_date,
           finalActivityId // ✅ ส่ง activity_id เพื่อ exclude กิจกรรมปัจจุบัน
         );
-        
+
         if (conflicts.length > 0) {
           toast.error("ห้องที่เลือกถูกใช้งานในช่วงเวลานี้ กรุณาเลือกห้องอื่นหรือเปลี่ยนเวลา");
           return;
@@ -435,7 +436,7 @@ const handleRoomChange = (event: SelectChangeEvent) => {
       const start = dayjs(formData.start_activity_date);
       const end = dayjs(formData.end_activity_date);
       const duration = end.diff(start, "hour", true);
-      
+
       if (duration < 1) {
         toast.error("❌ วันและเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง");
         return;
@@ -459,7 +460,7 @@ const handleRoomChange = (event: SelectChangeEvent) => {
       if (finalActivityId) {
         // ✅ อัปเดตกิจกรรมที่มีอยู่
         console.log("🔄 Updating existing activity:", finalActivityId);
-        
+
         // ✅ เตรียมข้อมูลให้ตรงกับ backend requirements
         const updateData = {
           ...formData,
@@ -472,8 +473,8 @@ const handleRoomChange = (event: SelectChangeEvent) => {
           // แก้ไข seat ให้เป็น integer และไม่เป็น null
           seat: formData.seat ? Number(formData.seat) : 0,
           // ✅ ส่ง foodIds เฉพาะเมื่อ event_format เป็น Onsite และกรอง foodIds ที่ถูกต้อง
-          foodIds: formData.event_format === "Onsite" ? 
-            (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ? 
+          foodIds: formData.event_format === "Onsite" ?
+            (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ?
               formData.selectedFoods.filter(foodId => foodId > 0) : []) : [],
           // ✅ ลบ selectedFoods ออกจาก request เมื่อไม่ใช่ Onsite
           selectedFoods: formData.event_format === "Onsite" ? formData.selectedFoods : [],
@@ -485,48 +486,48 @@ const handleRoomChange = (event: SelectChangeEvent) => {
         }
 
         const isPublic = formData.activity_status === "Public";
-const isOnsiteOrOnline =
-  formData.event_format === "Onsite" || formData.event_format === "Online";
+        const isOnsiteOrOnline =
+          formData.event_format === "Onsite" || formData.event_format === "Online";
 
-  if (isPublic && isOnsiteOrOnline && formData.start_assessment && formData.end_activity_date) {
-  const startAsm = dayjs(formData.start_assessment);
-  const endAct   = dayjs(formData.end_activity_date);
-  if (startAsm.isBefore(endAct)) {
-    toast.error("❌ วันที่และเวลาเปิดให้ทำแบบประเมินต้องอยู่วันที่เดียวกันหรือหลังวันที่จบกิจกรรมและเวลาต้องอยู่เท่ากับหรือหลังจากเวลาจบกิจกรรม");
-    return;
-  }
-}
+        if (isPublic && isOnsiteOrOnline && formData.start_assessment && formData.end_activity_date) {
+          const startAsm = dayjs(formData.start_assessment);
+          const endAct = dayjs(formData.end_activity_date);
+          if (startAsm.isBefore(endAct)) {
+            toast.error("❌ วันที่และเวลาเปิดให้ทำแบบประเมินต้องอยู่วันที่เดียวกันหรือหลังวันที่จบกิจกรรมและเวลาต้องอยู่เท่ากับหรือหลังจากเวลาจบกิจกรรม");
+            return;
+          }
+        }
 
-if (
-  isPublic &&
-  isOnsiteOrOnline &&
-  formData.special_start_register_date &&
-  formData.start_register_date
-) {
-  const diffMinutes = dayjs(formData.start_register_date).diff(
-    dayjs(formData.special_start_register_date),
-    "minute"
-  );
-  if (diffMinutes < 60) {
-    toast.error("❌ วัน/เวลาเปิดลงทะเบียนต้องห่างจากวันลงทะเบียนพิเศษอย่างน้อย 1 ชั่วโมง");
-    return;
-  }
-}
+        if (
+          isPublic &&
+          isOnsiteOrOnline &&
+          formData.special_start_register_date &&
+          formData.start_register_date
+        ) {
+          const diffMinutes = dayjs(formData.start_register_date).diff(
+            dayjs(formData.special_start_register_date),
+            "minute"
+          );
+          if (diffMinutes < 60) {
+            toast.error("❌ วัน/เวลาเปิดลงทะเบียนต้องห่างจากวันลงทะเบียนพิเศษอย่างน้อย 1 ชั่วโมง");
+            return;
+          }
+        }
 
-if (
-  isPublic &&
-  isOnsiteOrOnline &&
-  formData.end_register_date &&
-  formData.start_activity_date
-) {
-  const endReg = dayjs(formData.end_register_date).startOf("day");
-  const startAct = dayjs(formData.start_activity_date).startOf("day");
-  if (!startAct.isAfter(endReg)) {
-    toast.error("❌ วันเริ่มกิจกรรมต้องเป็นวันถัดไปหลังวันปิดลงทะเบียน (อย่างน้อย 1 วัน)");
-    return;
-  }
-}
-        
+        if (
+          isPublic &&
+          isOnsiteOrOnline &&
+          formData.end_register_date &&
+          formData.start_activity_date
+        ) {
+          const endReg = dayjs(formData.end_register_date).startOf("day");
+          const startAct = dayjs(formData.start_activity_date).startOf("day");
+          if (!startAct.isAfter(endReg)) {
+            toast.error("❌ วันเริ่มกิจกรรมต้องเป็นวันถัดไปหลังวันปิดลงทะเบียน (อย่างน้อย 1 วัน)");
+            return;
+          }
+        }
+
         console.log("🚀 Data ที่ส่งไป store:", updateData);
         const result = await updateActivity(updateData as Activity);
         console.log("✅ Activity updated successfully:", result);
@@ -559,32 +560,32 @@ if (
 
 
   function addFoodOption() {
-  setFormData((prev) => ({
-    ...prev,
-    selectedFoods: [...prev.selectedFoods, -1], // ✅ ใช้ -1 เป็น placeholder สำหรับ food ที่ยังไม่ได้เลือก
-  }));
-}
-
-const hasAdded = useRef(false);
-
-useEffect(() => {
-  if (
-    formData.event_format === "Onsite" &&
-    foods.length > 0 &&
-    formData.selectedFoods.length === 0 &&
-    savedFoods.length === 0 && // ✅ ต้องมี check แบบนี้
-    !hasAdded.current
-  ) {
-    hasAdded.current = true;
-    addFoodOption();
+    setFormData((prev) => ({
+      ...prev,
+      selectedFoods: [...prev.selectedFoods, -1], // ✅ ใช้ -1 เป็น placeholder สำหรับ food ที่ยังไม่ได้เลือก
+    }));
   }
-}, [formData.event_format, foods, formData.selectedFoods]);
 
-useEffect(() => {
-  if (formData.selectedFoods.length > 0) {
-    localStorage.setItem("selectedFoods", JSON.stringify(formData.selectedFoods));
-  }
-}, [formData.selectedFoods]);
+  const hasAdded = useRef(false);
+
+  useEffect(() => {
+    if (
+      formData.event_format === "Onsite" &&
+      foods.length > 0 &&
+      formData.selectedFoods.length === 0 &&
+      savedFoods.length === 0 && // ✅ ต้องมี check แบบนี้
+      !hasAdded.current
+    ) {
+      hasAdded.current = true;
+      addFoodOption();
+    }
+  }, [formData.event_format, foods, formData.selectedFoods]);
+
+  useEffect(() => {
+    if (formData.selectedFoods.length > 0) {
+      localStorage.setItem("selectedFoods", JSON.stringify(formData.selectedFoods));
+    }
+  }, [formData.selectedFoods]);
 
 
 
@@ -592,13 +593,13 @@ useEffect(() => {
   // ฟังก์ชันแก้ไขเมนูอาหาร
 
   const updateFoodOption = (index: number, newFoodId: number) => {
-  const updated = [...formData.selectedFoods];
-  updated[index] = newFoodId;
-  setFormData((prev) => ({
-    ...prev,
-    selectedFoods: updated,
-  }));
-};
+    const updated = [...formData.selectedFoods];
+    updated[index] = newFoodId;
+    setFormData((prev) => ({
+      ...prev,
+      selectedFoods: updated,
+    }));
+  };
 
 
   // ฟังก์ชันลบเมนูอาหาร
@@ -656,7 +657,7 @@ useEffect(() => {
 
   const handleFormChange = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
     formHandleChange(e, setFormData);
-    
+
     // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
     if (e.target.name === "event_format" && e.target.value === "Course") {
       setFormData((prev) => ({
@@ -667,7 +668,7 @@ useEffect(() => {
         end_assessment: "", // ✅ ล้างค่าวันสิ้นสุดประเมิน
       }));
     }
-    
+
     // ✅ ถ้าเปลี่ยน event_format ไม่ใช่ Onsite ให้ล้างข้อมูลอาหาร
     if (e.target.name === "event_format" && e.target.value !== "Onsite") {
       setFormData((prev) => ({
@@ -682,7 +683,7 @@ useEffect(() => {
   // ✅ Wrapper ที่ fix setFormData และเช็คห้องที่ว่างเฉพาะตอนปิด dialog
   const handleDateTimeChange = (name: string, newValue: Dayjs | null) => {
     handleDateTimeChangeBase(name, newValue, setFormData);
-    
+
     // ✅ เช็คห้องที่ว่างเฉพาะเมื่อปิด dialog เลือกวันที่และเวลา และเป็น Onsite เท่านั้น
     if (newValue && (name === "start_activity_date" || name === "end_activity_date")) {
       // รอให้ formData อัปเดตก่อน
@@ -691,12 +692,12 @@ useEffect(() => {
           ...formData,
           [name]: newValue.format("YYYY-MM-DD HH:mm:ss")
         };
-        
+
         // เช็คเฉพาะเมื่อเป็น Onsite และมีข้อมูลครบ
-        if (updatedFormData.event_format === "Onsite" && 
-            updatedFormData.room_id && 
-            updatedFormData.start_activity_date && 
-            updatedFormData.end_activity_date) {
+        if (updatedFormData.event_format === "Onsite" &&
+          updatedFormData.room_id &&
+          updatedFormData.start_activity_date &&
+          updatedFormData.end_activity_date) {
           checkRoomConflicts(
             updatedFormData.room_id,
             updatedFormData.start_activity_date,
@@ -717,7 +718,7 @@ useEffect(() => {
       clearAvailabilityCheck();
     }
   }, [formData.event_format]);
-  
+
   // ✅ ฟังก์ชันตรวจสอบ validation เมื่อ activity_status เป็น Public
   const checkValidationForPublic = () => {
     if (formData.activity_status === "Public") {
@@ -726,11 +727,11 @@ useEffect(() => {
     }
     return true;
   };
-  
+
   // ✅ ฟังก์ชัน handleFormChange ที่เพิ่มการตรวจสอบ validation
   const handleFormChangeWithValidation = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
     formHandleChange(e, setFormData);
-    
+
     // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
     if (e.target.name === "event_format" && e.target.value === "Course") {
       setFormData((prev) => ({
@@ -741,7 +742,7 @@ useEffect(() => {
         end_assessment: "", // ✅ ล้างค่าวันสิ้นสุดประเมิน
       }));
     }
-    
+
     // ✅ ถ้าเปลี่ยน event_format ไม่ใช่ Onsite ให้ล้างข้อมูลอาหาร
     if (e.target.name === "event_format" && e.target.value !== "Onsite") {
       setFormData((prev) => ({
@@ -751,12 +752,12 @@ useEffect(() => {
       localStorage.removeItem("selectedFoods"); // ✅ ล้าง localStorage ด้วย
       console.log("🧹 Cleared selectedFoods for non-Onsite event format");
     }
-    
+
     // ✅ ล้าง room conflicts เมื่อเปลี่ยน event_format
     if (e.target.name === "event_format") {
       clearAvailabilityCheck();
     }
-    
+
     // ✅ ตรวจสอบ validation เมื่อเปลี่ยน activity_status เป็น Public
     if (e.target.name === "activity_status" && e.target.value === "Public") {
       setTimeout(() => {
@@ -764,7 +765,7 @@ useEffect(() => {
       }, 100); // รอให้ formData อัปเดตก่อน
     }
   };
-  
+
   // ✅ useEffect เพื่อตรวจสอบ validation เมื่อ formData เปลี่ยน
   useEffect(() => {
     if (backendActivityStatus === "Private" && formData.activity_status === "Public") {
@@ -801,10 +802,10 @@ useEffect(() => {
         const fieldName = fieldNameMap[field] || field;
         return `${fieldName}: ${msg}`;
       }).join('\n• ');
-      
+
       const remainingCount = errorEntries.length - 3;
       const message = `กรุณาแก้ไขข้อมูลต่อไปนี้:\n• ${errorList}${remainingCount > 0 ? `\nและอีก ${remainingCount} รายการ` : ''}`;
-      
+
       toast.error(message, {
         duration: 6000,
       });
@@ -818,14 +819,14 @@ useEffect(() => {
       const date = new Date(utcString);
       // ✅ ลดเวลา 7 ชั่วโมงจาก backend
       date.setHours(date.getHours() - 7);
-      
+
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
       const seconds = String(date.getSeconds()).padStart(2, '0');
-      
+
       const result = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
       return result;
     } catch (error) {
@@ -884,7 +885,7 @@ useEffect(() => {
                 </button>
               )}
             </div>
-            
+
             {/* ✅ แสดงข้อความแจ้งเตือนเมื่อควรจำกัดการแก้ไข */}
             {shouldRestrictEditing() && (
               <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -898,7 +899,7 @@ useEffect(() => {
                 </div>
               </div>
             )}
-            
+
             {/* ✅ แสดงข้อความแจ้งเตือนเมื่อมี validation error */}
             {/* {showValidationErrors && validationError && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -917,7 +918,7 @@ useEffect(() => {
                 </div>
               </div>
             )} */}
-            
+
             {/* ✅ แสดงข้อความแจ้งเตือนเมื่อ Backend เป็น Private แต่ select เป็น Public */}
             {backendActivityStatus === "Private" && formData.activity_status === "Public" && Object.keys(validationErrors).length > 0 && (
               <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
@@ -946,7 +947,7 @@ useEffect(() => {
                 </div>
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit} className="space-y-10 flex-grow">
               <div>
                 {/* แถวแรก: ชื่อกิจกรรม + วันเวลาปิด/เปิดลงทะเบียน */}
@@ -964,7 +965,7 @@ useEffect(() => {
                     isEditMode={false} // ✅ เปลี่ยนเป็น false เพื่อให้แสดง error
                     backendActivityStatus={backendActivityStatus} // ✅ ส่ง backend activity status
                   />
-                  
+
                 </div>
 
                 {/* แถวสอง: คำอธิบาย + วันเวลาการดำเนินกิจกรรม + จำนวนชั่วโมง */}
@@ -991,51 +992,51 @@ useEffect(() => {
     /> */}
 
                 <div className="flex space-x-6">
-  <DescriptionSection
-    formData={formData}
-    handleChange={handleFormChange}
-    disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
-  />
+                  <DescriptionSection
+                    formData={formData}
+                    handleChange={handleFormChange}
+                    disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                  />
 
-  <div className="flex flex-col space-y-3">
-    <ActivityTimeSection
-      formData={formData}
-      setFormData={setFormData}
-      handleDateTimeChange={handleDateTimeChange}
-      disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
-    />
+                  <div className="flex flex-col space-y-3">
+                    <ActivityTimeSection
+                      formData={formData}
+                      setFormData={setFormData}
+                      handleDateTimeChange={handleDateTimeChange}
+                      disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                    />
 
-    <TypeAndLocationSection
-      formData={formData}
-      handleChange={(e) => handleChange(e, setFormData)}
-      setSelectedFloor={setSelectedFloor}
-      setSelectedRoom={setSelectedRoom}
-      setSeatCapacity={setSeatCapacity}
-      disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
-    />
-  </div>
-</div>
+                    <TypeAndLocationSection
+                      formData={formData}
+                      handleChange={(e) => handleChange(e, setFormData)}
+                      setSelectedFloor={setSelectedFloor}
+                      setSelectedRoom={setSelectedRoom}
+                      setSeatCapacity={setSeatCapacity}
+                      disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                    />
+                  </div>
+                </div>
 
 
-<div className="flex space-x-6">
-                <RoomSelectionSection
-                  formData={formData}
-                  selectedFloor={selectedFloor}
-                  selectedRoom={selectedRoom}
-                  rooms={rooms}
-                  handleFloorChange={handleFloorChange}
-                  handleRoomChange={handleRoomChange}
-                  handleChange={handleFormChangeWithValidation}
-                  disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
-                  seatCapacity={seatCapacity}
-                  setSeatCapacity={setSeatCapacity}
-                  roomConflicts={roomConflicts}
-                  checkingAvailability={checkingAvailability}
-                  hasTimeConflict={roomConflicts.length > 0}
-                  currentActivityId={finalActivityId}
-                />
+                <div className="flex space-x-6">
+                  <RoomSelectionSection
+                    formData={formData}
+                    selectedFloor={selectedFloor}
+                    selectedRoom={selectedRoom}
+                    rooms={rooms}
+                    handleFloorChange={handleFloorChange}
+                    handleRoomChange={handleRoomChange}
+                    handleChange={handleFormChangeWithValidation}
+                    disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                    seatCapacity={seatCapacity}
+                    setSeatCapacity={setSeatCapacity}
+                    roomConflicts={roomConflicts}
+                    checkingAvailability={checkingAvailability}
+                    hasTimeConflict={roomConflicts.length > 0}
+                    currentActivityId={finalActivityId}
+                  />
 
-                <ActivityLink formData={formData} handleChange={handleFormChangeWithValidation} disabled={shouldRestrictEditing()} />
+                  <ActivityLink formData={formData} handleChange={handleFormChangeWithValidation} disabled={shouldRestrictEditing()} />
                 </div>
 
                 <StatusAndSeatSection
@@ -1048,19 +1049,19 @@ useEffect(() => {
                   disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                 />
 
-<div className="mt-6 max-w-xl w-full">
-  <label className="block font-semibold">อาหาร *</label>
-                <FoodMultiSelect
-  foods={foods}
-  selectedFoodIds={formData.selectedFoods}
-  setSelectedFoodIds={(newIds) => {
+                <div className="mt-6 max-w-xl w-full">
+                  <label className="block font-semibold">อาหาร *</label>
+                  <FoodMultiSelect
+                    foods={foods}
+                    selectedFoodIds={formData.selectedFoods}
+                    setSelectedFoodIds={(newIds) => {
                       console.log("🍽️ Food selection changed:", { old: formData.selectedFoods, new: newIds });
-  localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
-  setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
-}}
-disabled={formData.event_format !== "Onsite"}
-/>
-</div>
+                      localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
+                      setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
+                    }}
+                    disabled={formData.event_format !== "Onsite"}
+                  />
+                </div>
                 <AssessmentSection
                   formData={formData}
                   assessments={assessments}
@@ -1078,13 +1079,14 @@ disabled={formData.event_format !== "Onsite"}
                 <ActionButtonsSection
                   formStatus={formData.activity_status ?? "Private"}
                   isModalOpen={isModalOpen}
+                  fromPage={fromPage} // ✅ เพิ่มตรงนี้
                   setIsModalOpen={setIsModalOpen}
                   isEditMode={!!finalActivityId}
                   originalStatus={activity?.activity_status ?? "Private"}
                   onSubmit={async () => {
                     // ✅ สร้าง fake event object ที่มี preventDefault method
                     const fakeEvent = {
-                      preventDefault: () => {},
+                      preventDefault: () => { },
                     } as React.FormEvent;
                     return await handleSubmit(fakeEvent);
                   }}
@@ -1102,7 +1104,7 @@ disabled={formData.event_format !== "Onsite"}
                   }}
                 />
               </div>
-              
+
             </form>
           </div>
         </Box>
