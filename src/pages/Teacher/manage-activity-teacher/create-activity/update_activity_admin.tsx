@@ -483,6 +483,26 @@ const handleRoomChange = (event: SelectChangeEvent) => {
         if (typeof formData.image_url === 'string' && formData.image_url.trim() !== "") {
           updateData.image_url = formData.image_url;
         }
+
+        const isPublic = formData.activity_status === "Public";
+const isOnsiteOrOnline =
+  formData.event_format === "Onsite" || formData.event_format === "Online";
+
+if (
+  isPublic &&
+  isOnsiteOrOnline &&
+  formData.special_start_register_date &&
+  formData.start_register_date
+) {
+  const diffMinutes = dayjs(formData.start_register_date).diff(
+    dayjs(formData.special_start_register_date),
+    "minute"
+  );
+  if (diffMinutes < 60) {
+    toast.error("❌ วัน/เวลาเปิดลงทะเบียนต้องห่างจากวันลงทะเบียนพิเศษอย่างน้อย 1 ชั่วโมง");
+    return;
+  }
+}
         
         console.log("🚀 Data ที่ส่งไป store:", updateData);
         const result = await updateActivity(updateData as Activity);

@@ -21,7 +21,7 @@ const TypeAndLocationSection: React.FC<Props> = ({
   disabled = false,
 }) => {
   return (
-    <div className="flex space-x-6 items-center mt-6">
+    <div className="flex space-x-6 items-center mt-5">
       {/* ประเภทสถานที่ */}
       <div className="w-76">
         <label className="block font-semibold">ประเภทสถานที่จัดกิจกรรม *</label>

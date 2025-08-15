@@ -267,15 +267,29 @@ useEffect(() => {
       }
     }
 
-    // ✅ ตรวจสอบเฉพาะเมื่อ activity_status เป็น "Public"
     if (formData.activity_status === "Public" && !formData.start_register_date) {
       toast.error("กรุณาเลือกวันเวลาเริ่มลงทะเบียน");
       return;
     }
 
-    let startRegister = dayjs(formData.start_register_date ?? "").toDate();
-    if (formData.activity_status == "Public") {
-      startRegister = new Date(); // ไม่ต้องใช้ dayjs ก็ได้
+    // ✅ กฎใหม่: ถ้า Public และเป็น Onsite/Online
+    const isPublic = formData.activity_status === "Public";
+    const isOnsiteOrOnline = formData.event_format === "Onsite" || formData.event_format === "Online";
+
+    if (
+      isPublic &&
+      isOnsiteOrOnline &&
+      formData.special_start_register_date &&
+      formData.start_register_date
+    ) {
+      const diffMinutes = dayjs(formData.start_register_date).diff(
+        dayjs(formData.special_start_register_date),
+        "minute"
+      );
+      if (diffMinutes < 60) {
+        toast.error("❌ วัน/เวลาเปิดลงทะเบียนต้องห่างจากวันลงทะเบียนพิเศษอย่างน้อย 1 ชั่วโมง");
+        return;
+      }
     }
 
     console.log("🚀 Data ที่ส่งไป store:", formData);

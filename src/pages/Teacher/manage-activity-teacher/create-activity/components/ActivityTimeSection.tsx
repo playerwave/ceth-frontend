@@ -266,7 +266,7 @@ const ActivityTimeSection: React.FC<Props> = ({
     //   </div>
     // </div>
 
-<div className="grid grid-cols-1 gap-2 w-full mt-9">
+<div className="grid grid-cols-1 gap-2 w-full mt-11">
   <div>
     <label className="block font-semibold">
       วันและเวลาการดำเนินการกิจกรรม *
