@@ -438,6 +438,84 @@ const ActivityTimeSection: React.FC<Props> = ({
       </div>
     </div>
   </div>
+  <div className="w-77.5 mb-2">
+       <label className="block font-semibold">จำนวนชั่วโมงที่จะได้รับ *</label>
+        
+
+        {formData.event_format !== "Course" &&
+        formData.start_activity_date &&
+        formData.end_activity_date && (() => {
+          const startTime = dayjs(formData.start_activity_date);
+          const endTime = dayjs(formData.end_activity_date);
+          if (!startTime || !endTime) return false;
+          const lunchStart = startTime.hour(12).minute(0).second(0);
+          const lunchEnd = startTime.hour(13).minute(0).second(0);
+          const hasLunchBreak = startTime.isBefore(lunchStart) && endTime.isAfter(lunchEnd);
+          return hasLunchBreak;
+        })() && (
+          <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-600 text-sm">
+            ℹ️ ลบ 1 ชั่วโมงสำหรับพักเที่ยง (12:00-13:00)
+          </div>
+        )}
+        
+        <TextField
+          id="recieve_hours"
+          name="recieve_hours"
+          type="number"
+          placeholder="จำนวนชั่วโมงที่จะได้รับ"
+          value={
+            formData.event_format !== "Course" &&
+            formData.start_activity_date &&
+            formData.end_activity_date
+                              ? (() => {
+                  const startTime = dayjs(formData.start_activity_date);
+                  const endTime = dayjs(formData.end_activity_date);
+                  if (!startTime || !endTime) return formData.recieve_hours || "";
+                  
+                  const totalHours = endTime.diff(startTime, "hour", true);
+                  
+                  // ✅ ตรวจสอบว่ากิจกรรมคาบเกี่ยวช่วงเที่ยงหรือไม่
+                  const lunchStart = startTime.hour(12).minute(0).second(0);
+                  const lunchEnd = startTime.hour(13).minute(0).second(0);
+                  
+                  // ถ้าเริ่มก่อนเที่ยงและจบหลังเที่ยง ให้ลบ 1 ชั่วโมง
+                  const hasLunchBreak = startTime.isBefore(lunchStart) && endTime.isAfter(lunchEnd);
+                  
+                  // ✅ แปลงเป็นจำนวนเต็ม
+                  const finalHours = hasLunchBreak ? Math.max(0, totalHours - 1) : totalHours;
+                  return Math.round(finalHours);
+                })()
+              : formData.recieve_hours || ""
+          }
+          className="w-full"
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^\d*$/.test(value)) {
+              setFormData((prev: any) => ({
+                ...prev,
+                recieve_hours: value,
+              }));
+            }
+          }}
+          disabled={disabled || formData.event_format !== "Course"}
+          error={
+            formData.activity_status === "Public" &&
+            formData.event_format === "Course" &&
+            (!formData.recieve_hours ||
+              Number(formData.recieve_hours) <= 0)
+          }
+          helperText={
+            formData.activity_status === "Public" &&
+            formData.event_format === "Course" &&
+            (!formData.recieve_hours ||
+              Number(formData.recieve_hours) <= 0)
+              ? "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0"
+              : ""
+          }
+          sx={{ height: "56px" }}
+          
+        />
+      </div>
 </div>
   );
 };
