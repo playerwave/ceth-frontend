@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Searchbar from "./components/Searchbar";
+
 import FoodTable from "./components/foodtable";
 import AddFoodButton from "./components/addfoodbutton";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 import Loading from "../../../../components/Loading";
+import Searchbar from "../../../../components/Searchbar";
 
 const ListFoodAdmin = () => {
   const [searchTerm, setSearchTerm] = useState("");
