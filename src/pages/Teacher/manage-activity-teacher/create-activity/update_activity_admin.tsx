@@ -503,6 +503,20 @@ if (
     return;
   }
 }
+
+if (
+  isPublic &&
+  isOnsiteOrOnline &&
+  formData.end_register_date &&
+  formData.start_activity_date
+) {
+  const endReg = dayjs(formData.end_register_date).startOf("day");
+  const startAct = dayjs(formData.start_activity_date).startOf("day");
+  if (!startAct.isAfter(endReg)) {
+    toast.error("❌ วันเริ่มกิจกรรมต้องเป็นวันถัดไปหลังวันปิดลงทะเบียน (อย่างน้อย 1 วัน)");
+    return;
+  }
+}
         
         console.log("🚀 Data ที่ส่งไป store:", updateData);
         const result = await updateActivity(updateData as Activity);
