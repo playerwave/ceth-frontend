@@ -29,171 +29,15 @@ const AssessmentSection: React.FC<Props> = ({
   handleDateTimeChange,
   disabled = false,
 }) => {
+
+const isPublic = formData.activity_status === "Public";
+const isOnsiteOrOnline = formData.event_format === "Onsite" || formData.event_format === "Online";
+
+const endAct = formData.end_activity_date ? dayjs(formData.end_activity_date) : null;
+const startAsm = formData.start_assessment ? dayjs(formData.start_assessment) : null;
+const endAsm   = formData.end_assessment ? dayjs(formData.end_assessment) : null;
+
   return (
-    // <div className="flex space-x-6 items-center mt-6">
-    //   <div className="border-[#9D9D9D]">
-    //     <label className="block font-semibold">แบบประเมิน *</label>
-    //     <Select
-    //       labelId="assessment"
-    //       name="assessment_id"
-    //       className="w-140"
-    //       value={formData.assessment_id || ""}
-    //       onChange={handleChange}
-    //       disabled={disabled}
-    //       displayEmpty
-    //       renderValue={(selected) => {
-    //         if (!selected) return "เลือกเเบบประเมิน";
-    //         return assessments.find((a) => a.assessment_id === selected)?.assessment_name || "";
-    //       }}
-    //     >
-    //       <MenuItem disabled value="">
-    //         เลือกเเบบประเมิน
-    //       </MenuItem>
-    //       {assessments && assessments.length > 0 ? (
-    //         assessments.map((assessment) => (
-    //           <MenuItem key={assessment.assessment_id} value={assessment.assessment_id}>
-    //             {assessment.assessment_name}
-    //           </MenuItem>
-    //         ))
-    //       ) : (
-    //         <MenuItem disabled>กำลังโหลดข้อมูล...</MenuItem>
-    //       )}
-    //     </Select>
-    //   </div>
-
-    //   <div className="mt-5">
-    //     <label className="block font-semibold">
-    //       วันและเวลาเริ่มและสิ้นสุดการทำแบบประเมิน *
-    //     </label>
-
-    //     <div className="flex space-x-2 w-full">
-    //       {/* Start */}
-    //       <div className="w-1/2">
-    //         <div className="flex flex-col">
-    //           <LocalizationProvider dateAdapter={AdapterDayjs}>
-    //             <DateTimePicker
-    //               className="w-77.5"
-    //               minDate={dayjs(formData.start_activity_date)}
-    //               value={
-    //                 formData.start_assessment
-    //                   ? dayjs(formData.start_assessment)
-    //                   : null
-    //               }
-    //               onChange={(newValue) =>
-    //                 handleDateTimeChange("start_assessment", newValue)
-    //               }
-    //               disabled={disabled}
-    //               slotProps={{
-    //                 textField: {
-    //                   sx: { height: "56px" },
-    //                   error: !!(
-    //                     (formData.activity_status === "Public" && !formData.start_assessment) ||
-    //                     (formData.activity_status === "Public" &&
-    //                       formData.start_assessment &&
-    //                       ((formData.start_activity_date &&
-    //                         dayjs(formData.start_assessment)?.isBefore(
-    //                           dayjs(formData.start_activity_date),
-    //                         )) ||
-    //                         (formData.end_assessment &&
-    //                           dayjs(formData.start_assessment)?.isAfter(
-    //                             dayjs(formData.end_assessment),
-    //                           )) ||
-    //                         // ✅ เพิ่มการตรวจสอบ: start_assessment ห้ามอยู่ก่อน end_register_date
-    //                         (formData.end_register_date &&
-    //                           dayjs(formData.start_assessment)?.isBefore(
-    //                             dayjs(formData.end_register_date),
-    //                           ))))
-    //                   ),
-    //                   helperText:
-    //                     formData.activity_status === "Public" && !formData.start_assessment
-    //                       ? "❌ กรุณาเลือกวันและเวลาเริ่มการทำแบบประเมิน"
-    //                       : formData.activity_status === "Public" &&
-    //                         formData.start_assessment
-    //                         ? formData.start_activity_date &&
-    //                           dayjs(formData.start_assessment)?.isBefore(
-    //                             dayjs(formData.start_activity_date),
-    //                           )
-    //                           ? "❌ วันเปิดประเมินต้องไม่ก่อนวันเริ่มกิจกรรม"
-    //                           : formData.end_assessment &&
-    //                             dayjs(formData.start_assessment)?.isAfter(
-    //                               dayjs(formData.end_assessment),
-    //                             )
-    //                             ? "❌ วันเปิดประเมินต้องอยู่ก่อนวันปิดประเมิน"
-    //                             : formData.end_register_date &&
-    //                               dayjs(formData.start_assessment)?.isBefore(
-    //                                 dayjs(formData.end_register_date),
-    //                               )
-    //                               ? "❌ วันเปิดประเมินต้องอยู่หลังวันปิดลงทะเบียน"
-    //                               : ""
-    //                         : "",
-    //                 },
-    //               }}
-    //             />
-    //           </LocalizationProvider>
-    //         </div>
-    //         <p className="text-xs text-gray-500 mt-1">Start</p>
-    //       </div>
-
-    //       <span className="self-center font-semibold">-</span>
-
-    //       {/* End */}
-    //       <div className="w-1/2">
-    //         <div className="flex flex-col">
-    //           <LocalizationProvider dateAdapter={AdapterDayjs}>
-    //             <DateTimePicker
-    //               className="w-77.5"
-    //               minDate={dayjs(formData.start_assessment)}
-    //               value={
-    //                 formData.end_assessment
-    //                   ? dayjs(formData.end_assessment)
-    //                   : null
-    //               }
-    //               onChange={(newValue) =>
-    //                 handleDateTimeChange("end_assessment", newValue)
-    //               }
-    //               // ✅ end_assessment สามารถแก้ไขได้เสมอ แม้กิจกรรมจะเริ่มแล้ว
-    //               disabled={disabled || !formData.start_assessment}
-    //               slotProps={{
-    //                 textField: {
-    //                   sx: { height: "56px" },
-    //                   error: !!(
-    //                     (formData.activity_status === "Public" && !formData.end_assessment) ||
-    //                     (formData.activity_status === "Public" &&
-    //                       formData.end_assessment &&
-    //                       formData.start_assessment &&
-    //                       dayjs(formData.end_assessment)?.isBefore(dayjs(formData.start_assessment))) ||
-    //                     // ✅ เพิ่มการตรวจสอบ: end_assessment ห้ามอยู่ก่อน start_assessment
-    //                     (formData.end_assessment &&
-    //                       formData.start_assessment &&
-    //                       dayjs(formData.end_assessment)?.isBefore(dayjs(formData.start_assessment)))
-    //                   ),
-    //                   helperText:
-    //                     formData.activity_status === "Public" && !formData.end_assessment
-    //                       ? "❌ กรุณาเลือกวันและเวลาสิ้นสุดการทำแบบประเมิน"
-    //                       : formData.activity_status === "Public" &&
-    //                         formData.end_assessment &&
-    //                         formData.start_assessment &&
-    //                         dayjs(formData.end_assessment)?.isBefore(
-    //                           dayjs(formData.start_assessment),
-    //                         )
-    //                         ? "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน"
-    //                         : formData.end_assessment &&
-    //                           formData.start_assessment &&
-    //                           dayjs(formData.end_assessment)?.isBefore(
-    //                             dayjs(formData.start_assessment),
-    //                           )
-    //                           ? "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน"
-    //                           : "",
-    //                 },
-    //               }}
-    //             />
-    //           </LocalizationProvider>
-    //         </div>
-    //         <p className="text-xs text-gray-500 mt-1">End</p>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </div>
     <div className="flex space-x-6 items-center mt-6">
   <div className="border-[#9D9D9D]">
     <label className="block font-semibold">แบบประเมิน *</label>
@@ -236,78 +80,44 @@ const AssessmentSection: React.FC<Props> = ({
         <div className="flex flex-col">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
-              className="w-77.5"
-              minDate={formData.end_activity_date ? dayjs(formData.end_activity_date) : dayjs()}
-              value={
-                formData.start_assessment
-                  ? dayjs(formData.start_assessment)
-                  : null
-              }
-              onChange={(newValue) =>
-                handleDateTimeChange("start_assessment", newValue)
-              }
-              disabled={disabled || !formData.end_activity_date}
-              slotProps={{
-                textField: {
-                  sx: { height: "56px" },
-                  error: !!(
-                    !disabled &&
-                    formData.activity_status === "Public" &&
-                    (
-                      formData.start_assessment === null ||
-                      formData.start_assessment === undefined ||
-                      (
-                        formData.start_assessment &&
-                        (
-                          (formData.end_activity_date &&
-                            dayjs(formData.start_assessment).isBefore(dayjs(formData.end_activity_date))) ||
-                          (formData.end_assessment &&
-                            dayjs(formData.start_assessment).isAfter(dayjs(formData.end_assessment))) ||
-                          (formData.end_register_date &&
-                            dayjs(formData.start_assessment).isBefore(dayjs(formData.end_register_date))) ||
-                          (
-                            formData.end_assessment &&
-                            dayjs(formData.end_assessment).diff(dayjs(formData.start_assessment), "hour") < 1
-                          )
-                        )
-                      )
-                    )
-                  ),
-                  
-                  helperText: 
-                    !disabled &&
-                    formData.activity_status === "Public"
-                      ? (!formData.start_assessment
-                          ? "❌ กรุณาเลือกวันและเวลาเริ่มการทำแบบประเมิน"
-                          : formData.start_assessment &&
-                            formData.end_activity_date &&
-                            dayjs(formData.start_assessment).isBefore(
-                              dayjs(formData.end_activity_date),
-                            )
-                          ? "❌ วันเปิดประเมินต้องอยู่หลังวันสิ้นสุดกิจกรรม"
-                          : formData.start_assessment &&
-                            formData.end_assessment &&
-                            dayjs(formData.start_assessment).isAfter(
-                              dayjs(formData.end_assessment),
-                            )
-                          ? "❌ วันเปิดประเมินต้องอยู่ก่อนวันปิดประเมิน"
-                          : formData.end_register_date &&
-                            dayjs(formData.start_assessment).isBefore(
-                              dayjs(formData.end_register_date),
-                            )
-                          ? "❌ วันเปิดประเมินต้องอยู่หลังวันปิดลงทะเบียน"
-                          : formData.start_assessment &&
-                            formData.end_assessment &&
-                            dayjs(formData.end_assessment).diff(
-                              dayjs(formData.start_assessment),
-                              'hour'
-                            ) < 1
-                          ? "❌ วันเปิดและปิดประเมินต้องห่างกันอย่างน้อย 1 ชั่วโมง"
-                          : "")
-                      : "",
-                },
-              }}
-            />
+  className="w-77.5"
+  // ให้เลือกได้ "ตั้งแต่วันสิ้นสุดกิจกรรม" เป็นต้นไป (เวลาเดี๋ยวคุมด้วย error)
+  minDate={endAct ?? dayjs()}
+  value={startAsm ?? null}
+  onChange={(newValue) => handleDateTimeChange("start_assessment", newValue)}
+  disabled={disabled || !endAct}
+  slotProps={{
+    textField: {
+      sx: { height: "56px" },
+      error: !!(
+        !disabled &&
+        isPublic &&
+        isOnsiteOrOnline &&
+        (
+          !startAsm ||
+          (endAct && startAsm.isBefore(endAct)) ||               // <— ไม่เป็นวันเดียวกัน/หลัง หรือเวลา < endAct
+          (endAsm && startAsm.isAfter(endAsm)) ||                // start > end assessment
+          (endAsm && endAsm.diff(startAsm, "hour") < 1)          // ระยะห่าง < 1 ชม.
+        )
+      ),
+      helperText: (() => {
+        if (!(!disabled && isPublic && isOnsiteOrOnline)) return "";
+        if (!startAsm) return "❌ กรุณาเลือกวันและเวลาเริ่มการทำแบบประเมิน";
+        if (endAct && startAsm.isBefore(endAct)) {
+          // ข้อความใหม่ตาม requirement
+          return "❌ วันที่และเวลาเปิดให้ทำแบบประเมินต้องอยู่วันที่เดียวกันหรือหลังวันที่จบกิจกรรมและเวลาต้องอยู่เท่ากับหรือหลังจากเวลาจบกิจกรรม";
+        }
+        if (endAsm && startAsm.isAfter(endAsm)) {
+          return "❌ วันเปิดประเมินต้องอยู่ก่อนวันปิดประเมิน";
+        }
+        if (endAsm && endAsm.diff(startAsm, "hour") < 1) {
+          return "❌ วันเปิดและปิดประเมินต้องห่างกันอย่างน้อย 1 ชั่วโมง";
+        }
+        return "";
+      })(),
+    },
+  }}
+/>
           </LocalizationProvider>
         </div>
         <p className="text-xs text-gray-500 mt-1">Start</p>

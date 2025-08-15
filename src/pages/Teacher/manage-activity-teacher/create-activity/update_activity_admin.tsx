@@ -488,6 +488,15 @@ const handleRoomChange = (event: SelectChangeEvent) => {
 const isOnsiteOrOnline =
   formData.event_format === "Onsite" || formData.event_format === "Online";
 
+  if (isPublic && isOnsiteOrOnline && formData.start_assessment && formData.end_activity_date) {
+  const startAsm = dayjs(formData.start_assessment);
+  const endAct   = dayjs(formData.end_activity_date);
+  if (startAsm.isBefore(endAct)) {
+    toast.error("❌ วันที่และเวลาเปิดให้ทำแบบประเมินต้องอยู่วันที่เดียวกันหรือหลังวันที่จบกิจกรรมและเวลาต้องอยู่เท่ากับหรือหลังจากเวลาจบกิจกรรม");
+    return;
+  }
+}
+
 if (
   isPublic &&
   isOnsiteOrOnline &&
