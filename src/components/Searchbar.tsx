@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Search } from "lucide-react";
 
 interface SearchBarProps {
@@ -6,12 +6,20 @@ interface SearchBarProps {
 }
 
 const Searchbar: React.FC<SearchBarProps> = ({ onSearch }) => {
+  console.log("🔁 Searchbar mounted");
+
   const [searchTerm, setSearchTerm] = useState("");
 
-  // ✅ ค้นหาเมื่อกด Enter หรือเมื่อปุ่มค้นหาถูกกด
-  const handleSearch = () => {
-    onSearch(searchTerm.trim()); // ✅ ค้นหาเฉพาะเมื่อกดปุ่มหรือ Enter
-  };
+const handleSearch = () => {
+  const trimmed = searchTerm.trim();
+  if (trimmed !== "") {
+    onSearch(trimmed);
+    // ❌ อย่าเคลียร์ searchTerm
+    // setSearchTerm(""); ← อย่าใส่
+  }
+};
+
+
 
   // ✅ รองรับการกด Enter เพื่อค้นหา
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -29,14 +37,24 @@ const Searchbar: React.FC<SearchBarProps> = ({ onSearch }) => {
     px-3 md:px-4 py-2"
     >
       {/* Input ค้นหา */}
-      <input
+      {/* <input
         type="text"
         placeholder="Search ..."
         className="flex-1 bg-transparent outline-none text-gray-600 placeholder-gray-400 px-2 text-sm md:text-base"
         value={searchTerm}
         onKeyDown={handleKeyDown}
         onChange={(e) => setSearchTerm(e.target.value)} // ✅ แค่เก็บค่า ไม่ต้องค้นหา
-      />
+      /> */}
+
+
+<input
+type="text"
+placeholder="Search ..."
+className="flex-1 bg-transparent outline-none text-gray-600 placeholder-gray-400 px-2 text-sm md:text-base"
+ value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  onKeyDown={handleKeyDown}
+/>
 
       {/* ปุ่มค้นหา */}
       <button

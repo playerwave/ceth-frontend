@@ -54,6 +54,11 @@ interface RoomStore {
   refreshData: () => Promise<void>;
   invalidateCache: () => void;
   isCacheValid: () => boolean;
+  searchRooms: (
+    room_name?: string,
+    building_name?: string,
+    seat_number?: number
+  ) => Promise<void>;
 }
 
 export const useRoomStore = create<RoomStore>((set, get) => ({
@@ -67,7 +72,6 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
   availableRooms: [],
   roomConflicts: [],
   checkingAvailability: false,
-
   // ✅ cache state
   lastFetched: null,
   cacheExpiry: 5 * 60 * 1000, // 5 minutes
@@ -237,6 +241,42 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       set({ buildings: data });
     } catch (error) {
       console.error("❌ Error fetching buildings:", error);
+    }
+  },
+
+  // searchRooms: async (room_name, building_name, seat_number) => {
+  //   set({ loading: true, error: null });
+  //   try {
+  //     const results = await roomService.searchRooms(room_name, building_name, seat_number);
+  //     set({ rooms: results, loading: false });
+  //   } catch (error) {
+  //     console.error("❌ Error searching rooms:", error);
+  //     set({ error: "ค้นหาห้องไม่สำเร็จ", loading: false });
+  //   }
+  // },
+
+  searchRooms: async (room_name, building_name, seat_number) => {
+    
+    const isEmptySearch = !room_name && !building_name && !seat_number;
+
+    if (isEmptySearch) {
+      await useRoomStore.getState().refreshData(); // หรือ initializeData()
+      return;
+    }
+
+    set({ loading: true, error: null });
+    try {
+      const results = await roomService.searchRooms(
+        room_name,
+        building_name,
+        seat_number
+      );
+      set({ rooms: results });
+    } catch (error) {
+      console.error("❌ Error searching rooms:", error);
+      set({ error: "ค้นหาห้องไม่สำเร็จ" });
+    } finally {
+      set({ loading: false });
     }
   },
 

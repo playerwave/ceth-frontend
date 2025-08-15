@@ -430,6 +430,18 @@ const handleRoomChange = (event: SelectChangeEvent) => {
       acRecieveHours = duration > 0 ? duration : 0; // ✅ ป้องกันค่าติดลบ
     }
 
+    // ✅ ตรวจสอบว่าวันที่และเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง
+    if (formData.start_activity_date && formData.end_activity_date) {
+      const start = dayjs(formData.start_activity_date);
+      const end = dayjs(formData.end_activity_date);
+      const duration = end.diff(start, "hour", true);
+      
+      if (duration < 1) {
+        toast.error("❌ วันและเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง");
+        return;
+      }
+    }
+
     // ✅ ตรวจสอบเฉพาะเมื่อ activity_status เป็น "Public"
     if (formData.activity_status === "Public" && !formData.start_register_date) {
       toast.error("กรุณาเลือกวันเวลาเริ่มลงทะเบียน");

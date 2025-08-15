@@ -46,9 +46,10 @@ const DescriptionSection: React.FC<Props> = ({ formData, handleChange, disabled 
         required
         error={
           formData.activity_status === "Public" &&
-          formData.description &&
+          !!formData.description &&
           formData.description.length > 2000
         }
+        
         helperText={
           formData.activity_status === "Public" &&
           formData.description &&

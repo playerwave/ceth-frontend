@@ -156,6 +156,17 @@ export const validateForm = (formData: any, setErrors: any, isEditMode: boolean 
     if (!formData.end_activity_date) {
       newErrors.end_activity_date = "กรุณาเลือกวันและเวลาสิ้นสุดกิจกรรม";
     }
+    
+    // ✅ ตรวจสอบว่าวันที่และเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง
+    if (formData.start_activity_date && formData.end_activity_date) {
+      const start = dayjs(formData.start_activity_date);
+      const end = dayjs(formData.end_activity_date);
+      const duration = end.diff(start, "hour", true);
+      
+      if (duration < 1) {
+        newErrors.end_activity_date = "❌ วันและเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง";
+      }
+    }
     if (!formData.special_start_register_date) {
       newErrors.special_start_register_date = "กรุณาเลือกวันเวลาเริ่มลงทะเบียนพิเศษ";
     }

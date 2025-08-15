@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import Searchbar from "./components/Searchbar";
+import React, { useEffect, useState, useRef } from "react";
+import Searchbar from "../../../../components/Searchbar";
 import RoomToolbar from "./components/toolbar";
 import RoomTable from "./components/roomtable";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
@@ -15,7 +15,15 @@ const ListRoomAdmin = () => {
   const isCacheValid = useRoomStore((state) => state.isCacheValid);
 
   const [floorFilter, setFloorFilter] = useState<number | "all">("all");
+  const searchRooms = useRoomStore((state) => state.searchRooms);
+  const [searchbarKey, setSearchbarKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+
+
+  useEffect(() => {
+  console.log("🔄 Searchbar state updated:", searchTerm);
+}, [searchTerm]);
+
 
   useEffect(() => {
     // ✅ ตรวจสอบ cache และโหลดข้อมูล
@@ -46,26 +54,32 @@ const ListRoomAdmin = () => {
     };
   }, [refreshData]);
 
+  const handleSearch = (term: string) => {
+    console.log("🔍 searchRooms called with:", term);
+    searchRooms?.(term);
+  };
+
+
   const floors: number[] = Array.from(
     new Set(rooms.map((r) => parseInt(r.floor)))
   ).sort((a, b) => a - b);
 
-  const filteredRooms = rooms.filter((room) => {
-    const floorNum = parseInt(room.floor);
-    const matchesFloor = floorFilter === "all" || floorNum === floorFilter;
-    const matchesSearch = room.room_name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return matchesFloor && matchesSearch;
-  });
+  // const filteredRooms = rooms.filter((room) => {
+  //   const floorNum = parseInt(room.floor);
+  //   const matchesFloor = floorFilter === "all" || floorNum === floorFilter;
+  //   const matchesSearch = room.room_name
+  //     .toLowerCase()
+  //     .includes(searchTerm.toLowerCase());
+  //   return matchesFloor && matchesSearch;
+  // });
 
-  const mappedRooms = filteredRooms.map((room) => {
-    const building = buildings.find(b => b.building_id === room.building_id);
-    return {
-      ...room,
-      building_name: building?.building_name ?? "ไม่พบชื่ออาคาร"
-    };
-  });
+  // const mappedRooms = filteredRooms.map((room) => {
+  //   const building = buildings.find(b => b.building_id === room.building_id);
+  //   return {
+  //     ...room,
+  //     building_name: building?.building_name ?? "ไม่พบชื่ออาคาร"
+  //   };
+  // });
 
   // ✅ Loading component
   if (loading) {
@@ -91,6 +105,7 @@ const ListRoomAdmin = () => {
       </div>
     );
   }
+  
 
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-5 relative">
@@ -101,8 +116,8 @@ const ListRoomAdmin = () => {
       </div>
 
       <div className="flex justify-center items-center w-full mt-10">
-        <Searchbar onSearch={setSearchTerm} />
-      </div>
+  <Searchbar key={`searchbar-${searchbarKey}`} onSearch={(term: string) => handleSearch(term)} />
+</div>
 
       <RoomToolbar
         floors={floors}
@@ -112,11 +127,19 @@ const ListRoomAdmin = () => {
 
       <div className="bg-white p-6 shadow-2xl rounded-lg my-10 overflow-x-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-left font-semibold text-black">
-            ห้องที่มีอยู่ในระบบ ({mappedRooms.length} ห้อง)
-          </h2>
+        <h2 className="text-left font-semibold text-black">
+  ห้องที่มีอยู่ในระบบ ({rooms.length} ห้อง)
+</h2>
         </div>
-        <RoomTable data={mappedRooms} />
+        <RoomTable
+  data={rooms.map((room) => {
+    const building = buildings.find(b => b.building_id === room.building_id);
+    return {
+      ...room,
+      building_name: building?.building_name ?? "ไม่พบชื่ออาคาร"
+    };
+  })}
+/>
       </div>
     </div>
   );
