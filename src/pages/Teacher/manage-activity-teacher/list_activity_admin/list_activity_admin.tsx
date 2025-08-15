@@ -33,6 +33,7 @@ const CopyPlus = ({ className }: { className?: string }) => (
 
 import { useSecureLink } from "../../../../routes/secure/SecureRoute";
 import { isActivityValid, validatePrivateToPublic } from "./utils/activity";
+import Calendar from "../calendar-list-activity/calendar";
 
 const ListActivityTeacher: React.FC = () => {
   const navigate = useNavigate();
@@ -364,9 +365,7 @@ const ListActivityTeacher: React.FC = () => {
         />
       ) : (
         <div className="text-center text-gray-500 p-6">
-          <h2 className="text-xl font-semibold">
-            📅 โหมดปฏิทิน (ยังไม่มีข้อมูล)
-          </h2>
+         <Calendar/>
         </div>
         )}
 
