@@ -129,8 +129,8 @@ export const getActivityColumns = (
     {
       field: "presenter_company_name",
       headerName: "ชื่อบริษัท/วิทยากร",
-      width: 200,
-      flex: 1.2,
+      flex: 1.5, minWidth: 200,
+      // width: 200,
       renderCell: (params) => {
         const companyLecturer = params.value ?? "ไม่มีชื่อ";
         return <span>{companyLecturer}</span>;
@@ -139,7 +139,9 @@ export const getActivityColumns = (
     {
       field: "type",
       headerName: "ประเภท",
-      width: 250,
+      // width: 250,
+       sortable: false,
+      flex: 1.5, minWidth: 160,
       renderHeader: () => (
         <Box display="flex" alignItems="center" gap={1}>
           <Typography fontWeight={600} mr={1}>
@@ -203,7 +205,8 @@ export const getActivityColumns = (
     {
       field: "activity_name",
       headerName: "ชื่อกิจกรรม",
-      width: 280,
+      flex: 1.8, minWidth: 240,
+      // width: 280,
       renderCell: (params) =>
         typeof params.value === "string" && params.value.length > 40
           ? params.value.slice(0, 40) + "..."
@@ -212,7 +215,7 @@ export const getActivityColumns = (
     {
       field: "start_register_date",
       headerName: "วันที่จัดกิจกรรม",
-      width: 300,
+      flex: 1.3, minWidth: 180,
       sortable: true,
       renderCell: (params) => {
         const eventFormat = params.row.event_format;
@@ -255,7 +258,9 @@ export const getActivityColumns = (
     {
       field: "event_format",
       headerName: "สถานที่",
-      width: 120,
+      // width: 120,
+      flex: 0.7, minWidth: 100,
+      sortable: false,
       renderHeader: () => (
         <Box display="flex" alignItems="center" gap={1}>
           <MapPin fontSize="small" />
@@ -274,7 +279,8 @@ export const getActivityColumns = (
     {
       field: "seat",
       headerName: "ที่นั่ง",
-      width: 130,
+      flex: 0.8, minWidth: 110,
+      // width: 130,
       renderCell: (params) => {
         const totalSeats = params.row.seat;
         const eventFormat = params.row.event_format;
@@ -301,7 +307,8 @@ export const getActivityColumns = (
     columns.push({
       field: "activity_status",
       headerName: "สถานะ",
-      width: 150,
+      flex: 0.9, minWidth: 120,
+      sortable: false,
       renderCell: (params) => {
         const isPublic = params.value === "Public";
         const isEvaluating = params.row.activity_state === "Start Assessment";
@@ -341,7 +348,8 @@ export const getActivityColumns = (
     columns.push({
       field: "start_register",
       headerName: "เปิดให้ลงทะเบียน",
-      width: 130,
+      // width: 130,
+      flex: 0.8, minWidth: 110,
       renderCell: (params) => {
         const acStartRegisterRaw = params.row.activity_state;
 
