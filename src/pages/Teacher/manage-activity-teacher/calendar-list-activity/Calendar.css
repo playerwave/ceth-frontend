@@ -1,0 +1,21 @@
+/* Change the color of the arrow icons to a dark blue */
+.fc .fc-prev-button .fc-icon,
+.fc .fc-next-button .fc-icon {
+    color: #007bff;
+    /* A nice shade of blue */
+}
+
+/* Change the background color of the navigation buttons to white */
+.fc .fc-button-primary {
+    background-color: #ffffff;
+    /* White */
+    border-color: #ffffff;
+    /* Make the border white to match the background */
+}
+
+
+/* Change the color of the text on the "today" button to dark blue */
+.fc .fc-today-button {
+    color: #007bff;
+    /* A nice shade of blue */
+}
