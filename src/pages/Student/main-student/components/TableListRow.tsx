@@ -1,17 +1,11 @@
-// ✅ TableListRow.tsx
 import { DataGrid, GridColDef, GridEventListener } from "@mui/x-data-grid";
 import {
   Box,
   Typography,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  FormControl,
-  InputBase,
+  FormControl
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { MapPin, ChevronDown } from "lucide-react"; // เพิ่มไอคอน ChevronDown
 
 export interface TableListRowProps {
   height?: number | string;
@@ -21,6 +15,7 @@ export interface TableListRowProps {
   rows: any[];
   title?: string;
   initialPageSize?: number;
+  selectedTypes: string[]; // <-- เพิ่มรับ selectedTypes จาก parent
 }
 
 export default function TableListRow({
@@ -30,27 +25,33 @@ export default function TableListRow({
   rows,
   title,
   initialPageSize,
+  selectedTypes,
 }: TableListRowProps) {
   const navigate = useNavigate();
-  const [locationFilter, setLocationFilter] = useState<string>("");
+  const [locationFilter] = useState<string>("");
 
   const handleRowClick: GridEventListener<"rowClick"> = (params) => {
-    const id = params.row.id;
-    if (id) navigate("/activity-info-student", { state: { id } });
+    const id = params.row.activity_id;
+    if (id) {
+      navigate(`/activity-info-student/${id}`, {
+        state: { id },
+      });
+    }
   };
 
-  const handleLocationChange = (event: SelectChangeEvent) => {
-    setLocationFilter(event.target.value);
-  };
+  // ✅ filter ประเภท(type)
+  const filteredRows = rows
+    .filter((row) =>
+      locationFilter ? row.event_format === locationFilter : true
+    )
+    .filter((row) =>
+      selectedTypes.length > 0 ? selectedTypes.includes(row.type) : true
+    );
 
-  const filteredRows = locationFilter
-    ? rows.filter((row) => row.location_type === locationFilter)
-    : rows;
-
-  console.log(filteredRows.map((r) => r.id));
+  console.log(filteredRows.map((r) => r.activity_id));
 
   const columnsWithDropdown = columns.map((col) => {
-    if (col.field === "location_type") {
+    if (col.field === "event_format") {
       return {
         ...col,
         renderHeader: () => (
@@ -68,46 +69,6 @@ export default function TableListRow({
               gap: 0.2,
             }}
           >
-            <MapPin size={18} color="white" />
-            <Select
-              value={locationFilter}
-              onChange={handleLocationChange}
-              displayEmpty
-              renderValue={() => (
-                <span style={{ color: "white", fontSize: 14 }}> </span>
-              )}
-              input={<InputBase sx={{ color: "white", fontSize: 14 }} />}
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    border: "1px solid #ccc",
-                    mt: 1,
-                    "& .MuiMenuItem-root": {
-                      fontSize: 13,
-                    },
-                  },
-                },
-              }}
-              sx={{
-                color: "white",
-                border: "none",
-                fontSize: 14,
-                padding: 0,
-                minWidth: 20,
-                justifyContent: "center",
-                display: "flex",
-                alignItems: "center",
-                gap: 0,
-                "& .MuiSelect-icon": {
-                  color: "white",
-                },
-              }}
-            >
-              <MenuItem value="">ทั้งหมด</MenuItem>
-              <MenuItem value="Online">Online</MenuItem>
-              <MenuItem value="Onsite">Onsite</MenuItem>
-              <MenuItem value="Course">Course</MenuItem>
-            </Select>
           </FormControl>
         ),
       };
@@ -138,13 +99,15 @@ export default function TableListRow({
           sx={{
             minWidth: "100%",
             width: "max-content",
+            height: "100%",
           }}
         >
           <DataGrid
             columns={columnsWithDropdown}
             rows={filteredRows}
             onRowClick={handleRowClick}
-            getRowId={(row) => row.id}
+            // 👇ใช้ activity_id เป็น id หลักของ row
+            getRowId={(row) => row.activity_id}
             pageSizeOptions={[5, 10, 20]}
             initialState={{
               pagination: {
@@ -152,9 +115,9 @@ export default function TableListRow({
               },
             }}
             disableRowSelectionOnClick
-            autoHeight={false}
             sx={{
               border: "none",
+              height: "100%",
               "& .MuiDataGrid-columnHeaders": {
                 backgroundColor: "#1E3A8A",
                 color: "white",
@@ -169,19 +132,6 @@ export default function TableListRow({
                 justifyContent: "center",
                 position: "relative",
                 textAlign: "center",
-                "& .MuiDataGrid-columnHeaderTitleContainer": {
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%",
-                },
-                "& .MuiDataGrid-columnHeaderTitle": {
-                  width: "100%",
-                  textAlign: "center",
-                  lineHeight: "1.5rem",
-                  whiteSpace: "normal",
-                  fontWeight: "600",
-                },
                 "&::after": {
                   content: '""',
                   position: "absolute",
@@ -222,19 +172,8 @@ export default function TableListRow({
               "& .MuiDataGrid-cell:focus": {
                 outline: "none",
               },
-              "& .MuiDataGrid-cell:focus-within": {
-                outline: "none",
-              },
-              "& .MuiDataGrid-columnHeader::after": {
-                display: "none",
-              },
-              // ✅ ปิด column separator (กรณีซ้ำ)
               "& .MuiDataGrid-columnSeparator": {
                 display: "none",
-              },
-              // ✅ ปิดเส้นตอนคลิก cell
-              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-                outline: "none",
               },
             }}
           />
