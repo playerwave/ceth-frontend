@@ -224,7 +224,7 @@ const ActivityTablePage = ({
         }}>
           <CustomCard height={500} width="1465px" className="mb-10">
             <h2 className="text-2xl font-semibold mb-4">
-              กิจกรรมที่กำลังดำเนินการและจบกิจกรรมแล้ว
+              กิจกรรมที่กำลังดำเนินการหรือจบกิจกรรมแล้ว
             </h2>
             <TableRedesign
               columns={activityColumnsForActive}
