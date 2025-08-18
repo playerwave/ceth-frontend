@@ -98,7 +98,12 @@ const CalendarPage = () => {
                     const now = Date.now();
                     if (now - lastClickTime < 400) {
                         const clickedDate = info.date;
-                        const yyyyMMdd = clickedDate.toISOString().split('T')[0];
+
+                        // ✅ ใช้การ format เองเพื่อเลี่ยงปัญหา timezone
+                        const yyyy = clickedDate.getFullYear();
+                        const mm = String(clickedDate.getMonth() + 1).padStart(2, "0");
+                        const dd = String(clickedDate.getDate()).padStart(2, "0");
+                        const yyyyMMdd = `${yyyy}-${mm}-${dd}`;
 
                         const startDate = `${yyyyMMdd}T09:00:00`;
                         const endDate = `${yyyyMMdd}T16:00:00`;
@@ -107,7 +112,7 @@ const CalendarPage = () => {
                             state: {
                                 start_activity_date: startDate,
                                 end_activity_date: endDate,
-                                from: 'calendar', // ✅ ส่งต้นทาง
+                                from: 'calendar',
                             },
                         });
                     }

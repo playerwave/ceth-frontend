@@ -90,6 +90,29 @@ const CreateActivityAdmin: React.FC = () => {
     clearAvailabilityCheck
   } = useRoomStore();
 
+
+
+  // ✅ เพิ่ม useEffect เพื่อดึงข้อมูลจาก location.state
+  useEffect(() => {
+    // Check if location state exists and is not empty
+    if (location.state) {
+      const { start_activity_date, end_activity_date, from } = location.state as {
+        start_activity_date?: string;
+        end_activity_date?: string;
+        from?: string;
+      };
+
+      // If start and end dates are passed, update the form data
+      if (start_activity_date && end_activity_date) {
+        setFormData((prev: CreateActivityForm) => ({
+          ...prev,
+          start_activity_date: start_activity_date,
+          end_activity_date: end_activity_date,
+        }));
+      }
+    }
+  }, [location.state]); // ✅ Dependency array เพื่อให้ effect ทำงานเมื่อ location.stat
+
   useEffect(() => {
     fetchRooms(); // ✅ โหลดข้อมูลห้องเมื่อ component mount
   }, []);
@@ -276,6 +299,16 @@ const CreateActivityAdmin: React.FC = () => {
       return;
     }
 
+
+    const formattedStart = formData.start_activity_date
+      ? dayjs(formData.start_activity_date).tz("Asia/Bangkok").format("YYYY-MM-DD HH:mm:ss")
+      : undefined;
+
+    const formattedEnd = formData.end_activity_date
+      ? dayjs(formData.end_activity_date).tz("Asia/Bangkok").format("YYYY-MM-DD HH:mm:ss")
+      : undefined;
+
+
     // ✅ กฎใหม่: ถ้า Public และเป็น Onsite/Online
     const isPublic = formData.activity_status === "Public";
     const isOnsiteOrOnline = formData.event_format === "Onsite" || formData.event_format === "Online";
@@ -326,6 +359,8 @@ const CreateActivityAdmin: React.FC = () => {
       const createData = {
         ...formData,
         recieve_hours: acRecieveHours,
+        start_activity_date: formattedStart,
+        end_activity_date: formattedEnd,
         // ✅ ส่ง foodIds เฉพาะเมื่อ event_format เป็น Onsite และกรอง foodIds ที่ถูกต้อง
         foodIds: formData.event_format === "Onsite" ?
           (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ?
@@ -693,7 +728,7 @@ const CreateActivityAdmin: React.FC = () => {
                   formStatus={formData.activity_status ?? "Private"}
                   isModalOpen={isModalOpen}
                   setIsModalOpen={setIsModalOpen}
-                   fromPage={fromPage} // ✅ เพิ่มตรงนี้
+                  fromPage={fromPage} // ✅ เพิ่มตรงนี้
                   onSubmit={async () => {
                     // ✅ สร้าง fake event object ที่มี preventDefault method
                     const fakeEvent = {
