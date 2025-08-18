@@ -48,7 +48,6 @@ export default function ActivityFooter({
   const currentUserId = userId || user?.userId;
 
   const handleEnroll = async () => {
-    // ไม่อยู่ในช่วงเปิดรับ → ห้ามลงทะเบียน
     if (!CAN_ENROLL_STATES.includes(activity.activity_state)) {
       toast.error("กิจกรรมนี้ไม่อยู่ในช่วงเปิดลงทะเบียน");
       return;
@@ -84,13 +83,9 @@ export default function ActivityFooter({
       );
     });
 
-    if (hasTimeConflict) {
-      setIsErrorDialogOpen(true);
-      return;
-    }
-
     await enrollActivity(currentUserId, activity.activity_id, selectedFood);
     setIsEnrolled(true);
+    toast.success("✅ ลงทะเบียนกิจกรรมสำเร็จ");
   };
 
   const handleUnenroll = async () => {
@@ -180,7 +175,40 @@ export default function ActivityFooter({
               ยกเลิกลงทะเบียน
             </Button>
           ) : CAN_ENROLL_STATES.includes(activity.activity_state) ? (
-            <Button onClick={() => setIsEnrollModalOpen(true)}>
+            <Button
+              onClick={() => {
+                // 👉 เช็กเวลาซ้อนก่อนเปิด Dialog2
+                const hasTimeConflict = enrolledActivities.some((act) => {
+                  if (
+                    activity.event_format === "Course" ||
+                    act.event_format === "Course"
+                  )
+                    return false;
+                  const existingStart = new Date(
+                    act.start_activity_date
+                  ).getTime();
+                  const existingEnd = new Date(act.end_activity_date).getTime();
+                  const newStart = new Date(
+                    activity.start_activity_date
+                  ).getTime();
+                  const newEnd = new Date(activity.end_activity_date).getTime();
+                  return (
+                    (newStart >= existingStart && newStart < existingEnd) ||
+                    (newEnd > existingStart && newEnd <= existingEnd) ||
+                    (newStart <= existingStart && newEnd >= existingEnd)
+                  );
+                });
+
+                if (hasTimeConflict) {
+                  // แสดง Dialog1 ทันที
+                  setIsErrorDialogOpen(true);
+                  return;
+                }
+
+                // ไม่ซ้อนเวลา → เปิด Dialog2 (confirm register)
+                setIsEnrollModalOpen(true);
+              }}
+            >
               ลงทะเบียน
             </Button>
           ) : (
