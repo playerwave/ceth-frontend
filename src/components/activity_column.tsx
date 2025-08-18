@@ -35,6 +35,7 @@ type ColumnOptions = {
   selectedLocations?: string[];
   handleLocationChange?: (locationType: string) => void;
   disableStatusToggle?: boolean; // ✅ เพิ่ม option สำหรับปิดปุ่ม Toggle
+  showActivityState?: boolean; // ✅ เพิ่ม option สำหรับแสดง activity_state แทน status
 };
 
 // ✅ Custom Header Component สำหรับคอลัมน์สถานที่ (event_format)
@@ -305,11 +306,34 @@ export const getActivityColumns = (
 
   if (options.includeStatus) {
     columns.push({
-      field: "activity_status",
-      headerName: "สถานะ",
+      field: options.showActivityState ? "activity_state" : "activity_status",
+      headerName: options.showActivityState ? "สถานะกิจกรรม" : "สถานะ",
       flex: 0.9, minWidth: 120,
       sortable: false,
       renderCell: (params) => {
+        // ถ้า showActivityState = true ให้แสดง activity_state แทน
+        if (options.showActivityState) {
+          return (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                px: 2,
+                py: 1,
+                fontSize: 14,
+                fontWeight: 600,
+                height: 32,
+                backgroundColor: "#f5f5f5",
+                borderRadius: "4px",
+              }}
+            >
+              {params.row.activity_state}
+            </Box>
+          );
+        }
+
+        // Logic เดิมสำหรับแสดง status และ toggle
         const isPublic = params.value === "Public";
         const isEvaluating = params.row.activity_state === "Start Assessment";
         const isDisabled = options.disableStatusToggle || isEvaluating;

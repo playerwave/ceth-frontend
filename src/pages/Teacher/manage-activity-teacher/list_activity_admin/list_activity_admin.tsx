@@ -75,53 +75,55 @@ const ListActivityTeacher: React.FC = () => {
   }, [location.state]);
 
 
-  // กิจกรรมสหกิจ: Public และยังไม่ถึง start_assessment หรือไม่มี assessment dates
+  // กิจกรรมสหกิจ: Public และมี activity_state เป็น Not Start, Special Open Register, Open Register, Close Register
   const publicActivities = displayedActivities.filter((a) => {
     const isPublic = a.activity_status === "Public";
-    const hasStartAssessment = a.start_assessment !== null && a.start_assessment !== undefined;
-    const hasEndAssessment = a.end_assessment !== null && a.end_assessment !== undefined;
-
-    // ถ้าไม่มี assessment dates เลย ให้แสดงในตารางนี้
-    if (!hasStartAssessment || !hasEndAssessment) {
-      if (import.meta.env.DEV) {
-        console.log(`🔍 Activity: ${a.activity_name}`, {
-          isPublic,
-          hasStartAssessment,
-          hasEndAssessment,
-          included: isPublic,
-          reason: "No assessment dates"
-        });
-      }
-      return isPublic;
-    }
-
-    // ถ้ามี assessment dates ให้ตรวจสอบเวลา
-    const now = new Date();
-    const startAssessmentDate = a.start_assessment ? new Date(a.start_assessment) : null;
-    const notReachedAssessment = startAssessmentDate ? now < startAssessmentDate : false;
+    
+    // ต้องมี activity_state เป็น Not Start, Special Open Register, Open Register, Close Register
+    const allowedStates = ["Not Start", "Special Open Register", "Open Register", "Close Register"];
+    const hasAllowedState = allowedStates.includes(a.activity_state);
 
     // Debug log
     if (import.meta.env.DEV) {
       console.log(`🔍 Activity: ${a.activity_name}`, {
         isPublic,
-        hasStartAssessment,
-        hasEndAssessment,
-        startAssessmentDate: startAssessmentDate?.toISOString(),
-        now: now.toISOString(),
-        notReachedAssessment,
-        included: isPublic && notReachedAssessment,
-        reason: "Time-based filtering"
+        activityState: a.activity_state,
+        hasAllowedState,
+        included: isPublic && hasAllowedState,
+        reason: "State-based filtering"
       });
     }
 
-    return isPublic && notReachedAssessment;
+    return isPublic && hasAllowedState;
   });
 
   const privateActivities = displayedActivities.filter(
     (a) => a.activity_status === "Private",
   );
 
-  // กิจกรรมที่ให้นิสิตทำแบบประเมิน: Public, Active, และถึงเวลา start_assessment แต่ยังไม่ผ่าน end_assessment
+  // กิจกรรมที่กำลังดำเนินการและจบแล้ว: Public และมี activity_state เป็น Start Activity, End Activity
+  const activeActivities = displayedActivities.filter((a) => {
+    const isPublic = a.activity_status === "Public";
+    
+    // ต้องมี activity_state เป็น Start Activity, End Activity
+    const allowedStates = ["Start Activity", "End Activity"];
+    const hasAllowedState = allowedStates.includes(a.activity_state);
+
+    // Debug log
+    if (import.meta.env.DEV) {
+      console.log(`🔍 Active Activity: ${a.activity_name}`, {
+        isPublic,
+        activityState: a.activity_state,
+        hasAllowedState,
+        included: isPublic && hasAllowedState,
+        reason: "Active state filtering"
+      });
+    }
+
+    return isPublic && hasAllowedState;
+  });
+
+  // กิจกรรมที่ให้นิสิตทำแบบประเมิน: Public, Active, และมี activity_state เป็น "Start Assessment"
   const activitiesEvaluate = displayedActivities.filter((a) => {
     // ต้องเป็น Public และ Active
     const isPublic = a.activity_status === "Public";
@@ -136,13 +138,8 @@ const ListActivityTeacher: React.FC = () => {
     const hasEndAssessment = a.end_assessment !== null && a.end_assessment !== undefined;
     if (!hasStartAssessment || !hasEndAssessment || !a.start_assessment || !a.end_assessment) return false;
 
-    const now = new Date();
-    const startAssessmentDate = new Date(a.start_assessment);
-    const endAssessmentDate = new Date(a.end_assessment);
-
-    // ต้องถึงเวลา start_assessment และยังไม่ผ่าน end_assessment
-    const hasReachedStart = now >= startAssessmentDate;
-    const hasNotPassedEnd = now <= endAssessmentDate;
+    // ต้องมี activity_state เป็น "Start Assessment"
+    const isStartAssessment = a.activity_state === "Start Assessment";
 
     // Debug log
     if (import.meta.env.DEV) {
@@ -152,16 +149,13 @@ const ListActivityTeacher: React.FC = () => {
         eventFormat: a.event_format,
         hasStartAssessment,
         hasEndAssessment,
-        startAssessmentDate: startAssessmentDate.toISOString(),
-        endAssessmentDate: endAssessmentDate.toISOString(),
-        now: now.toISOString(),
-        hasReachedStart,
-        hasNotPassedEnd,
-        included: hasReachedStart && hasNotPassedEnd
+        activityState: a.activity_state,
+        isStartAssessment,
+        included: isStartAssessment
       });
     }
 
-    return hasReachedStart && hasNotPassedEnd;
+    return isStartAssessment;
   });
 
   const handleSearch = (term: string) => {
@@ -370,7 +364,8 @@ const ListActivityTeacher: React.FC = () => {
           <ActivityTablePage
             rows1={publicActivities}
             rows2={privateActivities}
-            rows3={activitiesEvaluate}
+            rows3={activeActivities}
+            rows4={activitiesEvaluate}
             handleStatusToggle={handleStatusToggle}
             createSecureLink={createSecureLink}
           />

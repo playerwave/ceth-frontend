@@ -11,6 +11,7 @@ type Props = {
   rows1: Activity[];
   rows2: Activity[];
   rows3: Activity[];
+  rows4: Activity[];
   handleStatusToggle: (row: Activity) => void;
   createSecureLink: (path: string, params: Record<string, any>) => string;
 };
@@ -19,6 +20,7 @@ const ActivityTablePage = ({
   rows1,
   rows2,
   rows3,
+  rows4,
   handleStatusToggle,
   createSecureLink,
 }: Props) => {
@@ -123,14 +125,25 @@ const ActivityTablePage = ({
   const activityColumnsForAssessment = useMemo(
     () =>
       getActivityColumns({
+        includeStatus: false, // ✅ ไม่แสดงคอลัมน์สถานะ
+        enableTypeFilter: true,
+        handleTypeChange,
+        selectedTypes,
+      }),
+    [selectedTypes],
+  );
+
+  const activityColumnsForActive = useMemo(
+    () =>
+      getActivityColumns({
         includeStatus: true,
         enableTypeFilter: true,
         handleTypeChange,
         selectedTypes,
-        handleStatusToggle: handleConfirmStatusChange,
-        disableStatusToggle: true, // ✅ ปิดปุ่ม Toggle สำหรับตาราง Assessment
+        disableStatusToggle: true, // ✅ ปิดปุ่ม Toggle สำหรับตาราง Active
+        showActivityState: true, // ✅ แสดง activity_state แทน status
       }),
-    [selectedTypes, handleConfirmStatusChange],
+    [selectedTypes],
   );
 
   return (
@@ -209,13 +222,41 @@ const ActivityTablePage = ({
           display: "flex",
           justifyContent: "center"
         }}>
+          <CustomCard height={500} width="1465px" className="mb-10">
+            <h2 className="text-2xl font-semibold mb-4">
+              กิจกรรมที่กำลังดำเนินการและจบกิจกรรมแล้ว
+            </h2>
+            <TableRedesign
+              columns={activityColumnsForActive}
+              rows={filterByType(rows3) ?? []}
+              height={420}
+              width="100%"
+              borderRadius={14}
+              onRowDoubleClick={handleDoubleClickActivity}
+            />
+          </CustomCard>
+        </div>
+      </div>
+
+      <div style={{ 
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
+      }}>
+        <div style={{ 
+          maxWidth: "1465px", 
+          width: "100%",
+          display: "flex",
+          justifyContent: "center"
+        }}>
           <CustomCard height={500} width="1465px">
             <h2 className="text-2xl font-semibold mb-4">
               กิจกรรมสหกิจที่ให้นิสิตทำแบบประเมิน
             </h2>
             <TableRedesign
               columns={activityColumnsForAssessment}
-              rows={filterByType(rows3) ?? []}
+              rows={filterByType(rows4) ?? []}
               height={420}
               width="100%"
               borderRadius={14}
