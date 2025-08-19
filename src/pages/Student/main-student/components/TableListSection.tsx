@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Typography } from "@mui/material";
 import Loading from "../../../../components/Loading";
 import CustomCard from "../../../../components/Card";
 import TableListRow from "./TableListRow";
 import { getTableListColumn } from "./TableListColumn";
-import { Typography } from "@mui/material";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
 import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 

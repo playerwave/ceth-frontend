@@ -476,13 +476,18 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
           foodIds: formData.event_format === "Onsite" ?
             (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ?
               formData.selectedFoods.filter(foodId => foodId > 0) : []) : [],
-          // ✅ ลบ selectedFoods ออกจาก request เมื่อไม่ใช่ Onsite
-          selectedFoods: formData.event_format === "Onsite" ? formData.selectedFoods : [],
         };
+
+        // ✅ Clean up undefined values และ circular references
+        const cleanUpdateData = JSON.parse(JSON.stringify(updateData, (key, value) => {
+          if (value === undefined) return null;
+          if (typeof value === 'function') return undefined;
+          return value;
+        }));
 
         // ✅ จัดการ image_url แยก (ไม่ส่งถ้าไม่มีรูปภาพ)
         if (typeof formData.image_url === 'string' && formData.image_url.trim() !== "") {
-          updateData.image_url = formData.image_url;
+          cleanUpdateData.image_url = formData.image_url;
         }
 
         const isPublic = formData.activity_status === "Public";
@@ -528,8 +533,8 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
           }
         }
 
-        console.log("🚀 Data ที่ส่งไป store:", updateData);
-        const result = await updateActivity(updateData as Activity);
+        console.log("🚀 Data ที่ส่งไป store:", cleanUpdateData);
+        const result = await updateActivity(cleanUpdateData as Activity);
         console.log("✅ Activity updated successfully:", result);
         toast.success("อัปเดตกิจกรรมสำเร็จ!");
         return finalActivityId; // ✅ ส่งคืน activity_id

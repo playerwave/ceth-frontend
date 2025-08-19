@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { Typography } from "@mui/material";
 import Loading from "../../../../components/Loading";
 import CustomCard from "../../../../components/Card";
+import { MainActivity } from "../../../../types/Student/type_main_activity_student";
 import TablePendingRow from "./TablePendingRow";
 import { getTablePendingColumn } from "./TablePendingColumn";
-import { mapTransformedActivity } from "../util/mapTransformedActivity";
-import { MainActivity } from "../../../../types/Student/type_main_activity_student";
 
 interface TablePendingEvaluationProps {
   activityLoading: boolean;
@@ -34,7 +33,17 @@ const TablePendingEvaluation: React.FC<TablePendingEvaluationProps> = ({
     .filter(
       (a) => selectedTypes.length === 0 || selectedTypes.includes(a.ac_type),
     )
-    .map(mapTransformedActivity);
+    .map((activity) => ({
+      id: activity.ac_id,
+      ac_id: activity.ac_id,
+      ac_name: activity.ac_name,
+      ac_company_lecturer: activity.ac_company_lecturer,
+      ac_type: activity.ac_type,
+      activity_state: activity.activity_state,
+      ac_start_assessment: activity.ac_start_assessment,
+      ac_end_assessment: activity.ac_end_assessment,
+      ac_location_type: "Online", // Default value since MainActivity doesn't have location type
+    }));
 
   // ✅ 3. เพิ่ม props เข้า columns
   const columns = getTablePendingColumn({
@@ -67,3 +76,4 @@ const TablePendingEvaluation: React.FC<TablePendingEvaluationProps> = ({
 };
 
 export default TablePendingEvaluation;
+

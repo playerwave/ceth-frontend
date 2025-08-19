@@ -2,7 +2,8 @@ import { DataGrid, GridColDef, GridEventListener } from "@mui/x-data-grid";
 import {
   Box,
   Typography,
-  FormControl
+  FormControl,
+  SelectChangeEvent
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -28,7 +29,7 @@ export default function TableListRow({
   selectedTypes,
 }: TableListRowProps) {
   const navigate = useNavigate();
-  const [locationFilter] = useState<string>("");
+  const [locationFilter, setLocationFilter] = useState<string>("");
 
   const handleRowClick: GridEventListener<"rowClick"> = (params) => {
     const id = params.row.id;

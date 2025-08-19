@@ -8,6 +8,7 @@ import BarChartSection from "../main-student/components/BarChartSection";
 import TableActivitySection from "../main-student/components/TableListSection";
 import ActivityTabs from "../main-student/components/ActivityTabs"; // ✅ Tabs
 import TablePendingEvaluation from "./components/TablePendingEvaluation";
+import CustomCard from "../../../components/Card";
 
 const MainStudent = () => {
   const [searchId, setSearchId] = useState("");
@@ -107,12 +108,7 @@ const MainStudent = () => {
         {/* Tab Content */}
           <CustomCard className="flex flex-col gap-6 text-lg mt-4">
           {activeTab === "enrolled" ? (
-            <TableActivitySection
-              activityLoading={activityLoading}
-              activityError={activityError}
-              enrolledActivities={mainActivities}
-              transformedActivities={transformedActivities}
-            />
+            <TableActivitySection />
           ) : (
             <TablePendingEvaluation
               activityLoading={activityLoading}
