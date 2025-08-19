@@ -111,8 +111,18 @@ const EmailTemplatePreview: React.FC = () => {
           { key: "activityName", label: "ชื่อกิจกรรม", placeholder: "Workshop การพัฒนาทักษะ" },
           { key: "activityDate", label: "วันที่", placeholder: "20 ธันวาคม 2024" },
           { key: "activityTime", label: "เวลา", placeholder: "09:00 - 16:00" },
-          { key: "activityLocation", label: "สถานที่", placeholder: "ห้องประชุม 301" },
-          { key: "contactEmail", label: "อีเมลติดต่อ", placeholder: "support@example.com" }
+          { key: "building", label: "ตึก", placeholder: "อาคารคณะวิทยาการสารสนเทศ" },
+          { key: "floor", label: "ชั้น", placeholder: "3" },
+          { key: "room", label: "ห้อง", placeholder: "301" },
+          { key: "activityLink", label: "ลิงก์กิจกรรม", placeholder: "https://example.com/activity" },
+          { key: "contactEmail", label: "อีเมลติดต่อ", placeholder: "support@example.com" },
+          { key: "activityImage", label: "ลิงก์รูปภาพ", placeholder: "https://example.com/image.jpg" },
+          { key: "activityDateISO", label: "วันที่เริ่มต้น (ISO)", placeholder: "20241220T090000Z" },
+          { key: "activityEndDateISO", label: "วันที่สิ้นสุด (ISO)", placeholder: "20241220T160000Z" },
+          { key: "organizerName", label: "ชื่อผู้จัด", placeholder: "คณะวิทยาการสารสนเทศ" },
+          { key: "activityType", label: "ประเภทกิจกรรม", placeholder: "Soft Skill" },
+          { key: "hoursEarned", label: "จำนวนชั่วโมง", placeholder: "3" },
+          { key: "maxParticipants", label: "จำนวนที่รับ", placeholder: "50" }
         ];
       
       case "createActivityTemplate":
@@ -194,12 +204,23 @@ const EmailTemplatePreview: React.FC = () => {
       case "updateActivityTemplate":
         return {
           name: "สมชาย ใจดี",
-          message: "มีการเปลี่ยนแปลงในรายละเอียดกิจกรรม",
+          message: "มีการเปลี่ยนแปลงในรายละเอียดกิจกรรม กรุณาตรวจสอบข้อมูลใหม่",
+          recipientEmail: "student@buu.ac.th",
           activityName: "Workshop การพัฒนาทักษะการนำเสนอ",
           activityDate: "25 ธันวาคม 2024",
           activityTime: "13:00 - 17:00",
-          activityLocation: "ห้องประชุม 401 อาคาร 4",
-          contactEmail: "support@example.com"
+          building: "อาคารคณะวิทยาการสารสนเทศ",
+          floor: "4",
+          room: "401",
+          activityLink: "https://example.com/activity",
+          contactEmail: "support@example.com",
+          activityImage: "https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/F1F2/production/_118283916_b19c5a1f-162b-410b-8169-f58f0d153752.jpg",
+          activityDateISO: "20241225T130000Z",
+          activityEndDateISO: "20241225T170000Z",
+          organizerName: "คณะวิทยาการสารสนเทศ",
+          activityType: "Soft Skill",
+          hoursEarned: "4",
+          maxParticipants: "40"
         };
       
       case "createActivityTemplate":
