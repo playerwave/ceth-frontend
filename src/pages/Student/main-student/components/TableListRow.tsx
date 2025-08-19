@@ -31,6 +31,10 @@ export default function TableListRow({
   const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
 
+  console.log("🔍 [DEBUG] TableListRow - rows received:", rows);
+  console.log("🔍 [DEBUG] TableListRow - rows length:", rows?.length);
+  console.log("🔍 [DEBUG] TableListRow - columns:", columns);
+
   const handleRowClick: GridEventListener<"rowClick"> = (params) => {
     const id = params.row.id;
     if (id) navigate(`/activity-info-student/${id}`);

@@ -14,10 +14,28 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   // โหลดกิจกรรมทั้งหมดของนิสิต
   fetchStudentActivities: async (studentId: number) => {
+    console.log("🔄 [STORE] fetchStudentActivities called with studentId:", studentId);
+    
+    // ตรวจสอบว่ากำลังโหลดอยู่หรือไม่ เพื่อป้องกันการเรียกซ้ำ
+    const currentState = get();
+    if (currentState.activityLoading) {
+      console.log("⚠️ [STORE] Already loading, skipping duplicate call");
+      return;
+    }
+    
     set({ activityLoading: true, activityError: null });
     try {
       const activities = await activityService.fetchActivities(studentId);
-      set({ activities, activityLoading: false });
+      console.log("✅ [STORE] Activities received:", activities);
+      
+      // ตรวจสอบว่า activities ไม่เป็น null หรือ undefined
+      if (activities && Array.isArray(activities)) {
+        set({ activities, activityLoading: false });
+        console.log("✅ [STORE] Activities set successfully, count:", activities.length);
+      } else {
+        console.warn("⚠️ [STORE] Invalid activities data received:", activities);
+        set({ activities: [], activityLoading: false });
+      }
     } catch (error) {
       console.error("❌ Error fetching student activities:", error);
       set({
@@ -76,11 +94,22 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
   fetchEnrolledActivities: async (studentId: number) => {
+    console.log("🔄 [STORE] fetchEnrolledActivities called with studentId:", studentId);
     set({ activityLoading: true, activityError: null });
     try {
       const activities = await activityService.fetchEnrolledActivities(studentId);
-      set({ enrolledActivities: activities, activityLoading: false });
+      console.log("✅ [STORE] Enrolled activities received:", activities);
+      
+      // ตรวจสอบว่า activities เป็น array ที่ถูกต้อง
+      if (activities && Array.isArray(activities)) {
+        set({ enrolledActivities: activities, activityLoading: false });
+        console.log("✅ [STORE] Enrolled activities set successfully, count:", activities.length);
+      } else {
+        console.warn("⚠️ [STORE] Invalid enrolled activities data:", activities);
+        set({ enrolledActivities: [], activityLoading: false });
+      }
     } catch (error) {
+      console.error("❌ [STORE] Error in fetchEnrolledActivities:", error);
       set({
         activityError: "ไม่สามารถโหลดกิจกรรมที่ลงทะเบียนได้",
         activityLoading: false,

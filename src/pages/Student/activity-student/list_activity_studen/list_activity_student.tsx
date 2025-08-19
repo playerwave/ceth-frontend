@@ -39,7 +39,9 @@ const ListActivityStudent: React.FC = () => {
 
   // Fetch user data on mount only if user is not authenticated
   useEffect(() => {
+    console.log("🔍 [DEBUG] Initial useEffect - user:", user);
     if (!user || user.role === "Visitor") {
+      console.log("🔍 [DEBUG] Fetching user data...");
       fetchMe();
     }
   }, []); // ลบ fetchMe ออกจาก dependency array
@@ -48,14 +50,44 @@ const ListActivityStudent: React.FC = () => {
     const id = user?.student?.students_id;
     const isValidId = typeof id === "number" && id > 0;
   
+    console.log("🔍 [DEBUG] useEffect triggered:", { 
+      id, 
+      isValidId, 
+      lastStudentIdRef: lastStudentIdRef.current,
+      user: user?.student 
+    });
+  
     if (isValidId && id !== lastStudentIdRef.current) {
       lastStudentIdRef.current = id;
+      console.log("📞 [DEBUG] Calling fetchStudentActivities with id:", id);
       fetchStudentActivities(id);
     }
   }, [user?.student?.students_id]);
 
+  // Fallback useEffect - if no user data after 2 seconds, use fallback ID
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!user?.student?.students_id && lastStudentIdRef.current === null) {
+        console.log("🔍 [DEBUG] Using fallback student ID: 3");
+        lastStudentIdRef.current = 3;
+        fetchStudentActivities(3);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [user?.student?.students_id]);
+
   // กรองกิจกรรมตาม searchTerm เท่านั้น
   const publicActivities = useMemo(() => {
+    console.log("🔍 [DEBUG] publicActivities useMemo - allPublicActivities:", allPublicActivities);
+    console.log("🔍 [DEBUG] publicActivities useMemo - searchTerm:", searchTerm);
+    
+    // ตรวจสอบว่า allPublicActivities เป็น array ที่ถูกต้อง
+    if (!allPublicActivities || !Array.isArray(allPublicActivities)) {
+      console.warn("⚠️ [DEBUG] allPublicActivities is not a valid array:", allPublicActivities);
+      return [];
+    }
+    
     let filtered = allPublicActivities;
 
     if (searchTerm.trim()) {
@@ -64,6 +96,7 @@ const ListActivityStudent: React.FC = () => {
       );
     }
 
+    console.log("🔍 [DEBUG] publicActivities useMemo - filtered result:", filtered);
     return filtered; // ✅ ลบ .filter((a) => a.activity_status === "Public") ออก
   }, [allPublicActivities, searchTerm]);
 
@@ -152,18 +185,18 @@ const ListActivityStudent: React.FC = () => {
         <p className="text-center text-red-500 p-4">
           ❌ เกิดข้อผิดพลาด: {activityError}
         </p>
-      ) : activeTab === "list" && publicActivities.length === 0 ? (
+      ) : activeTab === "list" && (!publicActivities || publicActivities.length === 0) ? (
         <p className="text-center text-gray-500 p-4">
           📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
         </p>
-      ) : activeTab === "recommend" && recommendedActivities.length === 0 ? (
+      ) : activeTab === "recommend" && (!recommendedActivities || recommendedActivities.length === 0) ? (
         <p className="text-center text-gray-500 p-4">
           📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
         </p>
       ) : activeTab === "list" ? (
-        <ActivityTablePageStudent rows1={publicActivities} rows2={[]} />
+        <ActivityTablePageStudent rows1={publicActivities || []} rows2={[]} />
       ) : activeTab === "recommend" ? (
-        <ActivityTablePageStudent rows1={[]} rows2={recommendedActivities} />
+        <ActivityTablePageStudent rows1={[]} rows2={recommendedActivities || []} />
       ) : (
         <div className="text-center text-gray-500 p-6">
           <h2 className="text-xl font-semibold">

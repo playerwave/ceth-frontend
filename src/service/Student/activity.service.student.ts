@@ -6,10 +6,28 @@ const STUDENT_ACTIVITY_PATH = "/student/activity";
 
 //--------------------- Fetch Activities for a Student -------------------------
 export const fetchActivities = async (studentId: number): Promise<Activity[]> => {
-  const response = await axiosInstance.get<Activity[]>(
-    `${STUDENT_ACTIVITY_PATH}/get-student-activities/${studentId}`
-  );
-  return response.data;
+  console.log("🌐 [SERVICE] fetchActivities called with studentId:", studentId);
+  console.log("🌐 [SERVICE] Making request to:", `${STUDENT_ACTIVITY_PATH}/get-student-activities/${studentId}`);
+  
+  try {
+    const response = await axiosInstance.get<Activity[]>(
+      `${STUDENT_ACTIVITY_PATH}/get-student-activities/${studentId}`
+    );
+    
+    console.log("✅ [SERVICE] Response received:", response.data);
+    
+    // ตรวจสอบว่า response.data เป็น array ที่ถูกต้อง
+    if (response.data && Array.isArray(response.data)) {
+      console.log("✅ [SERVICE] Valid response data, count:", response.data.length);
+      return response.data;
+    } else {
+      console.warn("⚠️ [SERVICE] Invalid response data:", response.data);
+      return [];
+    }
+  } catch (error) {
+    console.error("❌ [SERVICE] Error in fetchActivities:", error);
+    throw error;
+  }
 };
 //------------------------------------------------------------------------------
 
@@ -28,10 +46,28 @@ export const searchActivities = async (
 export const fetchEnrolledActivities = async (
   studentId: number
 ): Promise<Activity[]> => {
-  const response = await axiosInstance.get<Activity[]>(
-    `/student/activity/get-enrolled-activities/${studentId}`
-  );
-  return response.data;
+  console.log("🌐 [SERVICE] fetchEnrolledActivities called with studentId:", studentId);
+  console.log("🌐 [SERVICE] Making request to:", `/student/activity/get-enrolled-activities/${studentId}`);
+  
+  try {
+    const response = await axiosInstance.get<Activity[]>(
+      `/student/activity/get-enrolled-activities/${studentId}`
+    );
+    
+    console.log("✅ [SERVICE] Enrolled activities response received:", response.data);
+    
+    // ตรวจสอบว่า response.data เป็น array ที่ถูกต้อง
+    if (response.data && Array.isArray(response.data)) {
+      console.log("✅ [SERVICE] Valid enrolled activities data, count:", response.data.length);
+      return response.data;
+    } else {
+      console.warn("⚠️ [SERVICE] Invalid enrolled activities response data:", response.data);
+      return [];
+    }
+  } catch (error) {
+    console.error("❌ [SERVICE] Error in fetchEnrolledActivities:", error);
+    throw error;
+  }
 };
 //------------------------------------------------------------------------------
 

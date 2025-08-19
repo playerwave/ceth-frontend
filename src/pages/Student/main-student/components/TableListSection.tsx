@@ -31,14 +31,23 @@ export default function TableListSection() {
   } = useActivityStore();
 
   const { user } = useAuthStore();
-  const userId = user?.userId || 8;
+  const studentId = user?.student?.students_id || 3; // ใช้ students_id แทน userId
+
+  console.log("🔍 [DEBUG] TableListSection - user:", user);
+  console.log("🔍 [DEBUG] TableListSection - studentId:", studentId);
 
   // 👉 โหลดข้อมูลครั้งแรก
   useEffect(() => {
-    if (userId) {
-      fetchEnrolledActivities(userId);
+    console.log("🔍 [DEBUG] TableListSection useEffect - studentId:", studentId);
+    if (studentId) {
+      console.log("📞 [DEBUG] Calling fetchEnrolledActivities with studentId:", studentId);
+      fetchEnrolledActivities(studentId);
     }
-  }, [userId, fetchEnrolledActivities]);
+  }, [studentId]); // ลบ fetchEnrolledActivities ออกจาก dependency
+
+  console.log("🔍 [DEBUG] TableListSection render - enrolledActivities:", enrolledActivities);
+  console.log("🔍 [DEBUG] TableListSection render - activityLoading:", activityLoading);
+  console.log("🔍 [DEBUG] TableListSection render - activityError:", activityError);
 
   return (
     <div>
@@ -46,14 +55,28 @@ export default function TableListSection() {
         ลิสต์กิจกรรมของฉัน
       </Typography>
 
-      <TableListRow
-        columns={columns}
-        rows={enrolledActivities}     // ✅ ใช้ข้อมูลจาก store
-        height={420}
-        width="100%"
-        initialPageSize={10}
-        selectedTypes={selectedTypes}
-      />
+      {activityLoading ? (
+        <div className="text-center p-4">
+          <p>กำลังโหลดกิจกรรม...</p>
+        </div>
+      ) : activityError ? (
+        <div className="text-center text-red-500 p-4">
+          <p>❌ เกิดข้อผิดพลาด: {activityError}</p>
+        </div>
+      ) : !enrolledActivities || enrolledActivities.length === 0 ? (
+        <div className="text-center text-gray-500 p-4">
+          <p>📭 ไม่พบกิจกรรมที่ลงทะเบียน</p>
+        </div>
+      ) : (
+        <TableListRow
+          columns={columns}
+          rows={enrolledActivities}     // ✅ ใช้ข้อมูลจาก store
+          height={420}
+          width="100%"
+          initialPageSize={10}
+          selectedTypes={selectedTypes}
+        />
+      )}
     </div>
   );
 }

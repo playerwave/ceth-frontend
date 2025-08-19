@@ -249,3 +249,5 @@ export const getTablePendingColumn = (
 
   return columns;
 };
+
+

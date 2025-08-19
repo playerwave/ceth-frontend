@@ -11,7 +11,9 @@ type Props = {
 };
 
 const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
-  console.log("rows2:", rows2); // ✅ เพิ่มชั่วคราว
+  console.log("🔍 [DEBUG] ActivityTablePageStudent render - rows1:", rows1);
+  console.log("🔍 [DEBUG] ActivityTablePageStudent render - rows2:", rows2);
+  
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const navigate = useNavigate();
 
