@@ -27,6 +27,7 @@ interface ActivityStore {
   activity?: Activity | null;
   searchResults?: Activity[] | null;
   enrolledStudents?: any[];
+  fetchEndedActivities: () => Promise<void>;
 }
 
 export const useActivityStore = create<ActivityStore>((set) => ({
@@ -249,4 +250,33 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     }
   },
   //----------------------------------------------------------------
+
+  //--------------------- Fetch Ended Activities -------------------------
+// ดึงเฉพาะกิจกรรมที่สิ้นสุดแล้ว โดยมีเงื่อนไขขึ้นกับ event_format
+fetchEndedActivities: async () => {
+  console.log("📥 Fetching ended activities for teacher...");
+
+  set({ loading: true, error: null });
+  try {
+    const data = await activityService.fetchAllActivities();
+
+    // เงื่อนไขตาม event_format
+    const ended = data.filter((a: any) => {
+      if (a.event_format === "Course") {
+        return a.activity_state === "End Activity";
+      } else {
+        return a.activity_state === "End Assessment";
+      }
+    });
+
+    set({ activities: ended });
+    console.log("teacher fetchEndedActivities: ", ended);
+  } catch (err) {
+    set({ error: "Failed to fetch ended activities" });
+  } finally {
+    set({ loading: false });
+  }
+},
+//----------------------------------------------------------------
+
 }));

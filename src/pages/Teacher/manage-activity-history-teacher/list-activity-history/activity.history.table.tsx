@@ -7,13 +7,16 @@ import { GridColDef } from "@mui/x-data-grid";
 import { getActivityColumns } from "../../../../components/activity_column";
 import { Activity } from "../../../../types/model";
 import "./components/table.history.css"
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   rows1: Activity[];
+  onRowDoubleClick?: (row: Activity) => void; 
 };
 
 const ActivityHistoryTable = ({ rows1 }: Props) => {
   // ✅ State สำหรับประเภทที่เลือก
+  const navigate = useNavigate();   
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
   // ✅ ฟังก์ชัน toggle ประเภท
@@ -41,6 +44,16 @@ const ActivityHistoryTable = ({ rows1 }: Props) => {
     [selectedTypes]
   );
 
+   const handleRowDoubleClick = (row: Activity) => {
+    // วิธีที่ 1: ส่ง state ไปด้วย (อ่านได้จาก useLocation().state)
+    navigate("/activity-history-info-teacher", {
+      state: { activityId: row.activity_id, activity: row },
+    });
+
+    // วิธีที่ 2 (ถ้าจะใช้พาธมี id): 
+    // navigate(`/activity-history-info-teacher/${row.activity_id}`);
+  };
+
   return (
   <div style={{ padding: 24 }}>
   <CustomCard height={730} width="1312px">
@@ -54,6 +67,7 @@ const ActivityHistoryTable = ({ rows1 }: Props) => {
         height={650}       // ให้ตารางเองมี height (อย่า auto)
         width="100%"
         borderRadius={14}
+        onRowDoubleClick={handleRowDoubleClick}
       />
     </div>
   </CustomCard>
