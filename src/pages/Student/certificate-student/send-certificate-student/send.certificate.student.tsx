@@ -1,10 +1,11 @@
 import { useState } from "react";
 import CustomCard from "../../../../components/Card";
-import { ChevronLeft } from "lucide-react";
+import { Check, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UploadCertificate from "./components/UploadCertificate";
 import OcrResult from "./components/OcrResult";
 import { callBuuOcr } from "./utils/ocrHelper";
+import Button from "../../../../components/Button";
 
 export default function SendCertificateStudent() {
   const navigate = useNavigate();
@@ -14,28 +15,23 @@ export default function SendCertificateStudent() {
 
   const [disabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false); // ✅ เพิ่ม
 
-  // function ส่งไฟล์ไป backend OCR
   async function handleSendToOcr() {
-  if (!file) {
-    alert("กรุณาเลือกไฟล์ก่อน");
-    return;
+    if (!file) {
+      alert("กรุณาเลือกไฟล์ก่อน");
+      return;
+    }
+    setLoading(true);
+
+    try {
+      const result = await callBuuOcr(file);
+      setOcrResult({ ...result, score: "-", score_float: 0 });
+      setSubmitted(true); // ✅ หลังเสร็จ 1 รอบ ห้ามกดซ้ำ
+    } finally {
+      setLoading(false);
+    }
   }
-
-  setLoading(true);
-
-  try {
-    const result = await callBuuOcr(file);
-
-    setOcrResult({
-      ...result,
-      score: "-",
-      score_float: 0,
-    });
-  } finally {
-    setLoading(false);
-  }
-}
 
   return (
     <div className="ml-5 md:ml-25 mr-5">
@@ -56,16 +52,32 @@ export default function SendCertificateStudent() {
           previewImage={previewImage}
           setPreviewImage={setPreviewImage}
           setFile={setFile}
+          file={file}
           disabled={disabled}
         />
 
-        <button
-          className="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
-          onClick={handleSendToOcr}
-          disabled={loading}
-        >
-          {loading ? "กำลังตรวจสอบ..." : "ส่งตรวจ OCR"}
-        </button>
+        <div className="flex justify-end mt-4">
+          <Button
+            onClick={() => {
+              if (loading || submitted) return;
+              handleSendToOcr();
+            }}
+            bgColor={submitted ? "#22C55E" : undefined} // ✅ เปลี่ยนเป็นสีเขียวเฉพาะตอน submitted
+            textColor="#FFFFFF"
+            className={`${loading || submitted ? "cursor-not-allowed" : "hover:bg-blue-700"} mt-4 flex items-center gap-2`}
+          >
+            {loading ? (
+              "กำลังตรวจสอบ..."
+            ) : submitted ? (
+              <>
+                <Check className="w-4 h-4" />
+                ส่งแล้ว
+              </>
+            ) : (
+              "ส่งตรวจ OCR"
+            )}
+          </Button>
+        </div>
       </CustomCard>
 
       <br />

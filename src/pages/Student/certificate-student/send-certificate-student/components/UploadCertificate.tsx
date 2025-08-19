@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
-import { ImagePlus } from "lucide-react";
+import { useEffect } from "react";
+import { ImagePlus, X } from "lucide-react";
 
 interface UploadCertificateProps {
   previewImage: string | null;
   setPreviewImage: (url: string | null) => void;
-  setFile: (file: File | null) => void;    // ✨ เพิ่มมา
+  setFile: (file: File | null) => void;
+  file: File | null;      // <--- ต้องส่งเข้ามาด้วย
   disabled: boolean;
 }
 
@@ -12,13 +13,15 @@ export default function UploadCertificate({
   previewImage,
   setPreviewImage,
   setFile,
+  file,
   disabled,
 }: UploadCertificateProps) {
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     setFile(f || null);
     if (!f) return;
-    if (f.type.startsWith("image/")) {
+
+    if (f.type.startsWith("image/") || f.type === "application/pdf") {
       setPreviewImage(URL.createObjectURL(f));
     } else {
       setPreviewImage(null);
@@ -51,17 +54,40 @@ export default function UploadCertificate({
             <label
               htmlFor="fileUpload"
               className={`absolute inset-0 rounded-lg flex items-center justify-center ${
-                disabled
-                  ? "cursor-not-allowed"
-                  : "cursor-pointer hover:bg-gray-50"
+                disabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"
               } transition`}
             >
               {previewImage ? (
-                <img
-                  src={previewImage}
-                  alt="รูปภาพเกียรติบัตร"
-                  className="h-full w-full object-contain rounded-lg"
-                />
+                <>
+                  {/* ปุ่มลบ */}
+                  <div className="absolute top-2 right-2 z-10">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setFile(null);
+                        setPreviewImage(null);
+                      }}
+                      className="bg-white rounded-full p-1 border border-gray-400 hover:bg-gray-100"
+                    >
+                      <X className="w-5 h-5 text-red-600" />
+                    </button>
+                  </div>
+
+                  {file?.type === "application/pdf" ? (
+                    <embed
+                      src={previewImage}
+                      type="application/pdf"
+                      className="h-full w-full rounded-lg"
+                    />
+                  ) : (
+                    <img
+                      src={previewImage}
+                      alt="รูปภาพเกียรติบัตร"
+                      className="h-full w-full object-contain rounded-lg"
+                    />
+                  )}
+                </>
               ) : (
                 <div className="text-center text-gray-500">
                   <ImagePlus size={40} className="mx-auto" />
