@@ -24,6 +24,7 @@ import {activityHistoryRoutes} from "./routes/activity-history.route"
 import {userRoutes} from "./routes/user.route"
 import {foodRoutes} from "./routes/food.route"
 import {roomRoutes} from "./routes/room.route"
+import {emailRoutes} from "./routes/email.route"
 
 // Visitor pages
 import VisitorActivityList from "./pages/visitor/activity-list/visiter";
@@ -157,6 +158,7 @@ function App() {
         {renderRoutesByRole(userRoutes, role)}
         {renderRoutesByRole(foodRoutes, role)}
         {renderRoutesByRole(roomRoutes, role)}
+        {renderRoutesByRole(emailRoutes, role)}
 
         {/* 👥 Visitor routes */}
         <Route
@@ -177,6 +179,7 @@ function App() {
             </Navbar>
           }
         />
+
       </Routes>
     </>
   );

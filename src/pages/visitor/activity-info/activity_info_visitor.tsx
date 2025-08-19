@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useActivityStore } from "../../../stores/Student/store_activity_info";
+import { useActivityStore } from "../../../stores/Student/activity.store.student";
 
 // Import components
 import ActivityHeader from "./components/ActivityHeader";
@@ -10,6 +10,7 @@ import FoodSelector from "./components/FoodSelector";
 import ActivityFooter from "./components/ActivityFooter"; // เปลี่ยนเป็น ActivityFooter
 import Loading from "../../../components/Loading";
 import ActivityLink from "./components/ActivityUrl";
+import { fetchActivities } from "../../../service/Student/activity.service.student";
 
 export default function ActivityInfoVisitor() {
   const { id: paramId } = useParams();
@@ -20,7 +21,7 @@ export default function ActivityInfoVisitor() {
   const {
     activity,
     activityLoading,
-    error,
+    activityError,
     fetchActivity,
     enrollActivity,
     enrolledActivities,
@@ -38,14 +39,14 @@ export default function ActivityInfoVisitor() {
   }, []);
 
   useEffect(() => {
-    fetchActivity(id);
+    fetchActivities(id);
   }, [fetchEnrolledActivities]);
 
   useEffect(() => {
     if (enrolledActivities.length === 0) return;
 
     const isUserEnrolled = enrolledActivities.some(
-      (act) => Number(act.ac_id) === Number(id),
+      (act) => Number(act.activity_id) === Number(id),
     );
 
     setIsEnrolled(isUserEnrolled);
@@ -56,8 +57,8 @@ export default function ActivityInfoVisitor() {
   };
 
   if (activityLoading) return <Loading />;
-  if (error)
-    return <p className="text-center text-lg text-red-500">❌ {error}</p>;
+  if (activityError)
+    return <p className="text-center text-lg text-red-500">❌ {activityError}</p>;
   if (!activity) return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
 
   return (
@@ -75,7 +76,7 @@ export default function ActivityInfoVisitor() {
         <ActivityHeader activity={activity} />
         <ActivityImage imageUrl={activity.image_url} />
         <ActivityDetails activity={activity} />
-        {activity.location_type === "Onsite" && (
+        {activity.event_format === "Onsite" && (
           <FoodSelector
             activity={activity}
             selectedFood={selectedFood} // ส่ง selectedFood ไปให้ FoodSelector
@@ -85,10 +86,10 @@ export default function ActivityInfoVisitor() {
         )}
 
         <br />
-        {activity.location_type !== "Onsite" && (
+        {activity.event_format !== "Onsite" && (
           <ActivityLink
             url="https://mooc.buu.ac.th/courses/course-v1:BUU+IF002+2024/course/"
-            label={`${activity.company_lecturer}.com`}
+            label={`${activity.presenter_company_name}.com`}
           />
         )}
         <ActivityFooter
