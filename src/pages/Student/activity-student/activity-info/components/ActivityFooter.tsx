@@ -89,12 +89,12 @@ export default function ActivityFooter({
   };
 
   const handleUnenroll = async () => {
-    if (!studentId) {
+    if (!currentUserId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
     try {
-      await unenrollActivity(studentId, activity.activity_id);
+      await unenrollActivity(currentUserId, activity.activity_id);
       setIsEnrolled(false);
       navigate("/main-student");
       toast.success("✅ ยกเลิกการลงทะเบียนสำเร็จ");
@@ -170,7 +170,13 @@ export default function ActivityFooter({
         <div className="flex justify-end gap-3">
           <Button onClick={() => window.history.back()}>← กลับ</Button>
 
-          {isEnrolled ? (
+          {activity.event_format === "Course" ? (
+            <Button 
+              onClick={() => navigate("/send-certificate-student")}
+            >
+              ยื่นเกียรติบัตร
+            </Button>
+          ) : isEnrolled ? (
             <Button bgColor="red" onClick={() => setIsUnEnrollModalOpen(true)}>
               ยกเลิกลงทะเบียน
             </Button>

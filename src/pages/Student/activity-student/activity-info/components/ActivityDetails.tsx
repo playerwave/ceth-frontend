@@ -89,11 +89,8 @@ export default function ActivityDetails({ activity }: Props) {
             <span
               className="px-2 py-1 rounded text-sm sm:text-base"
               style={{
-                backgroundColor:
-                  activity.type === "Hard Skill"
-                    ? "rgba(255, 174, 0, 0.2)"
-                    : "rgba(9, 0, 255, 0.2)",
-                color: activity.type === "Hard Skill" ? "#FFAE00" : "#0900FF",
+                backgroundColor: "rgba(255, 174, 0, 0.2)",
+                color: "#FFAE00",
                 minWidth: "100px",
                 display: "flex",
                 justifyContent: "center",
