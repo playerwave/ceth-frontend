@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Typography } from "@mui/material";
+import Loading from "../../../../components/Loading";
+import CustomCard from "../../../../components/Card";
 import TableListRow from "./TableListRow";
 import { getTableListColumn } from "./TableListColumn";
 import { Typography } from "@mui/material";

@@ -89,12 +89,12 @@ export default function ActivityFooter({
   };
 
   const handleUnenroll = async () => {
-    if (!currentUserId) {
+    if (!studentId) {
       toast.error("❌ ไม่พบข้อมูลผู้ใช้");
       return;
     }
     try {
-      await unenrollActivity(currentUserId, activity.activity_id);
+      await unenrollActivity(studentId, activity.activity_id);
       setIsEnrolled(false);
       navigate("/main-student");
       toast.success("✅ ยกเลิกการลงทะเบียนสำเร็จ");

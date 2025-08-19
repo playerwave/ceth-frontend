@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Box } from "@mui/material";
 
 import { useActivityStore } from "../../../stores/Student/activity.store.student";
+import { useAuthStore } from "../../../stores/Visitor/auth.store";
 import SoftHardSkillCards from "../main-student/components/SoftHardSkillCards";
 import BarChartSection from "../main-student/components/BarChartSection";
 import TableActivitySection from "../main-student/components/TableListSection";
 import ActivityTabs from "../main-student/components/ActivityTabs"; // ✅ Tabs
 import TablePendingEvaluation from "./components/TablePendingEvaluation";
-import { useAuthStore } from "../../../stores/Visitor/auth.store";
-import CustomCard from "../../../components/Card";
 
 const MainStudent = () => {
   const [searchId, setSearchId] = useState("");
@@ -23,20 +22,65 @@ const MainStudent = () => {
     activityError,
   } = useActivityStore();
 
-  // แปลง userId จาก localStorage (string) เป็น number
-  const { user } = useAuthStore(); // หรือ context ที่เก็บ user login
-  const userId = user?.userId;
-
-  useEffect(() => {
-    if (userId) {
-      fetchEnrolledActivities(userId);
-    }
-  }, [userId, fetchEnrolledActivities]);
-
-  useEffect(() => {
-    console.log("📌 ข้อมูลกิจกรรมที่ลงทะเบียน:", enrolledActivities);
-  }, [enrolledActivities]);
+  const { user, fetchMe } = useAuthStore();
+  const lastStudentIdRef = useRef<number | null>(null);
   
+  // ใช้ students_id จาก auth store หรือ fallback เป็น 3
+  const studentId = useMemo(() => {
+    console.log("🔍 studentId recalculated:", user?.student?.students_id);
+    return user?.student?.students_id || 3;
+  }, [user?.student?.students_id]);
+
+  // Fetch user data on mount only if user is not authenticated
+  useEffect(() => {
+    if (!user || user.role === "Visitor") {
+      fetchMe();
+    }
+  }, []); // ลบ fetchMe ออกจาก dependency array
+
+  useEffect(() => {
+    const id = user?.student?.students_id;
+    const isValidId = typeof id === "number" && id > 0;
+  
+    if (isValidId && id !== lastStudentIdRef.current) {
+      lastStudentIdRef.current = id;
+      fetchEnrolledActivities(id);
+    }
+  }, [user?.student?.students_id]);
+
+  // แปลง Activity[] เป็น MainActivity[] สำหรับ TableListSection
+  const mainActivities = enrolledActivities.map((act) => ({
+    ac_id: act.activity_id,
+    ac_name: act.activity_name || "",
+    ac_company_lecturer: act.presenter_company_name || "",
+    ac_description: act.description || "",
+    ac_type: (act.type === "Soft" ? "Soft Skill" : "Hard Skill") as "Soft Skill" | "Hard Skill",
+    ac_start_time: act.start_activity_date ? new Date(act.start_activity_date).toISOString() : new Date().toISOString(),
+    ac_end_time: act.end_activity_date ? new Date(act.end_activity_date).toISOString() : new Date().toISOString(),
+    ac_seat: act.seat || 0,
+    ac_registered_count: 0, // ต้องดึงจาก database ถ้าต้องการ
+    ac_status: act.activity_status || "Private",
+    ac_state: "Enrolled" as "Not Start" | "Enrolled" | "Ended", // เนื่องจากเป็น enrolled activities
+    ac_location_type: act.event_format || "Online",
+    ac_soft_hours: act.type === "Soft" ? (act.recieve_hours || 0) : 0,
+    ac_hard_hours: act.type === "Hard" ? (act.recieve_hours || 0) : 0,
+    ac_start_assessment: act.start_assessment ? new Date(act.start_assessment) : null,
+    ac_end_assessment: act.end_assessment ? new Date(act.end_assessment) : null,
+  }));
+
+  const transformedActivities = enrolledActivities
+    .filter((act) => act.activity_status === "Public")
+    .map((act) => ({
+      id: act.activity_id.toString(),
+      name: act.activity_name,
+      company_lecturer: act.presenter_company_name,
+      description: act.description,
+      type: act.type as "Soft Skill" | "Hard Skill",
+      start_time: new Date(act.start_activity_date),
+      seat: act.seat,
+      status: act.activity_status as "Public" | "Private",
+      // registered_count: act.ac_registered_count,
+    }));
 
   return (
     <Box className="justify-items-center">
@@ -64,9 +108,17 @@ const MainStudent = () => {
           <CustomCard className="flex flex-col gap-6 text-lg mt-4">
           {activeTab === "enrolled" ? (
             <TableActivitySection
+              activityLoading={activityLoading}
+              activityError={activityError}
+              enrolledActivities={mainActivities}
+              transformedActivities={transformedActivities}
             />
           ) : (
             <TablePendingEvaluation
+              activityLoading={activityLoading}
+              activityError={activityError}
+              enrolledActivities={mainActivities}
+              transformedActivities={transformedActivities}
             />
           )}
         </CustomCard>

@@ -31,22 +31,17 @@ export default function TableListRow({
   const [locationFilter] = useState<string>("");
 
   const handleRowClick: GridEventListener<"rowClick"> = (params) => {
-    const id = params.row.activity_id;
-    if (id) {
-      navigate(`/activity-info-student/${id}`, {
-        state: { id },
-      });
-    }
+    const id = params.row.id;
+    if (id) navigate(`/activity-info-student/${id}`);
   };
 
-  // ✅ filter ประเภท(type)
-  const filteredRows = rows
-    .filter((row) =>
-      locationFilter ? row.event_format === locationFilter : true
-    )
-    .filter((row) =>
-      selectedTypes.length > 0 ? selectedTypes.includes(row.type) : true
-    );
+  const handleLocationChange = (event: SelectChangeEvent) => {
+    setLocationFilter(event.target.value);
+  };
+
+  const filteredRows = locationFilter
+    ? rows.filter((row) => row.location_type === locationFilter)
+    : rows;
 
   console.log(filteredRows.map((r) => r.activity_id));
 

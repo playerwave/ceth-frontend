@@ -19,9 +19,7 @@ export const useAuthStore = create<AuthState>()(
           const apiUser = await authService.login({ username, password });
           const authUser = mapApiToAuthUser(apiUser);
           set({ user: authUser, isAuthenticated: true });
-
-          // ✅ ตอนนี้ get() ไม่ error แล้ว
-          await get().fetchMe();
+          // ลบ fetchMe ออกเพราะ login response มีข้อมูลครบแล้ว
         } catch (error) {
           console.error("Login error:", error);
           set({ authError: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" });
@@ -61,21 +59,8 @@ export const useAuthStore = create<AuthState>()(
           set({ user: authUser, isAuthenticated: true });
         } catch (error) {
           console.error("FetchMe error:", error);
-
-          // 🔧 เพิ่ม fallback user แบบ Visitor หากโหลดไม่สำเร็จ
-          set({
-            user: {
-              userId: 0,
-              username: "guest",
-              role: {
-                roles_id: 0,
-                role_name: "Visitor",
-              },
-              role_id: 0,
-              token: "",
-            },
-            isAuthenticated: false,
-          });
+          // ไม่ set fallback user เพื่อป้องกัน loop
+          set({ authError: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้" });
         } finally {
           set({ authLoading: false });
         }

@@ -14,6 +14,7 @@ export interface MainActivity {
   ac_state: "Enrolled" | "Not Start" | "Ended"; // ✅ เพิ่มฟิลด์นี้
   ac_start_assessment: Date | null;
   ac_end_assessment: Date | null;
+  activity_state?: "Not Start" | "Special Open Register" | "Open Register" | "Close Register" | "Start Activity" | "End Activity" | "Start Assessment" | "End Assessment"; // ✅ เพิ่มฟิลด์ activity_state
 }
 
 export interface MainActivityState {

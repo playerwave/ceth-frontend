@@ -76,15 +76,7 @@ export const activityRoutes = [
     icon: "ClipboardList",
     roles: ["Student"] as RoleName[],
     visibleInSidebar: false,
-    protectionLevel: ProtectionLevel.ENCRYPTED // เข้ารหัสแบบเต็มเพราะมีข้อมูลสำคัญ
-  },
-  {
-    path: "/activity-info-student/:id",
-    element: <ActivityInfoStudent />,
-    label: "ดูข้อมูลกิจกรรมนิสิต",
-    icon: "ClipboardList",
-    roles: ["Student"] as RoleName[],
-    visibleInSidebar: false
+    protectionLevel: ProtectionLevel.NONE // ไม่เข้ารหัสสำหรับ URL แบบเก่า
   },
   {
     path: "/activity-list-visitor",

@@ -20,6 +20,8 @@ export function mapApiToAuthUser(api: AuthResponse): AuthUser {
     role: api.user.roles?.roles_name ?? "Student", // ✅ fallback ป้องกัน undefined
     role_id: api.user.roles?.roles_id ?? api.user.roles_id ?? 2,
     token: api.token,
+    student: api.user.student,
+    teacher: api.user.teacher,
   };
 }
 
@@ -40,5 +42,7 @@ export function mapUserToAuthUser(user: AuthResponse["user"]): AuthUser {
     role: user.roles.roles_name, // ✅ เปลี่ยนตรงนี้จาก user.role_name
     role_id: user.roles_id,
     token: localStorage.getItem("token") ?? "",
+    student: user.student,
+    teacher: user.teacher,
   };
 }

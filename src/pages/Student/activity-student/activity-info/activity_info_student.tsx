@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
 
@@ -29,19 +29,34 @@ export default function ActivityInfoStudent() {
     unenrollActivity,
   } = useActivityStore();
 
-  const { user } = useAuthStore();
-  const userId = user?.userId || 8; // ใช้ userId จริงหรือ fallback เป็น 8
+  const { user, fetchMe } = useAuthStore();
+  const lastStudentIdRef = useRef<number | null>(null);
+  
+  // ใช้ students_id จาก auth store หรือ fallback เป็น 3
+  const studentId = useMemo(() => {
+    return user?.student?.students_id || 3;
+  }, [user?.student?.students_id]);
 
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [selectedFood, setSelectedFood] = useState<string>("");
 
+  // Fetch user data on mount only if user is not authenticated
   useEffect(() => {
-    fetchEnrolledActivities(userId);
-  }, [userId]);
+    if (!user || user.role === "Visitor") {
+      fetchMe();
+    }
+  }, []); // ลบ fetchMe ออกจาก dependency array
 
   useEffect(() => {
-    fetchActivity(id, userId);
-  }, [id, userId]);
+    const studentIdValue = user?.student?.students_id;
+    const isValidId = typeof studentIdValue === "number" && studentIdValue > 0;
+  
+    if (isValidId && studentIdValue !== lastStudentIdRef.current) {
+      lastStudentIdRef.current = studentIdValue;
+      fetchEnrolledActivities(studentIdValue);
+      fetchActivity(id, studentIdValue);
+    }
+  }, [user?.student?.students_id, id]);
 
   useEffect(() => {
     if (enrolledActivities.length === 0) return;
@@ -66,42 +81,25 @@ export default function ActivityInfoStudent() {
     <div className="justify-items-center">
       <div className="w-320 h-auto min-h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <ActivityHeader activity={activity} />
-        <ActivityImage
-          imageUrl={
-            typeof activity.image_url === "string" ? activity.image_url : null
-          }
+        <ActivityImage imageUrl={typeof activity.image_url === "string" ? activity.image_url : null} />
+        <ActivityDetails activity={activity} />
+        <FoodSelector
+          activity={activity}
+          selectedFood={selectedFood}
+          setSelectedFood={setSelectedFood}
+          isEnrolled={isEnrolled}
         />
-
-        <div className="mt-10">
-          <ActivityDetails activity={activity} />
-        </div>
-
-        <div className="mt-8">
-          <FoodSelector
-            activity={activity}
-            selectedFood={selectedFood}
-            setSelectedFood={setSelectedFood}
-            isEnrolled={isEnrolled}
-          />
-        </div>
-
-        <div className="mt-8">
-          <ActivityUrl url={activity.url || ""} label={activity.url || "-"} />
-        </div>
-
-        <div className="mt-8">
-          <ActivityFooter
-            activity={activity}
-            isEnrolled={isEnrolled}
-            enrollActivity={enrollActivity}
-            unenrollActivity={unenrollActivity}
-            setIsEnrolled={setIsEnrolled}
-            navigate={navigate}
-            enrolledActivities={enrolledActivities}
-            selectedFood={selectedFood}
-            userId={userId}
-          />
-        </div>
+        <ActivityFooter
+          activity={activity}
+          isEnrolled={isEnrolled}
+          enrollActivity={enrollActivity}
+          unenrollActivity={unenrollActivity}
+          setIsEnrolled={setIsEnrolled}
+          navigate={navigate}
+          enrolledActivities={enrolledActivities}
+          selectedFood={selectedFood}
+          userId={studentId}
+        />
       </div>
     </div>
   );

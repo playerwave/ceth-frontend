@@ -1,5 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
+import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 import { useNavigate } from "react-router-dom";
 
 import Loading from "../../../../components/Loading";
@@ -13,7 +14,13 @@ import { Activity } from "../../../../types/model";
 
 const ListActivityStudent: React.FC = () => {
   const navigate = useNavigate();
-  const userId = 14;
+  const { user, fetchMe } = useAuthStore();
+  const lastStudentIdRef = useRef<number | null>(null);
+  
+  // ใช้ students_id จาก auth store หรือ fallback เป็น 3
+  const studentId = useMemo(() => {
+    return user?.student?.students_id || 3;
+  }, [user?.student?.students_id]);
 
   const {
     activities: allPublicActivities,
@@ -30,9 +37,22 @@ const ListActivityStudent: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
 
+  // Fetch user data on mount only if user is not authenticated
   useEffect(() => {
-    fetchStudentActivities(userId);
-  }, [fetchStudentActivities, userId]);
+    if (!user || user.role === "Visitor") {
+      fetchMe();
+    }
+  }, []); // ลบ fetchMe ออกจาก dependency array
+
+  useEffect(() => {
+    const id = user?.student?.students_id;
+    const isValidId = typeof id === "number" && id > 0;
+  
+    if (isValidId && id !== lastStudentIdRef.current) {
+      lastStudentIdRef.current = id;
+      fetchStudentActivities(id);
+    }
+  }, [user?.student?.students_id]);
 
   // กรองกิจกรรมตาม searchTerm เท่านั้น
   const publicActivities = useMemo(() => {

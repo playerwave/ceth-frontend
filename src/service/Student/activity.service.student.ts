@@ -5,9 +5,9 @@ import { Activity } from "../../types/model";
 const STUDENT_ACTIVITY_PATH = "/student/activity";
 
 //--------------------- Fetch Activities for a Student -------------------------
-export const fetchActivities = async (userId: number): Promise<Activity[]> => {
+export const fetchActivities = async (studentId: number): Promise<Activity[]> => {
   const response = await axiosInstance.get<Activity[]>(
-    `${STUDENT_ACTIVITY_PATH}/get-student-activities/${userId}`
+    `${STUDENT_ACTIVITY_PATH}/get-student-activities/${studentId}`
   );
   return response.data;
 };
@@ -26,10 +26,10 @@ export const searchActivities = async (
 
 //--------------------- Fetch Enrolled Activities for a Student -------------------------
 export const fetchEnrolledActivities = async (
-  userId: number
+  studentId: number
 ): Promise<Activity[]> => {
   const response = await axiosInstance.get<Activity[]>(
-    `/student/activity/get-enrolled-activities/${userId}`
+    `/student/activity/get-enrolled-activities/${studentId}`
   );
   return response.data;
 };
@@ -37,10 +37,10 @@ export const fetchEnrolledActivities = async (
 
 //--------------------- Fetch Recommended Activity IDs --------------------------
 export const fetchRecommendedIds = async (
-  userId: number
+  studentId: number
 ): Promise<number[]> => {
   const response = await axiosInstance.get<number[]>(
-    `${STUDENT_ACTIVITY_PATH}/recommended?userId=${encodeURIComponent(userId)}`
+    `${STUDENT_ACTIVITY_PATH}/recommended?studentId=${encodeURIComponent(studentId)}`
   );
   return response.data;
 };
@@ -57,18 +57,18 @@ export const fetchActivity = async (id: number | string): Promise<Activity> => {
 
 //--------------------- Enrolled Activity --------------------------------------
 export const enrollActivity = async (
-  userId: number,
+  studentId: number,
   activityId: number,
   food?: string[]
 ) => {
   console.log("in service");
 
-  console.log("userId: ", userId);
+  console.log("studentId: ", studentId);
   console.log("activityId: ", activityId);
   console.log("food: ", food);
 
   return axiosInstance.post(
-    `${STUDENT_ACTIVITY_PATH}/student-enroll-activity/${activityId}/${userId}`,
+    `${STUDENT_ACTIVITY_PATH}/student-enroll-activity/${activityId}/${studentId}`,
     { food }
   );
 };
@@ -76,10 +76,9 @@ export const enrollActivity = async (
 //------------------------------------------------------------------------------
 
 //--------------------- Unenrolled Activity ------------------------------------
-export const unEnrollActivity = async (userId: number, activityId: number) => {
+export const unEnrollActivity = async (studentId: number, activityId: number) => {
   return axiosInstance.delete(
-    `${STUDENT_ACTIVITY_PATH}/unenroll-activity/${userId}`,
-    { data: { activityId } }
+    `${STUDENT_ACTIVITY_PATH}/unenroll-activity/${studentId}?activityId=${activityId}`
   );
 };
 //------------------------------------------------------------------------------
