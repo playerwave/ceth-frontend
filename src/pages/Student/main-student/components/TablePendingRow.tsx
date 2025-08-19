@@ -56,7 +56,7 @@ export default function TablePendingRow({
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <select
                 value={locationFilter}
-                onChange={handleLocationChange}
+                onChange={(event) => handleLocationChange(event as any)}
                 style={{
                   padding: "4px 8px",
                   border: "1px solid #ccc",
@@ -85,7 +85,7 @@ export default function TablePendingRow({
         overflow: "hidden",
         backgroundColor: "white",
         boxShadow: 2,
-        borderRadius: borderRadius || 2,
+        borderRadius: 2,
       }}
     >
       <DataGrid
