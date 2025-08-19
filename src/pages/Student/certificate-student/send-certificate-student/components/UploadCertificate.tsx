@@ -4,21 +4,22 @@ import { ImagePlus } from "lucide-react";
 interface UploadCertificateProps {
   previewImage: string | null;
   setPreviewImage: (url: string | null) => void;
+  setFile: (file: File | null) => void;    // ✨ เพิ่มมา
   disabled: boolean;
 }
 
 export default function UploadCertificate({
   previewImage,
   setPreviewImage,
+  setFile,
   disabled,
 }: UploadCertificateProps) {
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.type.startsWith("image/")) {
-      const url = URL.createObjectURL(file);
-      setPreviewImage(url);
+    const f = e.target.files?.[0];
+    setFile(f || null);
+    if (!f) return;
+    if (f.type.startsWith("image/")) {
+      setPreviewImage(URL.createObjectURL(f));
     } else {
       setPreviewImage(null);
     }
