@@ -179,7 +179,6 @@ const EmailTemplatePreview: React.FC = () => {
           { key: "organizerName", label: "ผู้สอน", placeholder: "คณะวิทยาการสารสนเทศ" },
           { key: "activityType", label: "ประเภท", placeholder: "Hard Skill" },
           { key: "hoursEarned", label: "ชั่วโมงที่ได้รับ", placeholder: "6" },
-          { key: "message", label: "ข้อความ", placeholder: "คอร์สได้เริ่มต้นแล้ว กรุณาเข้าร่วมตามเวลาที่กำหนด" },
           { key: "contactEmail", label: "อีเมลติดต่อ", placeholder: "instructor@buu.ac.th" },
           { key: "activityLink", label: "ลิงก์คอร์ส", placeholder: "https://example.com/course" },
           { key: "activityImage", label: "ลิงก์รูปภาพ", placeholder: "https://example.com/image.jpg" }
@@ -316,7 +315,6 @@ const EmailTemplatePreview: React.FC = () => {
           organizerName: "คณะวิทยาการสารสนเทศ",
           activityType: "Hard Skill",
           hoursEarned: "6",
-          message: "คอร์สการพัฒนาทักษะการนำเสนอได้เริ่มต้นแล้ว กรุณาเข้าร่วมตามเวลาที่กำหนด",
           contactEmail: "instructor@buu.ac.th",
           activityLink: "https://example.com/course",
           activityImage: "https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/F1F2/production/_118283916_b19c5a1f-162b-410b-8169-f58f0d153752.jpg"
