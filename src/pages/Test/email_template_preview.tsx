@@ -115,7 +115,7 @@ const EmailTemplatePreview: React.FC = () => {
           { key: "floor", label: "ชั้น", placeholder: "3" },
           { key: "room", label: "ห้อง", placeholder: "301" },
           { key: "activityLink", label: "ลิงก์กิจกรรม", placeholder: "https://example.com/activity" },
-          { key: "contactEmail", label: "อีเมลติดต่อ", placeholder: "support@example.com" },
+          { key: "contactEmail", label: "อีเมลติดต่อ", placeholder: "tanapatwave14@gmail.com" },
           { key: "activityImage", label: "ลิงก์รูปภาพ", placeholder: "https://example.com/image.jpg" },
           { key: "activityDateISO", label: "วันที่เริ่มต้น (ISO)", placeholder: "20241220T090000Z" },
           { key: "activityEndDateISO", label: "วันที่สิ้นสุด (ISO)", placeholder: "20241220T160000Z" },
@@ -134,7 +134,7 @@ const EmailTemplatePreview: React.FC = () => {
           { key: "activityLocation", label: "สถานที่", placeholder: "ห้องประชุม 301" },
           { key: "activityType", label: "ประเภทกิจกรรม", placeholder: "Workshop" },
           { key: "activityLink", label: "ลิงก์กิจกรรม", placeholder: "https://example.com/activity" },
-          { key: "contactEmail", label: "อีเมลติดต่อ", placeholder: "support@example.com" }
+          { key: "contactEmail", label: "อีเมลติดต่อ", placeholder: "tanapatwave14@gmail.com" }
         ];
       
       case "WarningStudentTemplate":
@@ -146,6 +146,30 @@ const EmailTemplatePreview: React.FC = () => {
           { key: "consequences", label: "ผลกระทบ", placeholder: "อาจส่งผลต่อการประเมินผล" },
           { key: "contactLink", label: "ลิงก์ติดต่อ", placeholder: "https://example.com/contact" },
           { key: "contactEmail", label: "อีเมลติดต่อ", placeholder: "advisor@buu.ac.th" }
+        ];
+      
+      case "DeleteActivityTemplate":
+        return [
+          { key: "recipientEmail", label: "อีเมลผู้รับ", placeholder: "tanapatwave14@gmail.com" },
+          { key: "activityName", label: "ชื่อกิจกรรม", placeholder: "Workshop การพัฒนาทักษะ" },
+          { key: "activityDate", label: "วันที่ที่เคยกำหนด", placeholder: "20 ธันวาคม 2024" },
+          { key: "activityTime", label: "เวลาที่เคยกำหนด", placeholder: "09:00 - 16:00" },
+          { key: "building", label: "ตึก", placeholder: "อาคารคณะวิทยาการสารสนเทศ" },
+          { key: "floor", label: "ชั้น", placeholder: "3" },
+          { key: "room", label: "ห้อง", placeholder: "301" },
+          { key: "contactLink", label: "ลิงก์ติดต่อ", placeholder: "https://example.com/contact" },
+          { key: "contactEmail", label: "อีเมลติดต่อ", placeholder: "tanapatwave14@gmail.com" },
+          { key: "activityImage", label: "ลิงก์รูปภาพ", placeholder: "https://example.com/image.jpg" },
+          { key: "organizerName", label: "ชื่อผู้จัด", placeholder: "คณะวิทยาการสารสนเทศ" },
+          { key: "activityType", label: "ประเภทกิจกรรม", placeholder: "Soft Skill" },
+          { key: "hoursEarned", label: "จำนวนชั่วโมง", placeholder: "3" },
+          { key: "maxParticipants", label: "จำนวนที่เคยรับ", placeholder: "50" }
+        ];
+      
+      case "TestDeleteTemplate":
+        return [
+          { key: "recipientEmail", label: "อีเมลผู้รับ", placeholder: "tanapatwave14@gmail.com" },
+          { key: "activityName", label: "ชื่อกิจกรรม", placeholder: "Test Activity" }
         ];
       
       default:
@@ -205,7 +229,7 @@ const EmailTemplatePreview: React.FC = () => {
         return {
           name: "สมชาย ใจดี",
           message: "มีการเปลี่ยนแปลงในรายละเอียดกิจกรรม กรุณาตรวจสอบข้อมูลใหม่",
-          recipientEmail: "student@buu.ac.th",
+          recipientEmail: "tanapatwave14@gmail.com",
           activityName: "Workshop การพัฒนาทักษะการนำเสนอ",
           activityDate: "25 ธันวาคม 2024",
           activityTime: "13:00 - 17:00",
@@ -213,7 +237,7 @@ const EmailTemplatePreview: React.FC = () => {
           floor: "4",
           room: "401",
           activityLink: "https://example.com/activity",
-          contactEmail: "support@example.com",
+          contactEmail: "tanapatwave14@gmail.com",
           activityImage: "https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/F1F2/production/_118283916_b19c5a1f-162b-410b-8169-f58f0d153752.jpg",
           activityDateISO: "20241225T130000Z",
           activityEndDateISO: "20241225T170000Z",
@@ -233,7 +257,7 @@ const EmailTemplatePreview: React.FC = () => {
           activityLocation: "ห้องประชุม 301 อาคาร 3",
           activityType: "Workshop",
           activityLink: "https://example.com/activity",
-          contactEmail: "support@example.com"
+          contactEmail: "tanapatwave14@gmail.com"
         };
       
       case "WarningStudentTemplate":
@@ -246,6 +270,30 @@ const EmailTemplatePreview: React.FC = () => {
           consequences: "อาจส่งผลต่อการประเมินผลและเกรด",
           contactLink: "https://example.com/contact",
           contactEmail: "advisor@buu.ac.th"
+        };
+      
+      case "DeleteActivityTemplate":
+        return {
+          recipientEmail: "tanapatwave14@gmail.com",
+          activityName: "Workshop การพัฒนาทักษะการนำเสนอ",
+          activityDate: "20 ธันวาคม 2024",
+          activityTime: "09:00 - 16:00",
+          building: "อาคารคณะวิทยาการสารสนเทศ",
+          floor: "3",
+          room: "301",
+          contactLink: "https://example.com/contact",
+          contactEmail: "tanapatwave14@gmail.com",
+          activityImage: "https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/F1F2/production/_118283916_b19c5a1f-162b-410b-8169-f58f0d153752.jpg",
+          organizerName: "คณะวิทยาการสารสนเทศ",
+          activityType: "Soft Skill",
+          hoursEarned: "3",
+          maxParticipants: "50"
+        };
+      
+      case "TestDeleteTemplate":
+        return {
+          recipientEmail: "tanapatwave14@gmail.com",
+          activityName: "Test Activity"
         };
       
       default:
