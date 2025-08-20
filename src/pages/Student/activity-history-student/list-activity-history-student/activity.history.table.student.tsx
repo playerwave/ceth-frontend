@@ -54,8 +54,6 @@ const ActivityHistoryTableStudent = ({ studentId, onRowDoubleClick }: Props) => 
     });
   };
 
-  // ... โค้ดเดิมด้านบน
-
 return (
   <div style={{ padding: 24 }}>
     <CustomCard height={730} width="1312px">
