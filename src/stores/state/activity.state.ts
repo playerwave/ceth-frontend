@@ -28,10 +28,13 @@ export interface ActivityState {
   activityLoading: boolean;
   activity: Activity | null;
   enrolledActivities: Activity[];
+  endedActivities: Activity[];
 
   // เพิ่มฟังก์ชันที่จำเป็น
+  fetchEndedActivities: (studentId: number) => Promise<void>; 
   fetchStudentActivities: (userId: number) => Promise<void>; // เพิ่มฟังก์ชันนี้
   searchActivities: (searchName: string, userId: number) => Promise<void>;
+  searchEndActivities: (searchName: string, userId: number) => Promise<void>;
   fetchActivity: (
     id: number | string,
     userId: number

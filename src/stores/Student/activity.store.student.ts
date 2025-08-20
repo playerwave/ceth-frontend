@@ -1,7 +1,7 @@
 // src/stores/activityStore.ts
 import { create } from "zustand";
 import { ActivityState } from "../state/activity.state";
-import * as activityService from "../../service/Student/activity.service.student";
+import activityService from "../../service/Student/activity.service.student";
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
   activities: [],
@@ -11,6 +11,9 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activity: null,
   enrolledActivities: [],
   recommendedIds: [],
+  endedActivities: [],
+  
+
 
   // โหลดกิจกรรมทั้งหมดของนิสิต
   fetchStudentActivities: async (studentId: number) => {
@@ -154,4 +157,59 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       });
     }
   },
+
+  // ✅ เมธอดใหม่: โหลดกิจกรรมที่สิ้นสุด และบังคับตั้ง activity_state ตาม event_format
+  fetchEndedActivities: async (studentId: number) => {
+  const { activityLoading } = get();
+  if (activityLoading) return;
+
+  set({ activityLoading: true, activityError: null });
+  try {
+    const raw = await activityService.fetchActivities(studentId);
+    const ended = Array.isArray(raw)
+      ? raw.map((a: any) => ({
+          ...a,
+          activity_state: a?.event_format === "Course" ? "End Activity" : "End Assessment",
+        }))
+      : [];
+    set({ endedActivities: ended, activityLoading: false });
+  } catch (e: any) {
+    set({
+      activityError: e?.response?.data?.message || e?.message || "ไม่สามารถโหลดกิจกรรมที่สิ้นสุดได้",
+      activityLoading: false,
+    });
+  }
+},
+
+searchEndActivities: async (searchName: string, studentId: number) => {
+  const q = searchName.trim().toLowerCase();
+
+  // ถ้าคำค้นว่าง → กลับไปใช้ endedActivities
+  if (!q) {
+    // โหลดให้ชัวร์ (เผื่อยังไม่ได้โหลด)
+    if (!get().endedActivities || get().endedActivities.length === 0) {
+      await get().fetchEndedActivities(studentId);
+    }
+    set({ searchResults: null }); // ให้ตาราง fallback เป็น endedActivities
+    return;
+  }
+
+  // ✅ กรองจาก endedActivities ที่มีอยู่
+  const ended = (get().endedActivities ?? []) as any[];
+  const searchResults = ended.filter((row) => {
+    const text = [
+      row.presenter_company_name,
+      row.activity_name,
+      row.company_name,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return text.includes(q);
+  });
+
+  set({ searchResults }); // ถ้าอยาก fallback เมื่อไม่เจอ → set({ searchResults: null })
+},
+
+  
 }));

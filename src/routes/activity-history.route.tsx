@@ -1,11 +1,13 @@
 import ListActivityHistoryTeacher from "../pages/Teacher/manage-activity-history-teacher/list-activity-history/list.activity.history.teacher";
 import ActivityHistoryInfoTeacher from "../pages/Teacher/manage-activity-history-teacher/activity-history-info/activity.history.info.teacher"
 
-import ActivityHistoryInfoStudent from "../pages/Student/activity-history-student/list-activity-history-student/list.activity.history.student";
+//import ActivityHistoryInfoStudent from "../pages/Student/activity-history-student/list-activity-history-student/list.activity.history.student";
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
 import type { Roles } from "../types/model";
+import ListActivityHistoryStudent from "../pages/Student/activity-history-student/list-activity-history-student/list.activity.history.student";
+import ActivityHistoryInfoStudent from "../pages/Student/activity-history-student/activity-history-info-student/activity.history.info.student";
 type RoleName = Roles["role_name"];
 
 export const activityHistoryRoutes = [
@@ -28,7 +30,7 @@ export const activityHistoryRoutes = [
   },
   {
     path: "/list-activity-history-student",
-    element: <ActivityHistoryInfoStudent />,
+    element: <ListActivityHistoryStudent />,
     label: "ประวัติกิจกรรม",
     icon: "History",
     roles: ["Student"] as RoleName[],
@@ -36,7 +38,7 @@ export const activityHistoryRoutes = [
   },
   {
     path: "/activity-history-info-student",
-    element: <ActivityHistoryInfoTeacher />,
+    element: <ActivityHistoryInfoStudent />,
     label: "",
     icon: "ClipboardList",
     roles: ["Student"] as RoleName[],
