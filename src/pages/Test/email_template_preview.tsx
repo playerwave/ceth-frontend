@@ -179,6 +179,7 @@ const EmailTemplatePreview: React.FC = () => {
           { key: "organizerName", label: "ผู้สอน", placeholder: "คณะวิทยาการสารสนเทศ" },
           { key: "activityType", label: "ประเภท", placeholder: "Hard Skill" },
           { key: "hoursEarned", label: "ชั่วโมงที่ได้รับ", placeholder: "6" },
+          { key: "description", label: "คำอธิบาย", placeholder: "คอร์สการพัฒนาทักษะการนำเสนอ" },
           { key: "contactEmail", label: "อีเมลติดต่อ", placeholder: "instructor@buu.ac.th" },
           { key: "activityLink", label: "ลิงก์คอร์ส", placeholder: "https://example.com/course" },
           { key: "activityImage", label: "ลิงก์รูปภาพ", placeholder: "https://example.com/image.jpg" }
@@ -226,8 +227,8 @@ const EmailTemplatePreview: React.FC = () => {
           building: "อาคารคณะวิทยาการสารสนเทศ",
           floor: "3",
           room: "301",
-          requirements: "เอกสารและเครื่องเขียน",
-          activityLink: "https://example.com/activity",
+    requirements: "เอกสารและเครื่องเขียน",
+    activityLink: "https://example.com/activity",
           contactEmail: "activity@buu.ac.th",
           activityImage: "https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/F1F2/production/_118283916_b19c5a1f-162b-410b-8169-f58f0d153752.jpg",
           activityDateISO: "20241220T090000Z",
@@ -315,6 +316,7 @@ const EmailTemplatePreview: React.FC = () => {
           organizerName: "คณะวิทยาการสารสนเทศ",
           activityType: "Hard Skill",
           hoursEarned: "6",
+          description: "คอร์สการพัฒนาทักษะการนำเสนอที่ครอบคลุมเทคนิคการนำเสนอที่มีประสิทธิภาพ",
           contactEmail: "instructor@buu.ac.th",
           activityLink: "https://example.com/course",
           activityImage: "https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/F1F2/production/_118283916_b19c5a1f-162b-410b-8169-f58f0d153752.jpg"
