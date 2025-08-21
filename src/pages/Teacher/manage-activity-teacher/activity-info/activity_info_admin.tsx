@@ -99,6 +99,7 @@ export default function ActivityInfoAdmin() {
         <ActivityHeader
           name={activity.activity_name}
           seat={activity.seat}
+          registeredCount={activity.registered_count}
           onClickRegistered={() =>
             navigate(`/enrolled_list_admin/${activity.activity_id}`)
           }

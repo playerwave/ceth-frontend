@@ -20,6 +20,10 @@ interface Props {
   handleChange: (e: SelectChangeEvent<any>) => void;
   handleDateTimeChange: (name: string, newValue: Dayjs | null) => void;
   disabled?: boolean;
+  // ✅ เพิ่ม props สำหรับจำกัดการแก้ไขเฉพาะ field
+  isAssessmentIdEditable?: boolean;
+  isStartAssessmentEditable?: boolean;
+  isEndAssessmentEditable?: boolean;
 }
 
 const AssessmentSection: React.FC<Props> = ({
@@ -28,6 +32,9 @@ const AssessmentSection: React.FC<Props> = ({
   handleChange,
   handleDateTimeChange,
   disabled = false,
+  isAssessmentIdEditable = true,
+  isStartAssessmentEditable = true,
+  isEndAssessmentEditable = true,
 }) => {
 
 const isPublic = formData.activity_status === "Public";
@@ -47,7 +54,7 @@ const endAsm   = formData.end_assessment ? dayjs(formData.end_assessment) : null
       className="w-140"
       value={formData.assessment_id || ""}
       onChange={handleChange}
-      disabled={disabled}
+      disabled={disabled || !isAssessmentIdEditable}
       displayEmpty
       renderValue={(selected) => {
         if (!selected) return "เลือกเเบบประเมิน";
@@ -85,7 +92,7 @@ const endAsm   = formData.end_assessment ? dayjs(formData.end_assessment) : null
   minDate={endAct ?? dayjs()}
   value={startAsm ?? null}
   onChange={(newValue) => handleDateTimeChange("start_assessment", newValue)}
-  disabled={disabled || !endAct}
+  disabled={disabled || !endAct || !isStartAssessmentEditable}
   slotProps={{
     textField: {
       sx: { height: "56px" },
@@ -146,7 +153,7 @@ const endAsm   = formData.end_assessment ? dayjs(formData.end_assessment) : null
               onChange={(newValue) =>
                 handleDateTimeChange("end_assessment", newValue)
               }
-              disabled={disabled || !formData.start_assessment}
+              disabled={disabled || !formData.start_assessment || !isEndAssessmentEditable}
               slotProps={{
                 textField: {
                   sx: { height: "56px" },

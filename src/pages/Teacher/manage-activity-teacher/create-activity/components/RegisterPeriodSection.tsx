@@ -286,6 +286,10 @@ interface Props {
   disabled?: boolean;
   isEditMode?: boolean;
   backendActivityStatus?: string;
+  // ✅ เพิ่ม props สำหรับจำกัดการแก้ไขเฉพาะ field
+  isSpecialStartRegisterDateEditable?: boolean;
+  isStartRegisterDateEditable?: boolean;
+  isEndRegisterDateEditable?: boolean;
 }
 
 interface StartValidateInput {
@@ -310,10 +314,12 @@ const validateStartRegister = ({
   start,
   end,
   special,
-}: StartValidateInput): ValidateResult => {
+  isEditMode = false, // ✅ เพิ่ม isEditMode parameter
+}: StartValidateInput & { isEditMode?: boolean }): ValidateResult => {
   if (disabled || !isPublic || !start) return { error: false, helperText: "" };
 
-  if (isBefore(start, dayjs())) {
+  // ✅ ถ้าเป็นหน้าแก้ไข ไม่ต้องเช็ค error "วันเปิดให้นิสิตลงทะเบียนต้องอยู่หลังวันนี้"
+  if (!isEditMode && isBefore(start, dayjs())) {
     return { error: true, helperText: "❌ วันเปิดให้นิสิตลงทะเบียนต้องอยู่หลังวันนี้" };
   }
 
@@ -342,6 +348,10 @@ const RegisterPeriodSection: React.FC<Props> = ({
   formData,
   handleDateTimeChange,
   disabled = false,
+  isEditMode = false, // ✅ เพิ่ม isEditMode prop
+  isSpecialStartRegisterDateEditable = true,
+  isStartRegisterDateEditable = true,
+  isEndRegisterDateEditable = true,
 }) => {
   const isPublic = formData.activity_status === "Public";
   const isOnsiteOrOnline =
@@ -359,6 +369,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
     start,
     end,
     special,
+    isEditMode, // ✅ ส่ง isEditMode ไปยัง validation function
   });
 
   return (
@@ -373,21 +384,21 @@ const RegisterPeriodSection: React.FC<Props> = ({
       // แปลงเป็น local แล้วค่อยสร้าง dayjs (เราเตรียม special ด้านบนแล้ว)
       value={special}
       onChange={(nv) => handleDateTimeChange("special_start_register_date", nv)}
-      disabled={disabled}
+      disabled={disabled || !isSpecialStartRegisterDateEditable}
       slotProps={{
         textField: {
           sx: { height: "56px" },
           error: (() => {
             if (disabled || !isPublic || !special) return false;
-            // 1) ห้ามเป็นอดีต
-            if (isBefore(special, dayjs())) return true;
+            // ✅ ถ้าเป็นหน้าแก้ไข ไม่ต้องเช็ค error "วันลงทะเบียนพิเศษต้องไม่เป็นอดีต"
+            if (!isEditMode && isBefore(special, dayjs())) return true;
             // 2) ถ้าเป็น Public + Onsite/Online → ต้องก่อน start อย่างน้อย 1 ชม. (เมื่อเลือก start แล้ว)
             if (isOnsiteOrOnline && start && ltMinutes(start, special, MIN_DIFF_MINUTES)) return true;
             return false;
           })(),
           helperText: (() => {
             if (disabled || !isPublic || !special) return "";
-            if (isBefore(special, dayjs())) {
+            if (!isEditMode && isBefore(special, dayjs())) {
               return "❌ วันลงทะเบียนพิเศษต้องไม่เป็นอดีต";
             }
             if (isOnsiteOrOnline && start && ltMinutes(start, special, MIN_DIFF_MINUTES)) {
@@ -417,7 +428,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     minDate={(isPublic && isOnsiteOrOnline && special) ? special.add(1, "hour") : dayjs()}
                     value={start}
                     onChange={(nv) => handleDateTimeChange("start_register_date", nv)}
-                    disabled={disabled || !special}
+                    disabled={disabled || !special || !isStartRegisterDateEditable}
                     slotProps={{
                       textField: {
                         sx: { height: "56px" },
@@ -442,7 +453,7 @@ const RegisterPeriodSection: React.FC<Props> = ({
                     minDate={start ?? dayjs()}
                     value={end}
                     onChange={(nv) => handleDateTimeChange("end_register_date", nv)}
-                    disabled={disabled || !start}
+                    disabled={disabled || !start || !isEndRegisterDateEditable}
                     slotProps={{
                       textField: {
                         sx: { height: "56px" },

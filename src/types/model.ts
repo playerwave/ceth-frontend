@@ -33,6 +33,7 @@ export interface Activity {
   start_assessment: string | null;
   end_assessment: string | null;
   activityFood: ActivityFood[];
+  registered_count: number;
 }
 
 //-----------------------------------------------------------------------------

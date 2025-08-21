@@ -12,6 +12,10 @@ interface Props {
   handleDateTimeChange: (name: string, newValue: Dayjs | null) => void;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   disabled?: boolean;
+  // ✅ เพิ่ม props สำหรับจำกัดการแก้ไขเฉพาะ field
+  isStartActivityDateEditable?: boolean;
+  isEndActivityDateEditable?: boolean;
+  isRecieveHoursEditable?: boolean;
 }
 
 const ActivityTimeSection: React.FC<Props> = ({
@@ -19,6 +23,9 @@ const ActivityTimeSection: React.FC<Props> = ({
   handleDateTimeChange,
   setFormData,
   disabled = false,
+  isStartActivityDateEditable = true,
+  isEndActivityDateEditable = true,
+  isRecieveHoursEditable = true,
 }) => {
 
   const isPublic = formData.activity_status === "Public";
@@ -57,7 +64,7 @@ const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAc
   onChange={(newValue) =>
     handleDateTimeChange("start_activity_date", newValue)
   }
-  disabled={disabled || !formData.end_register_date}
+  disabled={disabled || !formData.end_register_date || !isStartActivityDateEditable}
   slotProps={{
     textField: {
       sx: { height: "56px" },
@@ -116,7 +123,7 @@ const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAc
               onChange={(newValue) =>
                 handleDateTimeChange("end_activity_date", newValue)
               }
-              disabled={disabled || !formData.start_activity_date}
+              disabled={disabled || !formData.start_activity_date || !isEndActivityDateEditable}
               slotProps={{
                 textField: {
                   sx: { height: "56px" },
@@ -244,7 +251,7 @@ const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAc
               }));
             }
           }}
-          disabled={disabled || formData.event_format !== "Course"}
+          disabled={disabled || formData.event_format !== "Course" || !isRecieveHoursEditable}
           error={
             formData.activity_status === "Public" &&
             formData.event_format === "Course" &&

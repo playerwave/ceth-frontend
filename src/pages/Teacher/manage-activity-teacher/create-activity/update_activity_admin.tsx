@@ -96,38 +96,59 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     return now.isAfter(startTime) || now.isSame(startTime);
   };
 
-  // ✅ ฟังก์ชันตรวจสอบว่าควรจำกัดการแก้ไขหรือไม่
-  const shouldRestrictEditing = () => {
-    // ตรวจสอบว่าเป็น Public หรือไม่
-    if (backendActivityStatus !== "Public") return false;
+  // ✅ ฟังก์ชันตรวจสอบว่าแก้ไขได้หรือไม่ตาม activity_state และ event_format
+  const isFieldEditable = (fieldName: string) => {
+    const activityState = activity?.activity_state || "Not Start";
+    const eventFormat = formData.event_format || "Onsite";
 
-    // ตรวจสอบ activity_state
-    if (activity?.activity_state === "Start Assessment") return true;
-
-    // ตรวจสอบเวลา start_assessment
-    if (formData.start_assessment) {
-      const now = dayjs();
-      const startAssessment = dayjs(formData.start_assessment);
-      const endAssessment = formData.end_assessment ? dayjs(formData.end_assessment) : null;
-
-      // ถ้าถึงหรือเลย start_assessment แต่ยังไม่เลย end_assessment
-      if (now.isAfter(startAssessment) || now.isSame(startAssessment)) {
-        // ถ้ายังไม่เลย end_assessment ให้จำกัดการแก้ไข
-        if (!endAssessment || now.isBefore(endAssessment)) {
-          return true;
-        }
-      }
+    // ✅ Not Start: แก้ได้ทุก field
+    if (activityState === "Not Start") {
+      return true;
     }
 
-    return false;
-  };
+    // ✅ Course: กฎพิเศษ
+    if (eventFormat === "Course") {
+      if (activityState === "Start Activity" || activityState === "End Activity") {
+        // แก้ได้แค่ end_activity_date
+        return fieldName === 'end_activity_date';
+      }
+      // Course อื่นๆ แก้ได้ทุก field
+      return true;
+    }
 
-  // ✅ ฟังก์ชันตรวจสอบว่าแก้ไขได้หรือไม่ (อัปเดต)
-  const isFieldEditable = (fieldName: string) => {
-    if (!shouldRestrictEditing()) return true; // ถ้าไม่จำกัดการแก้ไข แก้ไขได้ทุก field
+    // ✅ Special Open Register, Open Register: แก้ได้แค่วันที่
+    if (activityState === "Special Open Register" || activityState === "Open Register") {
+      const editableFields = [
+        'end_register_date',
+        'start_activity_date',
+        'end_activity_date',
+        'start_assessment',
+        'end_assessment'
+      ];
+      return editableFields.includes(fieldName);
+    }
 
-    // ถ้าจำกัดการแก้ไข แก้ไขได้แค่ end_assessment
-    return fieldName === 'end_assessment';
+    // ✅ Start Activity, End Activity, Start Assessment, End Assessment: แก้ได้แค่ end_assessment
+    if (activityState === "Start Activity" || 
+        activityState === "End Activity" || 
+        activityState === "Start Assessment" || 
+        activityState === "End Assessment") {
+      return fieldName === 'end_assessment';
+    }
+
+    // ✅ Close Register: แก้ได้แค่วันที่
+    if (activityState === "Close Register") {
+      const editableFields = [
+        'start_activity_date',
+        'end_activity_date',
+        'start_assessment',
+        'end_assessment'
+      ];
+      return editableFields.includes(fieldName);
+    }
+
+    // ✅ กรณีอื่นๆ: แก้ได้ทุก field
+    return true;
   };
 
   const { assessments, fetchAssessments } = useAssessmentStore();
@@ -892,14 +913,14 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
             </div>
 
             {/* ✅ แสดงข้อความแจ้งเตือนเมื่อควรจำกัดการแก้ไข */}
-            {shouldRestrictEditing() && (
+            {activity?.activity_state && activity.activity_state !== "Not Start" && (
               <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <div className="flex items-center">
                   <svg className="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   <span className="text-yellow-800 font-medium">
-                    ⚠️ กิจกรรมได้เริ่มดำเนินการแล้ว สามารถแก้ไขได้เฉพาะ "วันสิ้นสุดการประเมิน" เท่านั้น
+                    ⚠️ กิจกรรมอยู่ในสถานะ "{activity.activity_state}" การแก้ไขถูกจำกัดตามกฎที่กำหนด
                   </span>
                 </div>
               </div>
@@ -960,15 +981,18 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   <ActivityInfoSection
                     formData={formData}
                     handleChange={handleFormChangeWithValidation} // ✅ ใช้ฟังก์ชันใหม่ที่มี validation
-                    disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                    disabled={!isFieldEditable('activity_name')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                   />
 
                   <RegisterPeriodSection
                     formData={formData}
                     handleDateTimeChange={handleDateTimeChange}
-                    disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
-                    isEditMode={false} // ✅ เปลี่ยนเป็น false เพื่อให้แสดง error
+                    disabled={false} // ✅ ใช้ props เฉพาะเจาะจงแทน
+                    isEditMode={!!finalActivityId} // ✅ ส่ง true ถ้าเป็นการแก้ไข (มี finalActivityId)
                     backendActivityStatus={backendActivityStatus} // ✅ ส่ง backend activity status
+                    isSpecialStartRegisterDateEditable={isFieldEditable('special_start_register_date')}
+                    isStartRegisterDateEditable={isFieldEditable('start_register_date')}
+                    isEndRegisterDateEditable={isFieldEditable('end_register_date')}
                   />
 
                 </div>
@@ -1000,7 +1024,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   <DescriptionSection
                     formData={formData}
                     handleChange={handleFormChange}
-                    disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                    disabled={!isFieldEditable('description')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                   />
 
                   <div className="flex flex-col space-y-3">
@@ -1008,7 +1032,10 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                       formData={formData}
                       setFormData={setFormData}
                       handleDateTimeChange={handleDateTimeChange}
-                      disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                      disabled={false} // ✅ ใช้ props เฉพาะเจาะจงแทน
+                      isStartActivityDateEditable={isFieldEditable('start_activity_date')}
+                      isEndActivityDateEditable={isFieldEditable('end_activity_date')}
+                      isRecieveHoursEditable={isFieldEditable('recieve_hours')}
                     />
 
                     <TypeAndLocationSection
@@ -1017,7 +1044,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                       setSelectedFloor={setSelectedFloor}
                       setSelectedRoom={setSelectedRoom}
                       setSeatCapacity={setSeatCapacity}
-                      disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                      disabled={!isFieldEditable('event_format')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                     />
                   </div>
                 </div>
@@ -1032,7 +1059,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                     handleFloorChange={handleFloorChange}
                     handleRoomChange={handleRoomChange}
                     handleChange={handleFormChangeWithValidation}
-                    disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                    disabled={!isFieldEditable('room_id')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                     seatCapacity={seatCapacity}
                     setSeatCapacity={setSeatCapacity}
                     roomConflicts={roomConflicts}
@@ -1041,7 +1068,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                     currentActivityId={finalActivityId}
                   />
 
-                  <ActivityLink formData={formData} handleChange={handleFormChangeWithValidation} disabled={shouldRestrictEditing()} />
+                  <ActivityLink formData={formData} handleChange={handleFormChangeWithValidation} disabled={!isFieldEditable('url')} />
                 </div>
 
                 <StatusAndSeatSection
@@ -1051,7 +1078,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   setSeatCapacity={setSeatCapacity}
                   selectedRoom={selectedRoom}
                   setFormData={setFormData}
-                  disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                  disabled={!isFieldEditable('seat')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                 />
 
                 <div className="mt-6 max-w-xl w-full">
@@ -1072,13 +1099,16 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   assessments={assessments}
                   handleChange={handleFormChangeWithValidation}
                   handleDateTimeChange={handleDateTimeChange}
-                  disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                  disabled={false} // ✅ ใช้ props เฉพาะเจาะจงแทน
+                  isAssessmentIdEditable={isFieldEditable('assessment_id')}
+                  isStartAssessmentEditable={isFieldEditable('start_assessment')}
+                  isEndAssessmentEditable={isFieldEditable('end_assessment')}
                 />
 
                 <ImageUploadSection
                   previewImage={previewImage}
                   handleFileChange={handleFileChange}
-                  disabled={shouldRestrictEditing()} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                  disabled={!isFieldEditable('image_url')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                 />
 
                 <ActionButtonsSection
