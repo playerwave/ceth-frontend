@@ -59,21 +59,6 @@ export default function UploadCertificate({
             >
               {previewImage ? (
                 <>
-                  {/* ปุ่มลบ */}
-                  <div className="absolute top-2 right-2 z-10">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFile(null);
-                        setPreviewImage(null);
-                      }}
-                      className="bg-white rounded-full p-1 border border-gray-400 hover:bg-gray-100"
-                    >
-                      <X className="w-5 h-5 text-red-600" />
-                    </button>
-                  </div>
-
                   {file?.type === "application/pdf" ? (
                     <embed
                       src={previewImage}

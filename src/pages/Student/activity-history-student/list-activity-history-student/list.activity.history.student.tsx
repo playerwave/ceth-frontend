@@ -1,7 +1,6 @@
 // src/pages/ListActivityHistoryStudent.tsx
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../../../../components/Button";
 import Searchbar from "../../../../components/Searchbar";
 import ActivityHistoryTableStudent from "./activity.history.table.student";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
@@ -49,15 +48,6 @@ const ListActivityHistoryStudent = () => {
           ยังไม่พบรหัสนักศึกษาในระบบเข้าสู่ระบบ/รีเฟรชหน้าเพื่อดึงข้อมูลผู้ใช้
         </div>
       )}
-
-      <div className="flex justify-end mt-6">
-        <Button
-          className="bg-gradient-to-r from-red-500 via-blue-500 to-green-500"
-          onClick={() => navigate("/assessment-student")}
-        >
-          ปาเร่แบบประเมิน
-        </Button>
-      </div>
     </div>
   );
 };
