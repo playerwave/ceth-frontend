@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Typography } from "@mui/material";
 import Loading from "../../../../components/Loading";
-import CustomCard from "../../../../components/Card";
 import { MainActivity } from "../../../../types/Student/type_main_activity_student";
 import TablePendingRow from "./TablePendingRow";
 import { getTablePendingColumn } from "./TablePendingColumn";
@@ -53,7 +52,7 @@ const TablePendingEvaluation: React.FC<TablePendingEvaluationProps> = ({
   });
 
   return ( 
-    <CustomCard className="mt-6 mx-auto shadow-xl" width="100%" height={600}>
+    <div>
       <Typography variant="h6" fontWeight="bold" gutterBottom>
         ลิสต์กิจกรรมที่ยังไม่ได้ทำแบบประเมิน
       </Typography>
@@ -71,7 +70,7 @@ const TablePendingEvaluation: React.FC<TablePendingEvaluationProps> = ({
       ) : (
         <TablePendingRow columns={columns} rows={rows} />
       )}
-    </CustomCard>
+    </div>
   );
 };
 

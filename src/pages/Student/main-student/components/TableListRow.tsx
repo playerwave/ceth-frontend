@@ -1,10 +1,5 @@
 import { DataGrid, GridColDef, GridEventListener } from "@mui/x-data-grid";
-import {
-  Box,
-  Typography,
-  FormControl,
-  SelectChangeEvent
-} from "@mui/material";
+import { Box, Typography, FormControl, SelectChangeEvent } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -39,7 +34,9 @@ export default function TableListRow({
     // Single click - ไม่ทำอะไร (หรืออาจจะเพิ่ม highlight effect)
   };
 
-  const handleRowDoubleClick: GridEventListener<"rowDoubleClick"> = (params) => {
+  const handleRowDoubleClick: GridEventListener<"rowDoubleClick"> = (
+    params
+  ) => {
     const id = params.row.activity_id;
     if (id) navigate(`/activity-info-student/${id}`);
   };
@@ -48,9 +45,17 @@ export default function TableListRow({
     setLocationFilter(event.target.value);
   };
 
-  const filteredRows = locationFilter
-    ? rows.filter((row) => row.location_type === locationFilter)
-    : rows;
+  const filteredRows = rows.filter((row) => {
+    const passLocation =
+      !locationFilter || row.location_type === locationFilter;
+
+    const passType =
+      !selectedTypes || selectedTypes.length === 0
+        ? true
+        : selectedTypes.includes(row.type);
+
+    return passLocation && passType;
+  });
 
   console.log(filteredRows.map((r) => r.activity_id));
 
@@ -72,8 +77,7 @@ export default function TableListRow({
               flexDirection: "row",
               gap: 0.2,
             }}
-          >
-          </FormControl>
+          ></FormControl>
         ),
       };
     }
