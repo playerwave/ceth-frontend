@@ -48,6 +48,7 @@ export const fetchEnrolledActivities = async (
 ): Promise<Activity[]> => {
   console.log("🌐 [SERVICE] fetchEnrolledActivities called with studentId:", studentId);
   console.log("🌐 [SERVICE] Making request to:", `/student/activity/get-enrolled-activities/${studentId}`);
+  console.log("🌐 [SERVICE] Full URL:", `${axiosInstance.defaults.baseURL}student/activity/get-enrolled-activities/${studentId}`);
   
   try {
     const response = await axiosInstance.get<Activity[]>(
@@ -55,6 +56,8 @@ export const fetchEnrolledActivities = async (
     );
     
     console.log("✅ [SERVICE] Enrolled activities response received:", response.data);
+    console.log("✅ [SERVICE] Response status:", response.status);
+    console.log("✅ [SERVICE] Response headers:", response.headers);
     
     // ตรวจสอบว่า response.data เป็น array ที่ถูกต้อง
     if (response.data && Array.isArray(response.data)) {
@@ -62,10 +65,14 @@ export const fetchEnrolledActivities = async (
       return response.data;
     } else {
       console.warn("⚠️ [SERVICE] Invalid enrolled activities response data:", response.data);
+      console.warn("⚠️ [SERVICE] Response data type:", typeof response.data);
       return [];
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ [SERVICE] Error in fetchEnrolledActivities:", error);
+    console.error("❌ [SERVICE] Error response:", error.response);
+    console.error("❌ [SERVICE] Error status:", error.response?.status);
+    console.error("❌ [SERVICE] Error data:", error.response?.data);
     throw error;
   }
 };

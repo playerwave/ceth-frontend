@@ -98,9 +98,25 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   },
   fetchEnrolledActivities: async (studentId: number) => {
     console.log("🔄 [STORE] fetchEnrolledActivities called with studentId:", studentId);
+    
+    // ตรวจสอบว่ากำลังโหลดอยู่หรือไม่ เพื่อป้องกันการเรียกซ้ำ
+    const currentState = get();
+    if (currentState.activityLoading) {
+      console.log("⚠️ [STORE] Already loading, skipping duplicate call");
+      return;
+    }
+    
     set({ activityLoading: true, activityError: null });
+    
     try {
-      const activities = await activityService.fetchEnrolledActivities(studentId);
+      // เพิ่ม timeout 10 วินาที
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Request timeout")), 10000);
+      });
+      
+      const activitiesPromise = activityService.fetchEnrolledActivities(studentId);
+      const activities = await Promise.race([activitiesPromise, timeoutPromise]) as any[];
+      
       console.log("✅ [STORE] Enrolled activities received:", activities);
       
       // ตรวจสอบว่า activities เป็น array ที่ถูกต้อง
@@ -111,10 +127,14 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         console.warn("⚠️ [STORE] Invalid enrolled activities data:", activities);
         set({ enrolledActivities: [], activityLoading: false });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ [STORE] Error in fetchEnrolledActivities:", error);
+      const errorMessage = error.message === "Request timeout" 
+        ? "การเชื่อมต่อช้า กรุณาลองใหม่อีกครั้ง"
+        : "ไม่สามารถโหลดกิจกรรมที่ลงทะเบียนได้";
+      
       set({
-        activityError: "ไม่สามารถโหลดกิจกรรมที่ลงทะเบียนได้",
+        activityError: errorMessage,
         activityLoading: false,
       });
     }

@@ -13,7 +13,7 @@ export default function ActivityHeader({ activity }: Props) {
           className="flex items-center text-[25px] gap-[4px] cursor-pointer"
           style={{ pointerEvents: "none" }}
         >
-          0/{activity.seat} <User size={40} />
+          {activity.registered_count}/{activity.seat} <User size={40} />
         </div>
       )}
     </div>

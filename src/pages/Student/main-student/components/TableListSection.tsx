@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Typography } from "@mui/material";
+import { Typography, CircularProgress, Box } from "@mui/material";
 import Loading from "../../../../components/Loading";
 import CustomCard from "../../../../components/Card";
 import TableListRow from "./TableListRow";
@@ -30,24 +30,51 @@ export default function TableListSection() {
     activityError,
   } = useActivityStore();
 
-  const { user } = useAuthStore();
+  const { user, isAuthenticated, authLoading } = useAuthStore();
   const studentId = user?.student?.students_id || 3; // ใช้ students_id แทน userId
 
   console.log("🔍 [DEBUG] TableListSection - user:", user);
   console.log("🔍 [DEBUG] TableListSection - studentId:", studentId);
+  console.log("🔍 [DEBUG] TableListSection - user.student:", user?.student);
+  console.log("🔍 [DEBUG] TableListSection - user.student?.students_id:", user?.student?.students_id);
+  console.log("🔍 [DEBUG] TableListSection - isAuthenticated:", isAuthenticated);
+  console.log("🔍 [DEBUG] TableListSection - authLoading:", authLoading);
 
   // 👉 โหลดข้อมูลครั้งแรก
   useEffect(() => {
     console.log("🔍 [DEBUG] TableListSection useEffect - studentId:", studentId);
-    if (studentId) {
+    console.log("🔍 [DEBUG] TableListSection useEffect - isAuthenticated:", isAuthenticated);
+    console.log("🔍 [DEBUG] TableListSection useEffect - authLoading:", authLoading);
+    
+    // รอให้ authentication เสร็จก่อน
+    if (isAuthenticated && !authLoading && studentId) {
       console.log("📞 [DEBUG] Calling fetchEnrolledActivities with studentId:", studentId);
-      fetchEnrolledActivities(studentId);
+      
+      // เพิ่ม delay เล็กน้อยเพื่อให้แน่ใจว่า component mount เสร็จแล้ว
+      const timer = setTimeout(() => {
+        fetchEnrolledActivities(studentId).catch((error) => {
+          console.error("❌ [DEBUG] Error in fetchEnrolledActivities:", error);
+        });
+      }, 100);
+      
+      return () => clearTimeout(timer);
     }
-  }, [studentId]); // ลบ fetchEnrolledActivities ออกจาก dependency
+  }, [studentId, isAuthenticated, authLoading, fetchEnrolledActivities]); // เพิ่ม dependencies
 
   console.log("🔍 [DEBUG] TableListSection render - enrolledActivities:", enrolledActivities);
   console.log("🔍 [DEBUG] TableListSection render - activityLoading:", activityLoading);
   console.log("🔍 [DEBUG] TableListSection render - activityError:", activityError);
+  console.log("🔍 [DEBUG] TableListSection render - enrolledActivities length:", enrolledActivities?.length);
+  console.log("🔍 [DEBUG] TableListSection render - enrolledActivities is array:", Array.isArray(enrolledActivities));
+  
+  // Debug: แสดงสถานะปัจจุบัน
+  console.log("🔍 [DEBUG] Current state summary:", {
+    loading: activityLoading,
+    error: activityError,
+    hasData: enrolledActivities && enrolledActivities.length > 0,
+    dataLength: enrolledActivities?.length || 0,
+    studentId
+  });
 
   return (
     <div>
@@ -56,16 +83,35 @@ export default function TableListSection() {
       </Typography>
 
       {activityLoading ? (
-        <div className="text-center p-4">
-          <p>กำลังโหลดกิจกรรม...</p>
-        </div>
+        <Box className="text-center p-4">
+          <CircularProgress size={40} sx={{ mb: 2 }} />
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            กำลังโหลดกิจกรรม...
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            กรุณารอสักครู่
+          </Typography>
+        </Box>
       ) : activityError ? (
         <div className="text-center text-red-500 p-4">
           <p>❌ เกิดข้อผิดพลาด: {activityError}</p>
+          <button 
+            onClick={() => fetchEnrolledActivities(studentId)}
+            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            ลองใหม่
+          </button>
         </div>
       ) : !enrolledActivities || enrolledActivities.length === 0 ? (
         <div className="text-center text-gray-500 p-4">
           <p>📭 ไม่พบกิจกรรมที่ลงทะเบียน</p>
+          <p className="text-sm mt-2">Student ID: {studentId}</p>
+          <button 
+            onClick={() => fetchEnrolledActivities(studentId)}
+            className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            โหลดใหม่
+          </button>
         </div>
       ) : (
         <TableListRow

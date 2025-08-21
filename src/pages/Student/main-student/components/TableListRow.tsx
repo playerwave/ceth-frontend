@@ -36,7 +36,11 @@ export default function TableListRow({
   console.log("🔍 [DEBUG] TableListRow - columns:", columns);
 
   const handleRowClick: GridEventListener<"rowClick"> = (params) => {
-    const id = params.row.id;
+    // Single click - ไม่ทำอะไร (หรืออาจจะเพิ่ม highlight effect)
+  };
+
+  const handleRowDoubleClick: GridEventListener<"rowDoubleClick"> = (params) => {
+    const id = params.row.activity_id;
     if (id) navigate(`/activity-info-student/${id}`);
   };
 
@@ -106,6 +110,7 @@ export default function TableListRow({
             columns={columnsWithDropdown}
             rows={filteredRows}
             onRowClick={handleRowClick}
+            onRowDoubleClick={handleRowDoubleClick}
             // 👇ใช้ activity_id เป็น id หลักของ row
             getRowId={(row) => row.activity_id}
             pageSizeOptions={[5, 10, 20]}

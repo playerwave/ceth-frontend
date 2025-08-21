@@ -172,7 +172,7 @@ export const getTableListColumn = (
       renderCell: (params) => {
         const totalSeats = params.row.seat;
         const eventFormat = params.row.event_format;
-        const enrolledCount = (params.row as any).enrolled_count || 0; // ✅ ใช้ any type เพื่อหลีกเลี่ยง linter error
+        const enrolledCount = params.row.registered_count; // ✅ ใช้ any type เพื่อหลีกเลี่ยง linter error
 
         // ✅ ถ้าเป็น Course ให้แสดง "-"
         if (eventFormat === "Course") {

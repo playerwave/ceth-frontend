@@ -285,7 +285,7 @@ export const getActivityColumns = (
       renderCell: (params) => {
         const totalSeats = params.row.seat;
         const eventFormat = params.row.event_format;
-        const enrolledCount = (params.row as any).enrolled_count || 0; // ✅ ใช้ any type เพื่อหลีกเลี่ยง linter error
+        const registeredCount = (params.row as any).registered_count || 0; // ✅ ใช้ registered_count แทน enrolled_count
 
         // ✅ ถ้าเป็น Course ให้แสดง "-"
         if (eventFormat === "Course") {
@@ -295,7 +295,7 @@ export const getActivityColumns = (
         return (
           <Box display="flex" alignItems="center" gap={1}>
             <span>
-              {enrolledCount}/{totalSeats != null ? totalSeats : "-"}
+              {registeredCount}/{totalSeats != null ? totalSeats : "-"}
             </span>
             <User />
           </Box>
