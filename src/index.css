@@ -1,9 +1,9 @@
+@import "tailwindcss";
+
 @font-face {
   font-family: pt-sans;
   src: url("../src/assets/fonts/PTSans-Regular.ttf");
 }
-
-@import "tailwindcss";
 
 @theme{
   --font-pt-sans: pt-sans;
