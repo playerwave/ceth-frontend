@@ -1,35 +1,22 @@
-export type QuestionBase = {
+export interface Question {
   id: number;
+  type: 'choice' | 'checkbox' | 'text' | 'rating';
   question: string;
-};
+  options: string[];
+  required: boolean;
+}
 
-export type ChoiceQuestion = QuestionBase & {
-  type: "choice";
-  choices: string[];
-};
+export interface Section {
+  id: number;
+  title: string;
+  questions: Question[];
+}
 
-export type CheckboxQuestion = QuestionBase & {
-  type: "checkbox";
-  choices: string[];
-};
-
-export type OpenQuestion = QuestionBase & {
-  type: "openques";
-};
-
-export type ComplacentQuestion = QuestionBase & {
-  type: "complacent";
-};
-
-
-
-export type QuestionItem =
-  | ChoiceQuestion
-  | CheckboxQuestion
-  | OpenQuestion
-    | ComplacentQuestion;
-
-export type TopicData = {
-  topic: string;
-  questions: QuestionItem[];
-};
+export interface FormData {
+  title: string;
+  description: string;
+  sections: Section[];
+  createdAt: string;
+  totalSections: number;
+  totalQuestions: number;
+}
