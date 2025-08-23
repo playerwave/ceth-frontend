@@ -1,5 +1,5 @@
 import { DataGrid, GridColDef, GridEventListener } from "@mui/x-data-grid";
-import { Box, Typography, FormControl, SelectChangeEvent } from "@mui/material";
+import { Box, Typography, FormControl } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -8,10 +8,10 @@ export interface TableListRowProps {
   width?: number | string;
   borderRadius?: number | string;
   columns: GridColDef[];
-  rows: unknown[];
+  rows: any[];
   title?: string;
   initialPageSize?: number;
-  selectedTypes?: string[]; // <-- เพิ่มรับ selectedTypes จาก parent
+  selectedTypes?: string[];
 }
 
 export default function TableListRow({
@@ -21,7 +21,7 @@ export default function TableListRow({
   rows,
   title,
   initialPageSize,
-  // selectedTypes,
+  selectedTypes,
 }: TableListRowProps) {
   const navigate = useNavigate();
   const [locationFilter] = useState<string>("");

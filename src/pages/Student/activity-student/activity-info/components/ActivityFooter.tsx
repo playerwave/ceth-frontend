@@ -253,10 +253,10 @@ interface Props {
 
   activity: any;
   isEnrolled: boolean;
-  enrollActivity: (userId: number, activityId: number, food?: string) => Promise<void> | void;
+  enrollActivity: (userId: number, activityId: number, food?: string[]) => Promise<void> | void;
   unenrollActivity: (userId: number, activityId: number) => Promise<void> | void;
   setIsEnrolled: React.Dispatch<React.SetStateAction<boolean>>;
-  navigate: (path: string) => void;
+  navigate: any;
   enrolledActivities: Array<{
     activity_id: number;
     event_format: string;
@@ -323,7 +323,7 @@ export default function ActivityFooter({
       return;
     }
 
-    await enrollActivity(userId, activity.activity_id, selectedFood);
+    await enrollActivity(userId, activity.activity_id, selectedFood ? [selectedFood] : undefined);
     setIsEnrolled(true);
     toast.success("✅ ลงทะเบียนกิจกรรมสำเร็จ");
   };

@@ -54,7 +54,7 @@ export default function TableRedesign({
   rows,
   title,
   onRowDoubleClick,
-  handleStatusToggle,
+  // handleStatusToggle,
   initialPageSize = 10,
   getRowId,
 }: TableRedesignProps) {

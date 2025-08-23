@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ImagePlus, X } from "lucide-react";
+import { ImagePlus } from "lucide-react";
 
 interface UploadCertificateProps {
   previewImage: string | null;

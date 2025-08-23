@@ -95,7 +95,7 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
   const toggleCalendar = () => setCalendarOpen(!calendarOpen);
   const toggle = () => setShowFilters(!showFilters);
 
-  const handleDateChange = (value: Date | Date[]) => {
+  const handleDateChange = (value: any) => {
     const date = value instanceof Date ? value : null;
     setSelectedDate(date);
     setCalendarOpen(false);

@@ -10,7 +10,7 @@ const ListActivityHistoryTeacher = () => {
 
   const { activities, loading, error, fetchEndedActivities } = useActivityStore();
   // ถ้าต้องการดึงทั้งหมดให้เปลี่ยนเป็น fetchActivities()
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmOpen] = useState(false);
 
 // ... โค้ดเปิด/ปิด dialog ของคุณจะ setConfirmOpen(true/false)
 

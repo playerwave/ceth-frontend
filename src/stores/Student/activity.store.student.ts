@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { ActivityState } from "../state/activity.state";
 import activityService from "../../service/Student/activity.service.student";
-import { Activity } from "../../types/model";
+// import { Activity } from "../../types/model";
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
   activities: [],
@@ -151,7 +151,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     } catch (error) {
       console.error("❌ [STORE] Error in fetchEnrolledActivities:", error);
       const errorMessage =
-        error.message === "Request timeout"
+        (error as any).message === "Request timeout"
           ? "การเชื่อมต่อช้า กรุณาลองใหม่อีกครั้ง"
           : "ไม่สามารถโหลดกิจกรรมที่ลงทะเบียนได้";
 
