@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: "http://vps.theapds.org:8069/api/", // ✅ Production VPS
+  baseURL: "/api/", // ✅ ใช้ relative URL เพื่อให้ Netlify proxy ทำงาน
   withCredentials: true, // ✅ ส่ง cookie ไปพร้อม request
   headers: {
     "Content-Type": "application/json",
