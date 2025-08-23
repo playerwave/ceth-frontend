@@ -1,60 +1,16 @@
 // src/service/Visitor/activity.service.visitor.ts
 
 import axiosInstance from "../../libs/axios";
-import { ParsedVisitorActivity } from "../../types/Visitor/parsed_visitor_activity";
 import { Activity } from "../../types/model"; // นำเข้า Activity Type ของคุณ
 
 const API_URL_FOR_VISITOR = "/visitor"; // ✅ ใช้ relative path เพราะ axios instance มี baseURL แล้ว
 
-const convertParsedToActivity = (
-  parsedActivity: ParsedVisitorActivity
-): Activity => {
-  return {
-    activity_id: parseInt(parsedActivity.activity_id),
-    activity_name: parsedActivity.activity_name,
-    presenter_company_name: parsedActivity.organizer, // ใช้ organizer
-    type: "Soft", // ต้องกำหนด Logic การแปลง type ถ้ามีข้อมูลใน API. ถ้าไม่มีข้อมูล type ใน parsedActivity, ต้องตัดสินใจค่าเริ่มต้น
-    description: parsedActivity.description,
-    seat: parsedActivity.max_participants, // ใช้ max_participants
-    recieve_hours: 0, // กำหนดค่าเริ่มต้น
-    event_format: parsedActivity.location_type as
-      | "Online"
-      | "Onsite"
-      | "Course",
-    create_activity_date: "", // กำหนดค่าเริ่มต้น
-    special_start_register_date: "", // กำหนดค่าเริ่มต้น
-    start_register_date: parsedActivity.start_date, // ใช้ start_date
-    end_register_date: parsedActivity.end_date, // ใช้ end_date
-    start_activity_date: parsedActivity.start_date, // ใช้ start_date
-    end_activity_date: parsedActivity.end_date, // ใช้ end_date
-    image_url: "", // กำหนดค่าเริ่มต้น
-    activity_status:
-      parsedActivity.activity_status === "Open Register" ? "Public" : "Private", // แปลงให้ตรงกับ Activity
-    activity_state: parsedActivity.activity_state as
-    | "Open Register"
-    | "Not Start"
-    | "Special Open Register"
-    | "Close Register"
-    | "Start Activity"
-    | "End Activity"
-    | "Start Assessment"
-    | "End Assessment", // กำหนดค่าเริ่มต้น
-    status: "Active", // กำหนดค่าเริ่มต้น
-    last_update_activity_date: "", // กำหนดค่าเริ่มต้น
-    url: null, // กำหนดค่าเริ่มต้น
-    assessment_id: 0, // กำหนดค่าเริ่มต้น
-    room_id: 0, // กำหนดค่าเริ่มต้น
-    start_assessment: null, // กำหนดค่าเริ่มต้น
-    end_assessment: null, // กำหนดค่าเริ่มต้น
-    activityFood: [], // กำหนดค่าเริ่มต้น
-    registered_count: 0, // กำหนดค่าเริ่มต้น
-  };
-};
+// ✅ ลบ function ที่ไม่ใช้แล้ว
 
 const fetchPublicActivities = async (): Promise<Activity[]> => {
   // คืนค่าเป็น Activity[]
   try {
-    const response = await axiosInstance.get<{ row: string }[]>(
+    const response = await axiosInstance.get<any[]>(
       `${API_URL_FOR_VISITOR}/get-visitor-activities`
     );
 
@@ -64,42 +20,50 @@ const fetchPublicActivities = async (): Promise<Activity[]> => {
       return [];
     }
 
-    const rawData: { row: string }[] = response.data;
+    // ✅ ตรวจสอบว่า response.data เป็น array หรือไม่
+    if (!Array.isArray(response.data)) {
+      console.warn("API returned non-array data:", response.data);
+      return [];
+    }
+
+    const rawData: any[] = response.data;
 
     if (!rawData || rawData.length === 0) {
       console.warn("API returned no data or empty array.");
       return [];
     }
 
-    const parsedActivities: ParsedVisitorActivity[] = rawData.map((item) => {
-      // ... (โค้ด parsing เดิมเหมือนที่คุณเคยมี)
-      const cleanedString = item.row
-        .substring(1, item.row.length - 1)
-        .replace(/\\"/g, '"');
-      const parts = cleanedString.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-      const cleanPart = (part: string) => part.trim().replace(/^"|"$/g, "");
-
+    // ✅ แปลงข้อมูลจาก Backend format เป็น Activity format
+    const activities: Activity[] = rawData.map((item) => {
       return {
-        activity_id: cleanPart(parts[0]),
-        activity_name: cleanPart(parts[1]),
-        organizer: cleanPart(parts[2]),
-        department: cleanPart(parts[3]),
-        description: cleanPart(parts[4]),
-        max_participants: parseInt(cleanPart(parts[5]) || "0"),
-        location_type: cleanPart(parts[7]),
-        start_date: cleanPart(parts[8]),
-        end_date: cleanPart(parts[9]),
-        activity_status: cleanPart(parts[12]),
-        activity_code: cleanPart(parts[14]),
-        activity_state: cleanPart(parts[13])
-        // ถ้า parts[6] คือ type (Soft/Hard) คุณสามารถเพิ่มตรงนี้ได้:
-        // type: cleanPart(parts[6]) as "Soft" | "Hard",
-      } as ParsedVisitorActivity;
+        activity_id: parseInt(item.activity_id) || 0,
+        activity_name: item.activity_name || "",
+        presenter_company_name: item.presenter_company_name || "",
+        type: item.type || "Soft",
+        description: item.description || "",
+        seat: parseInt(item.seat) || 0,
+        recieve_hours: parseInt(item.recieve_hours) || 0,
+        event_format: item.event_format || "Onsite",
+        create_activity_date: item.create_activity_date || "",
+        special_start_register_date: item.special_start_register_date || "",
+        start_register_date: item.start_register_date || "",
+        end_register_date: item.end_register_date || "",
+        start_activity_date: item.start_activity_date || "",
+        end_activity_date: item.end_activity_date || "",
+        image_url: item.image_url || "",
+        activity_status: item.activity_status || "Private",
+        activity_state: item.activity_state || "Not Start",
+        status: "Active",
+        last_update_activity_date: item.last_update_activity_date || "",
+        url: item.url || null,
+        assessment_id: parseInt(item.assessment_id) || 0,
+        room_id: parseInt(item.room_id) || 0,
+        start_assessment: item.start_assessment || null,
+        end_assessment: item.end_assessment || null,
+        activityFood: [],
+        registered_count: parseInt(item.registered_count) || 0,
+      };
     });
-
-    const activities: Activity[] = parsedActivities.map(
-      convertParsedToActivity
-    );
 
     console.log("Converted Activities for Table:", activities);
     return activities;

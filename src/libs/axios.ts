@@ -8,9 +8,15 @@ const axiosInstance: AxiosInstance = axios.create({
   },
 });
 
-// Interceptors for logging requests (comment ถ้าเป็นตอนที่ขึ้น production)
+// ✅ เพิ่ม token interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
+    // เพิ่ม token จาก localStorage ถ้ามี
+    const token = localStorage.getItem('auth-token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
     console.log("📤 [Request]", {
       url: config.url,
       method: config.method,
@@ -25,6 +31,8 @@ axiosInstance.interceptors.request.use(
     return Promise.reject(error);
   },
 );
+
+// ✅ ลบ interceptor เดิมที่ซ้ำ
 
 // Interceptors for logging responses (comment ถ้าเป็นตอนที่ขึ้น production)
 axiosInstance.interceptors.response.use(

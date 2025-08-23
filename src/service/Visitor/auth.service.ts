@@ -4,17 +4,29 @@ import { AuthResponse, ApiLoginRequest } from "../../stores/api/auth.api";
 export const login = async (
   payload: ApiLoginRequest
 ): Promise<AuthResponse> => {
-  const response = await axiosInstance.post<AuthResponse>(
-    "/auth/login",
-    payload
-  );
-  
-  // เก็บ token ใน localStorage
-  if (response.data.token) {
-    localStorage.setItem('auth-token', response.data.token);
+  try {
+    const response = await axiosInstance.post<AuthResponse>(
+      "/auth/login",
+      payload
+    );
+    
+    // ✅ ตรวจสอบ response data
+    if (!response.data) {
+      throw new Error("No response data received");
+    }
+    
+    // เก็บ token ใน localStorage
+    if (response.data.token) {
+      localStorage.setItem('auth-token', response.data.token);
+      // ✅ เพิ่ม token ไปยัง axios instance
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error("❌ Login error:", error);
+    throw error;
   }
-  
-  return response.data;
 };
 
 export const logout = async (): Promise<void> => {
