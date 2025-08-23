@@ -8,6 +8,7 @@ import { ProtectionLevel } from "./secure/urlEnCryption";
 import type { Roles } from "../types/model";
 import ListActivityHistoryStudent from "../pages/Student/activity-history-student/list-activity-history-student/list.activity.history.student";
 import ActivityHistoryInfoStudent from "../pages/Student/activity-history-student/activity-history-info-student/activity.history.info.student";
+import ActivityInfoStudent from "../pages/Student/activity-student/activity-info/activity_info_student";
 type RoleName = Roles["role_name"];
 
 export const activityHistoryRoutes = [
@@ -37,11 +38,11 @@ export const activityHistoryRoutes = [
     visibleInSidebar: true
   },
   {
-    path: "/activity-history-info-student",
-    element: <ActivityHistoryInfoStudent />,
-    label: "",
-    icon: "ClipboardList",
-    roles: ["Student"] as RoleName[],
-    visibleInSidebar: false
-  },
+  path: "/activity-history-info-student/:id",
+  element: <ActivityInfoStudent />,
+  label: "",
+  icon: "ClipboardList",
+  roles: ["Student"] as RoleName[],
+  visibleInSidebar: false
+},
 ];

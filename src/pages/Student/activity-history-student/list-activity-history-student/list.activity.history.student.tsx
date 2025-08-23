@@ -5,6 +5,7 @@ import Searchbar from "../../../../components/Searchbar";
 import ActivityHistoryTableStudent from "./activity.history.table.student";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
 import { useAuthStore } from "../../../../stores/Visitor/auth.store";
+import Button from "../../../../components/Button";
 
 const ListActivityHistoryStudent = () => {
   const navigate = useNavigate();
@@ -23,6 +24,10 @@ const ListActivityHistoryStudent = () => {
     searchEndActivities(term, studentId);
   }
 
+  const handleClick = () => {
+    navigate("/assessment-student");
+  };
+
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-10">
       <h1 className="text-center text-3xl font-bold mb-9 mt-4">
@@ -35,19 +40,18 @@ const ListActivityHistoryStudent = () => {
       </div>
 
       {studentId ? (
-        <ActivityHistoryTableStudent
-          studentId={studentId}
-          onRowDoubleClick={(row) => {
-            navigate("/activity-history-info-student", {
-              state: { activityId: row.activity_id, activity: row },
-            });
-          }}
-        />
+        <ActivityHistoryTableStudent studentId={studentId} />
       ) : (
         <div className="text-center text-gray-500 py-10">
           ยังไม่พบรหัสนักศึกษาในระบบเข้าสู่ระบบ/รีเฟรชหน้าเพื่อดึงข้อมูลผู้ใช้
         </div>
       )}
+
+      <div className="ml-50">
+      <Button className="bg-gradient-to-r from-red-500 via-blue-500 to-green-500" onClick={handleClick}>
+        ปาเร่แบบประเมิน
+      </Button>
+    </div>
     </div>
   );
 };

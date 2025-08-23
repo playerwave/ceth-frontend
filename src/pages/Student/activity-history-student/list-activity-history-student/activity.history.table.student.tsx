@@ -15,7 +15,10 @@ type Props = {
 
 // ...imports เหมือนเดิม
 
-const ActivityHistoryTableStudent = ({ studentId, onRowDoubleClick }: Props) => {
+const ActivityHistoryTableStudent = ({
+  studentId,
+  onRowDoubleClick,
+}: Props) => {
   const navigate = useNavigate();
   const endedActivities = useActivityStore((s) => s.endedActivities);
   const searchResults = useActivityStore((s) => s.searchResults);
@@ -27,7 +30,9 @@ const ActivityHistoryTableStudent = ({ studentId, onRowDoubleClick }: Props) => 
 
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const handleTypeChange = (type: string) =>
-    setSelectedTypes((prev) => (prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]));
+    setSelectedTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
 
   const baseRows = (searchResults ?? endedActivities ?? []) as Activity[];
 
@@ -50,35 +55,35 @@ const ActivityHistoryTableStudent = ({ studentId, onRowDoubleClick }: Props) => 
     const row: Activity = rowOrParams?.row ?? rowOrParams;
     if (!row?.activity_id) return;
     navigate(`/activity-history-info-student/${row.activity_id}`, {
-      state: { activityId: row.activity_id, activity: row },
-    });
+  state: { mode: "history", id: row.activity_id },
+});
+
   };
 
-return (
-  <div style={{ padding: 24 }}>
-    <CustomCard height={730} width="1312px">
-      <h2 className="text-2xl font-semibold mb-4">ประวัติกิจกรรมของฉัน</h2>
-      <div className="inner-scroll" style={{ height: 650 }}>
-        <TableRedesign
-          initialPageSize={10}
-          columns={activityColumns}
-          rows={filteredRows}
-          height={650}
-          width="100%"
-          borderRadius={14}
-          // ถ้าอยาก single click ใช้ onRowClick แทนได้
-          onRowDoubleClick={(rowOrParams: any) => {
-            const row: Activity = rowOrParams?.row ?? rowOrParams; // ✅ normalize ตรงนี้เสมอ
-            if (onRowDoubleClick) return onRowDoubleClick(row);    // ✅ ส่งให้พาเรนต์แบบ "row" ชัวร์ๆ
-            return goDetail(row);                                  // ✅ ไม่งั้นลูกนำทางเอง
-          }}
-          getRowId={(row: Activity) => row.activity_id}
-        />
-      </div>
-    </CustomCard>
-  </div>
-);
-
+  return (
+    <div style={{ padding: 24 }}>
+      <CustomCard height={730} width="1312px">
+        <h2 className="text-2xl font-semibold mb-4">ประวัติกิจกรรมของฉัน</h2>
+        <div className="inner-scroll" style={{ height: 650 }}>
+          <TableRedesign
+            initialPageSize={10}
+            columns={activityColumns}
+            rows={filteredRows}
+            height={650}
+            width="100%"
+            borderRadius={14}
+            // ถ้าอยาก single click ใช้ onRowClick แทนได้
+            onRowDoubleClick={(rowOrParams: any) => {
+              const row: Activity = rowOrParams?.row ?? rowOrParams; // ✅ normalize ตรงนี้เสมอ
+              if (onRowDoubleClick) return onRowDoubleClick(row); // ✅ ส่งให้พาเรนต์แบบ "row" ชัวร์ๆ
+              return goDetail(row); // ✅ ไม่งั้นลูกนำทางเอง
+            }}
+            getRowId={(row: Activity) => row.activity_id}
+          />
+        </div>
+      </CustomCard>
+    </div>
+  );
 };
 
 export default ActivityHistoryTableStudent;
