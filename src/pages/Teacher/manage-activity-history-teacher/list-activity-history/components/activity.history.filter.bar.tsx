@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -9,6 +8,7 @@ interface ActivityFilterBarProps {
   typeOptions: string[];
   yearOptions: number[];
   monthOptions: { label: string; value: number }[];
+  isDialogOpen?: boolean
   onFilterChange: (filters: {
     type?: string;
     year?: number;
@@ -17,11 +17,16 @@ interface ActivityFilterBarProps {
     startDate?: string;
     endDate?: string;
     event_format?: string;
-    event_formats?: string[]; // ✅
+    event_formats?: string[];
+    
   }) => void;
 }
 
-/* ---------- MultiSelectCheckbox (ง่ายแบบรูป) ---------- */
+/* ปุ่มสไตล์เดียวกัน */
+const btnBase =
+  "h-10 px-4 min-w-[140px] rounded-lg bg-[#1E3A8A] text-white text-sm font-semibold " +
+  "hover:brightness-95 outline-none focus:outline-none focus:ring-0 border-0 shadow-sm";
+
 const MultiSelectCheckbox: React.FC<{
   label: string;
   options: string[];
@@ -39,27 +44,23 @@ const MultiSelectCheckbox: React.FC<{
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        onClick={toggle}
-        className="px-4 py-2 rounded text-sm bg-[#1E3A8A] text-white border border-white min-w-[140px] text-center font-semibold hover:brightness-90"
-      >
+      <button type="button" onClick={toggle} className={btnBase}>
         {selected.length ? `${label} (${selected.length})` : label}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-30 bg-[#1E3A8A] text-white rounded-lg shadow-lg ring-1 ring-white/20 z-[9999]">
+        <div className="absolute right-0 mt-2 w-44 bg-white text-gray-800 rounded-lg shadow-lg ring-1 ring-black/10 z-40">
           <div className="max-h-64 overflow-auto py-1">
             {options.map((opt) => (
               <label
                 key={opt}
-                className="flex items-center gap-3 px-3 py-2 hover:brightness-90 cursor-pointer"
+                className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer"
               >
                 <input
                   type="checkbox"
                   checked={isChecked(opt)}
                   onChange={() => toggleValue(opt)}
-                  className="accent-white w-4 h-4"
+                  className="accent-[#1E3A8A] w-4 h-4"
                 />
                 <span className="text-sm">{opt}</span>
               </label>
@@ -71,11 +72,11 @@ const MultiSelectCheckbox: React.FC<{
   );
 };
 
-/* -------------------- Main Component -------------------- */
 const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
   yearOptions,
   monthOptions,
   onFilterChange,
+  isDialogOpen = false,
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -83,22 +84,18 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
-  // ด้านบนใน ActivityFilterBar
-  // const [yearValue, setYearValue] = useState<string>("");
-  // const [monthValue, setMonthValue] = useState<string>("");
 
   const [yearValue, setYearValue] = useState<string | number | null>(null);
   const [monthValue, setMonthValue] = useState<string | number | null>(null);
+  React.useEffect(() => {
+    if (isDialogOpen) setCalendarOpen(false);
+  }, [isDialogOpen]);
+
 
   const toggleCalendar = () => setCalendarOpen(!calendarOpen);
   const toggle = () => setShowFilters(!showFilters);
 
-  const handleChange = (
-    key: "type" | "year" | "month" | "event_format",
-    value: string | number
-  ) => onFilterChange({ [key]: value });
-
-  const handleDateChange = (value: Date | Date[], _?: any) => {
+  const handleDateChange = (value: Date | Date[]) => {
     const date = value instanceof Date ? value : null;
     setSelectedDate(date);
     setCalendarOpen(false);
@@ -119,11 +116,12 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
     const year = date.getFullYear() + 543;
     return `${day}/${month}/${year}`;
   };
+  
 
   return (
-    <div className="w-full flex flex-col items-center mb-6">
+    <div className="activity-filterbar w-full flex flex-col items-center mb-6">
       <div className="w-full flex justify-between items-center px-8 py-4 gap-4 relative overflow-visible">
-        {/* Toggle */}
+        {/* Toggle โหมด */}
         <div className="flex items-center gap-3">
           <button
             onClick={toggle}
@@ -141,17 +139,16 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-4 items-center justify-end text-white">
+        <div className="flex flex-wrap gap-4 items-center justify-end">
           {showFilters ? (
             <>
-              {/* ประเภท (multi) */}
               <MultiSelectCheckbox
                 label="เลือกประเภท"
                 options={["Onsite", "Online", "Course"]}
                 selected={selectedFormats}
                 onChange={(next) => {
                   setSelectedFormats(next);
-                  onFilterChange({ event_formats: next }); // ✅ ส่งเป็นอาร์เรย์
+                  onFilterChange({ event_formats: next });
                 }}
               />
 
@@ -174,7 +171,7 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
               <CustomDropdown
                 placeholder="เลือกเดือน"
                 value={monthValue}
-                options={monthOptions} // [{label:'มกราคม', value:0}, ...]
+                options={monthOptions}
                 onChange={(v) => {
                   setMonthValue(v);
                   onFilterChange({ month: v === null ? undefined : Number(v) });
@@ -182,10 +179,10 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
                 className="min-w-[140px]"
               />
 
-              {/* วันเดียว: คลิกซ้ำเพื่อลบ */}
+              {/* วันเดียว */}
               <div className="relative z-40">
                 <button
-                  className="px-4 py-2 rounded text-sm bg-[#1E3A8A] border border-white text-white font-semibold min-w-[160px] hover:brightness-90"
+                  className={btnBase + " min-w-[160px]"}
                   onClick={() => {
                     if (selectedDate) {
                       setSelectedDate(null);
@@ -199,7 +196,7 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
                 </button>
 
                 {calendarOpen && (
-                  <div className="absolute top-[calc(100%+8px)] right-0 bg-[#1E3A8A] rounded-xl shadow-lg p-4 z-[9999]">
+                  <div className="absolute top-[calc(100%+8px)] right-0 bg-white rounded-xl shadow-lg p-4 calendar-popover">
                     <Calendar
                       onChange={handleDateChange}
                       value={selectedDate || new Date()}
@@ -217,10 +214,10 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
             </>
           ) : (
             <>
-              {/* ช่วง: คลิกซ้ำเพื่อลบช่วง */}
+              {/* ช่วงวันที่ */}
               <div className="relative z-40">
                 <button
-                  className="px-4 py-2 rounded text-sm bg-[#1E3A8A] border border-white text-white font-semibold min-w-[160px] hover:brightness-90"
+                  className={btnBase + " min-w-[160px]"}
                   onClick={() => {
                     if (startDate || endDate) {
                       setStartDate(null);
@@ -231,12 +228,11 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
                     }
                   }}
                 >
-                  {formatBuddhistDate(startDate)} -{" "}
-                  {formatBuddhistDate(endDate)}
+                  {formatBuddhistDate(startDate)} - {formatBuddhistDate(endDate)}
                 </button>
 
                 {calendarOpen && (
-                  <div className="absolute mt-2 right-0 bg-[#1E3A8A] rounded-xl shadow-lg p-4">
+                  <div className="absolute mt-2 right-0 bg-white rounded-xl shadow-lg p-4 calendar-popover">
                     <Calendar
                       selectRange
                       onChange={(value) => {

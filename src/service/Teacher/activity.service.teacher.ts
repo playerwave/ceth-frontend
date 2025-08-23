@@ -130,6 +130,16 @@ export const deleteActivity = async (id: number): Promise<void> => {
 };
 //------------------------------------------------------------------
 
+//--------------------- Fetch Activities -------------------------
+export const fetchEndActivities = async (): Promise<Activity[]> => {
+  const response = await axiosInstance.get<Activity[]>(
+    `${TEACHER_ACTIVITY_PATH}/get-activities-history`
+  );
+  return response.data;
+};
+//----------------------------------------------------------------
+
+
 //--------------------- Export Service -----------------------------
 // เป็นนการทำ Object literal เพื่อรวมฟังก์ชันทั้งหมดที่เกี่ยวข้องกกับ activity
 const activityService = {
@@ -143,6 +153,7 @@ const activityService = {
   addFoodToActivity,
   removeFoodFromActivity,
   deleteActivity, // ✅ เพิ่มฟังก์ชันลบกิจกรรม
+  fetchEndActivities,
 };
 //------------------------------------------------------------------
 

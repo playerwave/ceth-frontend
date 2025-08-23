@@ -125,3 +125,8 @@
 }
 
 
+/* popover ของปฏิทิน ต้องมีคลาสนี้ใน div ครอบ (ตามที่คุณตั้งไว้) */
+.calendar-popover { z-index: 10; }
+
+/* เมื่อ dialog เปิด บังคับให้ปฏิทินลงไปใต้ backdrop */
+.modal-open .calendar-popover { z-index: 0 !important; }

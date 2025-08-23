@@ -10,6 +10,10 @@ const ListActivityHistoryTeacher = () => {
 
   const { activities, loading, error, fetchEndedActivities } = useActivityStore();
   // ถ้าต้องการดึงทั้งหมดให้เปลี่ยนเป็น fetchActivities()
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+// ... โค้ดเปิด/ปิด dialog ของคุณจะ setConfirmOpen(true/false)
+
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<{
@@ -143,6 +147,7 @@ const ListActivityHistoryTeacher = () => {
             { label: "ธันวาคม", value: 11 },
           ]}
           onFilterChange={handleFilterChange}
+          isDialogOpen={confirmOpen}
         />
 
         {loading && <p className="mt-4">⏳ กำลังโหลด...</p>}
