@@ -9,7 +9,7 @@ export interface TableRedesignProps {
   width?: number | string;
   borderRadius?: number | string;
   columns: GridColDef[];
-  rows: any[];
+  rows: unknown[];
   title?: string;
 }
 

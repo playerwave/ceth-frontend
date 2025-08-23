@@ -70,89 +70,13 @@ const iconMap: { [key: string]: JSX.Element } = {
   History: <History size={24}/>
 };
 
-// //activity sidebar
-// const activitySidebarItems = activityRoutes
-//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
-//   .map(route => ({
-//     to: route.path,
-//     text: route.label,
-//     icon: iconMap[route.icon],
-//     isActionable: true
-//   }));
-
-//   //activity history
-//   const  activityHistorySidebarItems = activityHistoryRoutes
-//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
-//   .map(route => ({
-//     to: route.path,
-//     text: route.label,
-//     icon: iconMap[route.icon],
-//     isActionable: true
-//   }));
-
-//   //assessment 
-//   const assessmentSidebarItems = assessmentRoutes
-//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
-//   .map(route => ({
-//     to: route.path,
-//     text: route.label,
-//     icon: iconMap[route.icon],
-//     isActionable: true
-//   }));
-
-//   //user
-//   const userSidebarItems = userRoutes
-//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
-//   .map(route => ({
-//     to: route.path,
-//     text: route.label,
-//     icon: iconMap[route.icon],
-//     isActionable: true
-//   }));
-
-//   //certificate
-//   const certificateSidebarItems = certificateRoutes
-//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
-//   .map(route => ({
-//     to: route.path,
-//     text: route.label,
-//     icon: iconMap[route.icon],
-//     isActionable: true
-//   }));
-
-//   //food sidebar
-//   const foodSidebarItems = foodRoutes
-//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
-//   .map(route => ({
-//     to: route.path,
-//     text: route.label,
-//     icon: iconMap[route.icon],
-//     isActionable: true
-//   }));
-
-//   //room sidebar
-//   const roomSidebarItems = roomRoutes
-//   .filter(route => route.visibleInSidebar && route.roles.includes(role))
-//   .map(route => ({
-//     to: route.path,
-//     text: route.label,
-//     icon: iconMap[route.icon],
-//     isActionable: true
-//   }));
-
   const buildSidebarItems = (
-  routes: {
-    path: string;
-    label: string;
-    icon: string;
-    roles: string[];
-    visibleInSidebar: boolean;
-  }[],
+  routes: any[],
   role: string,
   iconMap: { [key: string]: JSX.Element }
 ) => {
   return routes
-    .filter(route => route.visibleInSidebar && route.roles.includes(role))
+    .filter(route => route && route.visibleInSidebar && route.roles.includes(role))
     .map(route => ({
       to: route.path,
       text: route.label,

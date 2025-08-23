@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAssessmentStore } from "../../../../stores/Teacher/assessment.store";
 import Loading from "../../../../components/Loading";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -81,7 +81,7 @@ const CreateActivityAdmin: React.FC = () => {
   });
 
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
   const params = useSecureParams();
 const secureParams = useSecureParams();
 const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
@@ -89,12 +89,12 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
   const finalActivityId = extractSecureParam(params, 'id', 0);
 
   // ✅ ฟังก์ชันตรวจสอบว่าเวลาปัจจุบันเลย start_activity_date แล้วหรือยัง
-  const isActivityStarted = () => {
-    if (!formData.start_activity_date) return false;
-    const now = dayjs();
-    const startTime = dayjs(formData.start_activity_date);
-    return now.isAfter(startTime) || now.isSame(startTime);
-  };
+  // const isActivityStarted = () => {
+  //   if (!formData.start_activity_date) return false;
+  //   const now = dayjs();
+  //   const startTime = dayjs(formData.start_activity_date);
+  //   return now.isAfter(startTime) || now.isSame(startTime);
+  // };
 
   // ✅ ฟังก์ชันตรวจสอบว่าแก้ไขได้หรือไม่ตาม activity_state และ event_format
   const isFieldEditable = (fieldName: string) => {
@@ -116,15 +116,23 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       return true;
     }
 
-    // ✅ Special Open Register, Open Register: แก้ได้แค่วันที่
+    // ✅ Special Open Register, Open Register: แก้ได้แค่วันที่ + รูปภาพ + activity_status + ห้อง (ถ้าเป็น Onsite)
     if (activityState === "Special Open Register" || activityState === "Open Register") {
       const editableFields = [
         'end_register_date',
         'start_activity_date',
         'end_activity_date',
         'start_assessment',
-        'end_assessment'
+        'end_assessment',
+        'image_url', // ✅ เพิ่มรูปภาพ
+        'activity_status' // ✅ เพิ่ม activity_status
       ];
+      
+      // ✅ ถ้าเป็น Onsite ให้แก้ไขห้องได้ด้วย
+      if (eventFormat === "Onsite" && (fieldName === 'room_id' || fieldName === 'event_format')) {
+        return true;
+      }
+      
       return editableFields.includes(fieldName);
     }
 
@@ -136,14 +144,22 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       return fieldName === 'end_assessment';
     }
 
-    // ✅ Close Register: แก้ได้แค่วันที่
+    // ✅ Close Register: แก้ได้แค่วันที่ + รูปภาพ + activity_status + ห้อง (ถ้าเป็น Onsite)
     if (activityState === "Close Register") {
       const editableFields = [
         'start_activity_date',
         'end_activity_date',
         'start_assessment',
-        'end_assessment'
+        'end_assessment',
+        'image_url', // ✅ เพิ่มรูปภาพ
+        'activity_status' // ✅ เพิ่ม activity_status
       ];
+      
+      // ✅ ถ้าเป็น Onsite ให้แก้ไขห้องได้ด้วย
+      if (eventFormat === "Onsite" && (fieldName === 'room_id' || fieldName === 'event_format')) {
+        return true;
+      }
+      
       return editableFields.includes(fieldName);
     }
 
@@ -175,8 +191,8 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
   useEffect(() => {
     if (activity) {
       console.log("📝 Populating form with activity data:", activity);
-      console.log("🍽️ Activity foods:", (activity as any).foods);
-      console.log("🍽️ Activity activityFood:", (activity as any).activityFood);
+      console.log("🍽️ Activity foods:", (activity as { foods?: unknown; activityFood?: unknown }).foods);
+      console.log("🍽️ Activity activityFood:", (activity as { foods?: unknown; activityFood?: unknown }).activityFood);
 
       // 🔍 ตรวจสอบข้อมูล validation จาก URL
       const urlValidationError = extractSecureParam(params, 'validationError', '');
@@ -190,9 +206,9 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       });
 
       // เซ็ตค่า state สำหรับ validation
-      setValidationError(urlValidationError);
-      setTargetStatus(urlTargetStatus);
-      setShowValidationErrors(urlShowValidationErrors);
+      // setValidationError(urlValidationError);
+      // setTargetStatus(urlTargetStatus);
+      // setShowValidationErrors(urlShowValidationErrors);
 
       // เก็บ activity_status จาก Backend
       setBackendActivityStatus(activity.activity_status || "Private");
@@ -227,12 +243,13 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         end_assessment: activity.event_format === "Course" ? "" : (activity?.end_assessment ? convertUTCToLocal(activity.end_assessment) : ""), // ✅ ล้างค่าวันสิ้นสุดประเมินถ้าเป็น Course
         status: activity.status || "Active",
         url: activity.url || "",
-        selectedFoods: (activity as any).foods?.map((food: any) => food.food_id) || savedFoods,
+        selectedFoods: (activity as { foods?: Array<{ food_id: number }> }).foods?.map((food) => food.food_id) || savedFoods,
       });
 
       // ✅ อัปเดต preview image เมื่อมีรูปภาพ
       if (activity.image_url && typeof activity.image_url === 'string') {
         setPreviewImage(activity.image_url);
+        setHasNewImage(false); // ✅ ตั้งค่าว่าเป็นรูปภาพเดิม
       }
 
       // ✅ อัปเดตห้องที่เลือก
@@ -245,7 +262,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         }
       }
     }
-  }, [activity, rooms]);
+  }, [activity?.activity_id, rooms.length, params, savedFoods.length]); // ✅ ใช้ specific properties แทน object ทั้งหมด
 
 
   // const IfBuildingRoom: Record<string, { name: string; capacity: number }[]> = {
@@ -273,35 +290,35 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
 
   useEffect(() => {
     fetchRooms(); // ✅ โหลดข้อมูลห้องเมื่อ component mount
-  }, []);
+  }, []); // ✅ ลบ dependency ที่ทำให้ infinite loop
 
   useEffect(() => {
     fetchFoods(); // ✅ เรียก API หรือโหลดรายการอาหาร
-  }, []);
+  }, []); // ✅ ลบ dependency ที่ทำให้ infinite loop
 
   useEffect(() => {
     fetchAssessments(); // ✅ โหลดข้อมูลเมื่อ component mount
-  }, []);
+  }, []); // ✅ ลบ dependency ที่ทำให้ infinite loop
 
 
 
   const [selectedFloor, setSelectedFloor] = useState<string>("");
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [seatCapacity, setSeatCapacity] = useState<string>(""); // ✅ เก็บจำนวนที่นั่งของห้องที่เลือก
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  // const [imageFile, setImageFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false); // ✅ เพิ่ม state สำหรับ dialog ลบ
 
   // ✅ เพิ่ม state สำหรับ validation
-  const [validationError, setValidationError] = useState<string>('');
-  const [targetStatus, setTargetStatus] = useState<string>('');
-  const [showValidationErrors, setShowValidationErrors] = useState<boolean>(false);
+  // const [validationError, setValidationError] = useState<string>('');
+  // const [targetStatus, setTargetStatus] = useState<string>('');
+  // const [showValidationErrors, setShowValidationErrors] = useState<boolean>(false);
 
   // ✅ เพิ่ม state สำหรับเก็บ error และ activity_status จาก Backend
   const [backendActivityStatus, setBackendActivityStatus] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-  const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
+  // const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
 
   const filteredRooms = rooms.filter((r) => r.floor === selectedFloor);
 
@@ -369,6 +386,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
 
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [hasNewImage, setHasNewImage] = useState<boolean>(false); // ✅ เพิ่ม state สำหรับติดตามรูปภาพใหม่
 
   const uploadImageToCloudinary = async (file: File) => {
     if (!file || !file.type.startsWith("image/")) {
@@ -433,9 +451,9 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       }
     }
 
-    if (imageFile) {
-      await uploadImageToCloudinary(imageFile);
-    }
+    // if (imageFile) {
+    //   await uploadImageToCloudinary(imageFile);
+    // }
 
     let acRecieveHours = formData.recieve_hours
       ? Number(formData.recieve_hours)
@@ -470,10 +488,10 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       return;
     }
 
-    let startRegister = dayjs(formData.start_register_date ?? "").toDate();
-    if (formData.activity_status == "Public") {
-      startRegister = new Date(); // ไม่ต้องใช้ dayjs ก็ได้
-    }
+    // let startRegister = dayjs(formData.start_register_date ?? "").toDate();
+    // if (formData.activity_status == "Public") {
+    //   startRegister = new Date(); // ไม่ต้องใช้ dayjs ก็ได้
+    // }
 
     console.log("🚀 Data ที่ส่งไป store:", formData);
 
@@ -500,15 +518,27 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         };
 
         // ✅ Clean up undefined values และ circular references
-        const cleanUpdateData = JSON.parse(JSON.stringify(updateData, (key, value) => {
-          if (value === undefined) return null;
-          if (typeof value === 'function') return undefined;
-          return value;
-        }));
+        const cleanUpdateData: any = { ...updateData };
+        
+        // ✅ ลบ undefined values และ functions
+        Object.keys(cleanUpdateData).forEach(key => {
+          if (cleanUpdateData[key] === undefined) {
+            delete cleanUpdateData[key];
+          } else if (typeof cleanUpdateData[key] === 'function') {
+            delete cleanUpdateData[key];
+          }
+        });
 
-        // ✅ จัดการ image_url แยก (ไม่ส่งถ้าไม่มีรูปภาพ)
-        if (typeof formData.image_url === 'string' && formData.image_url.trim() !== "") {
+        // ✅ จัดการ image_url แยก
+        if (hasNewImage && typeof formData.image_url === 'string' && formData.image_url.trim() !== "") {
+          // ✅ ถ้ามีรูปภาพใหม่ที่อัปโหลด ให้ใช้รูปภาพใหม่
           cleanUpdateData.image_url = formData.image_url;
+        } else if (activity?.image_url && typeof activity.image_url === 'string' && activity.image_url.trim() !== "") {
+          // ✅ ถ้าไม่มีรูปภาพใหม่ แต่มีรูปภาพเดิมอยู่ ให้ใช้รูปภาพเดิม
+          cleanUpdateData.image_url = activity.image_url;
+        } else {
+          // ✅ ถ้าไม่มีรูปภาพทั้งใหม่และเดิม ให้เป็น empty string
+          cleanUpdateData.image_url = "";
         }
 
         const isPublic = formData.activity_status === "Public";
@@ -555,6 +585,9 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         }
 
         console.log("🚀 Data ที่ส่งไป store:", cleanUpdateData);
+        console.log("🔍 cleanUpdateData type:", typeof cleanUpdateData);
+        console.log("🔍 cleanUpdateData is object:", typeof cleanUpdateData === 'object' && cleanUpdateData !== null);
+        console.log("🔍 cleanUpdateData keys:", Object.keys(cleanUpdateData));
         const result = await updateActivity(cleanUpdateData as Activity);
         console.log("✅ Activity updated successfully:", result);
         toast.success("อัปเดตกิจกรรมสำเร็จ!");
@@ -605,7 +638,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       hasAdded.current = true;
       addFoodOption();
     }
-  }, [formData.event_format, foods, formData.selectedFoods]);
+  }, [formData.event_format, foods, formData.selectedFoods, savedFoods.length]);
 
   useEffect(() => {
     if (formData.selectedFoods.length > 0) {
@@ -618,21 +651,21 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
 
   // ฟังก์ชันแก้ไขเมนูอาหาร
 
-  const updateFoodOption = (index: number, newFoodId: number) => {
-    const updated = [...formData.selectedFoods];
-    updated[index] = newFoodId;
-    setFormData((prev) => ({
-      ...prev,
-      selectedFoods: updated,
-    }));
-  };
+  // const updateFoodOption = (index: number, newFoodId: number) => {
+  //   const updated = [...formData.selectedFoods];
+  //   updated[index] = newFoodId;
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     selectedFoods: updated,
+  //   }));
+  // };
 
 
   // ฟังก์ชันลบเมนูอาหาร
-  const removeFoodOption = (index: number) => {
-    const updatedFoodOptions = formData.selectedFoods?.filter((_, i) => i !== index);
-    setFormData((prev) => ({ ...prev, selectedFoods: updatedFoodOptions }));
-  };
+  // const removeFoodOption = (index: number) => {
+  //   const updatedFoodOptions = formData.selectedFoods?.filter((_, i) => i !== index);
+  //   setFormData((prev) => ({ ...prev, selectedFoods: updatedFoodOptions }));
+  // };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -651,6 +684,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       // ✅ แสดงตัวอย่างรูปภาพทันที
       const localPreviewUrl = URL.createObjectURL(file);
       setPreviewImage(localPreviewUrl);
+      setHasNewImage(true); // ✅ ตั้งค่าว่ามีรูปภาพใหม่
 
       try {
         // ✅ อัปโหลดไปยัง Cloudinary
@@ -666,7 +700,17 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       } catch (error) {
         console.error("❌ Upload failed:", error);
         toast.error("อัปโหลดรูปภาพไม่สำเร็จ");
+        setHasNewImage(false); // ✅ รีเซ็ตถ้าอัปโหลดไม่สำเร็จ
+        setPreviewImage(null); // ✅ รีเซ็ต preview
       }
+    } else {
+      // ✅ ถ้าไม่เลือกไฟล์ ให้รีเซ็ต
+      setHasNewImage(false);
+      setPreviewImage(null);
+      setFormData((prev) => ({
+        ...prev,
+        image_url: "",
+      }));
     }
   };
 
@@ -681,7 +725,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
   //   console.log("Assessments:", assessments); // ✅ ตรวจสอบว่า assessments มีค่าหรือไม่
   // }, [assessments]);
 
-  const handleFormChange = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
     formHandleChange(e, setFormData);
 
     // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
@@ -743,19 +787,19 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     if (formData.event_format !== "Onsite") {
       clearAvailabilityCheck();
     }
-  }, [formData.event_format]);
+  }, [formData.event_format]); // ✅ ลบ clearAvailabilityCheck dependency
 
   // ✅ ฟังก์ชันตรวจสอบ validation เมื่อ activity_status เป็น Public
-  const checkValidationForPublic = () => {
+  const checkValidationForPublic = useCallback(() => {
     if (formData.activity_status === "Public") {
       const isValid = validateForm(formData, setValidationErrors, !!finalActivityId);
       return isValid;
     }
     return true;
-  };
+  }, [formData.activity_status, formData.activity_name, formData.presenter_company_name, formData.description, formData.type, formData.seat, formData.recieve_hours, formData.event_format, formData.start_register_date, formData.end_register_date, formData.start_activity_date, formData.end_activity_date, formData.room_id, formData.assessment_id, formData.start_assessment, formData.end_assessment, formData.image_url, formData.url, formData.selectedFoods, finalActivityId]); // ✅ ระบุ specific properties แทน object ทั้งหมด
 
   // ✅ ฟังก์ชัน handleFormChange ที่เพิ่มการตรวจสอบ validation
-  const handleFormChangeWithValidation = (e: React.ChangeEvent<any> | SelectChangeEvent) => {
+      const handleFormChangeWithValidation = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
     formHandleChange(e, setFormData);
 
     // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
@@ -797,11 +841,11 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     if (backendActivityStatus === "Private" && formData.activity_status === "Public") {
       checkValidationForPublic();
     }
-  }, [formData, backendActivityStatus]);
+  }, [formData.activity_status, backendActivityStatus, checkValidationForPublic]);
 
   // ✅ useEffect เพื่อแสดง error toast เมื่อ errors state เปลี่ยน
   useEffect(() => {
-    const errorEntries = Object.entries(errors).filter(([_, msg]) => msg.trim() !== '');
+    const errorEntries = Object.entries(errors).filter(([, msg]) => msg.trim() !== '');
     if (errorEntries.length > 0) {
       const fieldNameMap: Record<string, string> = {
         activity_name: "ชื่อกิจกรรม",
@@ -836,7 +880,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         duration: 6000,
       });
     }
-  }, [errors]);
+  }, [JSON.stringify(errors)]); // ✅ ใช้ JSON.stringify เพื่อป้องกัน infinite loop
 
   // ✅ ฟังก์ชันแปลง UTC เป็น local time (ลด 7 ชั่วโมง)
   const convertUTCToLocal = (utcString: string): string => {
@@ -1078,7 +1122,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   setSeatCapacity={setSeatCapacity}
                   selectedRoom={selectedRoom}
                   setFormData={setFormData}
-                  disabled={!isFieldEditable('seat')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                  disabled={!isFieldEditable('activity_status')} // ✅ ส่งเงื่อนไขที่ถูกต้องสำหรับ activity_status
                 />
 
                 <div className="mt-6 max-w-xl w-full">
@@ -1109,6 +1153,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   previewImage={previewImage}
                   handleFileChange={handleFileChange}
                   disabled={!isFieldEditable('image_url')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                  hasExistingImage={!!activity?.image_url} // ✅ ส่งข้อมูลว่ามีรูปภาพอยู่แล้วหรือไม่
                 />
 
                 <ActionButtonsSection

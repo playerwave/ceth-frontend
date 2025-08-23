@@ -120,7 +120,7 @@
 
 // export default RoomSelectionSection;
 
-import { MenuItem, Select, SelectChangeEvent, TextField, FormHelperText } from "@mui/material";
+import { MenuItem, Select, SelectChangeEvent, FormHelperText } from "@mui/material";
 import { CreateActivityForm } from "../create_activity_admin";
 import { Room } from "../../../../../types/model"; // ✅ ปรับ path ให้ตรงกับที่เก็บ Room
 
@@ -151,8 +151,8 @@ const RoomSelectionSection: React.FC<Props> = ({
   handleRoomChange,
   handleChange,
   disabled = false,
-  seatCapacity,
-  setSeatCapacity,
+  // seatCapacity,
+  // setSeatCapacity,
   roomConflicts = [],
   checkingAvailability = false,
   hasTimeConflict = false,

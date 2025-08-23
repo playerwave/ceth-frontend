@@ -17,9 +17,7 @@ interface Props {
 
 export default function ActivityFooter({
   activity,
-  isEnrolled,
   enrollActivity,
-  unenrollActivity,
   setIsEnrolled,
   navigate,
   enrolledActivities,
@@ -79,10 +77,10 @@ export default function ActivityFooter({
   const formatTime = (date: Date) => {
     let hours = date.getHours();
     let minutes = date.getMinutes();
-    let ampm = hours >= 12 ? "PM" : "AM";
+    const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12;
-    minutes = minutes.toString().padStart(2, "0");
-    return `${hours}:${minutes} ${ampm}`;
+    const minutesStr = minutes.toString().padStart(2, "0");
+    return `${hours}:${minutesStr} ${ampm}`;
   };
 
   const formatDateTime = (date: Date) => {

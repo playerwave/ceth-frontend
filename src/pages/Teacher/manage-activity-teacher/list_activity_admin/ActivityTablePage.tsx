@@ -5,7 +5,7 @@ import { getActivityColumns } from "../../../../components/activity_column";
 import { Activity } from "../../../../types/model";
 
 import Dialog2 from "../../../../components/Dialog2";
-import { ProtectionLevel } from "../../../../routes/secure/urlEnCryption";
+// import { ProtectionLevel } from "../../../../routes/secure/urlEnCryption";
 
 type Props = {
   rows1: Activity[];
@@ -66,20 +66,6 @@ const ActivityTablePage = ({
     window.location.href = encryptedUrl;
   };
 
-  // 🧪 ฟังก์ชันทดสอบการเข้ารหัส
-  const testEncryption = () => {
-    console.log('🧪 Testing encryption...');
-    const testUrl = createSecureLink("/activity-info-admin", {
-      id: 123,
-      name: "Test Activity",
-      type: "test",
-      isActive: true,
-      timestamp: Date.now(),
-    });
-    console.log('🧪 Test URL:', testUrl);
-    alert(`Test URL: ${testUrl}`);
-  };
-
   const filterByType = (rows: Activity[]) => {
     if (selectedTypes.length === 0) return rows;
     return rows.filter((row) => selectedTypes.includes(row.type));
@@ -109,17 +95,6 @@ const ActivityTablePage = ({
         handleStatusToggle: handleConfirmStatusChange,
       }),
     [selectedTypes, handleConfirmStatusChange],
-  );
-
-  const activityColumnsWithoutStatus = useMemo(
-    () =>
-      getActivityColumns({
-        includeStatus: false,
-        enableTypeFilter: true,
-        handleTypeChange,
-        selectedTypes,
-      }),
-    [selectedTypes],
   );
 
   const activityColumnsForAssessment = useMemo(

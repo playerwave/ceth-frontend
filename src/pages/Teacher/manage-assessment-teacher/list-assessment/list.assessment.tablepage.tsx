@@ -1,6 +1,3 @@
-// src/pages/Teacher/assessments/list-assessment/AssessmentTablePage.tsx
-
-import { useEffect } from "react";
 import CustomCard from "../../../../components/Card"; // ตรวจสอบ path ให้ถูกต้อง
 import AssessmentTable from "./components/assessment.table"; // ตรวจสอบ path ให้ถูกต้อง, อยู่ใน subfolder "components"
 

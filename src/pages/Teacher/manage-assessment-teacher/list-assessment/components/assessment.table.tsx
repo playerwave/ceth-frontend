@@ -3,13 +3,10 @@ import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-// ✅ นำเข้า Custom Button ของคุณ
-import CustomButton from "../../../../../components/Button";
 
 import { useState } from "react";
 
 import { Assessment } from "../../../../../types/model";
-import { Padding } from "@mui/icons-material";
 
 import {
   Button, // ✅ นำเข้า Button ของ MUI กลับมา
@@ -25,7 +22,6 @@ export interface AssessmentTableProps {
 
 export default function AssessmentTable({
   height = 500,
-  width = "100%",
   rows,
   title,
   initialPageSize,
@@ -178,7 +174,6 @@ export default function AssessmentTable({
             disableRowSelectionOnClick
             autoHeight={false}
             rowHeight={40}
-            headerHeight={48}
             sx={{
               "&.MuiDataGrid-root": {
                 border: "none",

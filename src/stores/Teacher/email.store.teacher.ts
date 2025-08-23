@@ -14,7 +14,7 @@ interface EmailState {
   fetchTemplates: () => Promise<void>;
   setSelectedTemplate: (template: string) => void;
   setTemplateData: (data: EmailTemplateData) => void;
-  updateTemplateData: (key: string, value: any) => void;
+  updateTemplateData: (key: string, value: unknown) => void;
   previewTemplate: () => Promise<void>;
   sendEmail: () => Promise<void>;
   clearError: () => void;
@@ -39,7 +39,7 @@ export const useEmailStore = create<EmailState>((set, get) => ({
         templates: response.templates,
         loading: false 
       });
-    } catch (error) {
+    } catch {
       set({ 
         error: "ไม่สามารถดึงรายการ templates ได้",
         loading: false 
@@ -55,7 +55,7 @@ export const useEmailStore = create<EmailState>((set, get) => ({
     set({ templateData: data });
   },
 
-  updateTemplateData: (key: string, value: any) => {
+  updateTemplateData: (key: string, value: unknown) => {
     set((state) => ({
       templateData: {
         ...state.templateData,
@@ -82,7 +82,7 @@ export const useEmailStore = create<EmailState>((set, get) => ({
         previewHtml: response.html,
         loading: false 
       });
-    } catch (error) {
+    } catch {
       set({ 
         error: "ไม่สามารถ preview template ได้",
         loading: false 
@@ -105,13 +105,13 @@ export const useEmailStore = create<EmailState>((set, get) => ({
 
     try {
       set({ loading: true, error: null });
-      const response = await EmailService.sendEmail(
+      await EmailService.sendEmail(
         selectedTemplate,
         templateData
       );
       set({ loading: false });
       alert("ส่งอีเมลสำเร็จ!");
-    } catch (error) {
+    } catch {
       set({ 
         error: "ไม่สามารถส่งอีเมลได้",
         loading: false 

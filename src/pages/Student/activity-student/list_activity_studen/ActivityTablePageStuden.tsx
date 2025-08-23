@@ -6,8 +6,8 @@ import {Activity} from "../../../../types/model"
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-  rows1: any[];
-  rows2: any[];
+  rows1: unknown[];
+  rows2: unknown[];
 };
 
 const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
@@ -29,9 +29,9 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
     });
   }
 
-  const filterByType = (rows: any[]) => {
+  const filterByType = (rows: unknown[]) => {
     if (selectedTypes.length === 0) return rows;
-    return rows.filter((row) => selectedTypes.includes(row.type));
+    return rows.filter((row) => (row as { type?: string }).type && selectedTypes.includes((row as { type: string }).type));
   };
 
   const activityColumnsWithoutStatus = useMemo(
@@ -64,7 +64,6 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
           <CustomCard height={800} width="1313px">
             <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
             <TableRedesign
-              initialPageSize={20}
               columns={activityColumnsWithoutStatus} // ✅ ถูกต้อง
               rows={filterByType(rows1)}
               height={720}
@@ -81,7 +80,6 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
           <CustomCard height={800} width="100%">
             <h2 className="text-2xl font-semibold mb-4">กิจกรรมที่แนะนำ</h2>
             <TableRedesign
-              initialPageSize={20}
               columns={activityColumnsWithRecommend} // ✅ ใช้อันนี้แทน
               rows={filterByType(rows2)}
               height={720}

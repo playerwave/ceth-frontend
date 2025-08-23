@@ -1,6 +1,6 @@
 import { GridColDef } from "@mui/x-data-grid";
 import { Chip, Checkbox, Typography, Box } from "@mui/material";
-import { School as SchoolLucide, User } from "lucide-react";
+import { User } from "lucide-react";
 
 type ColumnOptions = {
   enableTypeFilter?: boolean;

@@ -6,6 +6,9 @@ interface OcrResultProps {
     certificateId?: string;
     rawText?: string;
     date?: string;
+    score?: string;
+    score_float?: number;
+    [key: string]: unknown;
   } | null;
 }
 

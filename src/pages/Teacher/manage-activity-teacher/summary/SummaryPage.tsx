@@ -1,4 +1,3 @@
-import React from "react";
 import {
   BarChart,
   Bar,
@@ -14,8 +13,6 @@ import {
 import CustomCard from "../../../../components/Card";
 import Button from "../../../../components/Button";
 import { BarChart3 } from "lucide-react";
-
-const barColors = ["#6659FF", "#404CCC", "#89AFFF", "#D9D9D9"];
 
 const activityParticipation = [
   { label: "ผู้ลงทะเบียน", count: 50, total: 50, color: "#6659FF" },
@@ -257,11 +254,14 @@ export default function SummaryPage() {
                     <LabelList
                       dataKey="total"
                       content={({ x, y, value, index }) => {
-                        const percent = barData[index].percent;
+                        if (index === undefined || x === undefined || y === undefined) {
+                          return null;
+                        }
+                        const percent = barData[index]?.percent || "";
                         return (
                           <text
-                            x={x + 20}
-                            y={y - 10}
+                            x={Number(x) + 20}
+                            y={Number(y) - 10}
                             textAnchor="middle"
                             fill="#aab"
                             fontSize={12}

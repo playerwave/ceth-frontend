@@ -63,7 +63,7 @@ const VisitorActivityList: React.FC = () => {
 
       {/* Content */}
       {activityLoading ? (
-        <div fixed inset-0 flex justify-center ml-10 items-center bg-white bg-opacity-50 z-40>
+        <div className="fixed inset-0 flex justify-center ml-10 items-center bg-white bg-opacity-50 z-40">
           <Loading />
         </div>
       ) : activityError ? (

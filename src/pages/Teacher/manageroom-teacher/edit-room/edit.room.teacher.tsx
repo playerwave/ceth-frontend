@@ -3,7 +3,7 @@ import { Trash2, AlertCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
-import { fetchRoomById, updateRoom } from "../../../../service/Teacher/room.service";
+import { fetchRoomById } from "../../../../service/Teacher/room.service";
 import { Room } from "../../../../types/model";
 import Button from "../../../../components/Button";
 import Dialog2 from "../../../../components/Dialog2";
@@ -17,7 +17,7 @@ const EditRoomAdmin = () => {
   const [floor, setFloor] = useState("");
   const [searchParams] = useSearchParams();
   const roomId = Number(searchParams.get("id")); // → 9
-  const [roomData, setRoomData] = useState<Room | null>(null);
+  const [, setRoomData] = useState<Room | null>(null);
   const [roomName, setRoomName] = useState("");
   const [seatCount, setSeatCount] = useState("");
   const [loading, setLoading] = useState(false);

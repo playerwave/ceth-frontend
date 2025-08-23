@@ -8,10 +8,10 @@ export interface TableListRowProps {
   width?: number | string;
   borderRadius?: number | string;
   columns: GridColDef[];
-  rows: any[];
+  rows: unknown[];
   title?: string;
   initialPageSize?: number;
-  selectedTypes: string[]; // <-- เพิ่มรับ selectedTypes จาก parent
+  selectedTypes?: string[]; // <-- เพิ่มรับ selectedTypes จาก parent
 }
 
 export default function TableListRow({
@@ -21,16 +21,16 @@ export default function TableListRow({
   rows,
   title,
   initialPageSize,
-  selectedTypes,
+  // selectedTypes,
 }: TableListRowProps) {
   const navigate = useNavigate();
-  const [locationFilter, setLocationFilter] = useState<string>("");
+  const [locationFilter] = useState<string>("");
 
   console.log("🔍 [DEBUG] TableListRow - rows received:", rows);
   console.log("🔍 [DEBUG] TableListRow - rows length:", rows?.length);
   console.log("🔍 [DEBUG] TableListRow - columns:", columns);
 
-  const handleRowClick: GridEventListener<"rowClick"> = (params) => {
+  const handleRowClick: GridEventListener<"rowClick"> = () => {
     // Single click - ไม่ทำอะไร (หรืออาจจะเพิ่ม highlight effect)
   };
 
@@ -41,9 +41,9 @@ export default function TableListRow({
     if (id) navigate(`/activity-info-student/${id}`);
   };
 
-  const handleLocationChange = (event: SelectChangeEvent) => {
-    setLocationFilter(event.target.value);
-  };
+  // const handleLocationChange = (event: SelectChangeEvent) => {
+  //   setLocationFilter(event.target.value);
+  // };
 
   const filteredRows = rows.filter((row) => {
     const passLocation =
@@ -57,7 +57,7 @@ export default function TableListRow({
     return passLocation && passType;
   });
 
-  console.log(filteredRows.map((r) => r.activity_id));
+  console.log(filteredRows.map((r) => (r as { activity_id?: number }).activity_id));
 
   const columnsWithDropdown = columns.map((col) => {
     if (col.field === "event_format") {

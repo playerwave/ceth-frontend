@@ -1,8 +1,9 @@
 import { Activity } from "../../../../../types/model";
 
-export const filterAvailablePublicActivities = (activities: any[]) => {
+export const filterAvailablePublicActivities = (activities: unknown[]) => {
   return activities.filter(
-    (a) => a.status === "Public" && a.seat !== a.registered_count,
+    (a) => (a as { status?: string; seat?: number; registered_count?: number }).status === "Public" && 
+           (a as { seat?: number; registered_count?: number }).seat !== (a as { registered_count?: number }).registered_count,
   );
 };
 

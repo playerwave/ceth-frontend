@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Box } from "@mui/material";
 
 import { useActivityStore } from "../../../stores/Student/activity.store.student";
@@ -11,7 +11,7 @@ import TablePendingEvaluation from "./components/TablePendingEvaluation";
 import CustomCard from "../../../components/Card";
 
 const MainStudent = () => {
-  const [searchId, setSearchId] = useState("");
+  // const [searchId, setSearchId] = useState("");
   const [activeTab, setActiveTab] = useState<"enrolled" | "pendingEvaluation">(
     "enrolled"
   );
@@ -27,10 +27,10 @@ const MainStudent = () => {
   const lastStudentIdRef = useRef<number | null>(null);
   
   // ใช้ students_id จาก auth store หรือ fallback เป็น 3
-  const studentId = useMemo(() => {
-    console.log("🔍 studentId recalculated:", user?.student?.students_id);
-    return user?.student?.students_id || 3;
-  }, [user?.student?.students_id]);
+  // const studentId = useMemo(() => {
+  //   console.log("🔍 studentId recalculated:", user?.student?.students_id);
+  //   return user?.student?.students_id || 3;
+  // }, [user?.student?.students_id]);
 
   // Fetch user data on mount only if user is not authenticated
   useEffect(() => {

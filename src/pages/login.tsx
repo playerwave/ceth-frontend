@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { useAuthStore } from "../stores/Visitor/auth.store";
 import { useNavigate } from "react-router-dom";
 
@@ -22,32 +22,8 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const { isAuthenticated, user, authError, login, authLoading } = useAuthStore();
+  const { authError, login, authLoading } = useAuthStore();
   const navigate = useNavigate();
-  const hasRedirected = useRef(false);
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   await login({ username, password });
-
-  //   const user = useAuthStore.getState().user;
-
-  //   if (!authError && user) {
-  //     if (user.role_id === 1 || user.role_id === 2) {
-  //       navigate("/"); // Admin / Teacher
-  //       console.log('Admin or Teacher: ', user.role_id);
-        
-  //     } else if (user.role_id === 3) {
-  //       navigate("/main-student"); // Student
-  //       console.log("Student role_id: ", user.role_id);
-        
-  //     } else {
-  //       navigate("/activity-info-visitor"); // Visitor or other role
-  //       console.log("Visitor: ",  user.role_id);
-        
-  //     }
-  //   }
-  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -75,35 +51,6 @@ const Login = () => {
     }
   }
 };
-
-
-
-
-//   useEffect(() => {
-//   console.log("🔍 useEffect triggered");
-//   console.log("authLoading:", authLoading);
-//   console.log("isAuthenticated:", isAuthenticated);
-//   console.log("authError:", authError);
-//   console.log("user:", user);
-
-//   if (!authLoading && isAuthenticated && user && !authError && !hasRedirected.current) {
-//     hasRedirected.current = true;
-//     console.log("✅ Passing condition with role_id:", user.role_id);
-
-//     if (user.role_id === 1 || user.role_id === 3) {
-//       navigate("/");
-//       console.log("➡️ Navigating to Admin/Teacher");
-//     } else if (user.role_id === 2) {
-//       navigate("/main-student");
-//       console.log("➡️ Navigating to Student");
-//     } else {
-//       navigate("/activity-info-visitor");
-//       console.log("🛑 Unexpected role_id → Navigating to Visitor");
-//     }
-//   }
-// }, [authLoading, isAuthenticated, user, authError]);
-
-
 
   return (
     <div className="min-h-screen bg-gray-400 flex justify-center items-center px-4">

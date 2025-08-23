@@ -5,9 +5,9 @@ import CustomCard from "../components/Card";
 import { getActivityColumns } from "../components/activity_column";
 
 type Props = {
-  rows1: any[];
-  rows2: any[];
-  rows3: any[];
+  rows1: unknown[];
+  rows2: unknown[];
+  rows3: unknown[];
 };
 
 const ActivityTablePage = ({ rows1, rows2, rows3 }: Props) => {
@@ -19,9 +19,9 @@ const ActivityTablePage = ({ rows1, rows2, rows3 }: Props) => {
     );
   };
 
-  const filterByType = (rows: any[]) => {
+  const filterByType = (rows: unknown[]) => {
     if (selectedTypes.length === 0) return rows;
-    return rows.filter((row) => selectedTypes.includes(row.type));
+    return rows.filter((row) => (row as { type?: string }).type && selectedTypes.includes((row as { type: string }).type));
   };
 
   const activityColumns = useMemo(

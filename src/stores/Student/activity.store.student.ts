@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { ActivityState } from "../state/activity.state";
 import activityService from "../../service/Student/activity.service.student";
+import { Activity } from "../../types/model";
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
   activities: [],
@@ -147,7 +148,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         );
         set({ enrolledActivities: [], activityLoading: false });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ [STORE] Error in fetchEnrolledActivities:", error);
       const errorMessage =
         error.message === "Request timeout"
@@ -177,7 +178,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       await activityService.enrollActivity(studentId, activityId, food);
       set({ activityLoading: false });
       // อาจจะ fetchEnrolledActivities(studentId) ซ้ำเพื่อ refresh
-    } catch (error) {
+    } catch {
       set({
         activityError: "ไม่สามารถสมัครกิจกรรมได้",
         activityLoading: false,
@@ -191,7 +192,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       await activityService.unEnrollActivity(studentId, activityId);
       set({ activityLoading: false });
       // อาจจะ fetchEnrolledActivities(studentId) ซ้ำเพื่อ refresh
-    } catch (error) {
+    } catch {
       set({
         activityError: "ไม่สามารถยกเลิกกิจกรรมได้",
         activityLoading: false,

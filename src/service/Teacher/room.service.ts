@@ -123,7 +123,7 @@ export const getRoomConflicts = async (
   start_activity_date: string,
   end_activity_date: string,
   exclude_activity_id?: number
-): Promise<any[]> => {
+): Promise<unknown[]> => {
   const params = new URLSearchParams({
     start_activity_date,
     end_activity_date,
@@ -133,7 +133,7 @@ export const getRoomConflicts = async (
   });
 
   const response = await axiosInstance.get<{
-    conflicts: any[];
+    conflicts: unknown[];
     has_conflicts: boolean;
   }>(`${TEACHER_ROOM_PATH}/room-conflicts/${room_id}?${params}`);
   return response.data.conflicts;

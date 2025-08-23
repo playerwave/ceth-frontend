@@ -45,7 +45,6 @@ const ActivityTablePageVisitor = ({ rows1 }: Props) => {
       <CustomCard height={1250} width="100%">
         <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
         <TableRedesign
-          initialPageSize={20}
           columns={activityColumns}
           rows={filteredRows}
           height={1170}

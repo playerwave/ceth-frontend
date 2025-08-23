@@ -9,7 +9,7 @@ import {
   FormControl,
   InputBase,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 // 🔧 Custom MapPin icon แทน lucide-react
@@ -29,21 +29,22 @@ const MapPin = ({ size, color }: { size: number; color: string }) => (
   </svg>
 );
 
-import Button from "./Button"; // ปรับเส้นทางให้ตรงกับที่เก็บ Button
+// import Button from "./Button"; // ปรับเส้นทางให้ตรงกับที่เก็บ Button
 
 import { Activity } from "../types/model"; // ปรับเส้นทางให้ตรงกับที่เก็บ Activity
-import { useAuthStore } from "../stores/Visitor/auth.store";
+// import { useAuthStore } from "../stores/Visitor/auth.store";
 
 export interface TableRedesignProps {
   height?: number | string;
   width?: number | string;
   borderRadius?: number | string;
   columns: GridColDef[];
-  rows: any[];
+  rows: unknown[];
   title?: string;
-  initialPageSize?: number;
   onRowDoubleClick?: (row: Activity) => void;
   handleStatusToggle?: (row: Activity) => void;
+  initialPageSize?: number;
+  getRowId?: (row: any) => string | number;
 }
 
 export default function TableRedesign({
@@ -52,26 +53,27 @@ export default function TableRedesign({
   columns,
   rows,
   title,
-  initialPageSize,
-  handleStatusToggle,
   onRowDoubleClick,
+  handleStatusToggle,
+  initialPageSize = 10,
+  getRowId,
 }: TableRedesignProps) {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
-  const user = useAuthStore.getState().user;
+  // const user = useAuthStore.getState().user;
 
-  const handleRowClick: GridEventListener<"rowClick"> = (params) => {
-    const id = params.row.activity_id;
-    if (id) {
-      const role =
-        typeof user?.role === "string" ? user.role : user?.role?.role_name;
-      if (role === "Student") {
-        navigate(`/activity-info-student/${id}`);
-      } else {
-        navigate(`/activity-info-admin/${id}`);
-      }
-    }
-  };
+  // const handleRowClick: GridEventListener<"rowClick"> = (params) => {
+  //   const id = params.row.activity_id;
+  //   if (id) {
+  //     const role =
+  //       typeof user?.role === "string" ? user.role : user?.role?.role_name;
+  //     if (role === "Student") {
+  //         navigate(`/activity-info-student/${id}`);
+  //       } else {
+  //         navigate(`/activity-info-admin/${id}`);
+  //       }
+  //   }
+  // };
 
   // 🔗 เพิ่มฟังก์ชันสำหรับ double-click
   const handleRowDoubleClick: GridEventListener<"rowDoubleClick"> = (
@@ -90,7 +92,7 @@ export default function TableRedesign({
   };
 
   const filteredRows = locationFilter
-    ? rows.filter((row) => row.event_format === locationFilter)
+    ? rows.filter((row) => (row as any).event_format === locationFilter)
     : rows;
 
   const columnsWithDropdown = columns.map((col) => {
@@ -118,7 +120,7 @@ export default function TableRedesign({
               onChange={handleLocationChange}
               displayEmpty
               renderValue={() => (
-                <span style={{ color: "white", fontSize: 14 }}> </span>
+                <span style={{ color: "white", fontSize: 14 }}> </span>
               )}
               input={<InputBase sx={{ color: "white", fontSize: 14 }} />}
               MenuProps={{
@@ -182,7 +184,7 @@ export default function TableRedesign({
           <DataGrid
             columns={columnsWithDropdown}
             rows={filteredRows}
-            getRowId={(row) => row.activity_id}
+            getRowId={getRowId || ((row) => row.activity_id)}
             onRowDoubleClick={handleRowDoubleClick}
             disableRowSelectionOnClick
             /* --- สกอลล์ในตาราง + มี pagination --- */
@@ -191,7 +193,7 @@ export default function TableRedesign({
             hideFooterPagination={false}
             pageSizeOptions={[10, 20, 50]}
             initialState={{
-              pagination: { paginationModel: { pageSize: 10, page: 0 } },
+              pagination: { paginationModel: { pageSize: initialPageSize, page: 0 } },
             }}
             sx={{
               height: "100%",

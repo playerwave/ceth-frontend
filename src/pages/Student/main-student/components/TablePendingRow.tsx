@@ -5,7 +5,6 @@ import {
   FormControl,
   SelectChangeEvent
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export interface TablePendingRowProps {
@@ -23,7 +22,7 @@ export default function TablePendingRow({
   width = "100%",
   columns,
   rows,
-  title,
+  // title,
   initialPageSize,
 }: TablePendingRowProps) {
   

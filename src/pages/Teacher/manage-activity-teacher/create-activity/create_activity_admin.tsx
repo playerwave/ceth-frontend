@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAssessmentStore } from "../../../../stores/Teacher/assessment.store";
 import Loading from "../../../../components/Loading";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -77,7 +76,6 @@ const CreateActivityAdmin: React.FC = () => {
 
   const location = useLocation();
   const fromPage = location.state?.from ?? 'list'; // fallback เป็น list
-  const navigate = useNavigate();
   const { assessments, fetchAssessments } = useAssessmentStore();
   const foods = useFoodStore((state) => state.foods); // ✅ ต้องมีตรงนี้ก่อน
   const fetchFoods = useFoodStore((state) => state.fetchFoods);
@@ -96,7 +94,7 @@ const CreateActivityAdmin: React.FC = () => {
   useEffect(() => {
     // Check if location state exists and is not empty
     if (location.state) {
-      const { start_activity_date, end_activity_date, from } = location.state as {
+      const { start_activity_date, end_activity_date } = location.state as {
         start_activity_date?: string;
         end_activity_date?: string;
         from?: string;
@@ -130,10 +128,10 @@ const CreateActivityAdmin: React.FC = () => {
   const [selectedFloor, setSelectedFloor] = useState<string>("");
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [seatCapacity, setSeatCapacity] = useState<string>(""); // ✅ เก็บจำนวนที่นั่งของห้องที่เลือก
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [imageFile] = useState<File | null>(null);
+  const [, setErrors] = useState<Record<string, string>>({});
 
-  const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
+  // const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
 
   const filteredRooms = rooms.filter((r) => r.floor === selectedFloor);
 
@@ -430,21 +428,21 @@ const CreateActivityAdmin: React.FC = () => {
 
   // ฟังก์ชันแก้ไขเมนูอาหาร
 
-  const updateFoodOption = (index: number, newFoodId: number) => {
-    const updated = [...formData.selectedFoods];
-    updated[index] = newFoodId;
-    setFormData((prev) => ({
-      ...prev,
-      selectedFoods: updated,
-    }));
-  };
+  // const updateFoodOption = (index: number, newFoodId: number) => {
+  //   const updated = [...formData.selectedFoods];
+  //   updated[index] = newFoodId;
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     selectedFoods: updated,
+  //   }));
+  // };
 
 
   // ฟังก์ชันลบเมนูอาหาร
-  const removeFoodOption = (index: number) => {
-    const updatedFoodOptions = formData.selectedFoods?.filter((_, i) => i !== index);
-    setFormData((prev) => ({ ...prev, selectedFoods: updatedFoodOptions }));
-  };
+  // const removeFoodOption = (index: number) => {
+  //   const updatedFoodOptions = formData.selectedFoods?.filter((_, i) => i !== index);
+  //   setFormData((prev) => ({ ...prev, selectedFoods: updatedFoodOptions }));
+  // };
 
   // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   if (e.target.files && e.target.files.length > 0) {

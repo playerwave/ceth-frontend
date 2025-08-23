@@ -1,7 +1,7 @@
 import React from 'react';
-import { useSecureParams, useSecureLink } from '../components/SecureRoute';
-import { SecureLink, EncodedLink, EncryptedLink, NormalLink } from '../components/SecureLink';
-import { ProtectionLevel } from '../utils/urlEncryption';
+import { useSecureParams, useSecureLink } from '../routes/secure/SecureRoute';
+import { EncodedLink, EncryptedLink, NormalLink } from '../components/SecureLink';
+import { ProtectionLevel } from '../routes/secure/urlEnCryption';
 
 // 📝 ตัวอย่างการใช้งานระบบ URL ที่เข้ารหัส
 export const SecureURLExample: React.FC = () => {
@@ -9,7 +9,7 @@ export const SecureURLExample: React.FC = () => {
   const secureParams = useSecureParams();
   
   // 🔗 สร้างลิงก์ที่เข้ารหัส
-  const { createSecureLink, navigateToSecure } = useSecureLink();
+  const { navigateToSecure, createSecureLink } = useSecureLink();
 
   // 📋 ตัวอย่างข้อมูล
   const activityData = {
@@ -116,8 +116,8 @@ export const SecureURLExample: React.FC = () => {
 };
 
 // 🔧 ตัวอย่างการใช้งานในคอมโพเนนต์อื่น
-export const ActivityCard: React.FC<{ activity: any }> = ({ activity }) => {
-  const { createSecureLink } = useSecureLink();
+export const ActivityCard: React.FC<{ activity: { name: string; description: string; id: number; userId: number } }> = ({ activity }) => {
+  // const { createSecureLink } = useSecureLink();
 
   return (
     <div className="border rounded-lg p-4">

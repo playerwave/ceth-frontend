@@ -40,7 +40,7 @@ function App() {
   const role: string =
     typeof user?.role === "string"
       ? user.role
-      : user?.role?.role_name || "Visitor";
+      : (user?.role as any)?.role_name || "Visitor";
   
   console.log('user in App.tsx:', user);
   console.log('role: ', role);
@@ -80,15 +80,11 @@ function App() {
 
   // 🔐 ฟังก์ชันสำหรับสร้างเส้นทางปกติ (ไม่เข้ารหัส)
   const renderRoutesByRole = (
-    routes: {
-      path: string;
-      element: JSX.Element;
-      roles?: string[];
-    }[],
+    routes: any[],
     role: string
   ) => {
     return routes
-      .filter(route => !route.roles || route.roles.includes(role))
+      .filter(route => route && (!route.roles || route.roles.includes(role)))
       .map((route, index) => (
         <Route
           key={`route-${index}`}

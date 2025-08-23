@@ -15,7 +15,7 @@ export default function SendCertificateStudent() {
   const navigate = useNavigate();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [ocrResult, setOcrResult] = useState<any>(null);
+  const [ocrResult, setOcrResult] = useState<{ score: string; score_float: number; [key: string]: unknown } | null>(null);
 
   const [disabled] = useState(false);
   const [loading, setLoading] = useState(false);

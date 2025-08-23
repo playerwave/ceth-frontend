@@ -34,7 +34,7 @@ const ActivityHistoryTableStudent = ({
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     );
 
-  const baseRows = (searchResults ?? endedActivities ?? []) as Activity[];
+  const baseRows = useMemo(() => (searchResults ?? endedActivities ?? []) as Activity[], [searchResults, endedActivities]);
 
   const filteredRows = useMemo(() => {
     if (selectedTypes.length === 0) return baseRows;
@@ -51,8 +51,7 @@ const ActivityHistoryTableStudent = ({
     [selectedTypes]
   );
 
-  const goDetail = (rowOrParams: any) => {
-    const row: Activity = rowOrParams?.row ?? rowOrParams;
+  const goDetail = (row: Activity) => {
     if (!row?.activity_id) return;
     navigate(`/activity-history-info-student/${row.activity_id}`, {
   state: { mode: "history", id: row.activity_id },

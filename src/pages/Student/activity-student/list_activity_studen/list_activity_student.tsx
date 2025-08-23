@@ -5,12 +5,12 @@ import { useNavigate } from "react-router-dom";
 
 import Loading from "../../../../components/Loading";
 import SearchBar from "../../../../components/Searchbar";
-import { AlarmClockPlus, CopyPlus } from "lucide-react";
+import { AlarmClockPlus } from "lucide-react";
 import ActivityTablePageStudent from "./ActivityTablePageStuden"; // ตรวจสอบชื่อไฟล์ให้ตรง ActivityTablePageStudent.tsx
-import CalculateDialog from "./components/CalculateDialog";
+// import CalculateDialog from "./components/CalculateDialog";
 // import { useAuth } from "../../../../hooks/useAuth";
 import { isRecommended } from "./utils.ts/activity";
-import { Activity } from "../../../../types/model";
+// import { Activity } from "../../../../types/model";
 
 const ListActivityStudent: React.FC = () => {
   const navigate = useNavigate();
@@ -18,9 +18,9 @@ const ListActivityStudent: React.FC = () => {
   const lastStudentIdRef = useRef<number | null>(null);
   
   // ใช้ students_id จาก auth store หรือ fallback เป็น 3
-  const studentId = useMemo(() => {
-    return user?.student?.students_id || 3;
-  }, [user?.student?.students_id]);
+  // const studentId = useMemo(() => {
+  //   return user?.student?.students_id || 3;
+  // }, [user?.student?.students_id]);
 
   const {
     activities: allPublicActivities,
@@ -29,13 +29,13 @@ const ListActivityStudent: React.FC = () => {
     activityError,
   } = useActivityStore();
 
-  const [enrolledActivities, setEnrolledActivities] = useState<Activity[]>([]);
+  // const [enrolledActivities, setEnrolledActivities] = useState<Activity[]>([]);
 
   const [activeTab, setActiveTab] = useState<"list" | "calendar" | "recommend">(
     "list"
   );
   const [searchTerm, setSearchTerm] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
+  // const [openDialog, setOpenDialog] = useState(false);
 
   // Fetch user data on mount only if user is not authenticated
   useEffect(() => {
@@ -44,7 +44,7 @@ const ListActivityStudent: React.FC = () => {
       console.log("🔍 [DEBUG] Fetching user data...");
       fetchMe();
     }
-  }, []); // ลบ fetchMe ออกจาก dependency array
+  }, [fetchMe, user]); // เพิ่ม dependencies
 
   useEffect(() => {
     const id = user?.student?.students_id;
@@ -62,7 +62,7 @@ const ListActivityStudent: React.FC = () => {
       console.log("📞 [DEBUG] Calling fetchStudentActivities with id:", id);
       fetchStudentActivities(id);
     }
-  }, [user?.student?.students_id]);
+  }, [user?.student?.students_id, fetchStudentActivities]);
 
   // Fallback useEffect - if no user data after 2 seconds, use fallback ID
   useEffect(() => {
@@ -75,7 +75,7 @@ const ListActivityStudent: React.FC = () => {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [user?.student?.students_id]);
+  }, [user?.student?.students_id, fetchStudentActivities]);
 
   // กรองกิจกรรมตาม searchTerm เท่านั้น
   const publicActivities = useMemo(() => {
@@ -154,7 +154,7 @@ const ListActivityStudent: React.FC = () => {
           className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90 transition"
           onClick={() =>
             activeTab === "recommend"
-              ? setOpenDialog(true)
+              ? console.log("Dialog would open here")
               : navigate("/create-activity-admin", {
                   state: { reload: true },
                 })
@@ -206,21 +206,15 @@ const ListActivityStudent: React.FC = () => {
       )}
 
       {/* Calculate Dialog */}
-      <CalculateDialog
+      {/* <CalculateDialog
         open={openDialog}
-        onClose={() => setOpenDialog(false)}
+        onClose={() => console.log("Dialog would close here")}
         currentSkillHours={{
-          hard: enrolledActivities.reduce(
-            (sum, a) => sum + (a.type === "Hard" ? a.recieve_hours : 0),
-            0
-          ),
-          soft: enrolledActivities.reduce(
-            (sum, a) => sum + (a.type === "Soft" ? a.recieve_hours : 0),
-            0
-          ),
+          hard: 0,
+          soft: 0,
         }}
-        selectedActivities={enrolledActivities}
-      />
+        selectedActivities={[]}
+      /> */}
     </div>
   );
 };

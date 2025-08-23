@@ -19,8 +19,8 @@ const StatusAndSeatSection: React.FC<Props> = ({
   formData,
   seatCapacity,
   handleChange,
-  setSeatCapacity,
-  selectedRoom,
+  // setSeatCapacity,
+  // selectedRoom,
   setFormData,
   disabled = false,
 }) => {

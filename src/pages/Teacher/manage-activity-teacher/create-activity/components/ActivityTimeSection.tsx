@@ -5,7 +5,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { CreateActivityForm } from "../create_activity_admin";
-import { convertBackendTimeToLocal, convertToLocalTimeForPicker } from "../utils/timeUtils";
 
 interface Props {
   formData: CreateActivityForm;
@@ -42,7 +41,7 @@ const startMinDate = mustBeNextDay
   ? endReg!.startOf("day").add(1, "day") // วันถัดไป 00:00
   : (endReg || dayjs().add(1, "day"));
 
-const startSameDayAsEndReg = !!(mustBeNextDay && startAct && endReg && startAct.startOf("day").isSame(endReg.startOf("day")));
+// const startSameDayAsEndReg = !!(mustBeNextDay && startAct && endReg && startAct.startOf("day").isSame(endReg.startOf("day")));
 const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAct.startOf("day").isAfter(endReg.startOf("day"))); // ครอบคลุมทั้งก่อน/วันเดียวกัน
 
   return (

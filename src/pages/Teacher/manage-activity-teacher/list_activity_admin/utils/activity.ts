@@ -132,7 +132,6 @@ export const validatePrivateToPublic = (
 
   // ตรวจสอบวันที่ลงทะเบียน
   if (start_register_date && end_register_date) {
-    const startRegisterDate = new Date(start_register_date);
     const endRegisterDate = new Date(end_register_date);
 
     // ถ้าวันที่เปิดลงทะเบียนอยู่ก่อนวันปัจจุบัน
@@ -150,7 +149,6 @@ export const validatePrivateToPublic = (
 
   // ตรวจสอบวันที่กิจกรรม
   if (start_activity_date && end_activity_date) {
-    const startActivityDate = new Date(start_activity_date);
     const endActivityDate = new Date(end_activity_date);
 
     // ถ้าวันที่กิจกรรมอยู่ก่อนวันปัจจุบัน

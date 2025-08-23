@@ -188,12 +188,46 @@ export const useActivityStore = create<ActivityStore>((set) => ({
       // เรียก service ที่อัปเดตสถานะใน backend
       await activityService.updateActivityStatus(id, status);
 
-      // โหลดรายการกิจกรรมใหม่
-      const updatedList = await activityService.fetchAllActivities();
-      set({ activities: updatedList });
+      // ✅ อัปเดต state ทันทีเพื่อให้ UI แสดงผลทันที
+      set((state) => {
+        const updatedActivities = state.activities.map((activity) =>
+          activity.activity_id.toString() === id
+            ? { ...activity, activity_status: status }
+            : activity
+        );
+        const updatedSearchResults = state.searchResults?.map((activity) =>
+          activity.activity_id.toString() === id
+            ? { ...activity, activity_status: status }
+            : activity
+        );
+        
+        console.log("🔄 Updating store state:", {
+          id,
+          status,
+          activitiesCount: updatedActivities.length,
+          searchResultsCount: updatedSearchResults?.length || 0,
+          updatedActivity: updatedActivities.find(a => a.activity_id.toString() === id)
+        });
+        
+        return {
+          activities: updatedActivities,
+          searchResults: updatedSearchResults,
+        };
+      });
+
+      // ✅ โหลดรายการกิจกรรมใหม่จาก backend เพื่อให้ข้อมูลตรงกัน
+      setTimeout(async () => {
+        try {
+          const updatedList = await activityService.fetchAllActivities();
+          set({ activities: updatedList });
+        } catch (refreshError) {
+          console.error("❌ Error refreshing activities:", refreshError);
+        }
+      }, 1000); // รอ 1 วินาทีแล้วค่อย refresh
     } catch (error) {
       console.error("❌ Error updating activity status:", error);
       set({ error: "ไม่สามารถอัปเดตสถานะกิจกรรมได้" });
+      throw error; // ✅ re-throw เพื่อให้ component รู้ว่าเกิด error
     }
   },
   //----------------------------------------------------------------

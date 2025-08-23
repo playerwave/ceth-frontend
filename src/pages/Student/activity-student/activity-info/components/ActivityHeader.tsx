@@ -1,7 +1,12 @@
 import { User } from "lucide-react";
 
 interface Props {
-  activity: any;
+  activity: {
+    activity_name: string;
+    event_format: string;
+    registered_count?: number;
+    seat?: number;
+  };
 }
 
 export default function ActivityHeader({ activity }: Props) {

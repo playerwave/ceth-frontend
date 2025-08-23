@@ -22,7 +22,6 @@ export default function ActivityInfoVisitor() {
     activity,
     activityLoading,
     activityError,
-    fetchActivity,
     enrollActivity,
     enrolledActivities,
     fetchEnrolledActivities,
@@ -36,11 +35,11 @@ export default function ActivityInfoVisitor() {
   useEffect(() => {
     const userId = 8;
     fetchEnrolledActivities(userId);
-  }, []);
+  }, [fetchEnrolledActivities]);
 
   useEffect(() => {
     fetchActivities(id);
-  }, [fetchEnrolledActivities]);
+  }, [fetchEnrolledActivities, id]);
 
   useEffect(() => {
     if (enrolledActivities.length === 0) return;
@@ -51,10 +50,6 @@ export default function ActivityInfoVisitor() {
 
     setIsEnrolled(isUserEnrolled);
   }, [enrolledActivities, id]);
-
-  const handleFoodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedFood(e.target.value);
-  };
 
   if (activityLoading) return <Loading />;
   if (activityError)

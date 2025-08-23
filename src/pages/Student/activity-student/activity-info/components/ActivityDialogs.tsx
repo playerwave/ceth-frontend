@@ -2,7 +2,10 @@ import Dialog1 from "../../../../../components/Dialog1";
 import Dialog2 from "../../../../../components/Dialog2";
 
 interface ActivityDialogsProps {
-  activity: any;
+  activity: {
+    presenter_company_name: string;
+    end_register_date: string;
+  };
   isEnrolled: boolean;
   isErrorDialogOpen: boolean;
   isEnrollModalOpen: boolean;

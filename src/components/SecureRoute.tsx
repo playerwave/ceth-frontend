@@ -16,7 +16,7 @@ export const SecureRoute: React.FC<SecureRouteProps> = ({
   fallback = <div>ไม่สามารถเข้าถึงข้อมูลได้</div> 
 }) => {
   const location = useLocation();
-  const [params, setParams] = React.useState<Record<string, any>>({});
+  const [params, setParams] = React.useState<Record<string, unknown>>({});
   const [isValid, setIsValid] = React.useState<boolean>(true);
 
   React.useEffect(() => {
@@ -40,7 +40,7 @@ export const SecureRoute: React.FC<SecureRouteProps> = ({
   // ส่งพารามิเตอร์ที่ถอดรหัสแล้วให้กับ children
   const childrenWithParams = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
-      return React.cloneElement(child, { secureParams: params });
+      return React.cloneElement(child as any, { secureParams: params });
     }
     return child;
   });
@@ -55,7 +55,7 @@ export const SecureRoute: React.FC<SecureRouteProps> = ({
 // 🔧 Hook สำหรับใช้พารามิเตอร์ที่เข้ารหัสในคอมโพเนนต์
 export const useSecureParams = () => {
   const location = useLocation();
-  const [params, setParams] = React.useState<Record<string, any>>({});
+  const [params, setParams] = React.useState<Record<string, unknown>>({});
 
   React.useEffect(() => {
     // ตรวจสอบว่า URL มีข้อมูลที่เข้ารหัสหรือไม่
@@ -65,7 +65,7 @@ export const useSecureParams = () => {
     } else {
       // ถ้าไม่ใช่ URL ที่เข้ารหัส ให้ดึงจาก query parameters
       const url = new URL(location.pathname, window.location.origin);
-      const queryParams: Record<string, any> = {};
+      const queryParams: Record<string, unknown> = {};
       url.searchParams.forEach((value, key) => {
         queryParams[key] = value;
       });
@@ -78,7 +78,7 @@ export const useSecureParams = () => {
 
 // 🔗 Hook สำหรับสร้าง URL ที่เข้ารหัส
 export const useSecureNavigation = () => {
-  const navigate = (basePath: string, params: Record<string, any>, protectionLevel: ProtectionLevel = ProtectionLevel.ENCRYPTED) => {
+  const navigate = (basePath: string, params: Record<string, unknown>, protectionLevel: ProtectionLevel = ProtectionLevel.ENCRYPTED) => {
     const securePath = RouteHelpers.generateSecurePath(basePath, params, protectionLevel);
     window.location.href = securePath;
   };

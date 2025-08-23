@@ -73,7 +73,7 @@ const MultiSelectCheckbox: React.FC<{
 };
 
 const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
-  yearOptions,
+  // yearOptions,
   monthOptions,
   onFilterChange,
   isDialogOpen = false,

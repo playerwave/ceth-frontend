@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
   useEffect(() => {
     fetchMe();
     console.log("🔁 Fetching user from /me");
-  }, []);
+  }, [fetchMe]);
 
   // ⏳ กำลังโหลด
   if (authLoading) return null;

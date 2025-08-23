@@ -53,8 +53,8 @@ export const searchActivities = async (
 //--------------------- Fetch Enrolled Students --------------------
 export const fetchEnrolledStudents = async (
   activityId: number
-): Promise<any[]> => {
-  const response = await axiosInstance.get<any[]>(
+): Promise<unknown[]> => {
+  const response = await axiosInstance.get<unknown[]>(
     `${TEACHER_ACTIVITY_PATH}/${activityId}/students`
   );
   return response.data;

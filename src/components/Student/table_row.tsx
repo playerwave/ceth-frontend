@@ -1,6 +1,5 @@
 import { Activity } from "./table";
 import { useNavigate } from "react-router-dom";
-import { useActivityStore } from "../../stores/Student/activity_student.store";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 
@@ -10,7 +9,6 @@ interface TableRowProps {
 
 const TableRow: React.FC<TableRowProps> = ({ act }) => {
   const navigate = useNavigate();
-  const { updateActivityStatus } = useActivityStore();
 
   if (!act) {
     return (
@@ -76,7 +74,7 @@ const TableRow: React.FC<TableRowProps> = ({ act }) => {
         <button
           onClick={(e) => {
             e.stopPropagation(); // ✅ ป้องกันการนำไปหน้าใหม่เมื่อกดปุ่ม
-            updateActivityStatus(act.id, act.status);
+            // updateActivityStatus(act.id, act.status); // TODO: Implement status update functionality
           }}
           className="px-2 py-1 rounded font-medium"
           style={{

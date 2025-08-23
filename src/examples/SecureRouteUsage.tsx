@@ -48,13 +48,17 @@ interface ActivityDetailProps {
 
 export const ActivityDetailComponent: React.FC<ActivityDetailProps> = ({ secureParams }) => {
   // ใช้ utility functions แบบ type-safe
-  const activityId = extractSecureParam(secureParams, 'id', 0);
+  // const activityId = extractSecureParam(secureParams, 'id', 0);
   const activityName = extractSecureParam(secureParams, 'name', '');
+  // const activityId = extractSecureParam(secureParams, 'id', 0);
+  // const activityId = extractSecureParam(secureParams, 'id', 0);
+  // const activityId = extractSecureParam(secureParams, 'id', 0);
+  // const activityId = extractSecureParam(secureParams, 'id', 0);
   
   return (
     <div className="border rounded-lg p-4">
       <h2 className="text-xl font-semibold">รายละเอียดกิจกรรม</h2>
-      <p>ID: {activityId}</p>
+      {/* <p>ID: {activityId}</p> */}
       <p>ชื่อ: {activityName}</p>
     </div>
   );
@@ -104,7 +108,7 @@ export const ActivityFormComponent: React.FC = () => {
   
   // ดึงข้อมูลจาก URL parameters แบบ type-safe
   const editMode = hasSecureParam(params, 'id');
-  const activityId = editMode ? extractSecureParam(params, 'id', 0) : 0;
+  // const activityId = editMode ? extractSecureParam(params, 'id', 0) : 0;
   const activityName = editMode ? extractSecureParam(params, 'name', '') : '';
   
   return (

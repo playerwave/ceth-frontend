@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import FoodTable from "./components/foodtable";
 import AddFoodButton from "./components/addfoodbutton";
@@ -8,9 +8,7 @@ import Searchbar from "../../../../components/Searchbar";
 
 const ListFoodAdmin = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { foods, fetchFoods, searchResults, foodLoading, foodError, refreshData } = useFoodStore();
-  
-  const displayedFoods = searchResults ?? foods;
+  const { foods , foodLoading, foodError, refreshData } = useFoodStore();
 
   useEffect(() => {
     // ✅ ดึงข้อมูลมาใหม่ทุกครั้ง

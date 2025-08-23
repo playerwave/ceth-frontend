@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Certificate from "./component/certificatetable";
 import Searchbar from "./component/Searchbar";
 
@@ -6,7 +6,7 @@ import Searchbar from "./component/Searchbar";
 
 const listCertificateTeacher = () => {
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [, setSearchTerm] = useState("");
 
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-5">

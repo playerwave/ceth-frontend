@@ -47,6 +47,7 @@ const convertParsedToActivity = (
     start_assessment: null, // กำหนดค่าเริ่มต้น
     end_assessment: null, // กำหนดค่าเริ่มต้น
     activityFood: [], // กำหนดค่าเริ่มต้น
+    registered_count: 0, // กำหนดค่าเริ่มต้น
   };
 };
 

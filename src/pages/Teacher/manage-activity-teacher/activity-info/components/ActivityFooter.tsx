@@ -55,7 +55,7 @@ const formatTime = (dateInput?: string | Date | null) => {
   console.log("🕐 Date minutes:", date.getMinutes());
   
   let hours = date.getHours();
-  let minutes = date.getMinutes();
+  const minutes = date.getMinutes();
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
   const formattedHours = hours.toString().padStart(2, "0");

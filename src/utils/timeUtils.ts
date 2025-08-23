@@ -41,7 +41,7 @@ export const formatTime12Hour = (dateInput: string | Date | null): string => {
   if (!adjustedDate) return "ไม่ระบุ";
 
   let hours = adjustedDate.getHours();
-  let minutes = adjustedDate.getMinutes();
+  const minutes = adjustedDate.getMinutes();
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
   const formattedHours = hours.toString().padStart(2, "0");

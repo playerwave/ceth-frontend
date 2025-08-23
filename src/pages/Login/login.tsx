@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react"; // หรือใช้ <span> 👁️ แทนถ้าไม่ติดตั้ง icon lib
 
 const Login = () => {

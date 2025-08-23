@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState} from "react";
 import Searchbar from "../../../../components/Searchbar";
 import RoomToolbar from "./components/toolbar";
 import RoomTable from "./components/roomtable";
@@ -16,8 +16,7 @@ const ListRoomAdmin = () => {
 
   const [floorFilter, setFloorFilter] = useState<number | "all">("all");
   const searchRooms = useRoomStore((state) => state.searchRooms);
-  const [searchbarKey, setSearchbarKey] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm] = useState("");
 
 
   useEffect(() => {
@@ -82,9 +81,9 @@ const ListRoomAdmin = () => {
   // });
 
   // ✅ Loading component
-  // if (loading) {
-  //   return <Loading />;
-  // }
+  if (loading) {
+    return <Loading />;
+  }
 
   // ✅ Error component
   if (error) {

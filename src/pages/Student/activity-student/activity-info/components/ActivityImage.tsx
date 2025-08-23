@@ -1,7 +1,7 @@
 import { ImageOff } from "lucide-react";
 
 interface Props {
-  imageUrl: string | null;
+  imageUrl: string | File | null;
 }
 
 export default function ActivityImage({ imageUrl }: Props) {
@@ -17,7 +17,7 @@ export default function ActivityImage({ imageUrl }: Props) {
         </div>
       ) : (
         <img
-          src={imageUrl}
+          src={typeof imageUrl === 'string' ? imageUrl : URL.createObjectURL(imageUrl)}
           alt="Activity"
           className="w-full h-full object-cover"
           onError={(e) => (e.currentTarget.src = "/img/default.png")}

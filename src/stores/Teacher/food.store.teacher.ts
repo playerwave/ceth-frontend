@@ -5,38 +5,38 @@ import foodService from "../../service/Teacher/food.service";
 import { mapApiToFoods, mapApiToFood } from "../mapper/food.mapper";
 import { FoodState } from "../state/food.state";
 
-interface FoodStore {
-  foods: Food[];
-  selectedFood: Food | null;
-  loading: boolean;
-  error: string | null;
+// interface FoodStore {
+//   foods: Food[];
+//   selectedFood: Food | null;
+//   loading: boolean;
+//   error: string | null;
 
-  fetchFoods: () => Promise<void>;
-  selectFood: (id: number) => Promise<void>;
-  clearSelectedFood: () => void;
+//   fetchFoods: () => Promise<void>;
+//   selectFood: (id: number) => Promise<void>;
+//   clearSelectedFood: () => void;
 
-  createFood: (data: Partial<Food>) => Promise<void>;
-  updateFood: (data: Food) => Promise<void>;
-  deleteFood: (id: number) => Promise<void>;
+//   createFood: (data: Partial<Food>) => Promise<void>;
+//   updateFood: (data: Food) => Promise<void>;
+//   deleteFood: (id: number) => Promise<void>;
 
-  foodLoading?: boolean;
-  foodError?: string | null;
+//   foodLoading?: boolean;
+//   foodError?: string | null;
 
-  setMockFoods?: (foods: Food[]) => void;
-  searchFoods?: (name: string) => Promise<void>;
-  searchResults?: Food[] | null;
+//   setMockFoods?: (foods: Food[]) => void;
+//   searchFoods?: (name: string) => Promise<void>;
+//   searchResults?: Food[] | null;
 
-  // ✅ เพิ่ม cache state
-  lastFetched: number | null;
-  cacheExpiry: number; // 5 minutes
-  isInitialized: boolean;
+//   // ✅ เพิ่ม cache state
+//   lastFetched: number | null;
+//   cacheExpiry: number; // 5 minutes
+//   isInitialized: boolean;
 
-  // ✅ เพิ่มฟังก์ชันใหม่
-  initializeData: () => Promise<void>;
-  refreshData: () => Promise<void>;
-  invalidateCache: () => void;
-  isCacheValid: () => boolean;
-}
+//   // ✅ เพิ่มฟังก์ชันใหม่
+//   initializeData: () => Promise<void>;
+//   refreshData: () => Promise<void>;
+//   invalidateCache: () => void;
+//   isCacheValid: () => boolean;
+// }
 
 export const useFoodStore = create<FoodState>((set, get) => ({
   foods: [],

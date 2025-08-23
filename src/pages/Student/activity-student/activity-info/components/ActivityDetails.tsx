@@ -8,11 +8,22 @@ import {
   MapPin,
   School,
 } from "lucide-react";
-import type { Activity } from "../../../../../types/model";
+// import type { Activity } from "../../../../../types/model";
 import { useRoomStore } from "../../../../../stores/Teacher/room.store";
 
 interface Props {
-  activity: any;
+  activity: {
+    presenter_company_name: string;
+    type: string;
+    event_format: string;
+    room_id?: number;
+    start_register_date?: string;
+    end_register_date?: string;
+    start_activity_date?: string;
+    end_activity_date?: string;
+    description?: string;
+    recieve_hours?: number;
+  };
 }
 
 type LocationType = "Onsite" | "Course" | "Online";

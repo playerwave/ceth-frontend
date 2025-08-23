@@ -1,4 +1,3 @@
-import { Typography } from "@mui/material";
 import {
   Album,
   CalendarDays,
@@ -13,7 +12,7 @@ interface Props {
 }
 
 function LocationTypeDisplay({ locationType }: { locationType: string }) {
-  const iconMap = {
+  const iconMap: Record<string, React.ComponentType<any>> = {
     Onsite: School,
     Course: Album,
     Online: HouseWifi,

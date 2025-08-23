@@ -4,7 +4,6 @@ import CryptoJS from "crypto-js";
 export class URLEncryption {
   private static readonly SECRET_KEY =
     import.meta.env.VITE_ENCRYPTION_KEY || "your-secret-key-here";
-  private static readonly ALGORITHM = "AES-256-CBC";
 
   /**
    * 🔒 เข้ารหัสข้อมูลที่สำคัญสำหรับ URL

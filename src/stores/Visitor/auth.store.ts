@@ -6,7 +6,7 @@ import { mapApiToAuthUser, mapUserToAuthUser } from "../mapper/auth.mapper";
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isAuthenticated: false,
       authLoading: false,

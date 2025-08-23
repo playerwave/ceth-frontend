@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { URLEncryption, ProtectionLevel, RouteHelpers } from '../utils/urlEncryption';
+import { ProtectionLevel, RouteHelpers } from '../utils/urlEncryption';
 
 // 📋 Props สำหรับ SecureLink
 interface SecureLinkProps {
   to: string;
-  params?: Record<string, any>;
+  params?: Record<string, unknown>;
   protectionLevel?: ProtectionLevel;
   children: React.ReactNode;
   className?: string;
@@ -54,7 +54,7 @@ export const NormalLink: React.FC<Omit<SecureLinkProps, 'protectionLevel'>> = (p
 export const useSecureLink = () => {
   const createSecureLink = (
     basePath: string, 
-    params: Record<string, any>, 
+    params: Record<string, unknown>, 
     protectionLevel: ProtectionLevel = ProtectionLevel.ENCRYPTED
   ) => {
     return RouteHelpers.generateSecurePath(basePath, params, protectionLevel);
@@ -62,7 +62,7 @@ export const useSecureLink = () => {
 
   const navigateToSecure = (
     basePath: string, 
-    params: Record<string, any>, 
+    params: Record<string, unknown>, 
     protectionLevel: ProtectionLevel = ProtectionLevel.ENCRYPTED
   ) => {
     const securePath = createSecureLink(basePath, params, protectionLevel);

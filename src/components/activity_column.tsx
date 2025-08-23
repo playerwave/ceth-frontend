@@ -6,9 +6,9 @@ import {
   Checkbox,
   Typography,
   Box,
-  IconButton, // ✅ เพิ่ม
-  Menu, // ✅ เพิ่ม
-  MenuItem, // ✅ เพิ่ม
+  // IconButton, // ✅ เพิ่ม
+  // Menu, // ✅ เพิ่ม
+  // MenuItem, // ✅ เพิ่ม
 } from "@mui/material";
 import Toggle from "./Toggle";
 import {
@@ -18,8 +18,7 @@ import {
   School as SchoolLucide,
   User,
 } from "lucide-react";
-import React, { useState } from "react"; // ✅ เพิ่ม React และ useState
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+// import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 import { Activity } from "../types/model"; // ตรวจสอบเส้นทางให้ถูกต้อง
 
@@ -39,89 +38,89 @@ type ColumnOptions = {
 };
 
 // ✅ Custom Header Component สำหรับคอลัมน์สถานที่ (event_format)
-const LocationFilterHeader: React.FC<{
-  selectedLocations: string[];
-  handleLocationChange: (locationType: string) => void;
-}> = ({ selectedLocations, handleLocationChange }) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+// const LocationFilterHeader: React.FC<{
+//   selectedLocations: string[];
+//   handleLocationChange: (locationType: string) => void;
+// }> = ({ selectedLocations, handleLocationChange }) => {
+  // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  // const open = Boolean(anchorEl);
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  // const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+  //   setAnchorEl(event.currentTarget);
+  // };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  // const handleClose = () => {
+  //   setAnchorEl(null);
+  // };
 
-  const handleCheckboxChange = (locationType: string) => {
-    handleLocationChange(locationType);
-  };
+  // const handleCheckboxChange = (locationType: string) => {
+  //   handleLocationChange(locationType);
+  // };
 
-  return (
-    <Box display="flex" alignItems="center" gap={0}>
-      {" "}
-      {/* ลด gap */}
-      <MapPin fontSize="small" />
-      <IconButton
-        aria-label="filter location"
-        aria-controls={open ? "location-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-        onClick={handleClick}
-        size="small"
-        sx={{ ml: 0 }}
-      >
-        <KeyboardArrowDownIcon sx={{ color: "white" }} />{" "}
-        {/* ✅ เปลี่ยนตรงนี้ */}
-      </IconButton>
-      <Menu
-        id="location-menu"
-        MenuListProps={{
-          "aria-labelledby": "filter-location-button",
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-      >
-        <MenuItem onClick={(e) => e.stopPropagation()}>
-          {" "}
-          {/* หยุด event propagation เพื่อไม่ให้ Menu ปิดเมื่อคลิก Checkbox */}
-          <Checkbox
-            size="small"
-            checked={selectedLocations.includes("Onsite")}
-            onChange={() => handleCheckboxChange("Onsite")}
-          />
-          <Typography variant="body2">Onsite</Typography>
-        </MenuItem>
-        <MenuItem onClick={(e) => e.stopPropagation()}>
-          <Checkbox
-            size="small"
-            checked={selectedLocations.includes("Online")}
-            onChange={() => handleCheckboxChange("Online")}
-          />
-          <Typography variant="body2">Online</Typography>
-        </MenuItem>
-        <MenuItem onClick={(e) => e.stopPropagation()}>
-          <Checkbox
-            size="small"
-            checked={selectedLocations.includes("Course")}
-            onChange={() => handleCheckboxChange("Course")}
-          />
-          <Typography variant="body2">Course</Typography>
-        </MenuItem>
-      </Menu>
-    </Box>
-  );
-};
+  // return (
+  //   <Box display="flex" alignItems="center" gap={0}>
+  //     {" "}
+  //     {/* ลด gap */}
+  //     <MapPin fontSize="small" />
+  //     <IconButton
+  //       aria-label="filter location"
+  //       aria-controls={open ? "location-menu" : undefined}
+  //       aria-haspopup="true"
+  //       aria-expanded={open ? "true" : undefined}
+  //       onClick={handleClick}
+  //       size="small"
+  //       sx={{ ml: 0 }}
+  //     >
+  //       <KeyboardArrowDownIcon sx={{ color: "white" }} />{" "}
+  //       {/* ✅ เปลี่ยนตรงนี้ */}
+  //     </IconButton>
+  //     <Menu
+  //       id="location-menu"
+  //       MenuListProps={{
+  //         "aria-labelledby": "filter-location-button",
+  //       }}
+  //       anchorEl={anchorEl}
+  //       open={open}
+  //       onClose={handleClose}
+  //       anchorOrigin={{
+  //         vertical: "bottom",
+  //         horizontal: "right",
+  //       }}
+  //       transformOrigin={{
+  //         vertical: "top",
+  //         horizontal: "right",
+  //       }}
+  //     >
+  //       <MenuItem onClick={(e) => e.stopPropagation()}>
+  //         {" "}
+  //         {/* หยุด event propagation เพื่อไม่ให้ Menu ปิดเมื่อคลิก Checkbox */}
+  //         <Checkbox
+  //           size="small"
+  //           checked={selectedLocations.includes("Onsite")}
+  //           onChange={() => handleCheckboxChange("Onsite")}
+  //         />
+  //         <Typography variant="body2">Onsite</Typography>
+  //       </MenuItem>
+  //       <MenuItem onClick={(e) => e.stopPropagation()}>
+  //         <Checkbox
+  //           size="small"
+  //           checked={selectedLocations.includes("Online")}
+  //           onChange={() => handleCheckboxChange("Online")}
+  //         />
+  //         <Typography variant="body2">Online</Typography>
+  //       </MenuItem>
+  //       <MenuItem onClick={(e) => e.stopPropagation()}>
+  //         <Checkbox
+  //           size="small"
+  //           checked={selectedLocations.includes("Course")}
+  //           onChange={() => handleCheckboxChange("Course")}
+  //         />
+  //         <Typography variant="body2">Course</Typography>
+  //       </MenuItem>
+  //     </Menu>
+  //   </Box>
+  // );
+  // };
 
 export const getActivityColumns = (
   options: ColumnOptions = {}
@@ -285,7 +284,7 @@ export const getActivityColumns = (
       renderCell: (params) => {
         const totalSeats = params.row.seat;
         const eventFormat = params.row.event_format;
-        const registeredCount = (params.row as any).registered_count || 0; // ✅ ใช้ registered_count แทน enrolled_count
+        const registeredCount = (params.row as { registered_count?: number }).registered_count || 0; // ✅ ใช้ registered_count แทน enrolled_count
 
         // ✅ ถ้าเป็น Course ให้แสดง "-"
         if (eventFormat === "Course") {

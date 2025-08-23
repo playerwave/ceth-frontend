@@ -174,11 +174,80 @@ const ListActivityTeacher: React.FC = () => {
       activity_name: activity.activity_name,
       current_status: activity.activity_status,
       activity_state: activity.activity_state,
+      currentStatus_lowercase: currentStatus,
+      updatedStatus: updatedStatus,
     });
 
-    // ตรวจสอบเงื่อนไขตามทิศทางการเปลี่ยน
+    // ✅ ตรวจสอบเงื่อนไขตามทิศทางการเปลี่ยน
     if (currentStatus === "public") {
       // เปลี่ยนจาก Public เป็น Private
+      
+      // ✅ ตรวจสอบ activity_state ที่อนุญาตให้เปลี่ยนได้เลย
+      const allowedStatesForDirectToggle = ["Special Open Register", "Open Register", "Close Register"];
+      const canToggleDirectly = allowedStatesForDirectToggle.includes(activity.activity_state);
+      
+      if (canToggleDirectly) {
+        // ✅ เปลี่ยนได้เลยโดยไม่ต้องตรวจสอบ validation
+        console.log("✅ Public to Private: Allowed to toggle directly for state:", activity.activity_state);
+        console.log("🔄 Calling updateActivityStatus with:", {
+          id: activity.activity_id.toString(),
+          status: "Private"
+        });
+        try {
+          console.log("🔄 Attempting to update activity status...");
+          await useActivityStore
+            .getState()
+            .updateActivityStatus?.(
+              activity.activity_id.toString(),
+              "Private",
+            );
+          console.log("✅ Status update successful");
+          toast.success("เปลี่ยนสถานะเป็น Private แล้ว");
+          // ✅ Store จะจัดการการอัปเดต state เอง
+        } catch (err: any) {
+          console.error("❌ Error updating status:", err);
+          
+          // ✅ แสดงข้อความ error ที่เฉพาะเจาะจง
+          let errorMessage = "ไม่สามารถเปลี่ยนสถานะกิจกรรมได้";
+          
+          if (err?.response?.status === 401) {
+            errorMessage = "กรุณาเข้าสู่ระบบใหม่";
+          } else if (err?.response?.status === 403) {
+            errorMessage = "ไม่มีสิทธิ์ในการเปลี่ยนสถานะกิจกรรม";
+          } else if (err?.response?.status === 404) {
+            errorMessage = "ไม่พบกิจกรรมที่ต้องการอัปเดต";
+          } else if (err?.code === "ERR_NETWORK") {
+            errorMessage = "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง";
+          } else if (err?.response?.data?.message) {
+            errorMessage = err.response.data.message;
+          }
+          
+          toast.error(errorMessage);
+          
+          // ✅ ถ้าเป็น network error ให้ลองใหม่
+          if (err?.code === "ERR_NETWORK") {
+            console.log("🔄 Retrying after network error...");
+            setTimeout(async () => {
+              try {
+                await useActivityStore
+                  .getState()
+                  .updateActivityStatus?.(
+                    activity.activity_id.toString(),
+                    "Private",
+                  );
+                console.log("✅ Retry successful");
+                toast.success("เปลี่ยนสถานะเป็น Private แล้ว");
+              } catch (retryErr) {
+                console.error("❌ Retry failed:", retryErr);
+                toast.error("ไม่สามารถเปลี่ยนสถานะกิจกรรมได้ กรุณาลองใหม่อีกครั้ง");
+              }
+            }, 2000); // รอ 2 วินาทีแล้วลองใหม่
+          }
+        }
+        return;
+      }
+      
+      // ✅ ถ้าไม่ใช่ state ที่อนุญาต ให้ตรวจสอบ validation ตามเดิม
       if (!isActivityValid(activity)) {
         console.log("❌ Public to Private validation failed, showing dialog");
         setDialog({
@@ -264,7 +333,11 @@ const ListActivityTeacher: React.FC = () => {
       }
     }
 
-    // สำหรับ Public เป็น Private (ผ่าน validation แล้ว)
+    // ✅ สำหรับ Public เป็น Private (ผ่าน validation แล้ว) หรือกรณีอื่นๆ
+    console.log("🔄 Calling updateActivityStatus for other cases with:", {
+      id: activity.activity_id.toString(),
+      status: updatedStatus
+    });
     try {
       await useActivityStore
         .getState()
@@ -272,9 +345,48 @@ const ListActivityTeacher: React.FC = () => {
           activity.activity_id.toString(),
           updatedStatus as "Public" | "Private",
         );
+      console.log("✅ Status update successful for other cases");
       toast.success(`เปลี่ยนสถานะเป็น ${updatedStatus} แล้ว`);
-    } catch (err) {
-      toast.error("ไม่สามารถเปลี่ยนสถานะกิจกรรมได้");
+      // ✅ Store จะจัดการการอัปเดต state เอง
+    } catch (err: any) {
+      console.error("❌ Error updating status for other cases:", err);
+      
+      // ✅ แสดงข้อความ error ที่เฉพาะเจาะจง
+      let errorMessage = "ไม่สามารถเปลี่ยนสถานะกิจกรรมได้";
+      
+      if (err?.response?.status === 401) {
+        errorMessage = "กรุณาเข้าสู่ระบบใหม่";
+      } else if (err?.response?.status === 403) {
+        errorMessage = "ไม่มีสิทธิ์ในการเปลี่ยนสถานะกิจกรรม";
+      } else if (err?.response?.status === 404) {
+        errorMessage = "ไม่พบกิจกรรมที่ต้องการอัปเดต";
+      } else if (err?.code === "ERR_NETWORK") {
+        errorMessage = "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง";
+      } else if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      }
+      
+      toast.error(errorMessage);
+      
+      // ✅ ถ้าเป็น network error ให้ลองใหม่
+      if (err?.code === "ERR_NETWORK") {
+        console.log("🔄 Retrying after network error...");
+        setTimeout(async () => {
+          try {
+            await useActivityStore
+              .getState()
+              .updateActivityStatus?.(
+                activity.activity_id.toString(),
+                updatedStatus as "Public" | "Private",
+              );
+            console.log("✅ Retry successful");
+            toast.success(`เปลี่ยนสถานะเป็น ${updatedStatus} แล้ว`);
+          } catch (retryErr) {
+            console.error("❌ Retry failed:", retryErr);
+            toast.error("ไม่สามารถเปลี่ยนสถานะกิจกรรมได้ กรุณาลองใหม่อีกครั้ง");
+          }
+        }, 2000); // รอ 2 วินาทีแล้วลองใหม่
+      }
     }
   };
 

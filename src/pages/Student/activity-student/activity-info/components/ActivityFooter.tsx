@@ -256,8 +256,13 @@ interface Props {
   enrollActivity: (userId: number, activityId: number, food?: string) => Promise<void> | void;
   unenrollActivity: (userId: number, activityId: number) => Promise<void> | void;
   setIsEnrolled: React.Dispatch<React.SetStateAction<boolean>>;
-  navigate: any;
-  enrolledActivities: any[];
+  navigate: (path: string) => void;
+  enrolledActivities: Array<{
+    activity_id: number;
+    event_format: string;
+    start_activity_date: string;
+    end_activity_date: string;
+  }>;
   selectedFood: string;
   userId: number | null;
 }

@@ -2,7 +2,10 @@ import { Select, MenuItem } from "@mui/material";
 import { Frown } from "lucide-react";
 
 interface Props {
-  activity: any;
+  activity: {
+    event_format?: string;
+    activityFood?: Array<{ activity_food_id: number; activity_id: number; food_id: number }>;
+  };
   selectedFood: string;
   setSelectedFood: React.Dispatch<React.SetStateAction<string>>;
   isEnrolled: boolean;
@@ -17,9 +20,9 @@ export default function FoodSelector({
   return (
     <div className="mt-4">
       <p className="font-semibold font-[Sarabun]">อาหาร</p>
-      {activity.location_type !== "Onsite" ||
-      !Array.isArray(activity.food) ||
-      activity.food.length == 0 ? (
+      {activity.event_format !== "Onsite" ||
+      !Array.isArray(activity.activityFood) ||
+      activity.activityFood.length == 0 ? (
         <p className="text-gray-500 mt-1 flex items-center">
           ไม่มีอาหารสำหรับกิจกรรมนี้ <Frown className="ml-3" />
         </p>
@@ -35,9 +38,9 @@ export default function FoodSelector({
           <MenuItem value="" disabled>
             เลือกเมนูอาหาร
           </MenuItem>
-          {activity.food.map((food: string, index: number) => (
-            <MenuItem key={index} value={food}>
-              {food}
+          {activity.activityFood?.map((foodItem, index: number) => (
+            <MenuItem key={index} value={foodItem.food_id.toString()}>
+              Food ID: {foodItem.food_id}
             </MenuItem>
           ))}
         </Select>
