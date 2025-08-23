@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: "http://vps.theapds.org:8069/api/", // ✅ Production VPS
+  baseURL: "/api/", // ✅ Relative URL to avoid Mixed Content
   withCredentials: true, // ✅ ส่ง cookie ไปพร้อม request
   headers: {
     "Content-Type": "application/json",
