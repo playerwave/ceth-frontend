@@ -58,6 +58,12 @@ const fetchPublicActivities = async (): Promise<Activity[]> => {
       `${API_URL_FOR_VISITOR}/get-visitor-activities`
     );
 
+    // ✅ ตรวจสอบ response data
+    if (!response.data) {
+      console.warn("API returned no data");
+      return [];
+    }
+
     const rawData: { row: string }[] = response.data;
 
     if (!rawData || rawData.length === 0) {
@@ -99,7 +105,13 @@ const fetchPublicActivities = async (): Promise<Activity[]> => {
     return activities;
   } catch (error) {
     console.error("Error fetching and parsing public activities:", error);
-    throw new Error("Failed to fetch and process public activities data.");
+    
+    // ✅ ตรวจสอบ error type
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch and process public activities data: ${error.message}`);
+    } else {
+      throw new Error("Failed to fetch and process public activities data.");
+    }
   }
 };
 

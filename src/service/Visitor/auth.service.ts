@@ -25,9 +25,30 @@ export const logout = async (): Promise<void> => {
 };
 
 export const fetchMe = async (): Promise<AuthResponse["user"]> => {
-  // axios interceptor จะเพิ่ม token อัตโนมัติแล้ว
-  const response = await axiosInstance.get("/auth/me");
-  return response.data;
+  try {
+    // axios interceptor จะเพิ่ม token อัตโนมัติแล้ว
+    const response = await axiosInstance.get("/auth/me");
+    
+    // ✅ ตรวจสอบ response data
+    if (!response.data) {
+      throw new Error("No user data received");
+    }
+    
+    // ✅ Backend ส่ง user object โดยตรง (ไม่มี wrapper)
+    if (typeof response.data === 'object' && response.data.users_id) {
+      return response.data;
+    }
+    
+    // ✅ ตรวจสอบว่า response.data เป็น user object หรือไม่ (fallback)
+    if (typeof response.data === 'object' && response.data.user) {
+      return response.data.user;
+    }
+    
+    throw new Error("Invalid user data format");
+  } catch (error) {
+    console.error("❌ fetchMe error:", error);
+    throw error;
+  }
 };
 
 const authService = {

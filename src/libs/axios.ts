@@ -34,6 +34,22 @@ axiosInstance.interceptors.response.use(
       status: response.status,
       data: response.data,
     });
+    
+    // ✅ ตรวจสอบ response data format
+    if (response.data && typeof response.data === 'object') {
+      // ถ้า response มี error field
+      if (response.data.error) {
+        console.error("❌ API Error in response:", response.data.error);
+        return Promise.reject(new Error(response.data.error));
+      }
+      
+      // ถ้า response มี message field (success/error)
+      if (response.data.message && response.data.message.includes('error')) {
+        console.error("❌ API Error message:", response.data.message);
+        return Promise.reject(new Error(response.data.message));
+      }
+    }
+    
     return response;
   },
   (error) => {

@@ -39,7 +39,7 @@ export function mapUserToAuthUser(user: AuthResponse["user"]): AuthUser {
   return {
     userId: user.users_id,
     username: user.username,
-    role: user.roles.roles_name, // ✅ เปลี่ยนตรงนี้จาก user.role_name
+    role: user.roles?.roles_name ?? "Student", // ✅ fallback ป้องกัน undefined
     role_id: user.roles_id,
     token: localStorage.getItem("token") ?? "",
     student: user.student,
