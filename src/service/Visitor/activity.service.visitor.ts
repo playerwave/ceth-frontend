@@ -4,7 +4,7 @@ import axiosInstance from "../../libs/axios";
 import { ParsedVisitorActivity } from "../../types/Visitor/parsed_visitor_activity";
 import { Activity } from "../../types/model"; // นำเข้า Activity Type ของคุณ
 
-const API_URL_FOR_VISITOR = "http://localhost:5090/api/visitor";
+const API_URL_FOR_VISITOR = "/visitor"; // ✅ ใช้ relative path เพราะ axios instance มี baseURL แล้ว
 
 const convertParsedToActivity = (
   parsedActivity: ParsedVisitorActivity

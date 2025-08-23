@@ -1,6 +1,6 @@
-import axios from "axios";
+import axiosInstance from "../../libs/axios";
 
-const API_BASE_URL = "http://localhost:5090/api";
+const API_BASE_URL = ""; // ✅ ใช้ empty string เพราะ axiosInstance มี baseURL แล้ว
 
 export interface EmailTemplateData {
   [key: string]: any;
@@ -24,7 +24,7 @@ export class EmailService {
   // ดึงรายการ templates ที่มีอยู่
   static async getTemplates(): Promise<TemplatesResponse> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/email/templates`);
+      const response = await axiosInstance.get(`${API_BASE_URL}/email/templates`);
       return response.data;
     } catch (error) {
       console.error("Error fetching templates:", error);
@@ -38,7 +38,7 @@ export class EmailService {
     data: EmailTemplateData
   ): Promise<EmailPreviewResponse> {
     try {
-      const response = await axios.post(`${API_BASE_URL}/email/preview`, {
+      const response = await axiosInstance.post(`${API_BASE_URL}/email/preview`, {
         templateName,
         data
       });
@@ -55,7 +55,7 @@ export class EmailService {
     data: EmailTemplateData
   ): Promise<any> {
     try {
-      const response = await axios.post(`${API_BASE_URL}/email/send`, {
+      const response = await axiosInstance.post(`${API_BASE_URL}/email/send`, {
         templateName,
         data
       });

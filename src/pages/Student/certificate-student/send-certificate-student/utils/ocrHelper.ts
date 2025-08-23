@@ -169,7 +169,7 @@ export async function callBuuOcr(file: File): Promise<OcrResultData> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch("http://localhost:5090/api/ocr", {
+      const res = await fetch("/api/ocr", { // ✅ ใช้ relative path
     method: "POST",
     body: formData,
   });
