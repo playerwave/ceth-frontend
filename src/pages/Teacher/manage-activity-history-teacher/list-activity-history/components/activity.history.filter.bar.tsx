@@ -180,7 +180,7 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
               />
 
               {/* วันเดียว */}
-              <div className="relative z-40">
+              <div className="relative z-10">
                 <button
                   className={btnBase + " min-w-[160px]"}
                   onClick={() => {
@@ -215,7 +215,7 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
           ) : (
             <>
               {/* ช่วงวันที่ */}
-              <div className="relative z-40">
+              <div className="relative z-10">
                 <button
                   className={btnBase + " min-w-[160px]"}
                   onClick={() => {

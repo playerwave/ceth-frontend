@@ -126,6 +126,31 @@ export const unEnrollActivity = async (studentId: number, activityId: number) =>
 };
 //------------------------------------------------------------------------------
 
+export const fetchEndActivities = async (studentId: number): Promise<Activity[]> => {
+  console.log("🌐 [SERVICE] fetchActivities called with studentId:", studentId);
+  console.log("🌐 [SERVICE] Making request to:", `${STUDENT_ACTIVITY_PATH}/history/${studentId}`);
+  
+  try {
+    const response = await axiosInstance.get<Activity[]>(
+      `${STUDENT_ACTIVITY_PATH}/history/${studentId}`
+    );
+    
+    console.log("✅ [SERVICE] Response received:", response.data);
+    
+    // ตรวจสอบว่า response.data เป็น array ที่ถูกต้อง
+    if (response.data && Array.isArray(response.data)) {
+      console.log("✅ [SERVICE] Valid response data, count:", response.data.length);
+      return response.data;
+    } else {
+      console.warn("⚠️ [SERVICE] Invalid response data:", response.data);
+      return [];
+    }
+  } catch (error) {
+    console.error("❌ [SERVICE] Error in fetchActivities:", error);
+    throw error;
+  }
+};
+
 //--------------------- Export Service -----------------------------------------
 const activityService = {
   fetchActivities,
@@ -135,6 +160,7 @@ const activityService = {
   enrollActivity,
   unEnrollActivity,
   fetchEnrolledActivities,
+  fetchEndActivities,
 };
 //------------------------------------------------------------------------------
 
