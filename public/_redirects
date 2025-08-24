@@ -1,24 +1,2 @@
-# API Routes - Proxy to Backend (Production Only)
-/api/*  http://vps.theapds.org:8069/api/:splat  200!
-
-# Auth Routes
-/auth/*  http://vps.theapds.org:8069/api/auth/:splat  200!
-
-# Visitor Routes
-/visitor/*  http://vps.theapds.org:8069/api/visitor/:splat  200!
-
-# Teacher Routes
-/teacher/*  http://vps.theapds.org:8069/api/teacher/:splat  200!
-
-# Student Routes
-/student/*  http://vps.theapds.org:8069/api/student/:splat  200!
-
-# Other API Routes
-/email/*  http://vps.theapds.org:8069/api/email/:splat  200!
-/role/*  http://vps.theapds.org:8069/api/role/:splat  200!
-/department/*  http://vps.theapds.org:8069/api/department/:splat  200!
-/faculty/*  http://vps.theapds.org:8069/api/faculty/:splat  200!
-/ocr/*  http://vps.theapds.org:8069/api/ocr/:splat  200!
-
-# Handle SPA routing - serve index.html for all other routes
-/*  /index.html  200
+/api/*   http://vps.theapds.org:8069/api/:splat   200
+/*        /index.html                              200
