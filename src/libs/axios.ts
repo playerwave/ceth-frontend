@@ -1,22 +1,16 @@
 import axios, { AxiosInstance } from "axios";
 
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: "/api/", // ✅ ใช้ relative URL เพื่อให้ Netlify proxy ทำงาน
+  baseURL: "http://vps.theapds.org:8069/api/", // ✅ Production VPS
   withCredentials: true, // ✅ ส่ง cookie ไปพร้อม request
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// ✅ เพิ่ม token interceptor
+// Interceptors for logging requests (comment ถ้าเป็นตอนที่ขึ้น production)
 axiosInstance.interceptors.request.use(
   (config) => {
-    // เพิ่ม token จาก localStorage ถ้ามี
-    const token = localStorage.getItem('auth-token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    
     console.log("📤 [Request]", {
       url: config.url,
       method: config.method,
@@ -32,8 +26,6 @@ axiosInstance.interceptors.request.use(
   },
 );
 
-// ✅ ลบ interceptor เดิมที่ซ้ำ
-
 // Interceptors for logging responses (comment ถ้าเป็นตอนที่ขึ้น production)
 axiosInstance.interceptors.response.use(
   (response) => {
@@ -42,22 +34,6 @@ axiosInstance.interceptors.response.use(
       status: response.status,
       data: response.data,
     });
-    
-    // ✅ ตรวจสอบ response data format
-    if (response.data && typeof response.data === 'object') {
-      // ถ้า response มี error field
-      if (response.data.error) {
-        console.error("❌ API Error in response:", response.data.error);
-        return Promise.reject(new Error(response.data.error));
-      }
-      
-      // ถ้า response มี message field (success/error)
-      if (response.data.message && response.data.message.includes('error')) {
-        console.error("❌ API Error message:", response.data.message);
-        return Promise.reject(new Error(response.data.message));
-      }
-    }
-    
     return response;
   },
   (error) => {
