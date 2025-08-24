@@ -1,34 +1,20 @@
-// import { defineConfig } from "vite";
-// import react from "@vitejs/plugin-react";
-// import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-// // https://vite.dev/config/
-// export default defineConfig({
-//   plugins: [react(), tailwindcss()],
-// });
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => ({
+  plugins: [react()],
+  define: {
+    // ✅ กำหนด environment variables
+    __DEV__: JSON.stringify(mode === 'development'),
+    __PROD__: JSON.stringify(mode === 'production'),
+  },
   server: {
-    proxy: {
-      '/api': {
-        target: 'http://vps.theapds.org:8069',
-        changeOrigin: true,
-        secure: false,
-      }
-    }
+    port: 5173,
+    host: true,
   },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-        },
-      },
-    },
+  preview: {
+    port: 4173,
+    host: true,
   },
-});
+}))

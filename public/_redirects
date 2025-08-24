@@ -1,4 +1,4 @@
-# API Routes - Proxy to Backend
+# API Routes - Proxy to Backend (Production Only)
 /api/*  http://vps.theapds.org:8069/api/:splat  200!
 
 # Auth Routes
