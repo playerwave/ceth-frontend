@@ -1,1 +1,6 @@
+# 1) Proxy API มาก่อน (เปลี่ยนเป็น https/443 ถ้า backend มี TLS จริง)
+# backend คุณตอนนี้คือ HTTP ที่ :8069
 /api/*   http://vps.theapds.org:8069/api/:splat   200
+
+# 2) SPA fallback มาเป็นลำดับถัดไปเท่านั้น
+/*        /index.html                              200

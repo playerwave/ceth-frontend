@@ -1,9 +1,10 @@
-version: "3.9"
 services:
   web:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "https://example.com/api"   # แก้เป็นของจริง
     image: ceth-frontend:latest
     ports:
       - "8080:80"
