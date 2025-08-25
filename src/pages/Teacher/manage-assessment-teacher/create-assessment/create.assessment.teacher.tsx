@@ -1,100 +1,56 @@
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
-import Section from '../create-assessment/components/Section';
-import { Section as SectionType, FormData } from './type/type.create';
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import { Plus } from "lucide-react";
+import Section from "../create-assessment/components/Section";
+import { useAssessmentStore } from "../create-assessment/store/assessmentStore";
 import Button from "../../../../components/Button";
 
 const CreateAssessmentTeacher = () => {
-  const [formTitle, setFormTitle] = useState('แบบประเมินใหม่');
-  const [formDescription, setFormDescription] = useState('คำอธิบายแบบประเมิน');
-  const [sections, setSections] = useState<SectionType[]>([
-    {
-      id: 1,
-      title: 'หัวข้อที่ 1',
-      questions: [
-        {
-          id: 1,
-          type: 'choice',
-          question: 'คำถามตัวอย่าง',
-          options: ['ตัวเลือก 1', 'ตัวเลือก 2'],
-          required: false,
-        },
-      ],
-    },
-  ]);
+  const {
+    formTitle,
+    formDescription,
+    sections,
+    setFormTitle,
+    setFormDescription,
+    setSections,
+    addSection,
+  } = useAssessmentStore();
 
-  // State สำหรับ Drag & Drop
-  const [draggedSectionIndex, setDraggedSectionIndex] = useState<number | null>(null);
-  const [dragOverSectionIndex, setDragOverSectionIndex] = useState<number | null>(null);
+  // Drag สำหรับ Section (desktop)
+  const onSectionDragEnd = (result: DropResult) => {
+    const { source, destination, type } = result;
+    if (!destination) return;
+    if (type !== "SECTION") return;
 
-  // เพิ่มหัวข้อใหม่ (id เรียง 1,2,3,...)
-  const addSection = () => {
-    const newId = sections.length > 0 ? Math.max(...sections.map(s => s.id)) + 1 : 1;
-    const newSection: SectionType = {
-      id: newId,
-      title: `หัวข้อที่ ${newId}`,
-      questions: [],
-    };
-    setSections([...sections, newSection]);
-  };
-
-  // ฟังก์ชันย้าย Section (สำหรับ mobile)
-  const moveSectionOrder = (fromIndex: number, toIndex: number) => {
-    const newSections = [...sections];
-    const [movedSection] = newSections.splice(fromIndex, 1);
-    newSections.splice(toIndex, 0, movedSection);
+    const newSections = Array.from(sections);
+    const [moved] = newSections.splice(source.index, 1);
+    newSections.splice(destination.index, 0, moved);
     setSections(newSections);
   };
 
-  // Section Drag & Drop handlers (สำหรับ desktop)
-  const handleSectionDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedSectionIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', '');
-    
-    // เพิ่ม visual feedback
-    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
-    dragImage.style.opacity = '0.6';
-    dragImage.style.transform = 'scale(1.05)';
-    e.dataTransfer.setDragImage(dragImage, 0, 0);
+  // ปุ่ม ↑ ↓ สำหรับ Section (mobile/tablet)
+  const moveSection = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= sections.length) return;
+    const newSections = Array.from(sections);
+    const [moved] = newSections.splice(fromIndex, 1);
+    newSections.splice(toIndex, 0, moved);
+    setSections(newSections);
   };
 
-  const handleSectionDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverSectionIndex(index);
-  };
-
-  const handleSectionDragEnd = () => {
-    if (draggedSectionIndex !== null && dragOverSectionIndex !== null && 
-        draggedSectionIndex !== dragOverSectionIndex) {
-      moveSectionOrder(draggedSectionIndex, dragOverSectionIndex);
-    }
-    setDraggedSectionIndex(null);
-    setDragOverSectionIndex(null);
-  };
-
-  const handleSectionDrop = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    if (draggedSectionIndex !== null && draggedSectionIndex !== index) {
-      moveSectionOrder(draggedSectionIndex, index);
-    }
-    setDraggedSectionIndex(null);
-    setDragOverSectionIndex(null);
-  };
-
-  // ฟังก์ชันบันทึก
   const saveForm = () => {
-    const formData: FormData = {
+    console.log("=== FORM DATA ===", {
       title: formTitle,
       description: formDescription,
       sections,
       createdAt: new Date().toISOString(),
       totalSections: sections.length,
       totalQuestions: sections.reduce((t, s) => t + s.questions.length, 0),
-    };
-    console.log('=== FORM DATA ===', formData);
-    alert(`บันทึกสำเร็จ! หัวข้อ ${formData.totalSections} คำถาม ${formData.totalQuestions}`);
+    });
+    alert(
+      `บันทึกสำเร็จ! หัวข้อ ${sections.length} คำถาม ${sections.reduce(
+        (t, s) => t + s.questions.length,
+        0
+      )}`
+    );
   };
 
   return (
@@ -117,30 +73,39 @@ const CreateAssessmentTeacher = () => {
         />
       </div>
 
-      {/* Sections with Drag & Drop */}
-      {sections.map((section, index) => (
-        <div
-          key={section.id}
-          draggable
-          onDragStart={(e) => handleSectionDragStart(e, index)}
-          onDragOver={(e) => handleSectionDragOver(e, index)}
-          onDragEnd={handleSectionDragEnd}
-          onDrop={(e) => handleSectionDrop(e, index)}
-          className={`
-            transition-all duration-200
-            ${dragOverSectionIndex === index ? 'border-t-4 border-blue-400 mt-2' : ''}
-            ${draggedSectionIndex === index ? 'opacity-50 scale-105 rotate-1' : ''}
-          `}
-        >
-          <Section
-            section={section}
-            sections={sections}
-            setSections={setSections}
-            index={index}
-            onReorder={moveSectionOrder}
-          />
-        </div>
-      ))}
+      {/* DragDropContext สำหรับ Section */}
+      <DragDropContext onDragEnd={onSectionDragEnd}>
+        <Droppable droppableId="sections" type="SECTION">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {sections.map((section, index) => (
+                <Draggable
+                  key={`section-${section.id}`}
+                  draggableId={`section-${section.id}`}
+                  index={index}
+                >
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className="mb-4"
+                    >
+                      <Section
+                        section={section}
+                        index={index}
+                        dragHandleProps={provided.dragHandleProps}
+                        onMoveUp={() => moveSection(index, index - 1)}
+                        onMoveDown={() => moveSection(index, index + 1)}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       {/* Add Section */}
       <div className="text-center mt-4">
@@ -154,17 +119,10 @@ const CreateAssessmentTeacher = () => {
 
       {/* Action */}
       <div className="flex justify-center gap-4 mt-6">
-        <Button
-          type="button"
-          bgColor="#dc2626"
-        >
+        <Button type="button" bgColor="#dc2626">
           ยกเลิก
         </Button>
-        <Button
-          type="submit"
-          bgColor="#1E3A8A"
-          onClick={saveForm}
-        >
+        <Button type="submit" bgColor="#1E3A8A" onClick={saveForm}>
           บันทึก
         </Button>
       </div>

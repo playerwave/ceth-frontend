@@ -1,21 +1,17 @@
 import React from "react";
 import OptionList from "../OptionList";
-import { Section, Question } from "../../type/type.create";
+import { Question } from "../../type/type.create";
 
 interface Props {
   sectionId: number;
   question: Question;
-  sections: Section[];
-  setSections: React.Dispatch<React.SetStateAction<Section[]>>;
 }
 
-const Choice: React.FC<Props> = ({ sectionId, question, sections, setSections }) => {
+const Choice: React.FC<Props> = ({ sectionId, question }) => {
   return (
     <OptionList
       sectionId={sectionId}
       question={question}
-      sections={sections}
-      setSections={setSections}
     />
   );
 };
