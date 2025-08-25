@@ -176,6 +176,7 @@ export default function ActivityFooter({
           แก้ไข
         </Button>
       </div>
+      {state}:{eventFormat}:{isQrCodeEnabled}
     </div>
   );
 }
