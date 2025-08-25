@@ -16,6 +16,7 @@ interface Props {
   endTime?: string | Date | null;
   state: string;
   locationType?: string;
+  eventFormat?: string; // เพิ่ม eventFormat prop
   onBack: () => void;
   onEdit: () => void;
 }
@@ -119,12 +120,17 @@ export default function ActivityFooter({
   endTime,
   state,
   locationType,
+  eventFormat,
   onBack,
   onEdit,
 }: Props) {
   const isCourse = locationType === "Course";
-  // ✅ ตรวจสอบว่า activity_state เป็น Start Activity หรือ End Activity หรือไม่
-  const isQrCodeEnabled = state === "Start Activity" || state === "End Activity";
+  
+  // ✅ ตรวจสอบเงื่อนไขใหม่: activity_state และ event_format
+  const isQrCodeEnabled = 
+    (state === "Start Activity" || state === "End Activity") && 
+    (eventFormat === "Online" || eventFormat === "Onsite");
+    
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 text-[14px] mt-1">
       {/* ก้อนซ้าย: วันที่ + สถานะ */}

@@ -56,11 +56,19 @@ export const useAuthStore = create<AuthState>()(
         try {
           const user = await authService.fetchMe();
           const authUser = mapUserToAuthUser(user);
-          set({ user: authUser, isAuthenticated: true });
+          set({ user: authUser, isAuthenticated: true, authError: null });
         } catch (error) {
           console.error("FetchMe error:", error);
-          // ไม่ set fallback user เพื่อป้องกัน loop
-          set({ authError: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้" });
+          
+          // ✅ ตรวจสอบประเภทของ error
+          if (error instanceof Error && error.message === "No token found in localStorage") {
+            // Token ไม่มีใน localStorage → redirect ไป login
+            set({ user: null, isAuthenticated: false, authError: "กรุณาเข้าสู่ระบบใหม่" });
+            window.location.href = '/login';
+          } else {
+            // Error อื่นๆ → แสดง error message
+            set({ authError: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้" });
+          }
         } finally {
           set({ authLoading: false });
         }

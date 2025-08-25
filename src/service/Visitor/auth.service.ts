@@ -38,27 +38,29 @@ export const logout = async (): Promise<void> => {
 
 export const fetchMe = async (): Promise<AuthResponse["user"]> => {
   try {
-    // axios interceptor จะเพิ่ม token อัตโนมัติแล้ว
-    const response = await axiosInstance.get("/auth/me");
+    console.log("🔍 [fetchMe] Starting fetchMe request...");
     
-    // ✅ ตรวจสอบ response data
+    // ✅ ดึง token จาก localStorage เพื่อตรวจสอบ
+    const token = localStorage.getItem('auth-token');
+    console.log("🎫 [fetchMe] Token from localStorage:", token ? "Token exists" : "No token");
+    
+    if (!token) {
+      throw new Error("No token found in localStorage");
+    }
+    
+    // ✅ Axios interceptor จะจัดการ Authorization header อัตโนมัติ
+    console.log("📡 [fetchMe] Making request to /auth/me...");
+    const response = await axiosInstance.get<AuthResponse["user"]>("/auth/me");
+    
+    console.log("✅ [fetchMe] Response received:", response.data);
+    
     if (!response.data) {
-      throw new Error("No user data received");
+      throw new Error("No response data received");
     }
     
-    // ✅ Backend ส่ง user object โดยตรง (ไม่มี wrapper)
-    if (typeof response.data === 'object' && response.data.users_id) {
-      return response.data;
-    }
-    
-    // ✅ ตรวจสอบว่า response.data เป็น user object หรือไม่ (fallback)
-    if (typeof response.data === 'object' && response.data.user) {
-      return response.data.user;
-    }
-    
-    throw new Error("Invalid user data format");
+    return response.data;
   } catch (error) {
-    console.error("❌ fetchMe error:", error);
+    console.error("❌ [fetchMe] Error:", error);
     throw error;
   }
 };
