@@ -10,8 +10,6 @@ interface QuestionRendererProps {
   question: Question;
   sections: Section[];
   setSections: React.Dispatch<React.SetStateAction<Section[]>>;
-  onDuplicate?: () => void;   // 👈 ใหม่
-  onDelete?: () => void;      
 }
 
 const QuestionRenderer: React.FC<QuestionRendererProps> = ({ sectionId, question, sections, setSections }) => {

@@ -85,12 +85,12 @@ const OptionList: React.FC<OptionListProps> = ({ sectionId, question, sections, 
 
             {/* ปุ่มเพิ่มตัวเลือก */}
             <div className="mt-6">
-            <button
-                onClick={addOption}
-                className="text-blue-600 hover:text-blue-700 text-sm"
-            >
-                + เพิ่มตัวเลือก
-            </button>
+                <button
+                    onClick={addOption}
+                    className="text-blue-600 hover:text-blue-700 text-sm"
+                >
+                    + เพิ่มตัวเลือก
+                </button>
             </div>
         </div>
     );

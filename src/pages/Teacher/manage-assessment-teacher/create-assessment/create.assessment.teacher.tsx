@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, GripVertical } from 'lucide-react';
 import Section from '../create-assessment/components/Section';
 import { Section as SectionType, FormData } from './type/type.create';
 import Button from "../../../../components/Button";
+
 const CreateAssessmentTeacher = () => {
   const [formTitle, setFormTitle] = useState('แบบประเมินใหม่');
   const [formDescription, setFormDescription] = useState('คำอธิบายแบบประเมิน');
@@ -22,6 +23,10 @@ const CreateAssessmentTeacher = () => {
     },
   ]);
 
+  // State สำหรับ Drag & Drop
+  const [draggedSectionIndex, setDraggedSectionIndex] = useState<number | null>(null);
+  const [dragOverSectionIndex, setDragOverSectionIndex] = useState<number | null>(null);
+
   // เพิ่มหัวข้อใหม่ (id เรียง 1,2,3,...)
   const addSection = () => {
     const newId = sections.length > 0 ? Math.max(...sections.map(s => s.id)) + 1 : 1;
@@ -31,6 +36,51 @@ const CreateAssessmentTeacher = () => {
       questions: [],
     };
     setSections([...sections, newSection]);
+  };
+
+  // ฟังก์ชันย้าย Section (สำหรับ mobile)
+  const moveSectionOrder = (fromIndex: number, toIndex: number) => {
+    const newSections = [...sections];
+    const [movedSection] = newSections.splice(fromIndex, 1);
+    newSections.splice(toIndex, 0, movedSection);
+    setSections(newSections);
+  };
+
+  // Section Drag & Drop handlers (สำหรับ desktop)
+  const handleSectionDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedSectionIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', '');
+    
+    // เพิ่ม visual feedback
+    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
+    dragImage.style.opacity = '0.6';
+    dragImage.style.transform = 'scale(1.05)';
+    e.dataTransfer.setDragImage(dragImage, 0, 0);
+  };
+
+  const handleSectionDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverSectionIndex(index);
+  };
+
+  const handleSectionDragEnd = () => {
+    if (draggedSectionIndex !== null && dragOverSectionIndex !== null && 
+        draggedSectionIndex !== dragOverSectionIndex) {
+      moveSectionOrder(draggedSectionIndex, dragOverSectionIndex);
+    }
+    setDraggedSectionIndex(null);
+    setDragOverSectionIndex(null);
+  };
+
+  const handleSectionDrop = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedSectionIndex !== null && draggedSectionIndex !== index) {
+      moveSectionOrder(draggedSectionIndex, index);
+    }
+    setDraggedSectionIndex(null);
+    setDragOverSectionIndex(null);
   };
 
   // ฟังก์ชันบันทึก
@@ -67,21 +117,36 @@ const CreateAssessmentTeacher = () => {
         />
       </div>
 
-      {/* Sections */}
-      {sections.map((section) => (
-        <Section
+      {/* Sections with Drag & Drop */}
+      {sections.map((section, index) => (
+        <div
           key={section.id}
-          section={section}
-          sections={sections}
-          setSections={setSections}
-        />
+          draggable
+          onDragStart={(e) => handleSectionDragStart(e, index)}
+          onDragOver={(e) => handleSectionDragOver(e, index)}
+          onDragEnd={handleSectionDragEnd}
+          onDrop={(e) => handleSectionDrop(e, index)}
+          className={`
+            transition-all duration-200
+            ${dragOverSectionIndex === index ? 'border-t-4 border-blue-400 mt-2' : ''}
+            ${draggedSectionIndex === index ? 'opacity-50 scale-105 rotate-1' : ''}
+          `}
+        >
+          <Section
+            section={section}
+            sections={sections}
+            setSections={setSections}
+            index={index}
+            onReorder={moveSectionOrder}
+          />
+        </div>
       ))}
 
       {/* Add Section */}
       <div className="text-center mt-4">
         <button
           onClick={addSection}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 mx-auto transition-colors"
         >
           <Plus size={20} /> เพิ่มหัวข้อใหม่
         </button>
@@ -91,7 +156,6 @@ const CreateAssessmentTeacher = () => {
       <div className="flex justify-center gap-4 mt-6">
         <Button
           type="button"
-
           bgColor="#dc2626"
         >
           ยกเลิก

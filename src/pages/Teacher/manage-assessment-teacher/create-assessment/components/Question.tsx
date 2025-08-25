@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Copy } from 'lucide-react';
+import { Trash2, Copy, GripVertical } from 'lucide-react';
 import QuestionRenderer from './QuestionRenderer';
 import { Section as SectionType, Question as QuestionType } from '../type/type.create';
 
@@ -8,9 +8,22 @@ interface QuestionProps {
     question: QuestionType;
     sections: SectionType[];
     setSections: React.Dispatch<React.SetStateAction<SectionType[]>>;
+    index: number;
+    onMoveUp: () => void;
+    onMoveDown: () => void;
+    isDragging?: boolean;
 }
 
-const Question: React.FC<QuestionProps> = ({ sectionId, question, sections, setSections }) => {
+const Question: React.FC<QuestionProps> = ({ 
+    sectionId, 
+    question, 
+    sections, 
+    setSections, 
+    index, 
+    onMoveUp, 
+    onMoveDown, 
+    isDragging = false 
+}) => {
     const updateQuestion = (field: keyof QuestionType, value: any) => {
         setSections(sections.map(s =>
             s.id === sectionId
@@ -28,12 +41,11 @@ const Question: React.FC<QuestionProps> = ({ sectionId, question, sections, setS
     };
 
     const duplicateQuestion = () => {
-        // หา max id ของคำถามใน section นี้
         const maxId = Math.max(...sections.find(s => s.id === sectionId)?.questions.map(q => q.id) || [0]);
 
         const duplicated: QuestionType = {
             ...question,
-            id: maxId + 1, // 👈 ใช้ maxId + 1 แทน Date.now()
+            id: maxId + 1,
             question: question.question + " (Copy)",
         };
 
@@ -44,52 +56,35 @@ const Question: React.FC<QuestionProps> = ({ sectionId, question, sections, setS
         ));
     };
 
-
-    const moveQuestionUp = () => {
-        setSections(sections.map(s =>
-            s.id === sectionId
-                ? {
-                    ...s,
-                    questions: s.questions.map(q => q).reduce((acc, q, idx, arr) => {
-                        if (q.id === question.id && idx > 0) {
-                            const newArr = [...arr];
-                            [newArr[idx - 1], newArr[idx]] = [newArr[idx], newArr[idx - 1]];
-                            return newArr;
-                        }
-                        return acc.length ? acc : arr;
-                    }, [] as QuestionType[])
-                }
-                : s
-        ));
-    };
-
-    const moveQuestionDown = () => {
-        setSections(sections.map(s =>
-            s.id === sectionId
-                ? {
-                    ...s,
-                    questions: s.questions.map(q => q).reduce((acc, q, idx, arr) => {
-                        if (q.id === question.id && idx < arr.length - 1) {
-                            const newArr = [...arr];
-                            [newArr[idx], newArr[idx + 1]] = [newArr[idx + 1], newArr[idx]];
-                            return newArr;
-                        }
-                        return acc.length ? acc : arr;
-                    }, [] as QuestionType[])
-                }
-                : s
-        ));
-    };
-
     return (
-        <div className="border-l-4 border-blue-500 pl-4 mb-6 bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-6">
+        <div className={`border-l-4 border-blue-500 pl-4 mb-6 bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-6 ${
+            isDragging ? 'opacity-50 rotate-1 scale-105' : ''
+        }`}>
             {/* Header */}
             <div className="flex gap-2 items-start mb-2">
-                <div className="flex flex-col ">
-                    <button onClick={moveQuestionUp}>↑</button>
-                    <button onClick={moveQuestionDown}>↓</button>
+                {/* Desktop: Drag Handle, Mobile: Arrow Buttons */}
+                <div className="flex flex-col items-center">
+                    {/* Desktop: Drag Handle */}
+                    <div className="hidden lg:block cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 transition-colors">
+                        <GripVertical size={20} />
+                    </div>
+                    
+                    {/* Mobile: Arrow Buttons */}
+                    <div className="lg:hidden flex flex-col">
+                        <button 
+                            onClick={onMoveUp}
+                            className="text-gray-400 hover:text-blue-500 p-1"
+                        >
+                            ↑
+                        </button>
+                        <button 
+                            onClick={onMoveDown}
+                            className="text-gray-400 hover:text-blue-500 p-1"
+                        >
+                            ↓
+                        </button>
+                    </div>
                 </div>
-
 
                 <div className="flex flex-col sm:flex-row gap-2 w-full">
                     {/* Input คำถาม */}
@@ -97,7 +92,7 @@ const Question: React.FC<QuestionProps> = ({ sectionId, question, sections, setS
                         type="text"
                         value={question.question}
                         onChange={(e) => updateQuestion("question", e.target.value)}
-                        className="flex-1 text-base sm:text-lg  border-gray-300 focus: focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1"
+                        className="flex-1 text-base sm:text-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1"
                         placeholder="พิมพ์คำถาม..."
                     />
 
@@ -113,11 +108,11 @@ const Question: React.FC<QuestionProps> = ({ sectionId, question, sections, setS
                         <option value="rating">ความพึงพอใจ</option>
                     </select>
                 </div>
-
             </div>
 
             {/* Body */}
             <QuestionRenderer sectionId={sectionId} question={question} sections={sections} setSections={setSections} />
+            
             {/* Footer: ปุ่ม Duplicate/Delete อยู่ตำแหน่งเดียวกันทุกประเภท */}
             <div className="flex justify-end gap-2 mt-4">
                 <button onClick={duplicateQuestion} className="text-gray-400 hover:text-blue-500">
@@ -127,7 +122,6 @@ const Question: React.FC<QuestionProps> = ({ sectionId, question, sections, setS
                     <Trash2 size={18} />
                 </button>
             </div>
-
         </div>
     );
 };
