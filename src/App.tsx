@@ -15,6 +15,7 @@ import Login from "./pages/login";
 import Main from "./pages/Teacher/dashboard-teacher/main_teacher";
 import MainStudent from "./pages/Student/main-student/main_student";
 import TestCardPage from "./pages/Test/test_card";
+import QrActivityTeacher from "./pages/Teacher/manage-activity-teacher/activity-qr-code/qr_activity_teacher";
 
 // activity routes config
 import { activityRoutes } from "./routes/activity.route"
@@ -163,6 +164,18 @@ function App() {
             <Navbar>
               <VisitorActivityList />
             </Navbar>
+          }
+        />
+
+        {/* 📱 QR Code route */}
+        <Route
+          path="/qr-activity-teacher/:activityId"
+          element={
+            <ProtectedRoute>
+              <Navbar>
+                <QrActivityTeacher />
+              </Navbar>
+            </ProtectedRoute>
           }
         />
 

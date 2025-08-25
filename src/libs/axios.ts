@@ -12,7 +12,7 @@ const getApiUrl = () => {
   
   // Development mode: ใช้ localhost
   if (import.meta.env.DEV) {
-    return "http://localhost:8069/api/";
+    return "http://localhost:5090/api/";
   }
   
   // Production mode: ใช้ custom domain

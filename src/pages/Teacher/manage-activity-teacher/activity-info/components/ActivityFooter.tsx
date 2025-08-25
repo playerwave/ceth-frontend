@@ -15,8 +15,8 @@ interface Props {
   startTime?: string | Date | null;
   endTime?: string | Date | null;
   state: string;
-  locationType?: string;
   eventFormat?: string; // เพิ่ม eventFormat prop
+  activityId?: number; // เพิ่ม activityId prop
   onBack: () => void;
   onEdit: () => void;
 }
@@ -124,6 +124,7 @@ export default function ActivityFooter({
   endTime,
   state,
   eventFormat,
+  activityId,
   onBack,
   onEdit,
 }: Props) {
@@ -166,8 +167,13 @@ export default function ActivityFooter({
         <div className={isCourse || !isQrCodeEnabled ? "opacity-50 pointer-events-none" : ""}>
           <Button
             width="120px"
-            onClick={() => !isCourse && isQrCodeEnabled && console.log("Scan")}
-            bgColor={isQrCodeEnabled ? "blue" : "gray"}
+            onClick={() => {
+              if (!isCourse && isQrCodeEnabled && activityId) {
+                // Navigate to QR Code page
+                window.location.href = `/qr-activity-teacher/${activityId}`;
+              }
+            }}
+            bgColor={isQrCodeEnabled ? undefined : "gray"}
           >
             Qr Code
           </Button>
@@ -175,10 +181,6 @@ export default function ActivityFooter({
         <Button width="120px" onClick={onEdit}>
           แก้ไข
         </Button>
-      </div>
-      {/* Debug info */}
-      <div className="mt-2 text-xs text-gray-500">
-        Debug: State={state} | Format={eventFormat} | QR={isQrCodeEnabled ? 'ON' : 'OFF'}
       </div>
     </div>
   );
