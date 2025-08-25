@@ -5,9 +5,9 @@ const getApiUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL as string | undefined;
   if (envUrl) return envUrl;                 // ใช้ค่าจาก .env.[mode] ก่อนเสมอ
   
-  // Preview mode: ใช้ Cloudflare proxy
+  // Preview mode: ใช้ VPS backend โดยตรง
   if (import.meta.env.MODE === "preview") {
-    return "/api/";
+    return "http://vps.theapds.org:8069/api/";
   }
   
   // Development mode: ใช้ localhost
@@ -25,6 +25,11 @@ const getCredentials = () => {
   
   // Preview mode: ปิด credentials เพื่อหลีกเลี่ยง CORS issues
   if (import.meta.env.MODE === "preview") {
+    return false;
+  }
+  
+  // Production mode: ปิด credentials เพื่อหลีกเลี่ยง CORS issues
+  if (!import.meta.env.DEV) {
     return false;
   }
   

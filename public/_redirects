@@ -1,2 +1,8 @@
-/api/*   http://vps.theapds.org:8069/api/:splat   200
+# API Proxy to Backend VPS
+/api/*   http://vps.theapds.org:8069/api/:splat   200!
+
+# CORS Preflight Support
+/api/*   http://vps.theapds.org:8069/api/:splat   204!  Method=OPTIONS
+
+# SPA Fallback
 /*        /index.html                              200
