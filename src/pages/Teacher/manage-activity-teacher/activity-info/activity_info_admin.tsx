@@ -138,6 +138,7 @@ export default function ActivityInfoAdmin() {
             startTime={activity.start_activity_date}
             endTime={activity.end_activity_date}
             state={activity.activity_state}
+            eventFormat={activity.event_format}
             onBack={() =>
               navigate("/list-activity-admin", { state: { reload: true } })
             }

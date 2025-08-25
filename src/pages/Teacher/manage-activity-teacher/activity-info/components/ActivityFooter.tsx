@@ -169,14 +169,17 @@ export default function ActivityFooter({
             onClick={() => !isCourse && isQrCodeEnabled && console.log("Scan")}
             bgColor={isQrCodeEnabled ? "blue" : "gray"}
           >
-            {state}{typeof isQrCodeEnabled}
+            Qr Code
           </Button>
         </div>
         <Button width="120px" onClick={onEdit}>
           แก้ไข
         </Button>
       </div>
-      {state}:{eventFormat}:{isQrCodeEnabled}
+      {/* Debug info */}
+      <div className="mt-2 text-xs text-gray-500">
+        Debug: State={state} | Format={eventFormat} | QR={isQrCodeEnabled ? 'ON' : 'OFF'}
+      </div>
     </div>
   );
 }
