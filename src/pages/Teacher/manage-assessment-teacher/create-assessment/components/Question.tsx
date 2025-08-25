@@ -89,23 +89,31 @@ const Question: React.FC<QuestionProps> = ({ sectionId, question, sections, setS
                     <button onClick={moveQuestionUp}>↑</button>
                     <button onClick={moveQuestionDown}>↓</button>
                 </div>
-                <input
-                    type="text"
-                    value={question.question}
-                    onChange={(e) => updateQuestion('question', e.target.value)}
-                    className="flex-1 text-lg border border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1"
-                />
-                <select
-                    value={question.type}
-                    onChange={(e) => updateQuestion('type', e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded-md"
-                >
-                    <option value="choice">ตัวเลือกเดียว</option>
-                    <option value="checkbox">หลายตัวเลือก</option>
-                    <option value="text">ถามตอบ</option>
-                    <option value="rating">ความพึงพอใจ</option>
-                </select>
-               
+
+
+                <div className="flex flex-col sm:flex-row gap-2 w-full">
+                    {/* Input คำถาม */}
+                    <input
+                        type="text"
+                        value={question.question}
+                        onChange={(e) => updateQuestion("question", e.target.value)}
+                        className="flex-1 text-base sm:text-lg  border-gray-300 focus: focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1"
+                        placeholder="พิมพ์คำถาม..."
+                    />
+
+                    {/* Select ประเภท */}
+                    <select
+                        value={question.type}
+                        onChange={(e) => updateQuestion("type", e.target.value)}
+                        className="w-full sm:w-48 p-2 border border-gray-300 rounded-lg"
+                    >
+                        <option value="choice">ตัวเลือกเดียว</option>
+                        <option value="checkbox">หลายตัวเลือก</option>
+                        <option value="text">ถามตอบ</option>
+                        <option value="rating">ความพึงพอใจ</option>
+                    </select>
+                </div>
+
             </div>
 
             {/* Body */}

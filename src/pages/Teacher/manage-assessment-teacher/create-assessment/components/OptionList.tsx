@@ -60,9 +60,9 @@ const OptionList: React.FC<OptionListProps> = ({ sectionId, question, sections, 
                 <div key={idx} className="flex items-center gap-2">
                     {/* แสดง input ตามชนิดคำถาม */}
                     {question.type === "choice" ? (
-                        <input type="checkbox" disabled className="w-4 h-4 text-blue-500" />
-                    ) : (
                         <input type="radio" disabled className="w-4 h-4 text-blue-500" />
+                    ) : (
+                        <input type="checkbox" disabled className="w-4 h-4 text-blue-500" />
                     )}
 
                     <input
