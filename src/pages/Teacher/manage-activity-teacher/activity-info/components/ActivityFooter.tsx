@@ -123,12 +123,11 @@ export default function ActivityFooter({
   startTime,
   endTime,
   state,
-  locationType,
   eventFormat,
   onBack,
   onEdit,
 }: Props) {
-  const isCourse = locationType === "Course";
+  const isCourse = eventFormat === "Course";
   
   // ✅ ตรวจสอบเงื่อนไขใหม่: activity_state และ event_format
   const isQrCodeEnabled = 
@@ -139,7 +138,6 @@ export default function ActivityFooter({
   console.log("🔍 [ActivityFooter] QR Code Debug:", {
     state,
     eventFormat,
-    locationType,
     isCourse,
     stateCheck: state === "Start Activity" || state === "End Activity",
     formatCheck: eventFormat === "Online" || eventFormat === "Onsite",
@@ -171,7 +169,7 @@ export default function ActivityFooter({
             onClick={() => !isCourse && isQrCodeEnabled && console.log("Scan")}
             bgColor={isQrCodeEnabled ? "blue" : "gray"}
           >
-            Qr Code
+            {state}
           </Button>
         </div>
         <Button width="120px" onClick={onEdit}>
