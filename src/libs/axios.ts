@@ -15,8 +15,8 @@ const getApiUrl = () => {
     return "http://localhost:8069/api/";
   }
   
-  // Production mode: ใช้ VPS backend โดยตรง (ไม่ผ่าน proxy)
-  return "http://vps.theapds.org:8069/api/";
+  // Production mode: ใช้ custom domain
+  return "https://ceth-api.theapds.org/api/";
 };
 
 const getCredentials = () => {
