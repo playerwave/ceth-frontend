@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, GripVertical } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Section from '../create-assessment/components/Section';
 import { Section as SectionType, FormData } from './type/type.create';
 import Button from "../../../../components/Button";

@@ -19,7 +19,6 @@ const Question: React.FC<QuestionProps> = ({
     question, 
     sections, 
     setSections, 
-    index, 
     onMoveUp, 
     onMoveDown, 
     isDragging = false 
