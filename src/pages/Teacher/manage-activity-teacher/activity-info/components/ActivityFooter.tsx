@@ -93,12 +93,15 @@ const formatDateTimeRange = (
 };
 
 const getStateIcon = (state: string) => {
+  // ✅ Debug: Log state value
+  console.log("🔍 [getStateIcon] State:", state);
+  
   switch (state) {
     case "Not Start":
       return <Play size={25} />;
     case "Start Activity":
       return <StepForward size={25} />;
-    case "Special Open":
+    case "Special Open Register": // ✅ แก้ไขจาก "Special Open" เป็น "Special Open Register"
       return <CalendarHeart size={25} />;
     case "End Activity":
       return <BookCheck size={25} />;
@@ -111,6 +114,7 @@ const getStateIcon = (state: string) => {
     case "End Assessment":
       return <FileCheck size={25} />;
     default:
+      console.log("⚠️ [getStateIcon] Unknown state:", state);
       return <Play size={25} />;
   }
 };
@@ -130,6 +134,17 @@ export default function ActivityFooter({
   const isQrCodeEnabled = 
     (state === "Start Activity" || state === "End Activity") && 
     (eventFormat === "Online" || eventFormat === "Onsite");
+    
+  // ✅ Debug: Log QR code conditions
+  console.log("🔍 [ActivityFooter] QR Code Debug:", {
+    state,
+    eventFormat,
+    locationType,
+    isCourse,
+    stateCheck: state === "Start Activity" || state === "End Activity",
+    formatCheck: eventFormat === "Online" || eventFormat === "Onsite",
+    isQrCodeEnabled,
+  });
     
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 text-[14px] mt-1">
