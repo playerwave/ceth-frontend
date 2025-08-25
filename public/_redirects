@@ -1,5 +1,2 @@
-# API Proxy to Backend VPS (HTTP)
-/api/*   http://vps.theapds.org:8069/api/:splat   200!
-
 # SPA Fallback
 /*        /index.html                              200
