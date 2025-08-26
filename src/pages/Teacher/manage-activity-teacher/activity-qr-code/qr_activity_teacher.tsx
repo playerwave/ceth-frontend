@@ -40,8 +40,8 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
   console.log("🔍 QrActivityTeacher: URL params:", { id });
   console.log("🔍 QrActivityTeacher: Auth state:", { user, isAuthenticated });
 
-  // ข้อมูลนักเรียนที่ลงทะเบียน (จะถูกแทนที่ด้วยข้อมูลจริง)
-  const [enrolledStudents, setEnrolledStudents] = useState<ScannedStudent[]>([]);
+  // // ข้อมูลนักเรียนที่ลงทะเบียน (จะถูกแทนที่ด้วยข้อมูลจริง)
+  // const [enrolledStudents, setEnrolledStudents] = useState<ScannedStudent[]>([]);
 
   useEffect(() => {
     console.log("🔍 QrActivityTeacher: useEffect triggered with activityId:", activityId);

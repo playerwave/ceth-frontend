@@ -168,7 +168,7 @@ export default function ActivityInfoStudent() {
   useEffect(() => {
     if (!studentId || !Number.isFinite(activityId)) return;
     fetchEnrolledActivities(studentId);
-    fetchActivity(activityId, studentId);
+    fetchActivity(activityId);
   }, [studentId, activityId, fetchEnrolledActivities, fetchActivity]);
 
   // sync isEnrolled

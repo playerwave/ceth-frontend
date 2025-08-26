@@ -27,9 +27,9 @@ const MainStudent = () => {
   } = useActivityStore();
 
   // แยก loading states สำหรับแต่ละตาราง
-  const [enrolledLoading, setEnrolledLoading] = useState(false);
+  const [, setEnrolledLoading] = useState(false);
   const [ongoingLoading, setOngoingLoading] = useState(false);
-  const [enrolledError, setEnrolledError] = useState<string | null>(null);
+  const [, setEnrolledError] = useState<string | null>(null);
   const [ongoingError, setOngoingError] = useState<string | null>(null);
 
   const { user, fetchMe } = useAuthStore();

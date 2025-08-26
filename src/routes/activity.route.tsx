@@ -123,6 +123,6 @@ export const activityRoutes = [
     icon: "UserCheck",
     roles: ["Teacher", "Student","Admin"] as RoleName[],
     visibleInSidebar: false,
-    protectionLevel: ProtectionLevel.ENCRYPTED // เข้ารหัสแบบเต็มเพราะเป็น QR Code
+    protectionLevel: ProtectionLevel.NONE
   }
 ];

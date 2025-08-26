@@ -3,11 +3,14 @@ import { useParams } from "react-router-dom";
 import Card from "../../../../components/Card";
 import Button from "../../../../components/Button";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
+import confetti from "canvas-confetti";
 
 interface CheckInOutFormData {
   username: string;
   password: string;
 }
+
+
 
 export default function ActivityCheckInOutStudent() {
   const { id } = useParams();
@@ -19,6 +22,8 @@ export default function ActivityCheckInOutStudent() {
   const [activityLoading, setActivityLoading] = useState(true);
   const [activity, setActivity] = useState<any>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [studentInfo, setStudentInfo] = useState<any>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // ฟังก์ชันสำหรับกำหนด text ตาม activity_state
   const getActivityText = () => {
@@ -68,6 +73,8 @@ export default function ActivityCheckInOutStudent() {
     loadActivity();
   }, [id, fetchActivity]);
 
+
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -96,6 +103,22 @@ export default function ActivityCheckInOutStudent() {
           type: "success",
           text: result.message || "ลงทะเบียนเข้าร่วมกิจกรรมสำเร็จ!"
         });
+        
+        // แสดงเอฟเฟกต์ confetti
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+        
+        // เก็บข้อมูลนักเรียนและตั้งค่าเป็นสำเร็จ
+        setStudentInfo({
+          first_name: result.studentInfo?.first_name || formData.username,
+          last_name: result.studentInfo?.last_name || "",
+          department: result.studentInfo?.department || "ไม่ระบุ",
+          username: result.studentInfo?.username || formData.username
+        });
+        setIsSuccess(true);
         
         // Reset form
         setFormData({
@@ -153,6 +176,7 @@ export default function ActivityCheckInOutStudent() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+
       <div className="max-w-md mx-auto px-4">
         <Card>
           <div className="text-center mb-6">
@@ -168,9 +192,6 @@ export default function ActivityCheckInOutStudent() {
               <h2 className="font-semibold text-blue-800 mb-2">
                 {activity.activity_name}
               </h2>
-              <p className="text-sm text-blue-700">
-                กิจกรรม ID: {activity.activity_id}
-              </p>
               {activity.event_format && (
                 <p className="text-sm text-blue-700">
                   รูปแบบ: {activity.event_format}
@@ -179,7 +200,7 @@ export default function ActivityCheckInOutStudent() {
             </div>
           </div>
 
-          {message && (
+          {message && !isSuccess && (
             <div className={`mb-4 p-3 rounded-lg ${
               message.type === "success" 
                 ? "bg-green-50 border border-green-200 text-green-700" 
@@ -189,74 +210,117 @@ export default function ActivityCheckInOutStudent() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* รหัสนิสิต */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                รหัสนิสิต <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="กรอกรหัสนิสิต"
-                maxLength={10}
-              />
+          {!isSuccess ? (
+            <>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* รหัสนิสิต */}
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                    รหัสนิสิต <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="กรอกรหัสนิสิต"
+                    maxLength={10}
+                  />
+                </div>
+
+                {/* รหัสผ่าน */}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                    รหัสผ่าน <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="กรอกรหัสผ่าน"
+                  />
+                </div>
+
+                {/* ปุ่ม Submit */}
+                <div className="pt-4 flex justify-center">
+                  <Button
+                    type="submit"
+                    disabled={!isFormValid || loading}
+                    className="w-full max-w-xs"
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        กำลังลงทะเบียน...
+                      </span>
+                    ) : (
+                      getActivityText().button
+                    )}
+                  </Button>
+                </div>
+              </form>
+
+              {/* ข้อมูลเพิ่มเติม */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <h3 className="text-sm font-medium text-blue-800 mb-2">
+                  หมายเหตุ:
+                </h3>
+                <ul className="text-xs text-blue-700 space-y-1">
+                  <li>• กรุณากรอกข้อมูลให้ถูกต้องและครบถ้วน</li>
+                  <li>• รหัสนิสิตต้องเป็นตัวเลข 8 หลัก</li>
+                  <li>• เมื่อกรอกข้อมูลและเช็คความถูกต้องแล้ว กดปุ่ม "ลงทะเบียนเข้าร่วมกิจกรรม"</li>
+                </ul>
+              </div>
+            </>
+        ) : (
+          /* แสดงข้อมูลนักเรียนเมื่อสำเร็จ */
+          <div className="text-center space-y-4">
+            <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+              <div className="text-green-600 text-6xl mb-4"></div>
+              <h2 className="text-xl font-bold text-green-800 mb-2">
+                ลงชื่อเข้าร่วมกิจกรรมเรียบร้อย!
+              </h2>
+              <p className="text-green-700">
+                ขอบคุณที่เข้าร่วมกิจกรรมของเรา
+              </p>
             </div>
 
-            {/* รหัสผ่าน */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                รหัสผ่าน <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="กรอกรหัสผ่าน"
-              />
-            </div>
-
-            {/* ปุ่ม Submit */}
-            <div className="pt-4 flex justify-center">
-              <Button
-                type="submit"
-                disabled={!isFormValid || loading}
-                className="w-full max-w-xs"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    กำลังลงทะเบียน...
-                  </span>
-                ) : (
-                  getActivityText().button
-                )}
-              </Button>
-            </div>
-          </form>
-
-          {/* ข้อมูลเพิ่มเติม */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-800 mb-2">
-              หมายเหตุ:
-            </h3>
-            <ul className="text-xs text-blue-700 space-y-1">
-              <li>• กรุณากรอกข้อมูลให้ถูกต้องและครบถ้วน</li>
-              <li>• รหัสนิสิตต้องเป็นตัวเลข 8 หลัก</li>
-              <li>• เมื่อกรอกข้อมูลและเช็คความถูกต้องแล้ว กดปุ่ม "ลงทะเบียนเข้าร่วมกิจกรรม"</li>
-            </ul>
+            {studentInfo && (
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                  ข้อมูลผู้ลงทะเบียน
+                </h3>
+                <div className="space-y-2 text-left">
+                  <div className="flex justify-between">
+                    <span className="text-blue-700 font-medium">ชื่อ:</span>
+                    <span className="text-blue-800">{studentInfo.first_name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-700 font-medium">นามสกุล:</span>
+                    <span className="text-blue-800">{studentInfo.last_name || "ไม่ระบุ"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-700 font-medium">สาขา:</span>
+                    <span className="text-blue-800">{studentInfo.department}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-blue-700 font-medium">รหัสนิสิต:</span>
+                    <span className="text-blue-800">{studentInfo.username}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </Card>
-      </div>
+        )}
+      </Card>
     </div>
+  </div>
   );
 }

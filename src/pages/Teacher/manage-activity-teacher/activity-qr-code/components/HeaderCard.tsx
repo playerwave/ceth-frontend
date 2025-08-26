@@ -8,7 +8,7 @@ interface HeaderCardProps {
   onBack: () => void;
 }
 
-export default function HeaderCard({ activityId, activityName, activityState, onBack }: HeaderCardProps) {
+export default function HeaderCard({ activityName, activityState, onBack }: HeaderCardProps) {
   // กำหนด title ตาม activity_state
   const getTitle = () => {
     if (activityState === "Start Activity") {

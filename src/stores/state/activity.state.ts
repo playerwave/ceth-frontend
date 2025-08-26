@@ -52,5 +52,5 @@ export interface ActivityState {
     activityId: number,
     username: string,
     password: string
-  ) => Promise<{ success: boolean; message: string; studentId?: number }>;
+  ) => Promise<{ success: boolean; message: string; studentId?: number; studentInfo?: any }>;
 }

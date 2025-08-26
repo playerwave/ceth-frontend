@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 
 // component
 import Navbar from "./components/Navbar";
+import QRCodeLayout from "./components/QRCodeLayout";
 import ProtectedRoute from "./components/Wrapper/ProtectedRoute";
 import { SecureRoute } from "./routes/secure/SecureRoute";
 
@@ -66,17 +67,28 @@ function App() {
       
       console.log("🔍 App: Creating route:", { path: route.path, protectionLevel, roles: route.roles });
       
+      // ใช้ QRCodeLayout สำหรับหน้า QR code
+      const isQRCodePage = route.path.includes("qr-activity-checkinout-student");
+      
       return (
         <Route
           key={`secure-route-${index}`}
           path={route.path}
           element={
             <ProtectedRoute>
-              <Navbar>
-                <SecureRoute protectionLevel={protectionLevel}>
-                  {route.element}
-                </SecureRoute>
-              </Navbar>
+              {isQRCodePage ? (
+                <QRCodeLayout>
+                  <SecureRoute protectionLevel={protectionLevel}>
+                    {route.element}
+                  </SecureRoute>
+                </QRCodeLayout>
+              ) : (
+                <Navbar>
+                  <SecureRoute protectionLevel={protectionLevel}>
+                    {route.element}
+                  </SecureRoute>
+                </Navbar>
+              )}
             </ProtectedRoute>
           }
         />

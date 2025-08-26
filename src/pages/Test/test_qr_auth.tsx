@@ -38,7 +38,8 @@ export default function TestQrAuth() {
       const result = await response.json();
       setTestResults(prev => [...prev, `🔐 QR Code Test: ${response.status} - ${JSON.stringify(result)}`]);
     } catch (error) {
-      setTestResults(prev => [...prev, `❌ QR Code Test Error: ${error.message}`]);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setTestResults(prev => [...prev, `❌ QR Code Test Error: ${errorMessage}`]);
     }
   };
 
@@ -66,7 +67,7 @@ export default function TestQrAuth() {
             <div>
               <p>Role: {user.role}</p>
               <p>Role ID: {user.role_id}</p>
-              <p>User ID: {user.users_id}</p>
+              <p>User ID: {user.userId}</p>
             </div>
           ) : (
             <p>No user data</p>

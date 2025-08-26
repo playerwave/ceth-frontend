@@ -185,7 +185,7 @@ export const checkInOutActivity = async (
   activityId: number,
   username: string,
   password: string
-): Promise<{ success: boolean; message: string; studentId?: number }> => {
+): Promise<{ success: boolean; message: string; studentId?: number; studentInfo?: any }> => {
   console.log("🌐 [SERVICE] checkInOutActivity called with:", { activityId, username });
   
   try {
