@@ -14,15 +14,38 @@ import { AuthUser } from "../../types/model";
 // }
 
 export function mapApiToAuthUser(api: AuthResponse): AuthUser {
-  return {
+  // 🔍 Debug: ตรวจสอบข้อมูลที่ได้รับจาก API
+  console.log("🔍 [Auth Mapper] API Response:", {
+    users_id: api.user.users_id,
+    username: api.user.username,
+    roles_id: api.user.roles_id,
+    roles: api.user.roles,
+    roles_name: api.user.roles?.roles_name,
+  });
+
+  // ✅ แก้ไข: ใช้ roles_name จาก roles object โดยตรง
+  const roleName = api.user.roles?.roles_name;
+  const roleId = api.user.roles_id;
+
+  const mappedUser = {
     userId: api.user.users_id,
     username: api.user.username,
-    role: api.user.roles?.roles_name ?? "Student", // ✅ fallback ป้องกัน undefined
-    role_id: api.user.roles?.roles_id ?? api.user.roles_id ?? 2,
+    role: roleName || "Student", // ✅ ใช้ roles_name จาก roles object
+    role_id: roleId, // ✅ ใช้ roles_id จาก user object
     token: api.token,
     student: api.user.student,
     teacher: api.user.teacher,
   };
+
+  // 🔍 Debug: ตรวจสอบข้อมูลที่ map แล้ว
+  console.log("🔍 [Auth Mapper] Mapped User:", {
+    userId: mappedUser.userId,
+    username: mappedUser.username,
+    role: mappedUser.role,
+    role_id: mappedUser.role_id,
+  });
+
+  return mappedUser;
 }
 
 // export function mapUserToAuthUser(user: AuthResponse["user"]): AuthUser {
@@ -36,10 +59,18 @@ export function mapApiToAuthUser(api: AuthResponse): AuthUser {
 // }
 
 export function mapUserToAuthUser(user: AuthResponse["user"]): AuthUser {
+  // 🔍 Debug: ตรวจสอบข้อมูล user
+  console.log("🔍 [Auth Mapper] User for mapping:", {
+    users_id: user.users_id,
+    username: user.username,
+    roles_id: user.roles_id,
+    roles: user.roles,
+  });
+
   return {
     userId: user.users_id,
     username: user.username,
-    role: user.roles?.roles_name ?? "Student", // ✅ fallback ป้องกัน undefined
+    role: user.roles?.roles_name || "Student", // ✅ ใช้ roles_name จาก roles object
     role_id: user.roles_id,
     token: localStorage.getItem("token") ?? "",
     student: user.student,

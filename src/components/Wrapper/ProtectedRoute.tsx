@@ -36,17 +36,27 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
     return <Navigate to="/activity-list-visitor" replace />;
   }
 
+  // 🔍 Debug: ตรวจสอบ role และ path
+  console.log("🔍 [ProtectedRoute] Checking access:", {
+    path,
+    userRole: user.role,
+    userRoleId: user.role_id,
+    isAuthenticated,
+  });
+
   // 👨‍🎓 Student route
-  if (path.includes("student") && user.role_id !== 3) {
+  if (path.includes("student") && user.role !== "Student") {
+    console.log("❌ [ProtectedRoute] Student route access denied");
     return <Navigate to="/login" replace />;
   }
 
   // 👩‍🏫 Teacher/Admin route
   if (
     (path.includes("admin") || path === "/") &&
-    user.role_id !== 2 &&
-    user.role_id !== 1
+    user.role !== "Teacher" &&
+    user.role !== "Admin"
   ) {
+    console.log("❌ [ProtectedRoute] Teacher/Admin route access denied");
     return <Navigate to="/login" replace />;
   }
 

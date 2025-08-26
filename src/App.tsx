@@ -38,10 +38,9 @@ import { ProtectionLevel } from "./routes/secure/urlEnCryption";
 
 function App() {
   const { user } = useAuthStore();
-  const role: string =
-    typeof user?.role === "string"
-      ? user.role
-      : (user?.role as any)?.role_name || "Visitor";
+  
+  // ✅ แก้ไข: ใช้ role จาก user object โดยตรง
+  const role: string = user?.role || "Visitor";
   
   console.log('user in App.tsx:', user);
   console.log('role: ', role);

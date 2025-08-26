@@ -16,7 +16,6 @@ interface ScannedStudent {
 export default function QrActivityTeacher() {
   const navigate = useNavigate();
   const { activityId } = useParams();
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [scannedStudents, setScannedStudents] = useState<ScannedStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [activityName, setActivityName] = useState<string>("");
@@ -59,7 +58,6 @@ export default function QrActivityTeacher() {
         }
       }
       
-      generateQRCode();
       // Mock: จำลองการโหลดข้อมูล
       setTimeout(() => {
         setScannedStudents(mockScannedStudents);
@@ -69,37 +67,6 @@ export default function QrActivityTeacher() {
 
     loadActivityData();
   }, [activityId, fetchActivity]);
-
-  const generateQRCode = async () => {
-    try {
-      // สร้าง QR Code URL สำหรับ activity
-      const qrData = `https://your-domain.com/scan/${activityId}`;
-      
-      // ใช้ Canvas API แทน qrcode library
-      const canvas = document.createElement('canvas');
-      canvas.width = 300;
-      canvas.height = 300;
-      const ctx = canvas.getContext('2d');
-      
-      if (ctx) {
-        // สร้าง QR Code แบบง่าย (placeholder)
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(50, 50, 200, 200);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(60, 60, 180, 180);
-        ctx.fillStyle = '#000000';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('QR Code', 150, 150);
-        ctx.fillText(`Activity: ${activityId}`, 150, 170);
-      }
-      
-      const dataUrl = canvas.toDataURL();
-      setQrCodeUrl(dataUrl);
-    } catch (error) {
-      console.error("Error generating QR code:", error);
-    }
-  };
 
   const handleBack = () => {
     navigate(-1);
@@ -122,7 +89,7 @@ export default function QrActivityTeacher() {
         {/* Main Content - QR Code and Table */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* QR Code Section */}
-          <QrCodeCard qrCodeUrl={qrCodeUrl} activityId={activityId} />
+          <QrCodeCard activityId={activityId} />
 
           {/* Table Section */}
           <ScannedStudentsCard scannedStudents={scannedStudents} />
