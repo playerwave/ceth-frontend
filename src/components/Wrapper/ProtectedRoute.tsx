@@ -7,26 +7,47 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
   const location = useLocation();
   const path = location.pathname;
 
+  console.log("🔍 [ProtectedRoute] Component rendered:", {
+    path,
+    isAuthenticated,
+    authLoading,
+    user: user ? { role: user.role, role_id: user.role_id } : null,
+    authError
+  });
+
   const publicPaths = ["/activity-list-visitor", "/activity-info-visitor"];
 
   useEffect(() => {
-    // ✅ เรียก fetchMe เฉพาะเมื่อยังไม่มี user และไม่ใช่ public path
-    if (!user && !publicPaths.includes(path)) {
+    // ✅ ตรวจสอบ token ใน localStorage ก่อน
+    const token = localStorage.getItem('auth-token');
+    
+    // ✅ เรียก fetchMe เฉพาะเมื่อยังไม่มี user และไม่ใช่ public path และมี token
+    if (!user && !publicPaths.includes(path) && token) {
+      console.log("🔁 [ProtectedRoute] Fetching user from /me");
       fetchMe();
-      console.log("🔁 Fetching user from /me");
+    } else if (!user && !publicPaths.includes(path) && !token) {
+      console.log("❌ [ProtectedRoute] No token found - redirecting to login");
+      // ไม่มี token และไม่ใช่ public path → redirect ไป login
+      window.location.href = '/login';
     }
-  }, [fetchMe, user, path]);
+  }, [fetchMe, user, path, publicPaths]);
 
   // ⏳ กำลังโหลด
-  if (authLoading) return null;
+  if (authLoading) {
+    console.log("⏳ [ProtectedRoute] Loading...");
+    return null;
+  }
 
   // ✅ เปิดให้หน้า public เข้าได้เสมอ แม้ไม่มี user
   if (publicPaths.includes(path)) {
+    console.log("✅ [ProtectedRoute] Public path - allowing access");
     return children;
   }
 
   // ⛔ ถ้าไม่ auth และไม่ใช่ public page → redirect ตาม role
   if (!isAuthenticated || !user) {
+    console.log("❌ [ProtectedRoute] Not authenticated, redirecting to visitor page");
+    
     // ✅ แสดง error message ถ้ามี
     if (authError) {
       console.log("❌ Auth error:", authError);
@@ -37,29 +58,9 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
   }
 
   // 🔍 Debug: ตรวจสอบ role และ path
-  console.log("🔍 [ProtectedRoute] Checking access:", {
-    path,
-    userRole: user.role,
-    userRoleId: user.role_id,
-    isAuthenticated,
-  });
+  console.log("✅ [ProtectedRoute] User authenticated, allowing access");
+  console.log("👤 [ProtectedRoute] User role:", user.role);
+  console.log("🎯 [ProtectedRoute] Current path:", path);
 
-  // 👨‍🎓 Student route
-  if (path.includes("student") && user.role !== "Student") {
-    console.log("❌ [ProtectedRoute] Student route access denied");
-    return <Navigate to="/login" replace />;
-  }
-
-  // 👩‍🏫 Teacher/Admin route
-  if (
-    (path.includes("admin") || path === "/") &&
-    user.role !== "Teacher" &&
-    user.role !== "Admin"
-  ) {
-    console.log("❌ [ProtectedRoute] Teacher/Admin route access denied");
-    return <Navigate to="/login" replace />;
-  }
-
-  // ✅ ให้เข้าได้
   return children;
 }

@@ -83,13 +83,20 @@ axiosInstance.interceptors.response.use(
   (error) => {
     console.error("❌ [Axios] Response error for:", error.config?.url, error.response?.status);
     
-    // ถ้า token หมดอายุหรือไม่ถูกต้อง
-    if (error.response?.status === 401) {
+    // ✅ ตรวจสอบว่าเป็น QR code request หรือไม่
+    const isQRCodeRequest = error.config?.url?.includes('/teacher/qr-code');
+    
+    // ถ้า token หมดอายุหรือไม่ถูกต้อง และไม่ใช่ QR code request
+    if (error.response?.status === 401 && !isQRCodeRequest) {
       console.log("🚫 [Axios] Unauthorized - redirecting to login");
       // ลบ token และ redirect ไป login
       localStorage.removeItem('auth-token');
       window.location.href = '/login';
+    } else if (error.response?.status === 401 && isQRCodeRequest) {
+      console.log("🚫 [Axios] QR Code request unauthorized - letting component handle it");
+      // ไม่ redirect สำหรับ QR code requests - ให้ component จัดการเอง
     }
+    
     return Promise.reject(error);
   }
 );

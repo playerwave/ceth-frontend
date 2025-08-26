@@ -1,4 +1,7 @@
 import Button from "../../../../../components/Button";
+import { useNavigate } from "react-router-dom";
+import { RouteHelpers } from "../../../../../routes/secure/urlEnCryption";
+import { ProtectionLevel } from "../../../../../routes/secure/urlEnCryption";
 import {
   CalendarDays,
   Play,
@@ -128,6 +131,7 @@ export default function ActivityFooter({
   onBack,
   onEdit,
 }: Props) {
+  const navigate = useNavigate();
   const isCourse = eventFormat === "Course";
   
   // ✅ ตรวจสอบเงื่อนไขใหม่: activity_state และ event_format
@@ -144,6 +148,27 @@ export default function ActivityFooter({
     formatCheck: eventFormat === "Online" || eventFormat === "Onsite",
     isQrCodeEnabled,
   });
+
+  // ✅ สร้าง URL ที่เข้ารหัสสำหรับ QR Code
+  const handleQrCodeClick = () => {
+    if (!isCourse && isQrCodeEnabled && activityId) {
+      try {
+        // สร้าง URL ที่เข้ารหัสแบบเต็ม (ENCRYPTED)
+        const secureUrl = RouteHelpers.generateSecurePath(
+          "/qr-activity-teacher",
+          { id: activityId },
+          ProtectionLevel.ENCRYPTED
+        );
+        
+        console.log("🔐 [ActivityFooter] Generated secure URL:", secureUrl);
+        navigate(secureUrl);
+      } catch (error) {
+        console.error("❌ [ActivityFooter] Error generating secure URL:", error);
+        // Fallback to normal URL if encryption fails
+        navigate(`/qr-activity-teacher/${activityId}`);
+      }
+    }
+  };
     
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 text-[14px] mt-1">
@@ -167,12 +192,7 @@ export default function ActivityFooter({
         <div className={isCourse || !isQrCodeEnabled ? "opacity-50 pointer-events-none" : ""}>
           <Button
             width="120px"
-            onClick={() => {
-              if (!isCourse && isQrCodeEnabled && activityId) {
-                // Navigate to QR Code page
-                window.location.href = `/qr-activity-teacher/${activityId}`;
-              }
-            }}
+            onClick={handleQrCodeClick}
             bgColor={isQrCodeEnabled ? undefined : "gray"}
           >
             Qr Code

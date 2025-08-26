@@ -28,6 +28,7 @@ export interface ActivityState {
   activityLoading: boolean;
   activity: Activity | null;
   enrolledActivities: Activity[];
+  ongoingActivities: Activity[];
   endedActivities: Activity[];
 
   // เพิ่มฟังก์ชันที่จำเป็น
@@ -36,15 +37,20 @@ export interface ActivityState {
   searchActivities: (searchName: string, userId: number) => Promise<void>;
   searchEndActivities: (searchName: string, userId: number) => Promise<void>;
   fetchActivity: (
-    id: number | string,
-    userId: number
+    id: number | string
   ) => Promise<Activity | null>;
 
   fetchEnrolledActivities: (userId: number) => Promise<void>;
+  fetchOngoingActivities: (userId: number) => Promise<void>;
   enrollActivity: (
     userId: number,
     activityId: number,
     food?: string[]
   ) => Promise<void>;
   unenrollActivity: (userId: number, activityId: number) => Promise<void>;
+  checkInOutActivity: (
+    activityId: number,
+    username: string,
+    password: string
+  ) => Promise<{ success: boolean; message: string; studentId?: number }>;
 }

@@ -6,6 +6,7 @@ import { useAuthStore } from "../../../stores/Visitor/auth.store";
 import SoftHardSkillCards from "../main-student/components/SoftHardSkillCards";
 import BarChartSection from "../main-student/components/BarChartSection";
 import TableActivitySection from "../main-student/components/TableListSection";
+import TableOngoingSection from "../main-student/components/TableOngoingSection";
 import ActivityTabs from "../main-student/components/ActivityTabs"; // ✅ Tabs
 import TablePendingEvaluation from "./components/TablePendingEvaluation";
 import CustomCard from "../../../components/Card";
@@ -18,10 +19,18 @@ const MainStudent = () => {
 
   const {
     fetchEnrolledActivities,
+    fetchOngoingActivities,
     enrolledActivities,
+    ongoingActivities,
     activityLoading,
     activityError,
   } = useActivityStore();
+
+  // แยก loading states สำหรับแต่ละตาราง
+  const [enrolledLoading, setEnrolledLoading] = useState(false);
+  const [ongoingLoading, setOngoingLoading] = useState(false);
+  const [enrolledError, setEnrolledError] = useState<string | null>(null);
+  const [ongoingError, setOngoingError] = useState<string | null>(null);
 
   const { user, fetchMe } = useAuthStore();
   const lastStudentIdRef = useRef<number | null>(null);
@@ -43,11 +52,45 @@ const MainStudent = () => {
     const id = user?.student?.students_id;
     const isValidId = typeof id === "number" && id > 0;
   
+    console.log("🔍 [MainStudent] useEffect triggered:", {
+      id,
+      isValidId,
+      lastStudentId: lastStudentIdRef.current,
+      user: user?.student
+    });
+  
     if (isValidId && id !== lastStudentIdRef.current) {
       lastStudentIdRef.current = id;
-      fetchEnrolledActivities(id);
+      console.log("🔄 [MainStudent] Fetching data for student_id:", id);
+      
+      // เรียกทั้งสอง function พร้อมกัน
+      const fetchData = async () => {
+        try {
+          console.log("🔄 [MainStudent] Starting fetchData...");
+          setEnrolledLoading(true);
+          setOngoingLoading(true);
+          setEnrolledError(null);
+          setOngoingError(null);
+          
+          console.log("🔄 [MainStudent] Calling fetchEnrolledActivities...");
+          await fetchEnrolledActivities(id);
+          console.log("✅ [MainStudent] fetchEnrolledActivities completed");
+          
+          console.log("🔄 [MainStudent] Calling fetchOngoingActivities...");
+          await fetchOngoingActivities(id);
+          console.log("✅ [MainStudent] fetchOngoingActivities completed");
+          
+        } catch (error) {
+          console.error("❌ Error fetching data:", error);
+        } finally {
+          setEnrolledLoading(false);
+          setOngoingLoading(false);
+        }
+      };
+      
+      fetchData();
     }
-  }, [user?.student?.students_id]);
+  }, [user?.student?.students_id, fetchEnrolledActivities, fetchOngoingActivities]);
 
   // แปลง Activity[] เป็น MainActivity[] สำหรับ TableListSection
   const mainActivities = enrolledActivities.map((act) => ({
@@ -106,9 +149,16 @@ const MainStudent = () => {
         </div>
 
         {/* Tab Content */}
-          <CustomCard className="flex flex-col gap-6 text-lg mt-4">
+        <CustomCard className="flex flex-col gap-6 text-lg mt-4">
           {activeTab === "enrolled" ? (
-            <TableActivitySection />
+            <>
+              <TableActivitySection />
+              <TableOngoingSection
+                ongoingActivities={ongoingActivities}
+                loading={ongoingLoading}
+                error={ongoingError}
+              />
+            </>
           ) : (
             <TablePendingEvaluation
               activityLoading={activityLoading}

@@ -79,7 +79,7 @@ export default function TableListSection() {
   return (
     <div>
       <Typography variant="h6" fontWeight="bold" gutterBottom>
-        ลิสต์กิจกรรมของฉัน
+        ลิสต์กิจกรรมของฉัน ({enrolledActivities?.length || 0} รายการ)
       </Typography>
 
       {activityLoading ? (

@@ -11,6 +11,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   activityLoading: false,
   activity: null,
   enrolledActivities: [],
+  ongoingActivities: [],
   recommendedIds: [],
   endedActivities: [],
 
@@ -162,6 +163,65 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     }
   },
 
+  fetchOngoingActivities: async (studentId: number) => {
+    console.log(
+      "🔄 [STORE] fetchOngoingActivities called with studentId:",
+      studentId
+    );
+
+    // ตรวจสอบว่ากำลังโหลดอยู่หรือไม่ เพื่อป้องกันการเรียกซ้ำ
+    const currentState = get();
+    if (currentState.activityLoading) {
+      console.log("⚠️ [STORE] Already loading, skipping duplicate call");
+      return;
+    }
+
+    console.log("✅ [STORE] Starting fetchOngoingActivities...");
+    set({ activityLoading: true, activityError: null });
+
+    try {
+      // เพิ่ม timeout 10 วินาที
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Request timeout")), 10000);
+      });
+
+      const activitiesPromise =
+        activityService.fetchOngoingActivities(studentId);
+      const activities = (await Promise.race([
+        activitiesPromise,
+        timeoutPromise,
+      ])) as any[];
+
+      console.log("✅ [STORE] Ongoing activities received:", activities);
+
+      // ตรวจสอบว่า activities เป็น array ที่ถูกต้อง
+      if (activities && Array.isArray(activities)) {
+        set({ ongoingActivities: activities, activityLoading: false });
+        console.log(
+          "✅ [STORE] Ongoing activities set successfully, count:",
+          activities.length
+        );
+      } else {
+        console.warn(
+          "⚠️ [STORE] Invalid ongoing activities data:",
+          activities
+        );
+        set({ ongoingActivities: [], activityLoading: false });
+      }
+    } catch (error) {
+      console.error("❌ [STORE] Error in fetchOngoingActivities:", error);
+      const errorMessage =
+        (error as any).message === "Request timeout"
+          ? "การเชื่อมต่อช้า กรุณาลองใหม่อีกครั้ง"
+          : "ไม่สามารถโหลดกิจกรรมที่กำลังดำเนินอยู่ได้";
+
+      set({
+        activityError: errorMessage,
+        activityLoading: false,
+      });
+    }
+  },
+
   enrollActivity: async (
     studentId: number,
     activityId: number,
@@ -287,5 +347,26 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     });
 
     set({ searchResults }); // ถ้าอยาก fallback เมื่อไม่เจอ → set({ searchResults: null })
+  },
+
+  // ✅ เมธอดใหม่: Check-in/Check-out Activity
+  checkInOutActivity: async (
+    activityId: number,
+    username: string,
+    password: string
+  ) => {
+    set({ activityLoading: true, activityError: null });
+    try {
+      const result = await activityService.checkInOutActivity(activityId, username, password);
+      set({ activityLoading: false });
+      return result;
+    } catch (error: any) {
+      console.error("❌ Error in checkInOutActivity:", error);
+      set({
+        activityError: error.message || "ไม่สามารถลงทะเบียนเข้าร่วมกิจกรรมได้",
+        activityLoading: false,
+      });
+      throw error;
+    }
   },
 }));

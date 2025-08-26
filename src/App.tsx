@@ -15,7 +15,7 @@ import Login from "./pages/login";
 import Main from "./pages/Teacher/dashboard-teacher/main_teacher";
 import MainStudent from "./pages/Student/main-student/main_student";
 import TestCardPage from "./pages/Test/test_card";
-import QrActivityTeacher from "./pages/Teacher/manage-activity-teacher/activity-qr-code/qr_activity_teacher";
+import TestQrAuth from "./pages/Test/test_qr_auth";
 
 // activity routes config
 import { activityRoutes } from "./routes/activity.route"
@@ -55,27 +55,33 @@ function App() {
     }[],
     role: string
   ) => {
-    return routes
-      .filter(route => !route.roles || route.roles.includes(role))
-      .map((route, index) => {
-        const protectionLevel = route.protectionLevel || ProtectionLevel.NONE;
-        
-        return (
-          <Route
-            key={`secure-route-${index}`}
-            path={route.path}
-            element={
-              <ProtectedRoute>
-                <Navbar>
-                  <SecureRoute protectionLevel={protectionLevel}>
-                    {route.element}
-                  </SecureRoute>
-                </Navbar>
-              </ProtectedRoute>
-            }
-          />
-        );
-      });
+    console.log("🔍 App: Processing secure routes for role:", role);
+    console.log("🔍 App: Available routes:", routes.map(r => ({ path: r.path, roles: r.roles, protectionLevel: r.protectionLevel })));
+    
+    const filteredRoutes = routes.filter(route => !route.roles || route.roles.includes(role));
+    console.log("🔍 App: Filtered routes:", filteredRoutes.map(r => r.path));
+    
+    return filteredRoutes.map((route, index) => {
+      const protectionLevel = route.protectionLevel || ProtectionLevel.NONE;
+      
+      console.log("🔍 App: Creating route:", { path: route.path, protectionLevel, roles: route.roles });
+      
+      return (
+        <Route
+          key={`secure-route-${index}`}
+          path={route.path}
+          element={
+            <ProtectedRoute>
+              <Navbar>
+                <SecureRoute protectionLevel={protectionLevel}>
+                  {route.element}
+                </SecureRoute>
+              </Navbar>
+            </ProtectedRoute>
+          }
+        />
+      );
+    });
   };
 
   // 🔐 ฟังก์ชันสำหรับสร้างเส้นทางปกติ (ไม่เข้ารหัส)
@@ -166,17 +172,7 @@ function App() {
           }
         />
 
-        {/* 📱 QR Code route */}
-        <Route
-          path="/qr-activity-teacher/:activityId"
-          element={
-            <ProtectedRoute>
-              <Navbar>
-                <QrActivityTeacher />
-              </Navbar>
-            </ProtectedRoute>
-          }
-        />
+
 
         {/* 🧪 test */}
         <Route
@@ -184,6 +180,14 @@ function App() {
           element={
             <Navbar>
               <TestCardPage />
+            </Navbar>
+          }
+        />
+        <Route
+          path="/test-qr-auth"
+          element={
+            <Navbar>
+              <TestQrAuth />
             </Navbar>
           }
         />

@@ -4,9 +4,11 @@ import Table_re from "../../../../../components/Table_re";
 
 interface ScannedStudent {
   id: string;
-  student_name: string;
-  department: string;
-  student_code: string;
+  first_name: string;
+  last_name: string;
+  department_name: string;
+  username: string;
+  fullName: string;
 }
 
 interface ScannedStudentsCardProps {
@@ -14,22 +16,25 @@ interface ScannedStudentsCardProps {
 }
 
 export default function ScannedStudentsCard({ scannedStudents }: ScannedStudentsCardProps) {
+  // ตรวจสอบข้อมูล
+  console.log("🔍 ScannedStudentsCard: received students:", scannedStudents);
+  
   // กำหนด columns สำหรับ DataGrid
   const columns: GridColDef[] = [
     {
-      field: 'student_name',
+      field: 'fullName',
       headerName: 'ชื่อนิสิต',
       width: 200,
       flex: 1,
     },
     {
-      field: 'department',
+      field: 'department_name',
       headerName: 'สาขา',
       width: 250,
       flex: 1,
     },
     {
-      field: 'student_code',
+      field: 'username',
       headerName: 'รหัสนิสิต',
       width: 150,
       flex: 1,
@@ -41,13 +46,21 @@ export default function ScannedStudentsCard({ scannedStudents }: ScannedStudents
       <h2 className="text-xl font-semibold text-gray-800 mb-4">
         รายชื่อนิสิตที่สแกนแล้ว
       </h2>
-      <Table_re
-        columns={columns}
-        rows={scannedStudents}
-        height={400}
-        initialPageSize={10}
-        getRowId={(row) => row.id}
-      />
+      
+      {/* ตรวจสอบข้อมูลก่อนแสดง Table */}
+      {!Array.isArray(scannedStudents) || scannedStudents.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p>ยังไม่มีนักเรียนลงทะเบียน</p>
+        </div>
+      ) : (
+        <Table_re
+          columns={columns}
+          rows={scannedStudents}
+          height={400}
+          initialPageSize={10}
+          getRowId={(row) => row.id}
+        />
+      )}
     </Card>
   );
 }

@@ -2,9 +2,11 @@ import ListActivityTeacher from "../pages/Teacher/manage-activity-teacher/list_a
 import CreateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create-activity/create_activity_admin";
 import UpdateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create-activity/update_activity_admin";
 import ActivityInfoAdmin from "../pages/Teacher/manage-activity-teacher/activity-info/activity_info_admin";
+import QrActivityTeacher from "../pages/Teacher/manage-activity-teacher/activity-qr-code/qr_activity_teacher";
 
 import ListActivityStudent from "../pages/Student/activity-student/list_activity_studen/list_activity_student";
 import ActivityInfoStudent from "../pages/Student/activity-student/activity-info/activity_info_student";
+import ActivityCheckInOutStudent from "../pages/Student/activity-student/activity-checkin-checkout/activity_checkinout_student";
 
 import ActivityListVisitor from "../pages/visitor/activity-list/visiter";
 import ActivityInfoVisitor from "../pages/visitor/activity-info/activity_info_visitor";
@@ -79,6 +81,15 @@ export const activityRoutes = [
     protectionLevel: ProtectionLevel.NONE // ไม่เข้ารหัสสำหรับ URL แบบเก่า
   },
   {
+    path: "/activity-checkin-checkout/:id",
+    element: <ActivityCheckInOutStudent />,
+    label: "ลงทะเบียนเข้าร่วมกิจกรรม",
+    icon: "UserCheck",
+    roles: ["Student", "Teacher", "Admin"] as RoleName[],
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCRYPTED // เข้ารหัสแบบเต็มเพราะมีข้อมูลสำคัญ
+  },
+  {
     path: "/activity-list-visitor",
     element: <ActivityListVisitor />,
     label: "กิจกรรมสำหรับเยี่ยมชม",
@@ -95,5 +106,23 @@ export const activityRoutes = [
     roles: ["Visitor", "Admin", "Teacher", "Student"] as RoleName[],
     visibleInSidebar: false,
     protectionLevel: ProtectionLevel.ENCODED // เข้ารหัสแบบง่ายสำหรับข้อมูลสาธารณะ
+  },
+  {
+    path: "/qr-activity-teacher/:id",
+    element: <QrActivityTeacher />,
+    label: "QR Code กิจกรรม",
+    icon: "QrCode",
+    roles: ["Teacher", "Admin"] as RoleName[],
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCRYPTED // เข้ารหัสแบบเต็มเพราะเป็น QR Code
+  },
+  {
+    path: "/qr-activity-checkinout-student/:id",
+    element: <ActivityCheckInOutStudent />,
+    label: "ลงทะเบียนเข้าร่วมกิจกรรม",
+    icon: "UserCheck",
+    roles: ["Teacher", "Student","Admin"] as RoleName[],
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCRYPTED // เข้ารหัสแบบเต็มเพราะเป็น QR Code
   }
 ];

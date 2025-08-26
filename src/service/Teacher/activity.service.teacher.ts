@@ -61,6 +61,26 @@ export const fetchEnrolledStudents = async (
 };
 //------------------------------------------------------------------
 
+//--------------------- Get Enrolled Students for Activity -------------------------
+export const getEnrolledStudentsForActivity = async (activityId: number) => {
+  console.log("🌐 [SERVICE] getEnrolledStudentsForActivity called with activityId:", activityId);
+  
+  try {
+    const response = await axiosInstance.get(
+      `/teacher/activity/get-enrolled-students/${activityId}`
+    );
+    
+    console.log("✅ [SERVICE] Enrolled students response:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("❌ [SERVICE] Error in getEnrolledStudentsForActivity:", error);
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error("ไม่สามารถดึงข้อมูลนักเรียนที่ลงทะเบียนได้");
+  }
+};
+
 //--------------------- Update Activity Status ---------------------
 export const updateActivityStatus = async (
   id: string,
@@ -148,6 +168,7 @@ const activityService = {
   createActivity,
   searchActivities,
   fetchEnrolledStudents,
+  getEnrolledStudentsForActivity,
   updateActivityStatus,
   updateActivity,
   addFoodToActivity,

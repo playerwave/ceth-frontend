@@ -15,6 +15,7 @@ interface ActivityStore {
   searchActivities?: (searchName: string) => Promise<void>;
   fetchActivity: (id: number) => Promise<Activity | null>;
   fetchEnrolledStudents?: (id: number) => Promise<void>;
+  getEnrolledStudentsForActivity: (activityId: number) => Promise<any[]>;
   updateActivity: (activity: Activity) => Promise<number | undefined>;
   updateActivityStatus: (
     id: string,
@@ -326,6 +327,20 @@ export const useActivityStore = create<ActivityStore>((set) => ({
       set({ error: "Failed to fetch activities" });
     } finally {
       set({ loading: false });
+    }
+  },
+  //----------------------------------------------------------------
+
+  //--------------------- Get Enrolled Students for Activity -------------------------
+  getEnrolledStudentsForActivity: async (activityId: number) => {
+    console.log("📥 Store: Getting enrolled students for activity:", activityId);
+    try {
+      const students = await activityService.getEnrolledStudentsForActivity(activityId);
+      console.log("✅ Store: Enrolled students loaded:", students);
+      return students;
+    } catch (error) {
+      console.error("❌ Store: Error getting enrolled students:", error);
+      throw error;
     }
   },
   //----------------------------------------------------------------

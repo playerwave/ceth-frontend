@@ -78,6 +78,35 @@ export const fetchEnrolledActivities = async (
 };
 //------------------------------------------------------------------------------
 
+//--------------------- Fetch Ongoing Activities for a Student -------------------------
+export const fetchOngoingActivities = async (
+  studentId: number
+): Promise<Activity[]> => {
+  console.log("🌐 [SERVICE] fetchOngoingActivities called with studentId:", studentId);
+  console.log("🌐 [SERVICE] Making request to:", `/student/activity/get-ongoing-activities/${studentId}`);
+  
+  try {
+    const response = await axiosInstance.get<Activity[]>(
+      `/student/activity/get-ongoing-activities/${studentId}`
+    );
+    
+    console.log("✅ [SERVICE] Ongoing activities response received:", response.data);
+    
+    // ตรวจสอบว่า response.data เป็น array ที่ถูกต้อง
+    if (response.data && Array.isArray(response.data)) {
+      console.log("✅ [SERVICE] Valid ongoing activities data, count:", response.data.length);
+      return response.data;
+    } else {
+      console.warn("⚠️ [SERVICE] Invalid ongoing activities response data:", response.data);
+      return [];
+    }
+  } catch (error: any) {
+    console.error("❌ [SERVICE] Error in fetchOngoingActivities:", error);
+    throw error;
+  }
+};
+//------------------------------------------------------------------------------
+
 //--------------------- Fetch Recommended Activity IDs --------------------------
 export const fetchRecommendedIds = async (
   studentId: number
@@ -151,6 +180,31 @@ export const fetchEndActivities = async (studentId: number): Promise<Activity[]>
   }
 };
 
+//--------------------- Check-in/Check-out Activity -------------------------
+export const checkInOutActivity = async (
+  activityId: number,
+  username: string,
+  password: string
+): Promise<{ success: boolean; message: string; studentId?: number }> => {
+  console.log("🌐 [SERVICE] checkInOutActivity called with:", { activityId, username });
+  
+  try {
+    const response = await axiosInstance.post(
+      `${STUDENT_ACTIVITY_PATH}/check-in-out/${activityId}`,
+      { username, password }
+    );
+    
+    console.log("✅ [SERVICE] Check-in/out response:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("❌ [SERVICE] Error in checkInOutActivity:", error);
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error("เกิดข้อผิดพลาดในการลงทะเบียน");
+  }
+};
+
 //--------------------- Export Service -----------------------------------------
 const activityService = {
   fetchActivities,
@@ -160,7 +214,9 @@ const activityService = {
   enrollActivity,
   unEnrollActivity,
   fetchEnrolledActivities,
+  fetchOngoingActivities,
   fetchEndActivities,
+  checkInOutActivity,
 };
 //------------------------------------------------------------------------------
 

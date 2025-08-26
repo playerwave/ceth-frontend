@@ -5,72 +5,122 @@ import HeaderCard from "./components/HeaderCard";
 import QrCodeCard from "./components/QrCodeCard";
 import ScannedStudentsCard from "./components/ScannedStudentsCard";
 import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
+import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 
 interface ScannedStudent {
   id: string;
-  student_name: string;
-  department: string;
-  student_code: string;
+  first_name: string;
+  last_name: string;
+  department_name: string;
+  username: string;
+  fullName: string;
 }
 
-export default function QrActivityTeacher() {
+interface QrActivityTeacherProps {
+  secureParams?: Record<string, any>;
+}
+
+export default function QrActivityTeacher({ secureParams }: QrActivityTeacherProps) {
   const navigate = useNavigate();
-  const { activityId } = useParams();
+  const { id } = useParams(); // เปลี่ยนจาก activityId เป็น id
   const [scannedStudents, setScannedStudents] = useState<ScannedStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [activityName, setActivityName] = useState<string>("");
+  const [activity, setActivity] = useState<any>(null);
 
-  const { fetchActivity } = useActivityStore();
+  const { fetchActivity, getEnrolledStudentsForActivity } = useActivityStore();
+  const { user, isAuthenticated } = useAuthStore();
 
-  // Mock data สำหรับทดสอบ
-  const mockScannedStudents: ScannedStudent[] = [
-    {
-      id: "1",
-      student_name: "สมชาย ใจดี",
-      department: "วิศวกรรมคอมพิวเตอร์",
-      student_code: "6500000001"
-    },
-    {
-      id: "2", 
-      student_name: "สมหญิง รักเรียน",
-      department: "วิศวกรรมไฟฟ้า",
-      student_code: "6500000002"
-    },
-    {
-      id: "3",
-      student_name: "สมศักดิ์ มุ่งมั่น",
-      department: "วิศวกรรมเครื่องกล",
-      student_code: "6500000003"
-    }
-  ];
+  // ✅ ดึง activityId จาก secureParams หรือ useParams
+  const activityId = secureParams?.id || id;
+
+  // Debug logs
+  console.log("🔍 QrActivityTeacher: Component rendered with activityId:", activityId);
+  console.log("🔍 QrActivityTeacher: Secure params:", secureParams);
+  console.log("🔍 QrActivityTeacher: URL params:", { id });
+  console.log("🔍 QrActivityTeacher: Auth state:", { user, isAuthenticated });
+
+  // ข้อมูลนักเรียนที่ลงทะเบียน (จะถูกแทนที่ด้วยข้อมูลจริง)
+  const [enrolledStudents, setEnrolledStudents] = useState<ScannedStudent[]>([]);
 
   useEffect(() => {
+    console.log("🔍 QrActivityTeacher: useEffect triggered with activityId:", activityId);
+    
+    // ✅ ตรวจสอบ authentication ก่อน
+    const token = localStorage.getItem('auth-token');
+    if (!token || !isAuthenticated || !user) {
+      console.log("❌ QrActivityTeacher: Not authenticated - redirecting to login");
+      window.location.href = '/login';
+      return;
+    }
+
+    // ✅ ตรวจสอบ role
+    if (user.role !== "Teacher" && user.role !== "Admin") {
+      console.log("❌ QrActivityTeacher: Insufficient permissions - redirecting to login");
+      window.location.href = '/login';
+      return;
+    }
+    
     const loadActivityData = async () => {
       if (activityId) {
+        console.log("🔍 QrActivityTeacher: Loading activity data for activityId:", activityId);
         try {
           // ดึงข้อมูล activity
-          const activity = await fetchActivity(parseInt(activityId));
-          if (activity) {
-            setActivityName(activity.activity_name || "");
+          const activityData = await fetchActivity(parseInt(activityId));
+          if (activityData) {
+            setActivity(activityData);
+            setActivityName(activityData.activity_name || "");
+            console.log("🔍 QrActivityTeacher: Activity loaded:", activityData.activity_name);
           }
         } catch (error) {
           console.error("Error fetching activity:", error);
         }
+      } else {
+        console.log("🔍 QrActivityTeacher: No activityId provided");
       }
       
-      // Mock: จำลองการโหลดข้อมูล
-      setTimeout(() => {
-        setScannedStudents(mockScannedStudents);
-        setLoading(false);
-      }, 1000);
+      // ดึงข้อมูลนักเรียนที่ลงทะเบียนจริง
+      if (activityId) {
+        try {
+          const students = await getEnrolledStudentsForActivity(parseInt(activityId));
+          console.log("🔍 QrActivityTeacher: Raw students data:", students);
+          
+          // ตรวจสอบและแปลงข้อมูลให้ถูกต้อง
+          const validStudents = Array.isArray(students) ? students : [];
+          
+          // เพิ่ม fullName field ให้กับข้อมูลนักเรียน
+          const studentsWithFullName = validStudents.map(student => ({
+            ...student,
+            fullName: `${student.first_name || ''} ${student.last_name || ''}`.trim()
+          }));
+          
+          setScannedStudents(studentsWithFullName);
+          console.log("🔍 QrActivityTeacher: Valid students loaded:", studentsWithFullName);
+        } catch (error) {
+          console.error("❌ QrActivityTeacher: Error loading enrolled students:", error);
+          setScannedStudents([]);
+        }
+      } else {
+        setScannedStudents([]);
+      }
+      setLoading(false);
+      console.log("🔍 QrActivityTeacher: Loading completed");
     };
 
     loadActivityData();
-  }, [activityId, fetchActivity]);
+  }, [activityId, fetchActivity, isAuthenticated, user]);
 
   const handleBack = () => {
     navigate(-1);
   };
+
+  // Debug logs
+  console.log("🔍 QrActivityTeacher: Render state:", {
+    loading,
+    activityId,
+    activityName,
+    scannedStudentsCount: scannedStudents.length
+  });
 
   if (loading) {
     return <Loading />;
@@ -83,6 +133,7 @@ export default function QrActivityTeacher() {
         <HeaderCard 
           activityId={activityId} 
           activityName={activityName}
+          activityState={activity?.activity_state}
           onBack={handleBack} 
         />
 

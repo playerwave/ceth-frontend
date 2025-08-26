@@ -1,92 +1,116 @@
 import axiosInstance from "../../libs/axios";
 
-interface QRCodeToken {
-  token: string;
-  activityId: number;
-  expiresAt: Date;
-  createdAt: Date;
-}
+// Base path
+const QR_CODE_PATH = "/teacher/qr-code";
 
-interface QRCodeResponse {
-  qrCodeUrl: string;
-  token: string;
-  expiresAt: Date;
-}
-
-//--------------------- Generate QR Code with Token -------------------------
-export const generateQRCodeWithToken = async (activityId: number): Promise<QRCodeResponse> => {
+//--------------------- Generate QR Code Token -------------------------
+export const generateQRCodeToken = async (activityId: number) => {
+  console.log("🔐 Service: Generating QR Code token for activity:", activityId);
+  console.log("🔐 Service: API URL:", `${QR_CODE_PATH}/generate/${activityId}`);
+  console.log("🔐 Service: Base URL:", axiosInstance.defaults.baseURL);
+  
   try {
-    const response = await axiosInstance.post<QRCodeResponse>(
-      `/teacher/qr-code/generate/${activityId}`
+    const response = await axiosInstance.post(
+      `${QR_CODE_PATH}/generate/${activityId}`
     );
     
-    console.log("🔐 Generated QR Code with token:", {
-      activityId,
-      token: response.data.token,
-      expiresAt: response.data.expiresAt
-    });
-    
+    console.log("✅ Service: QR Code token generated:", response.data);
     return response.data;
-  } catch (error) {
-    console.error("❌ Error generating QR code:", error);
+  } catch (error: any) {
+    console.error("❌ Service: Error generating QR Code token:", error);
+    console.error("❌ Service: Error response:", error.response?.data);
+    console.error("❌ Service: Error status:", error.response?.status);
+    console.error("❌ Service: Error config:", error.config);
     throw error;
   }
 };
 //----------------------------------------------------------------
 
-//--------------------- Validate QR Code Token -------------------------
-export const validateQRCodeToken = async (token: string): Promise<boolean> => {
+//--------------------- Reset QR Code Token -------------------------
+export const resetQRCodeToken = async (activityId: number) => {
+  console.log("🔄 Service: Resetting QR Code token for activity:", activityId);
+  console.log("🔄 Service: API URL:", `${QR_CODE_PATH}/reset/${activityId}`);
+  console.log("🔄 Service: Base URL:", axiosInstance.defaults.baseURL);
+  
   try {
-    const response = await axiosInstance.post<{ valid: boolean }>(
-      `/teacher/qr-code/validate`,
-      { token }
+    const response = await axiosInstance.post(
+      `${QR_CODE_PATH}/reset/${activityId}`
     );
     
-    console.log("🔍 Token validation result:", response.data.valid);
-    return response.data.valid;
-  } catch (error) {
-    console.error("❌ Error validating token:", error);
-    return false;
+    console.log("✅ Service: QR Code token reset:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("❌ Service: Error resetting QR Code token:", error);
+    console.error("❌ Service: Error response:", error.response?.data);
+    console.error("❌ Service: Error status:", error.response?.status);
+    console.error("❌ Service: Error config:", error.config);
+    throw error;
   }
+};
+//----------------------------------------------------------------
+
+//--------------------- Validate Token -------------------------
+export const validateToken = async (token: string) => {
+  console.log("🔍 Service: Validating token:", token);
+  
+  const response = await axiosInstance.post(
+    `${QR_CODE_PATH}/validate`,
+    { token }
+  );
+  
+  console.log("✅ Service: Token validation result:", response.data);
+  return response.data;
 };
 //----------------------------------------------------------------
 
 //--------------------- Get QR Code Status -------------------------
-export const getQRCodeStatus = async (activityId: number): Promise<{
-  isActive: boolean;
-  currentToken: string;
-  expiresAt: Date;
-}> => {
-  try {
-    const response = await axiosInstance.get(
-      `/teacher/qr-code/status/${activityId}`
-    );
-    
-    return response.data;
-  } catch (error) {
-    console.error("❌ Error getting QR code status:", error);
-    throw error;
-  }
+export const getQRCodeStatus = async (activityId: number) => {
+  console.log("📊 Service: Getting QR Code status for activity:", activityId);
+  
+  const response = await axiosInstance.get(
+    `${QR_CODE_PATH}/status/${activityId}`
+  );
+  
+  console.log("✅ Service: QR Code status:", response.data);
+  return response.data;
 };
 //----------------------------------------------------------------
 
-//--------------------- Revoke QR Code Token -------------------------
-export const revokeQRCodeToken = async (activityId: number): Promise<void> => {
-  try {
-    await axiosInstance.delete(`/teacher/qr-code/revoke/${activityId}`);
-    console.log("🗑️ QR Code token revoked for activity:", activityId);
-  } catch (error) {
-    console.error("❌ Error revoking QR code token:", error);
-    throw error;
-  }
+//--------------------- Revoke Token -------------------------
+export const revokeToken = async (activityId: number) => {
+  console.log("🗑️ Service: Revoking token for activity:", activityId);
+  
+  const response = await axiosInstance.delete(
+    `${QR_CODE_PATH}/revoke/${activityId}`
+  );
+  
+  console.log("✅ Service: Token revoked:", response.data);
+  return response.data;
 };
 //----------------------------------------------------------------
 
+//--------------------- Cleanup Expired Tokens -------------------------
+export const cleanupExpiredTokens = async () => {
+  console.log("🧹 Service: Cleaning up expired tokens");
+  
+  const response = await axiosInstance.post(
+    `${QR_CODE_PATH}/cleanup`
+  );
+  
+  console.log("✅ Service: Expired tokens cleaned up:", response.data);
+  return response.data;
+};
+//----------------------------------------------------------------
+
+//--------------------- Export Service -----------------------------
 const qrCodeService = {
-  generateQRCodeWithToken,
-  validateQRCodeToken,
+  generateQRCodeToken,
+  resetQRCodeToken,
+  validateToken,
   getQRCodeStatus,
-  revokeQRCodeToken,
+  revokeToken,
+  cleanupExpiredTokens,
 };
+//------------------------------------------------------------------
 
 export default qrCodeService;
