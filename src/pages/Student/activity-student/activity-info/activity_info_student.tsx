@@ -17,6 +17,10 @@ export default function ActivityInfoStudent() {
   const id = location.state?.id || paramId;
   const navigate = useNavigate();
 
+  console.log("🔍 [DEBUG] ActivityInfoStudent - paramId:", paramId);
+  console.log("🔍 [DEBUG] ActivityInfoStudent - location.state:", location.state);
+  console.log("🔍 [DEBUG] ActivityInfoStudent - final id:", id);
+
   const {
     activity,
     activityLoading,
@@ -53,9 +57,14 @@ export default function ActivityInfoStudent() {
     if (isValidId && studentIdValue !== lastStudentIdRef.current) {
       lastStudentIdRef.current = studentIdValue;
       fetchEnrolledActivities(studentIdValue);
+    }
+    
+    // ✅ เรียก fetchActivity ทุกครั้งที่มี id โดยไม่ต้องรอ studentId
+    if (id) {
+      console.log("🔍 [DEBUG] Fetching activity with ID:", id);
       fetchActivity(id);
     }
-  }, [user?.student?.students_id, id]);
+  }, [user?.student?.students_id, id, fetchActivity, fetchEnrolledActivities]);
 
   useEffect(() => {
     if (enrolledActivities.length === 0) return;

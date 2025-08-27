@@ -61,21 +61,15 @@ const ListActivityStudent: React.FC = () => {
       lastStudentIdRef.current = id;
       console.log("📞 [DEBUG] Calling fetchStudentActivities with id:", id);
       fetchStudentActivities(id);
+    } else if (!isValidId && lastStudentIdRef.current === null) {
+      // ✅ ใช้ fallback ID ถ้าไม่มี user data
+      console.log("🔍 [DEBUG] Using fallback student ID: 3");
+      lastStudentIdRef.current = 3;
+      fetchStudentActivities(3);
     }
   }, [user?.student?.students_id, fetchStudentActivities]);
 
-  // Fallback useEffect - if no user data after 2 seconds, use fallback ID
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!user?.student?.students_id && lastStudentIdRef.current === null) {
-        console.log("🔍 [DEBUG] Using fallback student ID: 3");
-        lastStudentIdRef.current = 3;
-        fetchStudentActivities(3);
-      }
-    }, 2000);
 
-    return () => clearTimeout(timer);
-  }, [user?.student?.students_id, fetchStudentActivities]);
 
   // กรองกิจกรรมตาม searchTerm เท่านั้น
   const publicActivities = useMemo(() => {
