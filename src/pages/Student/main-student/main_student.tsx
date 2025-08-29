@@ -35,10 +35,10 @@ const MainStudent = () => {
   const { user, fetchMe } = useAuthStore();
   const lastStudentIdRef = useRef<number | null>(null);
   
-  // ใช้ students_id จาก auth store หรือ fallback เป็น 3
+  // ใช้ students_id จาก auth store เท่านั้น
   // const studentId = useMemo(() => {
   //   console.log("🔍 studentId recalculated:", user?.student?.students_id);
-  //   return user?.student?.students_id || 3;
+  //   return user?.student?.students_id;
   // }, [user?.student?.students_id]);
 
   // Fetch user data on mount only if user is not authenticated

@@ -35,9 +35,9 @@ export default function ActivityInfoStudent() {
   const { user, fetchMe } = useAuthStore();
   const lastStudentIdRef = useRef<number | null>(null);
   
-  // ใช้ students_id จาก auth store หรือ fallback เป็น 3
+  // ใช้ students_id จาก auth store เท่านั้น
   const studentId = useMemo(() => {
-    return user?.student?.students_id || 3;
+    return user?.student?.students_id;
   }, [user?.student?.students_id]);
 
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -108,7 +108,7 @@ export default function ActivityInfoStudent() {
           navigate={navigate}
           enrolledActivities={enrolledActivities}
           selectedFood={selectedFood}
-          userId={studentId}
+          userId={studentId || null}
         />
       </div>
     </div>

@@ -31,7 +31,7 @@ export default function TableListSection() {
   } = useActivityStore();
 
   const { user, isAuthenticated, authLoading } = useAuthStore();
-  const studentId = user?.student?.students_id || 3; // ใช้ students_id แทน userId
+  const studentId = user?.student?.students_id; // ใช้ students_id เท่านั้น
 
   console.log("🔍 [DEBUG] TableListSection - user:", user);
   console.log("🔍 [DEBUG] TableListSection - studentId:", studentId);
@@ -58,6 +58,8 @@ export default function TableListSection() {
       }, 100);
       
       return () => clearTimeout(timer);
+    } else if (isAuthenticated && !authLoading && !studentId) {
+      console.log("⚠️ [DEBUG] No student ID available - user may not be a student");
     }
   }, [studentId, isAuthenticated, authLoading, fetchEnrolledActivities]); // เพิ่ม dependencies
 
@@ -96,7 +98,7 @@ export default function TableListSection() {
         <div className="text-center text-red-500 p-4">
           <p>❌ เกิดข้อผิดพลาด: {activityError}</p>
           <button 
-            onClick={() => fetchEnrolledActivities(studentId)}
+            onClick={() => studentId && fetchEnrolledActivities(studentId)}
             className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             ลองใหม่
@@ -107,7 +109,7 @@ export default function TableListSection() {
           <p>📭 ไม่พบกิจกรรมที่ลงทะเบียน</p>
           <p className="text-sm mt-2">Student ID: {studentId}</p>
           <button 
-            onClick={() => fetchEnrolledActivities(studentId)}
+            onClick={() => studentId && fetchEnrolledActivities(studentId)}
             className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
           >
             โหลดใหม่

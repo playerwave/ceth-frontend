@@ -61,11 +61,9 @@ const ListActivityStudent: React.FC = () => {
       lastStudentIdRef.current = id;
       console.log("📞 [DEBUG] Calling fetchStudentActivities with id:", id);
       fetchStudentActivities(id);
-    } else if (!isValidId && lastStudentIdRef.current === null) {
-      // ✅ ใช้ fallback ID ถ้าไม่มี user data
-      console.log("🔍 [DEBUG] Using fallback student ID: 3");
-      lastStudentIdRef.current = 3;
-      fetchStudentActivities(3);
+    } else if (!isValidId) {
+      // ✅ ไม่ใช้ fallback ID - รอให้มี user data ก่อน
+      console.log("🔍 [DEBUG] No valid student ID - waiting for user data");
     }
   }, [user?.student?.students_id, fetchStudentActivities]);
 
