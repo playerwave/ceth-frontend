@@ -71,6 +71,7 @@ const Login = () => {
         <form className="px-10" onSubmit={handleSubmit}>
           <label className="text-white block mb-1">Username</label>
           <input
+            data-cy="username"
             type="text"
             placeholder="Username"
             className="w-full mb-4 px-4 py-3 rounded-md bg-white/80 focus:outline-none"
@@ -82,6 +83,7 @@ const Login = () => {
           <label className="text-white block mb-1">Password</label>
           <div className="relative">
             <input
+              data-cy="password"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               className="w-full mb-2 px-4 py-3 rounded-md bg-white/80 focus:outline-none pr-12"
@@ -91,6 +93,7 @@ const Login = () => {
             />
             <button
               type="button"
+              data-cy="toggle-password"
               onClick={() => setShowPassword((s) => !s)}
               className="absolute right-3 top-6 -translate-y-1/2 text-gray-600"
             >
@@ -112,6 +115,7 @@ const Login = () => {
 
           <button
             type="submit"
+            data-cy="signin-button"
             disabled={authLoading}
             className={`w-full bg-blue-900 text-white py-3 rounded-md mt-5 font-semibold hover:bg-blue-800 ${
               authLoading && "opacity-50 cursor-not-allowed"

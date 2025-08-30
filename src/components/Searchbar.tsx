@@ -30,6 +30,7 @@ const handleSearch = () => {
 
   return (
     <div
+    data-cy="searchbar"
       className="flex items-center bg-white rounded-full 
     shadow-2xl shadow-gray-400 drop-shadow-lg 
     hover:shadow-[0_10px_30px_rgba(0,0,0,0.25)] transition-all duration-300 

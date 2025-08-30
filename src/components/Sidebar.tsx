@@ -46,7 +46,6 @@ const Sidebar = ({ isCollapsed, toggleSidebar, role }: SidebarProps) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   
 const navigate = useNavigate();
-const { isAuthenticated } = useAuthStore();
 
 const handleLogout = async () => {
   console.log("👉 Logout clicked"); // ✅ ตรวจว่า onClick ทำงาน
@@ -97,36 +96,28 @@ const roomSidebarItems = buildSidebarItems(roomRoutes, role, iconMap);
 
 
 
-  // สร้าง items ตามสถานะ authentication
-  const items = !isAuthenticated ? [
-    {
-      to: "/login",
-      icon: <LogOut size={24} />,
-      text: "เข้าสู่ระบบ",
-      isActionable: true
-    }
-  ] : [
-    {
-      to: role === "Teacher" ? "/" : "/main-student",
-      icon: <Home size={24} />,
-      text: "หน้าหลัก",
-      isActionable: true
-    },
-    ...activitySidebarItems,
-    ...activityHistorySidebarItems,
-    ...assessmentSidebarItems,
-    ...userSidebarItems,
-    ...certificateSidebarItems,
-    ...foodSidebarItems,
-    ...roomSidebarItems,
-     {
-      to: "", // หรือ "#" ก็ได้ เพราะใช้ onClick เป็นหลัก
-      icon: <LogOut size={24} />,
-      text: "ออกจากระบบ",
-      onClick: () => setShowLogoutDialog(true), // 💡 เปิด Dialog2
-      isActionable: true
-    }
-  ];
+  const items = [
+  {
+    to: role === "Teacher" ? "/" : "/main-student",
+    icon: <Home size={24} />,
+    text: "หน้าหลัก",
+    isActionable: true
+  },
+  ...activitySidebarItems,
+  ...activityHistorySidebarItems,
+  ...assessmentSidebarItems,
+  ...userSidebarItems,
+  ...certificateSidebarItems,
+  ...foodSidebarItems,
+  ...roomSidebarItems,
+   {
+    to: "", // หรือ "#" ก็ได้ เพราะใช้ onClick เป็นหลัก
+    icon: <LogOut size={24} />,
+    text: "ออกจากระบบ",
+    onClick: () => setShowLogoutDialog(true), // 💡 เปิด Dialog2
+    isActionable: true
+  }
+];
 
 const filteredItems = role === "Student"
   ? items.filter(item =>
@@ -156,6 +147,7 @@ const filteredItems = role === "Student"
 
           <button
             onClick={toggleSidebar}
+            data-cy="toggle-sidebar"
             className="text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-200 transition hidden md:inline-flex"
           >
             {isCollapsed ? (
@@ -177,40 +169,35 @@ const filteredItems = role === "Student"
   {/* 🔹 เมนูหลัก */}
   <div className="space-y-1">
     {filteredItems
-      .filter(item => !isAuthenticated ? true : item.text !== "ออกจากระบบ")
+      .filter(item => item.text !== "ออกจากระบบ")
       .map((item, index) => (
         <SidebarItem key={index} {...item} collapsed={isCollapsed} />
       ))}
   </div>
 
-  {/* 🔻 ปุ่มออกจากระบบ (แสดงเฉพาะเมื่อ login แล้ว) */}
-  {isAuthenticated && (
-    <div className="pb-50 border-t border-gray-200">
-      {filteredItems
-        .filter(item => item.text === "ออกจากระบบ")
-        .map((item, index) => (
-          <SidebarItem key={`logout-${index}`} {...item} collapsed={isCollapsed} />
-        ))}
-    </div>
-  )}
+  {/* 🔻 ปุ่มออกจากระบบ */}
+  <div className="pb-50 border-t border-gray-200">
+    {filteredItems
+      .filter(item => item.text === "ออกจากระบบ")
+      .map((item, index) => (
+        <SidebarItem key={`logout-${index}`} {...item} collapsed={isCollapsed} />
+      ))}
+  </div>
 </div>
 
       </div>
-      {/* แสดง Dialog2 เฉพาะเมื่อ login แล้ว */}
-      {isAuthenticated && (
-        <Dialog2
-          open={showLogoutDialog}
-          title="คุณแน่ใจหรือไม่?"
-          message="คุณต้องการออกจากระบบจริงหรือ?"
-          icon={<LogOut size={32} className="text-blue-600" />}
-          onClose={() => setShowLogoutDialog(false)}
-          onConfirm={() => {
-            setShowLogoutDialog(false);
-            handleLogout();
-          }}
-          type="button"
-        />
-      )}
+      <Dialog2
+        open={showLogoutDialog}
+        title="คุณแน่ใจหรือไม่?"
+        message="คุณต้องการออกจากระบบจริงหรือ?"
+        icon={<LogOut size={32} className="text-blue-600" />}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={() => {
+          setShowLogoutDialog(false);
+          handleLogout();
+        }}
+        type="button"
+      />
     </div>
   );
 };
@@ -262,13 +249,15 @@ const disabledClass = `relative flex items-center py-2 px-3 rounded-lg font-pt
   text-gray-400 cursor-not-allowed bg-gray-50 
   ${collapsed ? "justify-center" : ""}`;
 
+const dataCy = `sidebar-${text.toLowerCase().replace(/\s+/g, "-")}`;
 
 return isRouteItem ? (
-  <Link to={to} className={isDisabled ? disabledClass : baseClass}>
+  <Link to={to} className={isDisabled ? disabledClass : baseClass} data-cy={dataCy}>
+    
     {content}
   </Link>
 ) : (
-  <div onClick={isDisabled ? undefined : onClick} className={isDisabled ? disabledClass : baseClass}>
+  <div onClick={isDisabled ? undefined : onClick} className={isDisabled ? disabledClass : baseClass} data-cy={dataCy}>
     {content}
   </div>
 );

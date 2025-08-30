@@ -132,6 +132,7 @@ const role: "Student" | "Teacher" =
   //   เข้าสู่ระบบ
   // </button>
   <Button
+      data-cy="login-button"
       bgColor="#FFFFFF" // พื้นหลังขาว
       textColor="#1E3A8A" // ตัวอักษรน้ำเงิน (Tailwind: text-blue-800)
       onClick={() => navigate("/login")}
