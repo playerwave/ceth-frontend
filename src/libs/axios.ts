@@ -16,15 +16,15 @@ const getApiUrl = () => {
   // // Production mode: ใช้ custom domain
   // return "https://ceth-api.theapds.org/api/";
 
-  const developmentMode = import.meta.env.DEV_API_URL;
-  const productionMode = import.meta.env.PROD_API_URL;
+  const developmentMode = import.meta.env.VITE_DEV_API_URL;
+  const productionMode = import.meta.env.VITE_PROD_API_URL;
 
     if (import.meta.env.MODE === "preview") {
     return String(productionMode);
   }
   
   // Development mode: ใช้ localhost
-  if (import.meta.env.DEV) {
+  if (import.meta.env.MODE === "development") {
     return String(developmentMode);
   }
   
@@ -34,7 +34,7 @@ const getApiUrl = () => {
 
 const getCredentials = () => {
   const c = (import.meta.env.VITE_WITH_CREDENTIALS as string) ?? "";
-  if (c) return c === "true";                // allow override
+  if (c) return c === "true";     // allow override
   
   // ✅ เปิด credentials ในทุก environment เพื่อให้ cookies ทำงานได้
   return true;
