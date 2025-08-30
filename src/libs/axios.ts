@@ -2,21 +2,34 @@
 import axios, { AxiosInstance } from "axios";
 
 const getApiUrl = () => {
-  const envUrl = import.meta.env.VITE_API_URL as string | undefined;
-  if (envUrl) return envUrl;                 // ใช้ค่าจาก .env.[mode] ก่อนเสมอ
   
   // Preview mode: ใช้ VPS backend โดยตรง
-  if (import.meta.env.MODE === "preview") {
-    return "http://vps.theapds.org:8069/api/";
+  // if (import.meta.env.MODE === "preview") {
+  //   return "http://vps.theapds.org:8069/api/";
+  // }
+  
+  // // Development mode: ใช้ localhost
+  // if (import.meta.env.DEV) {
+  //   return "http://localhost:5090/api/";
+  // }
+  
+  // // Production mode: ใช้ custom domain
+  // return "https://ceth-api.theapds.org/api/";
+
+  const developmentMode = import.meta.env.DEV_API_URL;
+  const productionMode = import.meta.env.PROD_API_URL;
+
+    if (import.meta.env.MODE === "preview") {
+    return String(productionMode);
   }
   
   // Development mode: ใช้ localhost
   if (import.meta.env.DEV) {
-    return "http://localhost:5090/api/";
+    return String(developmentMode);
   }
   
   // Production mode: ใช้ custom domain
-  return "https://ceth-api.theapds.org/api/";
+  return String(productionMode);
 };
 
 const getCredentials = () => {
