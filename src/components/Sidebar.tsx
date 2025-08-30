@@ -46,6 +46,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, role }: SidebarProps) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   
 const navigate = useNavigate();
+const { isAuthenticated } = useAuthStore();
 
 const handleLogout = async () => {
   console.log("👉 Logout clicked"); // ✅ ตรวจว่า onClick ทำงาน
@@ -96,28 +97,36 @@ const roomSidebarItems = buildSidebarItems(roomRoutes, role, iconMap);
 
 
 
-  const items = [
-  {
-    to: role === "Teacher" ? "/" : "/main-student",
-    icon: <Home size={24} />,
-    text: "หน้าหลัก",
-    isActionable: true
-  },
-  ...activitySidebarItems,
-  ...activityHistorySidebarItems,
-  ...assessmentSidebarItems,
-  ...userSidebarItems,
-  ...certificateSidebarItems,
-  ...foodSidebarItems,
-  ...roomSidebarItems,
-   {
-    to: "", // หรือ "#" ก็ได้ เพราะใช้ onClick เป็นหลัก
-    icon: <LogOut size={24} />,
-    text: "ออกจากระบบ",
-    onClick: () => setShowLogoutDialog(true), // 💡 เปิด Dialog2
-    isActionable: true
-  }
-];
+  // สร้าง items ตามสถานะ authentication
+  const items = !isAuthenticated ? [
+    {
+      to: "/login",
+      icon: <LogOut size={24} />,
+      text: "เข้าสู่ระบบ",
+      isActionable: true
+    }
+  ] : [
+    {
+      to: role === "Teacher" ? "/" : "/main-student",
+      icon: <Home size={24} />,
+      text: "หน้าหลัก",
+      isActionable: true
+    },
+    ...activitySidebarItems,
+    ...activityHistorySidebarItems,
+    ...assessmentSidebarItems,
+    ...userSidebarItems,
+    ...certificateSidebarItems,
+    ...foodSidebarItems,
+    ...roomSidebarItems,
+     {
+      to: "", // หรือ "#" ก็ได้ เพราะใช้ onClick เป็นหลัก
+      icon: <LogOut size={24} />,
+      text: "ออกจากระบบ",
+      onClick: () => setShowLogoutDialog(true), // 💡 เปิด Dialog2
+      isActionable: true
+    }
+  ];
 
 const filteredItems = role === "Student"
   ? items.filter(item =>
@@ -168,35 +177,40 @@ const filteredItems = role === "Student"
   {/* 🔹 เมนูหลัก */}
   <div className="space-y-1">
     {filteredItems
-      .filter(item => item.text !== "ออกจากระบบ")
+      .filter(item => !isAuthenticated ? true : item.text !== "ออกจากระบบ")
       .map((item, index) => (
         <SidebarItem key={index} {...item} collapsed={isCollapsed} />
       ))}
   </div>
 
-  {/* 🔻 ปุ่มออกจากระบบ */}
-  <div className="pb-50 border-t border-gray-200">
-    {filteredItems
-      .filter(item => item.text === "ออกจากระบบ")
-      .map((item, index) => (
-        <SidebarItem key={`logout-${index}`} {...item} collapsed={isCollapsed} />
-      ))}
-  </div>
+  {/* 🔻 ปุ่มออกจากระบบ (แสดงเฉพาะเมื่อ login แล้ว) */}
+  {isAuthenticated && (
+    <div className="pb-50 border-t border-gray-200">
+      {filteredItems
+        .filter(item => item.text === "ออกจากระบบ")
+        .map((item, index) => (
+          <SidebarItem key={`logout-${index}`} {...item} collapsed={isCollapsed} />
+        ))}
+    </div>
+  )}
 </div>
 
       </div>
-      <Dialog2
-        open={showLogoutDialog}
-        title="คุณแน่ใจหรือไม่?"
-        message="คุณต้องการออกจากระบบจริงหรือ?"
-        icon={<LogOut size={32} className="text-blue-600" />}
-        onClose={() => setShowLogoutDialog(false)}
-        onConfirm={() => {
-          setShowLogoutDialog(false);
-          handleLogout();
-        }}
-        type="button"
-      />
+      {/* แสดง Dialog2 เฉพาะเมื่อ login แล้ว */}
+      {isAuthenticated && (
+        <Dialog2
+          open={showLogoutDialog}
+          title="คุณแน่ใจหรือไม่?"
+          message="คุณต้องการออกจากระบบจริงหรือ?"
+          icon={<LogOut size={32} className="text-blue-600" />}
+          onClose={() => setShowLogoutDialog(false)}
+          onConfirm={() => {
+            setShowLogoutDialog(false);
+            handleLogout();
+          }}
+          type="button"
+        />
+      )}
     </div>
   );
 };
