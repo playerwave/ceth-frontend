@@ -10,7 +10,7 @@ import ProtectedRoute from "./components/Wrapper/ProtectedRoute";
 import { SecureRoute } from "./routes/secure/SecureRoute";
 
 // auth
-import Login from "./pages/login";
+import Login from "./pages/visitor/login/login";
 
 // main pages
 import Main from "./pages/Teacher/dashboard-teacher/main_teacher";
