@@ -25,14 +25,16 @@ import {
 } from "./utils/form_utils"; // หรือเปลี่ยน path ให้ตรงกับตำแหน่งจริง
 import { handleDateTimeChange as handleDateTimeChangeBase } from "./utils/form_utils";
 import ActivityInfoSection from "./components/ActivityInfoSection";
-import RegisterPeriodSection from "./components/RegisterPeriodSection";
-import ActivityTimeSection from "./components/ActivityTimeSection";
+//
+// ✅ Import component สำหรับ update mode
+import RegisterPeriodSectionUpdate from "./components/timestamp-update/RegisterPeriodSection.update.tsx";
+import ActivityTimeSectionUpdate from "./components/timestamp-update/ActivityTimeSection.update.tsx";
+import AssessmentSectionUpdate from "./components/timestamp-update/AssessmentSection.update.tsx";
 import TypeAndLocationSection from "./components/TypeAndLocationSection";
 import RoomSelectionSection from "./components/RoomSelectionSection";
-// import FoodMenuSection from "./components/FoodMenuSection";
 
 import FoodMultiSelect from "./components/FoodMultiSelection"; // ✅ ใช้ FoodMultiSelect แทน FoodMenuSection
-import AssessmentSection from "./components/AssessmentSection";
+// import AssessmentSection from "./components/AssessmentSection";
 import ImageUploadSection from "./components/ImageUploadSection";
 import ActionButtonsSection from "./components/ActionButtonsSection";
 import DescriptionSection from "./components/DescriptionSection";
@@ -537,6 +539,35 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
           }
         });
 
+        // ✅ แปลงวันที่ให้เป็น format ที่ถูกต้องก่อนส่งไป backend
+        const convertToLocalFormat = (dateValue: any): string => {
+          if (!dateValue) return "";
+          
+          // ถ้าเป็น UTC format (มี T และ Z) ให้แปลงเป็น local time
+          if (typeof dateValue === 'string' && dateValue.includes('T') && dateValue.includes('Z')) {
+            const date = new Date(dateValue);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+          }
+          
+          // ถ้าเป็น local format อยู่แล้ว ให้ใช้ตามเดิม
+          return dateValue;
+        };
+
+        // ✅ แปลงวันที่ทั้งหมดให้เป็น local format
+        cleanUpdateData.start_register_date = convertToLocalFormat(cleanUpdateData.start_register_date);
+        cleanUpdateData.special_start_register_date = convertToLocalFormat(cleanUpdateData.special_start_register_date);
+        cleanUpdateData.end_register_date = convertToLocalFormat(cleanUpdateData.end_register_date);
+        cleanUpdateData.start_activity_date = convertToLocalFormat(cleanUpdateData.start_activity_date);
+        cleanUpdateData.end_activity_date = convertToLocalFormat(cleanUpdateData.end_activity_date);
+        cleanUpdateData.start_assessment = convertToLocalFormat(cleanUpdateData.start_assessment);
+        cleanUpdateData.end_assessment = convertToLocalFormat(cleanUpdateData.end_assessment);
+
         // ✅ จัดการ image_url แยก
         if (hasNewImage && typeof formData.image_url === 'string' && formData.image_url.trim() !== "") {
           // ✅ ถ้ามีรูปภาพใหม่ที่อัปโหลด ให้ใช้รูปภาพใหม่
@@ -1038,7 +1069,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                     originalActivityStatus={activity?.activity_status}
                   />
 
-                  <RegisterPeriodSection
+                  <RegisterPeriodSectionUpdate
                     formData={formData}
                     handleDateTimeChange={handleDateTimeChange}
                     disabled={false} // ✅ ใช้ props เฉพาะเจาะจงแทน
@@ -1084,7 +1115,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   />
 
                   <div className="flex flex-col space-y-3">
-                    <ActivityTimeSection
+                    <ActivityTimeSectionUpdate
                       formData={formData}
                       setFormData={setFormData}
                       handleDateTimeChange={handleDateTimeChange}
@@ -1092,6 +1123,8 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                       isStartActivityDateEditable={isFieldEditable('start_activity_date')}
                       isEndActivityDateEditable={isFieldEditable('end_activity_date')}
                       isRecieveHoursEditable={isFieldEditable('recieve_hours')}
+                      isEditMode={!!finalActivityId}
+                      originalActivityStatus={activity?.activity_status}
                     />
 
                     <TypeAndLocationSection
@@ -1160,7 +1193,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                     disabled={formData.event_format !== "Onsite"}
                   />
                 </div>
-                <AssessmentSection
+                <AssessmentSectionUpdate
                   formData={formData}
                   assessments={assessments}
                   handleChange={handleFormChangeWithValidation}
@@ -1171,6 +1204,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   isEndAssessmentEditable={isFieldEditable('end_assessment')}
                   validationMode={getValidationMode()}
                   originalActivityStatus={activity?.activity_status}
+                  isEditMode={!!finalActivityId}
                 />
 
                 <ImageUploadSection

@@ -20,7 +20,6 @@ import { useLocation } from 'react-router-dom';
 import {
   handleChange,
   validateForm,
-  validateField,
   ValidationMode,
   // convertToDate,
 } from "./utils/form_utils"; // หรือเปลี่ยน path ให้ตรงกับตำแหน่งจริง
@@ -355,15 +354,41 @@ const CreateActivityAdmin: React.FC = () => {
       }
     }
 
+    // ✅ แปลง UTC เป็น Local format ก่อนส่งไป backend
+    const convertToLocalFormat = (dateValue: any): string => {
+      if (!dateValue) return "";
+      
+      // ถ้าเป็น UTC format (มี T และ Z) ให้แปลงเป็น local time
+      if (typeof dateValue === 'string' && dateValue.includes('T') && dateValue.includes('Z')) {
+        const date = new Date(dateValue);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      }
+      
+      // ถ้าเป็น local format อยู่แล้ว ให้ใช้ตามเดิม
+      return dateValue;
+    };
+
     console.log("🚀 Data ที่ส่งไป store:", formData);
 
     try {
-      // ✅ สร้างข้อมูลใหม่ที่มี recieve_hours ที่คำนวณแล้ว
+      // ✅ สร้างข้อมูลใหม่ที่มี recieve_hours ที่คำนวณแล้ว และแปลงวันที่เป็น Local format
       const createData = {
         ...formData,
         recieve_hours: acRecieveHours,
         start_activity_date: formattedStart,
         end_activity_date: formattedEnd,
+        // ✅ แปลง field ที่เกี่ยวกับเวลาอื่นๆ เป็น Local format
+        start_register_date: convertToLocalFormat(formData.start_register_date),
+        special_start_register_date: convertToLocalFormat(formData.special_start_register_date),
+        end_register_date: convertToLocalFormat(formData.end_register_date),
+        start_assessment: convertToLocalFormat(formData.start_assessment),
+        end_assessment: convertToLocalFormat(formData.end_assessment),
         // ✅ ส่ง foodIds เฉพาะเมื่อ event_format เป็น Onsite และกรอง foodIds ที่ถูกต้อง
         foodIds: formData.event_format === "Onsite" ?
           (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ?
