@@ -3,27 +3,31 @@ import { MenuItem, Select, TextField } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
 import { CreateActivityForm } from "../create_activity_admin";
+import { validateField, ValidationMode } from "../utils/form_utils";
 
 interface Props {
   formData: CreateActivityForm;
   seatCapacity: number | string;
   handleChange: (e: React.ChangeEvent<any> | SelectChangeEvent) => void;
-  // setSeatCapacity: (value: number | string) => void;
   setSeatCapacity: Dispatch<SetStateAction<string>>;
   setFormData: Dispatch<SetStateAction<CreateActivityForm>>
   selectedRoom: string;
   disabled?: boolean;
+  validationMode?: ValidationMode;
+  originalActivityStatus?: string;
 }
 
 const StatusAndSeatSection: React.FC<Props> = ({
   formData,
   seatCapacity,
   handleChange,
-  // setSeatCapacity,
-  // selectedRoom,
   setFormData,
   disabled = false,
+  validationMode = 'create',
+  originalActivityStatus,
 }) => {
+  // ✅ ใช้ validateField function ใหม่
+  const seatValidation = validateField('seat', { ...formData, seatCapacity }, validationMode, originalActivityStatus);
   return (
     <div className="flex space-x-4 mt-5 w-140">
       {/* สถานะ */}
@@ -84,24 +88,13 @@ const StatusAndSeatSection: React.FC<Props> = ({
             }
           }}
           disabled={disabled || formData.event_format === "Course"}
-          error={
-            formData.activity_status === "Public" &&
-            formData.event_format === "Onsite" &&
-            typeof formData.seat === "number" &&
-            (formData.seat < 0 || formData.seat > Number(seatCapacity))
-          }
+          error={seatValidation.hasError}
           helperText={
             formData.event_format === "Course"
               ? "Course ไม่ต้องการจำนวนที่นั่ง"
               : formData.event_format === "Online"
               ? "กำหนดจำนวนที่นั่งสำหรับกิจกรรม Online (ไม่จำกัด)"
-              : formData.activity_status === "Public" && typeof formData.seat === "number"
-              ? formData.seat > Number(seatCapacity)
-                ? `❌ จำนวนที่นั่งต้องไม่เกิน ${seatCapacity}`
-                : formData.seat < 0
-                  ? "❌ กรุณาใส่จำนวนที่นั่ง"
-                  : ""
-              : ""
+              : seatValidation.helperText
           }
           sx={{ 
             height: "56px",

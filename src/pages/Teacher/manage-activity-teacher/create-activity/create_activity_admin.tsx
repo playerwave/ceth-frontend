@@ -20,6 +20,8 @@ import { useLocation } from 'react-router-dom';
 import {
   handleChange,
   validateForm,
+  validateField,
+  ValidationMode,
   // convertToDate,
 } from "./utils/form_utils"; // หรือเปลี่ยน path ให้ตรงกับตำแหน่งจริง
 import { handleDateTimeChange as handleDateTimeChangeBase } from "./utils/form_utils";
@@ -47,6 +49,9 @@ const CreateActivityAdmin: React.FC = () => {
   const { createActivity, activityLoading } = useActivityStore(); //
   const { createSecureLink } = useSecureLink();
   const savedFoods = JSON.parse(localStorage.getItem("selectedFoods") || "[]");
+  
+  // ✅ กำหนด validation mode สำหรับ create activity
+  const validationMode: ValidationMode = 'create';
   const [formData, setFormData] = useState<CreateActivityForm>({
     activity_name: "",
     presenter_company_name: "",
@@ -602,7 +607,8 @@ const CreateActivityAdmin: React.FC = () => {
                 <div className="flex space-x-6  ">
                   <ActivityInfoSection
                     formData={formData}
-                    handleChange={handleFormChange} // ✅ รับได้ 1 argument ตาม type ที่ต้องการ
+                    handleChange={handleFormChange}
+                    validationMode={validationMode}
                   />
 
                   <RegisterPeriodSection
@@ -640,6 +646,7 @@ const CreateActivityAdmin: React.FC = () => {
                   <DescriptionSection
                     formData={formData}
                     handleChange={handleFormChange}
+                    validationMode={validationMode}
                   />
 
                   <div className="flex flex-col space-y-3">
@@ -674,9 +681,14 @@ const CreateActivityAdmin: React.FC = () => {
                     roomConflicts={roomConflicts}
                     checkingAvailability={checkingAvailability}
                     hasTimeConflict={roomConflicts.length > 0}
+                    validationMode={validationMode}
                   />
 
-                  <ActivityLink formData={formData} handleChange={handleFormChange} />
+                  <ActivityLink 
+                    formData={formData} 
+                    handleChange={handleFormChange}
+                    validationMode={validationMode}
+                  />
                 </div>
 
                 <StatusAndSeatSection
@@ -686,6 +698,7 @@ const CreateActivityAdmin: React.FC = () => {
                   setSeatCapacity={setSeatCapacity}
                   selectedRoom={selectedRoom}
                   setFormData={setFormData}
+                  validationMode={validationMode}
                 />
 
                 {/* <FoodMenuSection
@@ -715,6 +728,7 @@ const CreateActivityAdmin: React.FC = () => {
                   assessments={assessments}
                   handleChange={handleFormChange}
                   handleDateTimeChange={handleDateTimeChange}
+                  validationMode={validationMode}
                 />
 
                 <ImageUploadSection

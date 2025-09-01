@@ -1,265 +1,18 @@
-// // components/AdminActivityForm/RegisterPeriodSection.tsx
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-// import dayjs, { Dayjs } from "dayjs";
-// import { CreateActivityForm } from "../create_activity_admin";
-// import { convertBackendTimeToLocal, convertToLocalTimeForPicker } from "../utils/timeUtils";
-
-// interface Props {
-//   formData: CreateActivityForm;
-//   handleDateTimeChange: (name: string, newValue: Dayjs | null) => void;
-//   disabled?: boolean;
-//   isEditMode?: boolean;
-//   backendActivityStatus?: string; // ✅ เพิ่ม prop สำหรับ backend activity status
-// }
-
-// const RegisterPeriodSection: React.FC<Props> = ({
-//   formData,
-//   handleDateTimeChange,
-//   disabled = false,
-//   isEditMode = false,
-//   backendActivityStatus = "",
-
-  
-// }) => {
-//   const isPublic = formData.activity_status === "Public";
-//   const isOnsiteOrOnline = formData.event_format === "Onsite" || formData.event_format === "Online";
-
-//   return (
-// <div className="flex flex-col ml-0">
-//       {" "}
-//       <div className="flex flex-col w-77.5">
-//   <label className="block font-semibold mb-1">
-//     วันที่ลงทะเบียนพิเศษ *
-//   </label>
-//   <LocalizationProvider dateAdapter={AdapterDayjs}>
-//     <DateTimePicker
-//       minDate={dayjs()}
-//       value={
-//         formData.special_start_register_date
-//           ? dayjs(formData.special_start_register_date)
-//           : null
-//       }
-//       onChange={(newValue) =>
-//         handleDateTimeChange("special_start_register_date", newValue)
-//       }
-//       disabled={disabled}
-//       slotProps={{
-//         textField: {
-//           sx: { height: "56px" },
-//                             error: !!(
-//                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
-//                     formData.activity_status === "Public" &&
-//                     formData.special_start_register_date &&
-//                     (dayjs(formData.special_start_register_date)?.isBefore(
-//                       dayjs(),
-//                     ) ||
-//                     (formData.start_register_date &&
-//                       dayjs(formData.special_start_register_date)?.isAfter(
-//                         dayjs(formData.start_register_date),
-//                       ))) &&
-//                     // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
-//                     backendActivityStatus === "Private"
-//                   ),
-//                   helperText:
-//                     !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
-//                     formData.activity_status === "Public" &&
-//                     formData.special_start_register_date &&
-//                     (dayjs(formData.special_start_register_date)?.isBefore(
-//                       dayjs(),
-//                     ) &&
-//                     // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
-//                     backendActivityStatus === "Private"
-//                       ? "❌ วันลงทะเบียนพิเศษต้องไม่เป็นอดีต"
-//                       : formData.start_register_date &&
-//                         dayjs(formData.special_start_register_date)?.isAfter(
-//                           dayjs(formData.start_register_date),
-//                         ) &&
-//                         // ✅ แสดง error เฉพาะเมื่อ backend เป็น Private แต่ field เป็น Public
-//                         backendActivityStatus === "Private"
-//                         ? "❌ วันลงทะเบียนพิเศษต้องอยู่ก่อนวันลงทะเบียนปกติ"
-//                         : ""),
-//         },
-//       }}
-//     />
-//   </LocalizationProvider>
-// </div>
-
-//   <div className="grid grid-cols-1 gap-2 w-full mt-9">
-//   <div>
-//     <label className="block font-semibold">
-//       วันและเวลาเปิดและปิดลงทะเบียนกิจกรรม *
-//     </label>
-//     <div className="flex space-x-2 w-full">
-//   {/* Start */}
-//   <div className="w-1/2">
-//     <div className="flex flex-col">
-//       <LocalizationProvider dateAdapter={AdapterDayjs}>
-//         <DateTimePicker
-//           className="w-77.5"
-//           minDate={dayjs().add(1, "day")}
-//           value={
-//             formData.start_register_date
-//               ? dayjs(formData.start_register_date)
-//               : null
-//           }
-//           onChange={(newValue) =>
-//             handleDateTimeChange("start_register_date", newValue)
-//           }
-//           disabled={disabled || !formData.special_start_register_date}
-//           slotProps={{
-//             textField: {
-//               sx: { height: "56px" },
-//               error: !!(
-//   !disabled &&
-//   isPublic &&
-//   formData.start_register_date &&
-//   formData.end_register_date &&
-//   (
-//     dayjs(formData.start_register_date).isBefore(dayjs()) ||
-//     dayjs(formData.start_register_date).isAfter(dayjs(formData.end_register_date)) ||
-//     dayjs(formData.start_register_date).isSame(dayjs(formData.end_register_date)) ||
-//     // ต้องห่าง end ≥ 1 ชั่วโมง (เดิมมีแล้ว)
-//     dayjs(formData.end_register_date).diff(dayjs(formData.start_register_date), 'hour') < 1 ||
-//     // 🔴 กฎใหม่: ถ้า Public + Onsite/Online ต้องห่างจาก special ≥ 1 ชั่วโมง
-//     (
-//       isOnsiteOrOnline &&
-//       formData.special_start_register_date &&
-//       dayjs(formData.start_register_date).diff(dayjs(formData.special_start_register_date), 'minute') < 60
-//     )
-//   )
-// ),
-// helperText:
-//   !disabled &&
-//   isPublic &&
-//   formData.start_register_date &&
-//   formData.end_register_date &&
-//   (
-//     dayjs(formData.start_register_date).isBefore(dayjs()) ||
-//     dayjs(formData.start_register_date).isAfter(dayjs(formData.end_register_date)) ||
-//     dayjs(formData.start_register_date).isSame(dayjs(formData.end_register_date)) ||
-//     dayjs(formData.end_register_date).diff(dayjs(formData.start_register_date), 'hour') < 1 ||
-//     (
-//       isOnsiteOrOnline &&
-//       formData.special_start_register_date &&
-//       dayjs(formData.start_register_date).diff(dayjs(formData.special_start_register_date), 'minute') < 60
-//     )
-//   )
-//     ? (
-//         dayjs(formData.start_register_date).isBefore(dayjs())
-//           ? "❌ วันเปิดให้นิสิตลงทะเบียนต้องอยู่หลังวันนี้"
-//           : dayjs(formData.start_register_date).isAfter(dayjs(formData.end_register_date))
-//           ? "❌ วันเปิดลงทะเบียนต้องอยู่ก่อนวันปิดลงทะเบียน"
-//           : dayjs(formData.start_register_date).isSame(dayjs(formData.end_register_date))
-//           ? "❌ วันเปิดและวันปิดลงทะเบียนต้องไม่ตรงกัน"
-//           : dayjs(formData.end_register_date).diff(dayjs(formData.start_register_date), 'hour') < 1
-//           ? "❌ วันเปิดและวันปิดลงทะเบียนต้องห่างกันอย่างน้อย 1 ชั่วโมง"
-//           : "❌ วันเปิดลงทะเบียนต้องห่างจากวันลงทะเบียนพิเศษอย่างน้อย 1 ชั่วโมง"
-//       )
-//     : "",
-//             },
-//           }}
-//         />
-//       </LocalizationProvider>
-//     </div>
-//     <p className="text-xs text-gray-500 mt-1">Start</p>
-//   </div>
-
-//   <span className="self-center font-semibold">-</span>
-
-//   {/* End */}
-//   <div className="w-1/2">
-//     <div className="flex flex-col">
-//       <LocalizationProvider dateAdapter={AdapterDayjs}>
-//         <DateTimePicker
-//           className="w-77.5"
-//           minDate={formData.start_register_date ? dayjs(formData.start_register_date) : dayjs()}
-//           value={
-//             formData.end_register_date
-//               ? dayjs(formData.end_register_date)
-//               : null
-//           }
-//           onChange={(newValue) =>
-//             handleDateTimeChange("end_register_date", newValue)
-//           }
-//           disabled={disabled || !formData.start_register_date}
-//           slotProps={{
-//             textField: {
-//               sx: { height: "56px" },
-//               error: !!(
-//                 !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
-//                 formData.activity_status === "Public" &&
-//                 formData.end_register_date &&
-//                 formData.start_register_date &&
-//                 (dayjs(formData.end_register_date)?.isBefore(
-//                   dayjs(formData.start_register_date),
-//                 ) ||
-//                 dayjs(formData.end_register_date)?.isSame(
-//                   dayjs(formData.start_register_date),
-//                 ) ||
-//                 // ✅ เพิ่มการตรวจสอบ: วันที่และเวลาต้องห่างกันอย่างน้อย 1 ชั่วโมง
-//                 dayjs(formData.end_register_date).diff(
-//                   dayjs(formData.start_register_date),
-//                   'hour'
-//                 ) < 1)
-//               ),
-//               helperText:
-//                 !disabled && // ✅ ไม่แสดง error ถ้า field ถูก disable
-//                 formData.activity_status === "Public" &&
-//                 formData.end_register_date &&
-//                 formData.start_register_date &&
-//                 (dayjs(formData.end_register_date)?.isBefore(
-//                   dayjs(formData.start_register_date),
-//                 ) ||
-//                 dayjs(formData.end_register_date)?.isSame(
-//                   dayjs(formData.start_register_date),
-//                 ) ||
-//                 // ✅ เพิ่มการตรวจสอบ: วันที่และเวลาต้องห่างกันอย่างน้อย 1 ชั่วโมง
-//                 dayjs(formData.end_register_date).diff(
-//                   dayjs(formData.start_register_date),
-//                   'hour'
-//                 ) < 1)
-//                   ? (dayjs(formData.end_register_date)?.isBefore(dayjs(formData.start_register_date))
-//                       ? "❌ วันปิดลงทะเบียนต้องอยู่หลังวันเปิดลงทะเบียน"
-//                       : dayjs(formData.end_register_date)?.isSame(dayjs(formData.start_register_date))
-//                       ? "❌ วันเปิดและวันปิดลงทะเบียนต้องไม่ตรงกัน"
-//                       : dayjs(formData.end_register_date).diff(dayjs(formData.start_register_date), 'hour') < 1
-//                       ? "❌ วันเปิดและวันปิดลงทะเบียนต้องห่างกันอย่างน้อย 1 ชั่วโมง"
-//                       : "")
-//                   : "",
-//             },
-//           }}
-//         />
-//       </LocalizationProvider>
-//     </div>
-//     <p className="text-xs text-gray-500 mt-1">End</p>
-//   </div>
-// </div>
-//   </div>
-// </div>
-// </div>
-
-//   );
-// };
-
-// export default RegisterPeriodSection;
-
 // components/AdminActivityForm/RegisterPeriodSection.tsx
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
 import { CreateActivityForm } from "../create_activity_admin";
-import { convertToLocalTimeForPicker } from "../utils/timeUtils";
+import { convertBackendTimeToLocal } from "../utils/timeUtils";
 
 // ————— Constants & small utils —————
 const MIN_DIFF_MINUTES = 60;
 type D = dayjs.Dayjs | null;
 
-// ✅ แก้ตรงนี้: แปลงเป็น local ก่อนเสมอแล้วค่อยสร้าง dayjs
+// ✅ แปลง UTC time จาก backend เป็น local time
 const d = (v?: string | null): D =>
-  v ? dayjs(convertToLocalTimeForPicker(v)) : null;
+  v ? convertBackendTimeToLocal(v) : null;
 
 const isAfter = (a: D, b: D): boolean => !!(a && b && a.isAfter(b));
 const isSame = (a: D, b: D): boolean => !!(a && b && a.isSame(b));
@@ -320,24 +73,24 @@ const validateStartRegister = ({
 
   // ✅ ถ้าเป็นหน้าแก้ไข ไม่ต้องเช็ค error "วันเปิดให้นิสิตลงทะเบียนต้องอยู่หลังวันนี้"
   if (!isEditMode && isBefore(start, dayjs())) {
-    return { error: true, helperText: "❌ วันเปิดให้นิสิตลงทะเบียนต้องอยู่หลังวันนี้" };
+    return { error: true, helperText: "วันเปิดให้นิสิตลงทะเบียนต้องอยู่หลังวันนี้" };
   }
 
   if (end) {
     if (isAfter(start, end)) {
-      return { error: true, helperText: "❌ วันเปิดลงทะเบียนต้องอยู่ก่อนวันปิดลงทะเบียน" };
+      return { error: true, helperText: "วันเปิดลงทะเบียนต้องอยู่ก่อนวันปิดลงทะเบียน" };
     }
     if (isSame(start, end)) {
-      return { error: true, helperText: "❌ วันเปิดและวันปิดลงทะเบียนต้องไม่ตรงกัน" };
+      return { error: true, helperText: "วันเปิดและวันปิดลงทะเบียนต้องไม่ตรงกัน" };
     }
     if (ltMinutes(end, start, MIN_DIFF_MINUTES)) {
-      return { error: true, helperText: "❌ วันเปิดและวันปิดลงทะเบียนต้องห่างกันอย่างน้อย 1 ชั่วโมง" };
+      return { error: true, helperText: "วันเปิดและวันปิดลงทะเบียนต้องห่างกันอย่างน้อย 1 ชั่วโมง" };
     }
   }
 
   // ✅ กฎใหม่: Public + Onsite/Online → start ต้องห่าง special ≥ 60 นาที (ไม่ต้องรอให้ end ถูกกรอก)
   if (isOnsiteOrOnline && special && ltMinutes(start, special, MIN_DIFF_MINUTES)) {
-    return { error: true, helperText: "❌ วันและเวลาเปิดลงทะเบียนต้องห่างจากวันลงทะเบียนพิเศษอย่างน้อย 1 ชั่วโมง" };
+    return { error: true, helperText: "วันและเวลาเปิดลงทะเบียนต้องห่างจากวันลงทะเบียนพิเศษอย่างน้อย 1 ชั่วโมง" };
   }
 
   return { error: false, helperText: "" };
@@ -399,10 +152,10 @@ const RegisterPeriodSection: React.FC<Props> = ({
           helperText: (() => {
             if (disabled || !isPublic || !special) return "";
             if (!isEditMode && isBefore(special, dayjs())) {
-              return "❌ วันลงทะเบียนพิเศษต้องไม่เป็นอดีต";
+              return "วันลงทะเบียนพิเศษต้องไม่เป็นอดีต";
             }
             if (isOnsiteOrOnline && start && ltMinutes(start, special, MIN_DIFF_MINUTES)) {
-              return "❌ วันและเวลาลงทะเบียนพิเศษต้องอยู่ก่อนวันเปิดลงทะเบียนอย่างน้อย 1 ชั่วโมง";
+              return "วันและเวลาลงทะเบียนพิเศษต้องอยู่ก่อนวันเปิดลงทะเบียนอย่างน้อย 1 ชั่วโมง";
             }
             return "";
           })(),
@@ -471,10 +224,10 @@ const RegisterPeriodSection: React.FC<Props> = ({
                           start &&
                           (isBefore(end, start) || isSame(end, start) || ltMinutes(end, start, MIN_DIFF_MINUTES))
                             ? isBefore(end, start)
-                              ? "❌ วันปิดลงทะเบียนต้องอยู่หลังวันเปิดลงทะเบียน"
+                              ? "วันปิดลงทะเบียนต้องอยู่หลังวันเปิดลงทะเบียน"
                               : isSame(end, start)
-                              ? "❌ วันเปิดและวันปิดลงทะเบียนต้องไม่ตรงกัน"
-                              : "❌ วันเปิดและวันปิดลงทะเบียนต้องห่างกันอย่างน้อย 1 ชั่วโมง"
+                              ? "วันเปิดและวันปิดลงทะเบียนต้องไม่ตรงกัน"
+                              : "วันเปิดและวันปิดลงทะเบียนต้องห่างกันอย่างน้อย 1 ชั่วโมง"
                             : "",
                       },
                     }}

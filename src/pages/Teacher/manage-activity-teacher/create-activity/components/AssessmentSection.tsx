@@ -1,5 +1,5 @@
 // components/AdminActivityForm/AssessmentSection.tsx
-import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { MenuItem, Select, SelectChangeEvent, FormHelperText } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
@@ -8,6 +8,8 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { CreateActivityForm } from "../create_activity_admin";
 import { Assessment } from "../../../../../types/model";
+import { validateField, ValidationMode } from "../utils/form_utils";
+import { convertBackendTimeToLocal } from "../utils/timeUtils";
 
 // เพิ่ม timezone plugins
 dayjs.extend(utc);
@@ -23,6 +25,8 @@ interface Props {
   isAssessmentIdEditable?: boolean;
   isStartAssessmentEditable?: boolean;
   isEndAssessmentEditable?: boolean;
+  validationMode?: ValidationMode;
+  originalActivityStatus?: string;
 }
 
 const AssessmentSection: React.FC<Props> = ({
@@ -34,14 +38,16 @@ const AssessmentSection: React.FC<Props> = ({
   isAssessmentIdEditable = true,
   isStartAssessmentEditable = true,
   isEndAssessmentEditable = true,
+  validationMode = 'create',
+  originalActivityStatus,
 }) => {
+  // ✅ ใช้ validateField function ใหม่
+  const startAssessmentValidation = validateField('start_assessment', formData, validationMode, originalActivityStatus);
+  const endAssessmentValidation = validateField('end_assessment', formData, validationMode, originalActivityStatus);
+  const assessmentIdValidation = validateField('assessment_id', formData, validationMode, originalActivityStatus);
 
-const isPublic = formData.activity_status === "Public";
-const isOnsiteOrOnline = formData.event_format === "Onsite" || formData.event_format === "Online";
-
-const endAct = formData.end_activity_date ? dayjs(formData.end_activity_date) : null;
-const startAsm = formData.start_assessment ? dayjs(formData.start_assessment) : null;
-const endAsm   = formData.end_assessment ? dayjs(formData.end_assessment) : null;
+  const endAct = formData.end_activity_date ? convertBackendTimeToLocal(formData.end_activity_date) : null;
+  const startAsm = formData.start_assessment ? convertBackendTimeToLocal(formData.start_assessment) : null;
 
   return (
     <div className="flex space-x-6 items-center mt-6">
@@ -55,6 +61,7 @@ const endAsm   = formData.end_assessment ? dayjs(formData.end_assessment) : null
       onChange={handleChange}
       disabled={disabled || !isAssessmentIdEditable}
       displayEmpty
+      error={assessmentIdValidation.hasError}
       renderValue={(selected) => {
         if (!selected) return "เลือกเเบบประเมิน";
         return assessments.find((a) => a.assessment_id === selected)?.assessment_name || "";
@@ -73,6 +80,11 @@ const endAsm   = formData.end_assessment ? dayjs(formData.end_assessment) : null
         <MenuItem disabled>กำลังโหลดข้อมูล...</MenuItem>
       )}
     </Select>
+    {assessmentIdValidation.hasError && (
+      <FormHelperText error sx={{ mt: 1 }}>
+        {assessmentIdValidation.helperText}
+      </FormHelperText>
+    )}
   </div>
 
   <div className="mt-5">
@@ -86,44 +98,19 @@ const endAsm   = formData.end_assessment ? dayjs(formData.end_assessment) : null
         <div className="flex flex-col">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
-  className="w-77.5"
-  // ให้เลือกได้ "ตั้งแต่วันสิ้นสุดกิจกรรม" เป็นต้นไป (เวลาเดี๋ยวคุมด้วย error)
-  minDate={endAct ?? dayjs()}
-  value={startAsm ?? null}
-  onChange={(newValue) => handleDateTimeChange("start_assessment", newValue)}
-  disabled={disabled || !endAct || !isStartAssessmentEditable}
-  slotProps={{
-    textField: {
-      sx: { height: "56px" },
-      error: !!(
-        !disabled &&
-        isPublic &&
-        isOnsiteOrOnline &&
-        (
-          !startAsm ||
-          (endAct && startAsm.isBefore(endAct)) ||               // <— ไม่เป็นวันเดียวกัน/หลัง หรือเวลา < endAct
-          (endAsm && startAsm.isAfter(endAsm)) ||                // start > end assessment
-          (endAsm && endAsm.diff(startAsm, "hour") < 1)          // ระยะห่าง < 1 ชม.
-        )
-      ),
-      helperText: (() => {
-        if (!(!disabled && isPublic && isOnsiteOrOnline)) return "";
-        if (!startAsm) return "❌ กรุณาเลือกวันและเวลาเริ่มการทำแบบประเมิน";
-        if (endAct && startAsm.isBefore(endAct)) {
-          // ข้อความใหม่ตาม requirement
-          return "❌ วันที่และเวลาเปิดให้ทำแบบประเมินต้องอยู่วันที่เดียวกันหรือหลังวันที่จบกิจกรรมและเวลาต้องอยู่เท่ากับหรือหลังจากเวลาจบกิจกรรม";
-        }
-        if (endAsm && startAsm.isAfter(endAsm)) {
-          return "❌ วันเปิดประเมินต้องอยู่ก่อนวันปิดประเมิน";
-        }
-        if (endAsm && endAsm.diff(startAsm, "hour") < 1) {
-          return "❌ วันเปิดและปิดประเมินต้องห่างกันอย่างน้อย 1 ชั่วโมง";
-        }
-        return "";
-      })(),
-    },
-  }}
-/>
+              className="w-77.5"
+              minDate={endAct ?? dayjs()}
+              value={startAsm ?? null}
+              onChange={(newValue) => handleDateTimeChange("start_assessment", newValue)}
+              disabled={disabled || !endAct || !isStartAssessmentEditable}
+              slotProps={{
+                textField: {
+                  sx: { height: "56px" },
+                  error: startAssessmentValidation.hasError,
+                  helperText: startAssessmentValidation.helperText,
+                },
+              }}
+            />
           </LocalizationProvider>
         </div>
         <p className="text-xs text-gray-500 mt-1">Start</p>
@@ -139,14 +126,14 @@ const endAsm   = formData.end_assessment ? dayjs(formData.end_assessment) : null
               className="w-77.5"
               minDate={
                 formData.start_assessment
-                  ? dayjs(formData.start_assessment).add(1, "hour")
+                  ? convertBackendTimeToLocal(formData.start_assessment)?.add(1, "hour")
                   : formData.end_activity_date
-                  ? dayjs(formData.end_activity_date).add(1, "hour")
+                  ? convertBackendTimeToLocal(formData.end_activity_date)?.add(1, "hour")
                   : dayjs()
               }
               value={
                 formData.end_assessment
-                  ? dayjs(formData.end_assessment)
+                  ? convertBackendTimeToLocal(formData.end_assessment)
                   : null
               }
               onChange={(newValue) =>
@@ -156,52 +143,8 @@ const endAsm   = formData.end_assessment ? dayjs(formData.end_assessment) : null
               slotProps={{
                 textField: {
                   sx: { height: "56px" },
-                  error: !!(
-                    !disabled &&
-                    formData.activity_status === "Public" &&
-                    ((formData.end_assessment === null || formData.end_assessment === undefined) ||
-                      (formData.end_assessment &&
-                        formData.start_assessment &&
-                        ((dayjs(formData.end_assessment).isBefore(
-                          dayjs(formData.start_assessment),
-                        )) ||
-                          (formData.end_activity_date &&
-                            dayjs(formData.end_assessment).isBefore(
-                              dayjs(formData.end_activity_date),
-                            )) ||
-                          (formData.end_assessment &&
-                            formData.start_assessment &&
-                            dayjs(formData.end_assessment).diff(
-                              dayjs(formData.start_assessment),
-                              'hour'
-                            ) < 1))))
-                  ),
-                  helperText:
-                    !disabled &&
-                    formData.activity_status === "Public"
-                      ? (!formData.end_assessment
-                          ? "❌ กรุณาเลือกวันและเวลาสิ้นสุดการทำแบบประเมิน"
-                          : formData.end_assessment &&
-                            formData.start_assessment &&
-                            dayjs(formData.end_assessment).isBefore(
-                              dayjs(formData.start_assessment),
-                            )
-                          ? "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันเริ่มประเมิน"
-                          : formData.end_assessment &&
-                            formData.end_activity_date &&
-                            dayjs(formData.end_assessment).isBefore(
-                              dayjs(formData.end_activity_date),
-                            )
-                          ? "❌ วันสิ้นสุดประเมินต้องอยู่หลังวันสิ้นสุดกิจกรรม"
-                          : formData.end_assessment &&
-                            formData.start_assessment &&
-                            dayjs(formData.end_assessment).diff(
-                              dayjs(formData.start_assessment),
-                              'hour'
-                            ) < 1
-                          ? "❌ วันเปิดและปิดประเมินต้องห่างกันอย่างน้อย 1 ชั่วโมง"
-                          : "")
-                      : "",
+                  error: endAssessmentValidation.hasError,
+                  helperText: endAssessmentValidation.helperText,
                 },
               }}
             />

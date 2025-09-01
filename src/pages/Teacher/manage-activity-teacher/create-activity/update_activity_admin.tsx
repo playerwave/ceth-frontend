@@ -19,11 +19,11 @@ import ConfirmDialog from "../../../../components/ConfirmDialog"; // ✅ เพ�
 
 import {
   handleChange,
+  validateForm,
+  ValidationMode,
   // convertToDate,
 } from "./utils/form_utils"; // หรือเปลี่ยน path ให้ตรงกับตำแหน่งจริง
 import { handleDateTimeChange as handleDateTimeChangeBase } from "./utils/form_utils";
-
-import { handleChange as formHandleChange, validateForm } from "./utils/form_utils";
 import ActivityInfoSection from "./components/ActivityInfoSection";
 import RegisterPeriodSection from "./components/RegisterPeriodSection";
 import ActivityTimeSection from "./components/ActivityTimeSection";
@@ -52,6 +52,14 @@ const CreateActivityAdmin: React.FC = () => {
   const { createActivity, activityLoading, fetchActivity, activity, updateActivity } = useActivityStore(); //
   const { createSecureLink } = useSecureLink();
   const savedFoods = JSON.parse(localStorage.getItem("selectedFoods") || "[]");
+  
+  // ✅ กำหนด validation mode สำหรับ update activity
+  const getValidationMode = (): ValidationMode => {
+    if (activity?.activity_status === "Private" && formData.activity_status === "Public") {
+      return 'edit_private_to_public';
+    }
+    return 'edit';
+  };
   const [formData, setFormData] = useState<CreateActivityForm>({
     activity_id: undefined,
     activity_name: "",
@@ -726,7 +734,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
   // }, [assessments]);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
-    formHandleChange(e, setFormData);
+    handleChange(e, setFormData);
 
     // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
     if (e.target.name === "event_format" && e.target.value === "Course") {
@@ -800,7 +808,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
 
   // ✅ ฟังก์ชัน handleFormChange ที่เพิ่มการตรวจสอบ validation
       const handleFormChangeWithValidation = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
-    formHandleChange(e, setFormData);
+    handleChange(e, setFormData);
 
     // ✅ ถ้าเปลี่ยน event_format เป็น Course ให้เซ็ต seat เป็น 0 และล้างค่าแบบประเมิน
     if (e.target.name === "event_format" && e.target.value === "Course") {
@@ -1024,8 +1032,10 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                 <div className="flex space-x-6  ">
                   <ActivityInfoSection
                     formData={formData}
-                    handleChange={handleFormChangeWithValidation} // ✅ ใช้ฟังก์ชันใหม่ที่มี validation
-                    disabled={!isFieldEditable('activity_name')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                    handleChange={handleFormChangeWithValidation}
+                    disabled={!isFieldEditable('activity_name')}
+                    validationMode={getValidationMode()}
+                    originalActivityStatus={activity?.activity_status}
                   />
 
                   <RegisterPeriodSection
@@ -1068,7 +1078,9 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   <DescriptionSection
                     formData={formData}
                     handleChange={handleFormChange}
-                    disabled={!isFieldEditable('description')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                    disabled={!isFieldEditable('description')}
+                    validationMode={getValidationMode()}
+                    originalActivityStatus={activity?.activity_status}
                   />
 
                   <div className="flex flex-col space-y-3">
@@ -1103,16 +1115,24 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                     handleFloorChange={handleFloorChange}
                     handleRoomChange={handleRoomChange}
                     handleChange={handleFormChangeWithValidation}
-                    disabled={!isFieldEditable('room_id')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
+                    disabled={!isFieldEditable('room_id')}
                     seatCapacity={seatCapacity}
                     setSeatCapacity={setSeatCapacity}
+                    validationMode={getValidationMode()}
+                    originalActivityStatus={activity?.activity_status}
                     roomConflicts={roomConflicts}
                     checkingAvailability={checkingAvailability}
                     hasTimeConflict={roomConflicts.length > 0}
                     currentActivityId={finalActivityId}
                   />
 
-                  <ActivityLink formData={formData} handleChange={handleFormChangeWithValidation} disabled={!isFieldEditable('url')} />
+                  <ActivityLink 
+                    formData={formData} 
+                    handleChange={handleFormChangeWithValidation} 
+                    disabled={!isFieldEditable('url')}
+                    validationMode={getValidationMode()}
+                    originalActivityStatus={activity?.activity_status}
+                  />
                 </div>
 
                 <StatusAndSeatSection
@@ -1122,7 +1142,9 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   setSeatCapacity={setSeatCapacity}
                   selectedRoom={selectedRoom}
                   setFormData={setFormData}
-                  disabled={!isFieldEditable('activity_status')} // ✅ ส่งเงื่อนไขที่ถูกต้องสำหรับ activity_status
+                  disabled={!isFieldEditable('activity_status')}
+                  validationMode={getValidationMode()}
+                  originalActivityStatus={activity?.activity_status}
                 />
 
                 <div className="mt-6 max-w-xl w-full">
@@ -1143,10 +1165,12 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   assessments={assessments}
                   handleChange={handleFormChangeWithValidation}
                   handleDateTimeChange={handleDateTimeChange}
-                  disabled={false} // ✅ ใช้ props เฉพาะเจาะจงแทน
+                  disabled={false}
                   isAssessmentIdEditable={isFieldEditable('assessment_id')}
                   isStartAssessmentEditable={isFieldEditable('start_assessment')}
                   isEndAssessmentEditable={isFieldEditable('end_assessment')}
+                  validationMode={getValidationMode()}
+                  originalActivityStatus={activity?.activity_status}
                 />
 
                 <ImageUploadSection

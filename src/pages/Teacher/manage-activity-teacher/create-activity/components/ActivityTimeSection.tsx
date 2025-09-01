@@ -5,6 +5,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { CreateActivityForm } from "../create_activity_admin";
+import { convertBackendTimeToLocal } from "../utils/timeUtils";
 
 interface Props {
   formData: CreateActivityForm;
@@ -31,9 +32,9 @@ const ActivityTimeSection: React.FC<Props> = ({
 const isOnsiteOrOnline =
   formData.event_format === "Onsite" || formData.event_format === "Online";
 
-const endReg = formData.end_register_date ? dayjs(formData.end_register_date) : null;
-const startAct = formData.start_activity_date ? dayjs(formData.start_activity_date) : null;
-const endAct = formData.end_activity_date ? dayjs(formData.end_activity_date) : null;
+const endReg = formData.end_register_date ? convertBackendTimeToLocal(formData.end_register_date) : null;
+const startAct = formData.start_activity_date ? convertBackendTimeToLocal(formData.start_activity_date) : null;
+const endAct = formData.end_activity_date ? convertBackendTimeToLocal(formData.end_activity_date) : null;
 
 // กฎใหม่: เริ่มกิจกรรมต้องเป็น "วันถัดไป" หลังวันปิดลงทะเบียน
 const mustBeNextDay = !!(isPublic && isOnsiteOrOnline && endReg);
@@ -84,10 +85,10 @@ const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAc
       helperText: (() => {
         if (!(!disabled && isPublic && startAct)) return "";
         if (startBeforeOrOnEndReg) {
-          return "❌ วันเริ่มกิจกรรมต้องเป็นวันถัดไปหลังวันปิดลงทะเบียน (อย่างน้อย 1 วัน)";
+          return "วันเริ่มกิจกรรมต้องเป็นวันถัดไปหลังวันปิดลงทะเบียน (อย่างน้อย 1 วัน)";
         }
         if (endAct && (endAct.diff(startAct, "hour") < 1 || startAct.isSame(endAct))) {
-          return "❌ วันและเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง";
+          return "วันและเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง";
         }
         return "";
       })(),
@@ -109,14 +110,14 @@ const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAc
               className="w-77.5"
               minDate={
                 formData.start_activity_date
-                  ? dayjs(formData.start_activity_date).add(1, "hour")
+                  ? convertBackendTimeToLocal(formData.start_activity_date)?.add(1, "hour")
                   : formData.end_register_date
-                  ? dayjs(formData.end_register_date).add(1, "hour")
+                  ? convertBackendTimeToLocal(formData.end_register_date)?.add(1, "hour")
                   : dayjs().add(1, "day")
               }
               value={
                 formData.end_activity_date
-                  ? dayjs(formData.end_activity_date)
+                  ? convertBackendTimeToLocal(formData.end_activity_date)
                   : null
               }
               onChange={(newValue) =>
@@ -160,26 +161,26 @@ const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAc
                           dayjs(formData.end_activity_date).isBefore(
                             dayjs(formData.start_activity_date),
                           )
-                          ? "❌ วันที่ หรือ เวลาต้องมากกว่าช่วงเริ่มต้น"
+                          ? "วันที่ หรือ เวลาต้องมากกว่าช่วงเริ่มต้น"
                           : formData.start_register_date &&
                             dayjs(formData.end_activity_date).isBefore(
                               dayjs(formData.start_register_date),
                             )
-                          ? "❌ วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาที่เปิดให้นิสิตที่มีสถานะ normal"
+                          ? "วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาที่เปิดให้นิสิตที่มีสถานะ normal"
                           : formData.end_register_date &&
                             dayjs(formData.end_activity_date).isBefore(
                               dayjs(formData.end_register_date),
                             )
-                          ? "❌ วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาปิดการลงทะเบียน"
+                          ? "วันที่ หรือ เวลาสิ้นสุดกิจกรรมต้องอยู่หลังเวลาปิดการลงทะเบียน"
                           : dayjs(formData.end_activity_date).isSame(
                               dayjs(formData.start_activity_date)
                             )
-                          ? "❌ วันและเวลาการดำเนินกิจกรรมต้องไม่ตรงกัน"
+                          ? "วันและเวลาการดำเนินกิจกรรมต้องไม่ตรงกัน"
                           : dayjs(formData.end_activity_date).diff(
                               dayjs(formData.start_activity_date),
                               'hour'
                             ) < 1
-                          ? "❌ วันและเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง"
+                          ? "วันและเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง"
                           : "")
                       : "",
                 },
@@ -262,7 +263,7 @@ const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAc
             formData.event_format === "Course" &&
             (!formData.recieve_hours ||
               Number(formData.recieve_hours) <= 0)
-              ? "❌ ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0"
+              ? "ต้องระบุจำนวนชั่วโมงเป็นตัวเลขที่มากกว่า 0"
               : ""
           }
           sx={{ height: "56px" }}
