@@ -44,7 +44,7 @@ const MultiSelectCheckbox: React.FC<{
 
   return (
     <div className="relative">
-      <button type="button" onClick={toggle} className={btnBase}>
+      <button type="button" onClick={toggle} className={btnBase}data-cy="multi-select-button">
         {selected.length ? `${label} (${selected.length})` : label}
       </button>
 
@@ -55,6 +55,7 @@ const MultiSelectCheckbox: React.FC<{
               <label
                 key={opt}
                 className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer"
+                data-cy={`multi-select-checkbox-${opt}`}
               >
                 <input
                   type="checkbox"
@@ -126,6 +127,7 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
           <button
             onClick={toggle}
             className="ml-14 w-20 h-10 flex items-center rounded-full p-1 transition duration-300 bg-[#1E3A8A]"
+            data-cy="toggle-mode-button"
           >
             <div
               className={`bg-white w-7 h-7 rounded-full shadow-md transform transition duration-300 ${
@@ -165,6 +167,7 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
                   onFilterChange({ year: v === null ? undefined : Number(v) });
                 }}
                 className="min-w-[120px]"
+                data-cy="dropdown-year"
               />
 
               {/* เดือน */}
@@ -177,6 +180,7 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
                   onFilterChange({ month: v === null ? undefined : Number(v) });
                 }}
                 className="min-w-[140px]"
+                data-cy="dropdown-month"
               />
 
               {/* วันเดียว */}
@@ -191,6 +195,7 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
                       toggleCalendar();
                     }
                   }}
+                  data-cy="single-date-button"
                 >
                   {formatBuddhistDate(selectedDate)}
                 </button>
@@ -227,6 +232,7 @@ const ActivityFilterBar: React.FC<ActivityFilterBarProps> = ({
                       toggleCalendar();
                     }
                   }}
+                  data-cy="range-date-button"
                 >
                   {formatBuddhistDate(startDate)} - {formatBuddhistDate(endDate)}
                 </button>
