@@ -99,6 +99,7 @@ const EditFoodAdmin = () => {
             {/* 🔴 ปุ่มลบบน Mobile */}
             <div className="flex justify-end mb-4">
               <Button
+              data-cy="button-delete"
                 onClick={() => setOpen(true)}
                 bgColor="#dc2626"
                 startIcon={<Trash2 size={16} />}
@@ -119,6 +120,7 @@ const EditFoodAdmin = () => {
                   onChange={(e) => setFoodName(e.target.value)}
                   placeholder="ชื่ออาหาร"
                   fullWidth
+                  data-cy="food-name-input"
                 />
               </div>
 
@@ -129,6 +131,7 @@ const EditFoodAdmin = () => {
                     onClick={() => navigate("/list-food-teacher")}
                     bgColor="#dc2626"
                     width="30%"
+                    data-cy="button-cancel"
                   >
                     ยกเลิก
                   </Button>
@@ -136,6 +139,7 @@ const EditFoodAdmin = () => {
                     type="submit"
                     bgColor="#1E3A8A"
                     width="30%"
+                    data-cy="button-save"
                   >
                     บันทึก
                   </Button>
@@ -205,6 +209,7 @@ const EditFoodAdmin = () => {
         icon={<AlertCircle className="w-6 h-6 text-red-500" />}
         onClose={() => setOpen(false)}
         onConfirm={handleDelete}
+        data-cy="delete-dialog"
       />
     </>
   );

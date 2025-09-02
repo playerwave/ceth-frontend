@@ -65,6 +65,7 @@ const CreateFoodAdmin = () => {
                   onChange={(e) => setFoodName(e.target.value)}
                   fullWidth
                   size="medium"
+                  data-cy="input-food-name"
                   sx={{
                     backgroundColor: "white",
                     "& .MuiOutlinedInput-root": {
@@ -83,6 +84,7 @@ const CreateFoodAdmin = () => {
                     onClick={() => navigate("/list-food-teacher")}
                     bgColor="#dc2626"
                     width="30%"
+                    data-cy="button-cancel"
                   >
                     ยกเลิก
                   </Button>
@@ -90,6 +92,7 @@ const CreateFoodAdmin = () => {
                     type="submit"
                     bgColor="#1E3A8A"
                     width="30%"
+                    data-cy="button-save"
                   >
                     บันทึก
                   </Button>
@@ -116,6 +119,7 @@ const CreateFoodAdmin = () => {
                 value={foodName}
                 onChange={(e) => setFoodName(e.target.value)}
                 fullWidth
+                data-cy="input-food-name-desktop"
               />
             </div>
 
@@ -125,12 +129,14 @@ const CreateFoodAdmin = () => {
                 type="button" 
                 bgColor="#dc2626" 
                 onClick={() => navigate("/list-food-teacher")}
+                data-cy="button-cancel-desktop"
               >
                 ยกเลิก
               </Button>
               <Button 
                 type="submit"
                 bgColor="#1E3A8A"
+                data-cy="button-save-desktop"
               >
                 บันทึก
               </Button>

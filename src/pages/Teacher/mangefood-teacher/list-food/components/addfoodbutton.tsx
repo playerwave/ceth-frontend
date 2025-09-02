@@ -13,6 +13,7 @@ const AddFoodButton = () => {
       {/* ปุ่มเพิ่มอาหาร */}
       <Button
         onClick={() => navigate("/create-food-teacher")}
+        data-cy="add-food-button"
         className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-blue-800 text-white rounded-lg hover:bg-blue-900 min-w-[100px]"
       >
         <span className="hidden sm:inline">เพิ่มอาหาร</span>
