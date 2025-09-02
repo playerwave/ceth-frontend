@@ -180,7 +180,7 @@ const filteredItems = role === "Student"
     {filteredItems
       .filter(item => item.text === "ออกจากระบบ")
       .map((item, index) => (
-        <SidebarItem key={`logout-${index}`} {...item} collapsed={isCollapsed} />
+        <SidebarItem key={`logout-${index}`} {...item} collapsed={isCollapsed}data-cy="sidebar-logout-button" />
       ))}
   </div>
 </div>
