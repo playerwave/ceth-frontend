@@ -17,12 +17,10 @@ const ListActivityStudent: React.FC = () => {
   const { user, fetchMe } = useAuthStore();
   const lastStudentIdRef = useRef<number | null>(null);
   
-  // ✅ ใช้ students_id จาก auth store
-  const studentId = useMemo(() => {
-    const id = user?.student?.students_id;
-    console.log("🔍 [DEBUG] Current student ID:", id);
-    return id;
-  }, [user?.student?.students_id]);
+  // ใช้ students_id จาก auth store หรือ fallback เป็น 3
+  // const studentId = useMemo(() => {
+  //   return user?.student?.students_id || 3;
+  // }, [user?.student?.students_id]);
 
   const {
     activities: allPublicActivities,
@@ -39,19 +37,15 @@ const ListActivityStudent: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   // const [openDialog, setOpenDialog] = useState(false);
 
-  // ✅ Fetch user data on mount และเมื่อ user เปลี่ยน
+  // Fetch user data on mount only if user is not authenticated
   useEffect(() => {
     console.log("🔍 [DEBUG] Initial useEffect - user:", user);
-    console.log("🔍 [DEBUG] User role:", user?.role);
-    
-    // ถ้าไม่มี user หรือเป็น Visitor หรือไม่มี student data ให้ fetch
-    if (!user || user.role === "Visitor" || !user.student) {
+    if (!user || user.role === "Visitor") {
       console.log("🔍 [DEBUG] Fetching user data...");
       fetchMe();
     }
   }, [fetchMe, user]); // เพิ่ม dependencies
 
-  // ✅ useEffect สำหรับ fetch กิจกรรมเมื่อมี student ID
   useEffect(() => {
     const id = user?.student?.students_id;
     const isValidId = typeof id === "number" && id > 0;
@@ -68,30 +62,10 @@ const ListActivityStudent: React.FC = () => {
       console.log("📞 [DEBUG] Calling fetchStudentActivities with id:", id);
       fetchStudentActivities(id);
     } else if (!isValidId) {
+      // ✅ ไม่ใช้ fallback ID - รอให้มี user data ก่อน
       console.log("🔍 [DEBUG] No valid student ID - waiting for user data");
     }
   }, [user?.student?.students_id, fetchStudentActivities]);
-
-  // ✅ Force fetch เมื่อ component mount
-  useEffect(() => {
-    if (studentId && typeof studentId === "number" && studentId > 0) {
-      console.log("🔍 [DEBUG] Force fetch on mount with student ID:", studentId);
-      fetchStudentActivities(studentId);
-    }
-  }, [studentId, fetchStudentActivities]);
-
-  // ✅ เพิ่ม useEffect เพื่อ debug และ force fetch
-  useEffect(() => {
-    console.log("🔍 [DEBUG] User state changed:", user);
-    console.log("🔍 [DEBUG] Student data:", user?.student);
-    console.log("🔍 [DEBUG] Student ID:", user?.student?.students_id);
-    
-    // ถ้ามี user แต่ไม่มี student data ให้ fetch ใหม่
-    if (user && !user.student) {
-      console.log("🔍 [DEBUG] User exists but no student data - fetching again");
-      fetchMe();
-    }
-  }, [user, fetchMe]);
 
 
 

@@ -13,10 +13,6 @@ type Props = {
 const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
   console.log("🔍 [DEBUG] ActivityTablePageStudent render - rows1:", rows1);
   console.log("🔍 [DEBUG] ActivityTablePageStudent render - rows2:", rows2);
-  console.log("🔍 [DEBUG] rows1 length:", rows1?.length);
-  console.log("🔍 [DEBUG] rows2 length:", rows2?.length);
-  console.log("🔍 [DEBUG] rows1 type:", typeof rows1);
-  console.log("🔍 [DEBUG] rows2 type:", typeof rows2);
   
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const navigate = useNavigate();
