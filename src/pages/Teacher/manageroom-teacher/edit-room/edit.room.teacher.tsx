@@ -150,6 +150,7 @@ const EditRoomAdmin = () => {
                 value={facultyId}
                 onChange={(e) => setFacultyId(Number(e.target.value))}
                 fullWidth
+                data-cy="faculty-dropdown"
               >
                 {faculties.map(f => (
                   <MenuItem key={f.faculty_id} value={f.faculty_id}>
@@ -168,6 +169,7 @@ const EditRoomAdmin = () => {
                 value={buildingId}
                 onChange={(e) => setBuildingId(Number(e.target.value))}
                 fullWidth
+                data-cy="building-dropdown"
               >
                 {buildings.map(b => (
                   <MenuItem key={b.building_id} value={b.building_id}>
@@ -187,6 +189,7 @@ const EditRoomAdmin = () => {
                   value={floor}
                   onChange={handleFloorChange}
                   fullWidth
+                  data-cy="floor-dropdown"
                 >
                   {[...Array(11)].map((_, i) => (
                     <MenuItem key={i + 1} value={i + 1}>
@@ -204,6 +207,7 @@ const EditRoomAdmin = () => {
                   onChange={(e) => setRoomName(e.target.value)}
                   placeholder="ชื่อห้อง"
                   fullWidth
+                  data-cy="room-name-input"
                 />
               </div>
             </div>
@@ -217,6 +221,7 @@ const EditRoomAdmin = () => {
                 onChange={(e) => setSeatCount(e.target.value)}
                 placeholder="จำนวนที่นั่งของห้อง"
                 fullWidth
+                data-cy="seat-number-input"
               />
 
             </div>
@@ -226,6 +231,7 @@ const EditRoomAdmin = () => {
                   onClick={() => navigate("/list-room-teacher")}
                   bgColor="#dc2626"
                   width="30%"
+                  data-cy="cancel-button"
                 >
                   ยกเลิก
                 </Button>
@@ -233,6 +239,7 @@ const EditRoomAdmin = () => {
                   type="submit"
                   bgColor="#1E3A8A"
                   width="30%"
+                  data-cy="save-button"
                 >
                   บันทึก
                 </Button>
@@ -255,6 +262,7 @@ const EditRoomAdmin = () => {
             bgColor="#dc2626"
             startIcon={<Trash2 size={16} />}
             className="whitespace-nowrap"
+            data-cy="delete-button"
           >
             ลบห้อง
           </Button>
@@ -366,6 +374,7 @@ const EditRoomAdmin = () => {
         icon={<AlertCircle className="w-6 h-6 text-red-500" />}
         onClose={() => setOpen(false)}
         onConfirm={handleDelete}
+        data-cy="delete-dialog"
       />
     </>
   );

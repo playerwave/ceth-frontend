@@ -1,5 +1,5 @@
-describe('Activity Page', () => {
-  it('หน้าระบบจัดการกิจกรรมสหกิจ ทดสอบ searchbar', () => {
+describe('FN-CETH-09 จัดการห้อง', () => {
+  it('TS-CETH-09-03 ตรวจสอบการกดคลิ๊กลิสต์ห้อง', () => {
     cy.visit('http://localhost:5173/activity-list-visitor');
      
     // Login
@@ -10,7 +10,7 @@ describe('Activity Page', () => {
     cy.get('[data-cy="signin-button"]').click();
 
     // รอ Sidebar render แล้วคลิก
-    cy.get('[data-cy="sidebar-รายการกิจกรรม"]', { timeout: 10000 })
+    cy.get('[data-cy="sidebar-จัดการห้อง"]', { timeout: 10000 })
       .should('be.visible')
       .click({ force: true });
 
@@ -19,10 +19,11 @@ describe('Activity Page', () => {
       .should('exist')
       .click({ force: true });
 
-    // Searchbar
-    cy.get('[data-cy="searchbar"]').should('exist').within(() => {
-      cy.get('input').type('ทดสอบสร้างกิจกรรม{enter}');
-      cy.get('button').click();
-    });
+    cy.get('.MuiDataGrid-row', { timeout: 10000 })
+      .should('have.length.greaterThan', 0) // ต้องมี row อย่างน้อย 1 แถว
+      .first()
+      .click()
+      .wait(500)
+      .click();
   });
 });

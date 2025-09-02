@@ -79,6 +79,7 @@ const CreateRoomAdmin = () => {
                 value={facultyId}
                 onChange={(e) => setFacultyId(Number(e.target.value))}
                 fullWidth
+                data-cy="faculty-dropdown"
               >
                 {faculties.map((faculty) => (
                   <MenuItem key={faculty.faculty_id} value={faculty.faculty_id}>
@@ -97,6 +98,7 @@ const CreateRoomAdmin = () => {
                 value={buildingId}
                 onChange={(e) => setBuildingId(Number(e.target.value))}
                 fullWidth
+                data-cy="building-dropdown"
               >
                 {buildings.map((b) => (
                   <MenuItem key={b.building_id} value={b.building_id}>
@@ -116,9 +118,10 @@ const CreateRoomAdmin = () => {
                   value={floor}
                   onChange={handleFloorChange}
                   fullWidth
+                  data-cy="floor-dropdown"
                 >
                   {[...Array(11)].map((_, i) => (
-                    <MenuItem key={i + 1} value={i + 1}>
+                    <MenuItem key={i + 1} value={i + 1}data-cy={`floor-${i + 1}`}>
                       ชั้น {i + 1}
                     </MenuItem>
                   ))}
@@ -133,6 +136,7 @@ const CreateRoomAdmin = () => {
                   value={roomName}
                   onChange={(e) => setRoomName(e.target.value)}
                   fullWidth
+                  data-cy="room-name-input"
                 />
               </div>
             </div>
@@ -146,6 +150,7 @@ const CreateRoomAdmin = () => {
                 value={seatNumber}
                 onChange={(e) => setSeatNumber(e.target.value)}
                 fullWidth
+                data-cy="seat-number-input"
               />
             </div>
 
@@ -156,6 +161,7 @@ const CreateRoomAdmin = () => {
                   onClick={() => navigate("/list-room-teacher")}
                   bgColor="#dc2626"
                   width="30%"
+                  data-cy="cancel-button"
                 >
                   ยกเลิก
                 </Button>
@@ -163,6 +169,7 @@ const CreateRoomAdmin = () => {
                   type="submit"
                   bgColor="#1E3A8A"
                   width="30%"
+                  data-cy="save-button"
                 >
                   บันทึก
                 </Button>

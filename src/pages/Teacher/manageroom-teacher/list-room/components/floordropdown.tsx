@@ -24,6 +24,7 @@ const FloorDropdown: React.FC<Props> = ({
   return (
     <div className="relative" onClick={(e) => e.stopPropagation()}>
       <Button
+        data-cy="floor-dropdown-button"
         onClick={() => setShowDropdown(!showDropdown)}
         className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-blue-800 text-white rounded-lg hover:bg-blue-900 min-w-[100px]"
       >
@@ -34,8 +35,9 @@ const FloorDropdown: React.FC<Props> = ({
 
 
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-300 rounded shadow-md z-50">
+        <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-300 rounded shadow-md z-50"data-cy="floor-dropdown-list">
           <button
+          data-cy="floor-all"
             onClick={() => {
               setFloorFilter("all");
               setShowDropdown(false);
@@ -46,7 +48,8 @@ const FloorDropdown: React.FC<Props> = ({
           </button>
           {floors.map((floor) => (
             <button
-              key={floor}
+              key={floor} 
+              data-cy={`floor-${floor}`}
               onClick={() => {
                 setFloorFilter(floor);
                 setShowDropdown(false);

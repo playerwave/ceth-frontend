@@ -25,6 +25,7 @@ const RoomToolbar: React.FC<Props> = ({
         setFloorFilter={setFloorFilter}
       />
       <Button
+        data-cy="add-room-button"
         onClick={() => navigate("/create-room-teacher")}
         className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-blue-800 text-white rounded-lg hover:bg-blue-900 min-w-[100px] font-medium"
       >

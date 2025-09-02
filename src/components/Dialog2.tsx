@@ -18,11 +18,12 @@ const Dialog2: React.FC<Dialog2Props> = ({
   onClose,
   onConfirm,
   type = "button",
+  'data-cy': dataCy,
 }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"data-cy={dataCy}>
       <div className="bg-white rounded-[8px] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg shadow-lg overflow-hidden flex flex-col">
         {/* เนื้อหา */}
         <div className="flex items-start gap-4 sm:gap-6 p-5 sm:p-6">
@@ -41,12 +42,14 @@ const Dialog2: React.FC<Dialog2Props> = ({
         {/* ปุ่ม */}
         <div className="bg-gray-100 px-4 sm:px-6 py-4 flex flex-wrap justify-end gap-4">
           <button
+          data-cy="Cancel-dialog-button"
             onClick={onClose}
             className="text-red-600 font-medium hover:underline whitespace-nowrap"
           >
             Cancel
           </button>
           <button
+          data-cy="confirm-dialog-button"
             onClick={onConfirm}
             type={type}
             className="bg-[#1E3A8A] text-white font-semibold px-4 py-2 rounded hover:bg-blue-800 transition whitespace-nowrap"
