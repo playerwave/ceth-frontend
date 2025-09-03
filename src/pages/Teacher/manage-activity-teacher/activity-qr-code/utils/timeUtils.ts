@@ -1,4 +1,31 @@
 /**
+ * แสดงเวลาตรงๆ จาก database โดยไม่แปลง timezone
+ * @param timeString - เวลาในรูปแบบ string จาก database
+ * @returns เวลาในรูปแบบ string หรือ "-" ถ้าไม่มีข้อมูล
+ */
+export const formatTimeDirect = (timeString: string | null | undefined): string => {
+  if (!timeString) return "-";
+  
+  try {
+    const date = new Date(timeString);
+    
+    // แสดงเวลาตรงๆ จาก database โดยไม่แปลง timezone
+    return date.toLocaleString('th-TH', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+  } catch (error) {
+    console.error("❌ Error formatting time:", error);
+    return "-";
+  }
+};
+
+/**
  * แปลงเวลาเป็น local time สำหรับประเทศไทย
  * @param timeString - เวลาในรูปแบบ string (UTC หรือ local)
  * @returns เวลาในรูปแบบ local string หรือ "-" ถ้าไม่มีข้อมูล
