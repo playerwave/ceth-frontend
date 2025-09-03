@@ -31,8 +31,9 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
   const { fetchActivity, getEnrolledStudentsForActivity } = useActivityStore();
   const { user, isAuthenticated } = useAuthStore();
 
-  // ✅ ดึง activityId จาก secureParams หรือ useParams
+  // ✅ ดึง activityId จาก secureParams หรือ useParams และแปลงเป็น number
   const activityId = secureParams?.id || id;
+  const parsedActivityId = activityId ? parseInt(activityId.toString(), 10) : undefined;
 
   // Debug logs
   console.log("🔍 QrActivityTeacher: Component rendered with activityId:", activityId);
@@ -62,11 +63,11 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
     }
     
     const loadActivityData = async () => {
-      if (activityId) {
-        console.log("🔍 QrActivityTeacher: Loading activity data for activityId:", activityId);
+      if (parsedActivityId) {
+        console.log("🔍 QrActivityTeacher: Loading activity data for parsedActivityId:", parsedActivityId);
         try {
           // ดึงข้อมูล activity
-          const activityData = await fetchActivity(parseInt(activityId));
+          const activityData = await fetchActivity(parsedActivityId);
           if (activityData) {
             setActivity(activityData);
             setActivityName(activityData.activity_name || "");
@@ -76,13 +77,13 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
           console.error("Error fetching activity:", error);
         }
       } else {
-        console.log("🔍 QrActivityTeacher: No activityId provided");
+        console.log("🔍 QrActivityTeacher: No parsedActivityId provided");
       }
       
       // ดึงข้อมูลนักเรียนที่ลงทะเบียนจริง
-      if (activityId) {
+      if (parsedActivityId) {
         try {
-          const students = await getEnrolledStudentsForActivity(parseInt(activityId));
+          const students = await getEnrolledStudentsForActivity(parsedActivityId);
           console.log("🔍 QrActivityTeacher: Raw students data:", students);
           
           // ตรวจสอบและแปลงข้อมูลให้ถูกต้อง
@@ -108,7 +109,7 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
     };
 
     loadActivityData();
-  }, [activityId, fetchActivity, isAuthenticated, user]);
+  }, [parsedActivityId, fetchActivity, getEnrolledStudentsForActivity, isAuthenticated, user]);
 
   const handleBack = () => {
     navigate(-1);
@@ -131,7 +132,7 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <HeaderCard 
-          activityId={activityId} 
+          activityId={parsedActivityId} 
           activityName={activityName}
           activityState={activity?.activity_state}
           onBack={handleBack} 
@@ -140,10 +141,10 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
         {/* Main Content - QR Code and Table */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* QR Code Section */}
-          <QrCodeCard activityId={activityId} />
+          <QrCodeCard activityId={parsedActivityId} />
 
           {/* Table Section */}
-          <ScannedStudentsCard scannedStudents={scannedStudents} />
+          <ScannedStudentsCard scannedStudents={scannedStudents} activityId={parsedActivityId} />
         </div>
       </div>
     </div>
