@@ -3,7 +3,7 @@ import Card from "../../../../../components/Card";
 import { useQRCodeStore } from "../../../../../stores/Teacher/qr-code.store";
 
 interface QrCodeCardProps {
-  activityId: number | undefined;
+  activityId: string | undefined;
 }
 
 export default function QrCodeCard({ activityId }: QrCodeCardProps) {
@@ -65,15 +65,16 @@ export default function QrCodeCard({ activityId }: QrCodeCardProps) {
     }
     
     if (activityId) {
-      console.log("🔍 QrCodeCard: Using activityId:", activityId);
+      const activityIdNum = parseInt(activityId);
+      console.log("🔍 QrCodeCard: Parsed activityIdNum:", activityIdNum);
       
       // Generate initial QR Code
       console.log("🔍 QrCodeCard: Calling generateQRCode...");
-      generateQRCode(activityId);
+      generateQRCode(activityIdNum);
       
       // Start auto refresh every 15 seconds
       console.log("🔍 QrCodeCard: Starting auto refresh...");
-      startAutoRefresh(activityId);
+      startAutoRefresh(activityIdNum);
       
       // Cleanup on unmount
       return () => {
@@ -93,7 +94,8 @@ export default function QrCodeCard({ activityId }: QrCodeCardProps) {
     console.log("🔄 QrCodeCard: Resetting QR Code...");
     
     try {
-      await resetQRCode(activityId);
+      const activityIdNum = parseInt(activityId);
+      await resetQRCode(activityIdNum);
       console.log("✅ QrCodeCard: QR Code reset successfully");
     } catch (error) {
       console.error("❌ QrCodeCard: Error resetting QR Code:", error);

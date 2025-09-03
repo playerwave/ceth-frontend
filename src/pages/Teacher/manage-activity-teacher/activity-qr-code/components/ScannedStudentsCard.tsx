@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Card from "../../../../../components/Card";
 import Table_re from "../../../../../components/Table_re";
 import axiosInstance from "../../../../../libs/axios";
-import { formatTimeDirect } from "../utils/timeUtils";
+import { formatTimeToLocal } from "../utils/timeUtils";
 
 interface ScannedStudent {
   id: string;
@@ -56,8 +56,6 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
   // ตรวจสอบข้อมูล
   console.log("🔍 ScannedStudentsCard: received students:", scannedStudents);
   console.log("🔍 ScannedStudentsCard: activityId:", activityId);
-  console.log("🔍 ScannedStudentsCard: checkedInStudents:", checkedInStudents);
-  console.log("🔍 ScannedStudentsCard: checkedOutStudents:", checkedOutStudents);
 
   // ดึงข้อมูล check-in และ check-out students
   useEffect(() => {
@@ -92,14 +90,6 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
   const enrichedStudents = scannedStudents.map(student => {
     const checkedIn = checkedInStudents.find(s => s.username === student.username);
     const checkedOut = checkedOutStudents.find(s => s.username === student.username);
-    
-    console.log(`🔍 Enriching student ${student.username}:`, {
-      student,
-      checkedIn,
-      checkedOut,
-      time_in: checkedIn?.time_in || null,
-      time_out: checkedOut?.time_out || null
-    });
     
     return {
       ...student,
@@ -138,7 +128,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       flex: 1,
       renderCell: (params) => (
         <span className={params.value ? "text-green-600 font-medium" : "text-gray-400"}>
-          {formatTimeDirect(params.value)}
+          {formatTimeToLocal(params.value)}
         </span>
       ),
     },
@@ -149,7 +139,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       flex: 1,
       renderCell: (params) => (
         <span className={params.value ? "text-red-600 font-medium" : "text-gray-400"}>
-          {formatTimeDirect(params.value)}
+          {formatTimeToLocal(params.value)}
         </span>
       ),
     },
@@ -186,16 +176,6 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
           </div>
           <div className="text-sm text-gray-600">ลงชื่อออก</div>
         </div>
-      </div>
-      
-      {/* Debug Information */}
-      <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm">
-        <div className="font-semibold text-blue-800">Debug Info:</div>
-        <div>Total Students: {enrichedStudents.length}</div>
-        <div>Checked In: {enrichedStudents.filter(s => s.time_in).length}</div>
-        <div>Checked Out: {enrichedStudents.filter(s => s.time_out).length}</div>
-        <div>Checked In Data: {JSON.stringify(checkedInStudents.map(s => ({ username: s.username, time_in: s.time_in })))}</div>
-        <div>Checked Out Data: {JSON.stringify(checkedOutStudents.map(s => ({ username: s.username, time_out: s.time_out })))}</div>
       </div>
       
       {/* ตรวจสอบข้อมูลก่อนแสดง Table */}

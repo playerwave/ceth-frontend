@@ -2,7 +2,7 @@ import Card from "../../../../../components/Card";
 import Button from "../../../../../components/Button";
 
 interface HeaderCardProps {
-  activityId: number | undefined;
+  activityId: string | undefined;
   activityName?: string;
   activityState?: string;
   onBack: () => void;
