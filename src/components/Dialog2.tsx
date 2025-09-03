@@ -8,6 +8,7 @@ interface Dialog2Props {
   onClose: () => void;
   onConfirm: () => void;
   type?: "button" | "submit";
+  'data-cy'?: string; // เพิ่ม data-cy property
 }
 
 const Dialog2: React.FC<Dialog2Props> = ({
@@ -23,7 +24,7 @@ const Dialog2: React.FC<Dialog2Props> = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"data-cy={dataCy}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" data-cy={dataCy}>
       <div className="bg-white rounded-[8px] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg shadow-lg overflow-hidden flex flex-col">
         {/* เนื้อหา */}
         <div className="flex items-start gap-4 sm:gap-6 p-5 sm:p-6">
