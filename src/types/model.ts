@@ -17,14 +17,14 @@ export interface Activity {
   image_url: string | File;
   activity_status: "Private" | "Public";
   activity_state:
-    | "Not Start"
-    | "Special Open Register"
-    | "Open Register"
-    | "Close Register"
-    | "Start Activity"
-    | "End Activity"
-    | "Start Assessment"
-    | "End Assessment";
+  | "Not Start"
+  | "Special Open Register"
+  | "Open Register"
+  | "Close Register"
+  | "Start Activity"
+  | "End Activity"
+  | "Start Assessment"
+  | "End Assessment";
   status: "Active" | "Inactive";
   last_update_activity_date: string;
   url: string | null;
@@ -107,6 +107,13 @@ export interface Assessment {
   set_number: number;
   status: "Active" | "Inactive";
 }
+
+export interface ApiSetNumber {
+  set_number_id: number;
+  name: string;
+  status: string;
+}
+
 //-----------------------------------------------------------------------------
 
 //--------------------------- SetNumber ---------------------------------------

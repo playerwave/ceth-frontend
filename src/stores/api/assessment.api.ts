@@ -8,3 +8,12 @@ export interface ApiAssessment {
   set_number_id: number;
   status: "Active" | "Inactive";
 }
+
+
+// ใน assessment.api.ts หรือไฟล์ใหม่
+export interface ApiSetNumber {
+  set_number_id: number;
+  name: string;
+  status: string;
+}
+
