@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Card from "../../../../../components/Card";
 import Table_re from "../../../../../components/Table_re";
 import axiosInstance from "../../../../../libs/axios";
-import { formatTimeDirect } from "../utils/timeUtils";
+import { formatTimeToLocal } from "../utils/timeUtils";
 
 interface ScannedStudent {
   id: string;
@@ -128,7 +128,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       flex: 1,
       renderCell: (params) => (
         <span className={params.value ? "text-green-600 font-medium" : "text-gray-400"}>
-          {formatTimeDirect(params.value)}
+          {formatTimeToLocal(params.value)}
         </span>
       ),
     },
@@ -139,7 +139,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       flex: 1,
       renderCell: (params) => (
         <span className={params.value ? "text-red-600 font-medium" : "text-gray-400"}>
-          {formatTimeDirect(params.value)}
+          {formatTimeToLocal(params.value)}
         </span>
       ),
     },
