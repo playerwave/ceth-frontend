@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import Card from "../../../../../components/Card";
 import Table_re from "../../../../../components/Table_re";
 import axiosInstance from "../../../../../libs/axios";
-import { formatTimeToLocal } from "../utils/timeUtils";
 
 interface ScannedStudent {
   id: string;
@@ -99,7 +98,26 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
     };
   });
 
-  // ใช้ function จาก timeUtils แทน
+  // ฟังก์ชันแปลงเวลา
+  const formatTime = (timeString: string | null | undefined): string => {
+    if (!timeString) return "-";
+    
+    try {
+      const date = new Date(timeString);
+      return date.toLocaleString('th-TH', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    } catch (error) {
+      console.error("❌ Error formatting time:", error);
+      return "-";
+    }
+  };
 
   // กำหนด columns สำหรับ DataGrid
   const columns: GridColDef[] = [
@@ -128,7 +146,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       flex: 1,
       renderCell: (params) => (
         <span className={params.value ? "text-green-600 font-medium" : "text-gray-400"}>
-          {formatTimeToLocal(params.value)}
+          {formatTime(params.value)}
         </span>
       ),
     },
@@ -139,7 +157,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       flex: 1,
       renderCell: (params) => (
         <span className={params.value ? "text-red-600 font-medium" : "text-gray-400"}>
-          {formatTimeToLocal(params.value)}
+          {formatTime(params.value)}
         </span>
       ),
     },
