@@ -143,7 +143,7 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
           <QrCodeCard activityId={activityId} />
 
           {/* Table Section */}
-          <ScannedStudentsCard scannedStudents={scannedStudents} />
+          <ScannedStudentsCard scannedStudents={scannedStudents} activityId={parseInt(activityId || '0')} />
         </div>
       </div>
     </div>

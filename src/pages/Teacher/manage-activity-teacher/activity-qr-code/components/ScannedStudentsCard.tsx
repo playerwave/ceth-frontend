@@ -71,8 +71,10 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
         setCheckedInStudents(checkedInResponse.data.data || []);
         setCheckedOutStudents(checkedOutResponse.data.data || []);
         
-        console.log("📊 Checked-in students:", checkedInResponse.data.data);
-        console.log("📊 Checked-out students:", checkedOutResponse.data.data);
+        console.log("📊 Checked-in students response:", checkedInResponse);
+        console.log("📊 Checked-out students response:", checkedOutResponse);
+        console.log("📊 Checked-in students data:", checkedInResponse.data.data);
+        console.log("📊 Checked-out students data:", checkedOutResponse.data.data);
       } catch (error) {
         console.error("❌ Error fetching check-in/out data:", error);
       } finally {
