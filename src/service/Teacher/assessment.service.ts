@@ -1,10 +1,10 @@
 import axiosInstance from "../../libs/axios";
-import { ApiAssessment, ApiSetNumber } from "../../stores/api/assessment.api";
+import { ApiAssessment } from "../../stores/api/assessment.api";
 
 // 🔄 ดึงรายการแบบประเมินทั้งหมด
-export const getAllAssessments = async (): Promise<ApiSetNumber[]> => {
-  const response = await axiosInstance.get<{ data: ApiSetNumber[] }>(
-    "/teacher/setNumber/get-set-numbers"
+export const getAllAssessments = async (): Promise<ApiAssessment[]> => {
+  const response = await axiosInstance.get<{ data: ApiAssessment[] }>(
+    "/teacher/assessment/get-all-assessments"
   );
   return response.data.data; // ✅ เข้าถึง array ข้างใน
 };
