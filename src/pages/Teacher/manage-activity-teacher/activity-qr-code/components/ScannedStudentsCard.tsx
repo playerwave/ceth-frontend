@@ -6,9 +6,9 @@ import axiosInstance from "../../../../../libs/axios";
 
 interface ScannedStudent {
   id: string;
-  first_name: string;
-  last_name: string;
-  department_name: string;
+  first_name_tha: string;
+  last_name_tha: string;
+  department_short_name: string;
   username: string;
   fullName: string;
   time_in?: string | null;
@@ -17,9 +17,9 @@ interface ScannedStudent {
 
 interface CheckedInStudent {
   students_id: number;
-  first_name: string;
-  last_name: string;
-  department_name: string;
+  first_name_tha: string;
+  last_name_tha: string;
+  department_short_name: string;
   username: string;
   activity_detail_id: number;
   time_in: string;
@@ -30,9 +30,9 @@ interface CheckedInStudent {
 
 interface CheckedOutStudent {
   students_id: number;
-  first_name: string;
-  last_name: string;
-  department_name: string;
+  first_name_tha: string;
+  last_name_tha: string;
+  department_short_name: string;
   username: string;
   activity_detail_id: number;
   time_in: string;
@@ -90,6 +90,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
     
     return {
       ...student,
+      fullName: `${student.first_name_tha || ''} ${student.last_name_tha || ''}`.trim(),
       time_in: checkedIn?.time_in || null,
       time_out: checkedOut?.time_out || null,
     };
@@ -125,7 +126,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       flex: 1,
     },
     {
-      field: 'department_name',
+      field: 'department_short_name',
       headerName: 'สาขา',
       width: 200,
       flex: 1,

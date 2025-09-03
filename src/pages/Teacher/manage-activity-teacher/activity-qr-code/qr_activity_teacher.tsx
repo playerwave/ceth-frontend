@@ -9,9 +9,9 @@ import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 
 interface ScannedStudent {
   id: string;
-  first_name: string;
-  last_name: string;
-  department_name: string;
+  first_name_tha: string;
+  last_name_tha: string;
+  department_short_name: string;
   username: string;
   fullName: string;
 }
@@ -91,7 +91,7 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
           // เพิ่ม fullName field ให้กับข้อมูลนักเรียน
           const studentsWithFullName = validStudents.map(student => ({
             ...student,
-            fullName: `${student.first_name || ''} ${student.last_name || ''}`.trim()
+            fullName: `${student.first_name_tha || ''} ${student.last_name_tha || ''}`.trim()
           }));
           
           setScannedStudents(studentsWithFullName);
