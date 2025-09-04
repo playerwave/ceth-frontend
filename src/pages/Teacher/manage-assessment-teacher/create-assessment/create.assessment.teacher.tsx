@@ -4,6 +4,30 @@ import Section from "../create-assessment/components/Section";
 import { useAssessmentStore } from "../create-assessment/store/assessmentStore";
 import Button from "../../../../components/Button";
 
+// ✅ import services
+import { createSetNumber } from "../service/setNumber.service";
+import { createQuestion } from "../service/question.service";
+import { createChoice } from "../service/choice.service";
+// ✅ import types
+import { QuestionType } from "../type/assessment.type";
+
+const mapQuestionType = (
+  uiType: "choice" | "checkbox" | "text" | "rating"
+): QuestionType => {
+  switch (uiType) {
+    case "choice":
+      return "Single answer";       // mapping choice → Single answer
+    case "checkbox":
+      return "Multiple answer";     // mapping checkbox → Multiple answer
+    case "text":
+      return "Text answer";         // mapping text → Text answer
+    case "rating":
+      return "Fix Single answer";   // mapping rating → Fix Single answer
+    default:
+      return "Text answer";
+  }
+};
+
 const CreateAssessmentTeacher = () => {
   const {
     formTitle,
@@ -36,22 +60,75 @@ const CreateAssessmentTeacher = () => {
     setSections(newSections);
   };
 
-  const saveForm = () => {
-    console.log("=== FORM DATA ===", {
-      title: formTitle,
-      description: formDescription,
-      sections,
-      createdAt: new Date().toISOString(),
-      totalSections: sections.length,
-      totalQuestions: sections.reduce((t, s) => t + s.questions.length, 0),
-    });
-    alert(
-      `บันทึกสำเร็จ! หัวข้อ ${sections.length} คำถาม ${sections.reduce(
-        (t, s) => t + s.questions.length,
-        0
-      )}`
-    );
+
+  // ✅ ฟังก์ชันบันทึกลง backend จริง
+  const saveForm = async () => {
+    try {
+      console.log("=== FORM DATA ที่จะส่งทั้งหมด ===", {
+        title: formTitle,
+        description: formDescription,
+        sections,
+      });
+
+      // 1) สร้าง SetNumber
+      const setNumberRes = await createSetNumber({
+        name: formTitle,
+        status: "Active",
+      });
+      console.log("📌 Response createSetNumber:", setNumberRes);
+
+      const setNumberId = setNumberRes?.set_number_id ?? setNumberRes?.setNumber?.set_number_id;
+      if (!setNumberId) {
+        console.error("❌ ไม่พบ set_number_id:", setNumberRes);
+        alert("บันทึกไม่สำเร็จ: set_number_id หายไป");
+        return;
+      }
+      console.log("📌 ใช้ set_number_id:", setNumberId);
+
+      // 2) loop ทุก section → questions
+      for (const section of sections) {
+        for (const q of section.questions) {
+          const questionPayload = {
+            question_text: q.question?.trim() ?? "",
+            question_type: mapQuestionType(q.type),
+            set_number_id: setNumberId,
+          };
+
+          console.log("➡️ เตรียมส่ง Question:", questionPayload);
+
+          const questionRes = await createQuestion(questionPayload);
+          console.log("✅ Response createQuestion:", questionRes);
+
+          const questionId = questionRes?.question?.question_id ?? questionRes?.question_id;
+          if (!questionId) {
+            console.error("❌ question_id ไม่เจอใน response:", questionRes);
+            alert("บันทึกไม่สำเร็จ: question_id หายไป");
+            return;
+          }
+          console.log("📌 ใช้ question_id:", questionId);
+
+          // 3) loop options → choices
+          for (let i = 0; i < q.options.length; i++) {
+            const choicePayload = {
+              choice_text: q.options[i],
+              question_id: questionId,
+            };
+
+            console.log("➡️ เตรียมส่ง Choice:", choicePayload);
+
+            const choiceRes = await createChoice(choicePayload);
+            console.log("✅ Response createChoice:", choiceRes);
+          }
+        }
+      }
+
+      alert("บันทึกแบบประเมินสำเร็จ!");
+    } catch (err) {
+      console.error("❌ Save error:", err);
+      alert("บันทึกไม่สำเร็จ");
+    }
   };
+
 
   return (
     <div className="max-w-4xl mx-auto bg-gray-200 rounded-xl px-4 py-8">

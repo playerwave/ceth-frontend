@@ -1,36 +1,44 @@
-// src/services/choice.api.ts
 import axios from "axios";
-import { Choice }from "../type/assessment.type";
-
 
 const API_URL = "http://localhost:5090/api/teacher/choice";
 
-// ✅ ดึง choices ทั้งหมด
-export const getChoices = async (): Promise<Choice[]> => {
-  const res = await axios.get(`${API_URL}/get-choices`);
+const getAuthHeader = () => {
+  const token = localStorage.getItem("auth-token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+export const getChoices = async () => {
+  const res = await axios.get(`${API_URL}/get-choices`, {
+    headers: getAuthHeader(),
+  });
   return res.data;
 };
 
-// ✅ ดึง choice ตาม id
-export const getChoiceById = async (id: number): Promise<Choice> => {
-  const res = await axios.get(`${API_URL}/get-choice/${id}`);
+export const getChoicesByQuestion = async (questionId: number) => {
+  const res = await axios.get(`${API_URL}/get-choices-by-question/${questionId}`, {
+    headers: getAuthHeader(),
+  });
   return res.data;
 };
 
-// ✅ สร้าง choice ใหม่
-export const createChoice = async (data: Partial<Choice>) => {
-  const res = await axios.post(`${API_URL}/create-choice`, data);
+// ✅ แก้ endpoint ให้ตรงกับ backend
+export const createChoice = async (data: any) => {
+  const res = await axios.post(`${API_URL}/add`, data, {
+    headers: getAuthHeader(),
+  });
   return res.data;
 };
 
-// ✅ อัปเดต choice
-export const updateChoice = async (id: number, data: Partial<Choice>) => {
-  const res = await axios.put(`${API_URL}/update-choice/${id}`, data);
+export const updateChoice = async (id: number, data: any) => {
+  const res = await axios.put(`${API_URL}/edit/${id}`, data, {
+    headers: getAuthHeader(),
+  });
   return res.data;
 };
 
-// ✅ ลบ choice
 export const deleteChoice = async (id: number) => {
-  const res = await axios.delete(`${API_URL}/delete-choice/${id}`);
+  const res = await axios.delete(`${API_URL}/delete/${id}`, {
+    headers: getAuthHeader(),
+  });
   return res.data;
 };

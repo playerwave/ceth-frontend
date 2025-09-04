@@ -41,30 +41,30 @@ export default function AssessmentTable({
   console.log("Rows received by AssessmentTable:", rows);
   console.log("Filtered Rows (no type filter):", filteredRows);
 
- const columns: GridColDef[] = [
-  {
-    field: "name",
-    headerName: "ชื่อชุดข้อสอบ",
-    flex: 1,
-    align: "center",
-    headerAlign: "center",
-    sortable: true,
-  },
-  {
-    field: "status",
-    headerName: "สถานะ",
-    flex: 1,
-    align: "center",
-    headerAlign: "center",
-    sortable: true,
-  },
-  {
-    field: "actions",
-    headerName: "จัดการ",
-    sortable: false,
-    align: "center",
-    headerAlign: "center",
-     renderCell: (params: GridRenderCellParams) => (
+  const columns: GridColDef[] = [
+    {
+      field: "name",
+      headerName: "ชื่อชุดข้อสอบ",
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+      sortable: true,
+    },
+    {
+      field: "status",
+      headerName: "สถานะ",
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+      sortable: true,
+    },
+    {
+      field: "actions",
+      headerName: "จัดการ",
+      sortable: false,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params: GridRenderCellParams) => (
         <Box
           sx={{
             display: "flex",
@@ -109,8 +109,8 @@ export default function AssessmentTable({
           )}
         </Box>
       ),
-  },
-];
+    },
+  ];
 
 
   return (
@@ -145,7 +145,7 @@ export default function AssessmentTable({
         >
           <DataGrid
             columns={columns}
-            rows={filteredRows}
+            rows={rows}
             getRowId={(row) => row.set_number_id}
             pageSizeOptions={[5, 10, 20]}
             initialState={{
@@ -182,9 +182,9 @@ export default function AssessmentTable({
                 overflow: "hidden",
                 boxSizing: "border-box",
                 "& .MuiDataGrid-columnHeaderTitleContainer > .MuiDataGrid-sortIcon":
-                  {
-                    color: "white",
-                  },
+                {
+                  color: "white",
+                },
               },
               "& .MuiDataGrid-columnHeader": {
                 backgroundColor: "#1E3A8A",

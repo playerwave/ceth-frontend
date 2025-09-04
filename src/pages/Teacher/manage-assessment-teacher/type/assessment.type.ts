@@ -31,10 +31,11 @@ export interface Choice {
 
 // SetNumber.ts
 export interface SetNumber {
-  set_number_id: number;
-  name: string;
-  status: string;
+  set_number_id: number;   // primary key
+  name: string;            // required
+  status: string;          // required
 }
+
 
 // Answer.ts
 export interface Answer {
