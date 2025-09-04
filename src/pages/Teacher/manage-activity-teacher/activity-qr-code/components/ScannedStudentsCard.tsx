@@ -50,6 +50,7 @@ interface ScannedStudentsCardProps {
 export default function ScannedStudentsCard({ scannedStudents, activityId }: ScannedStudentsCardProps) {
   const [checkedInStudents, setCheckedInStudents] = useState<CheckedInStudent[]>([]);
   const [checkedOutStudents, setCheckedOutStudents] = useState<CheckedOutStudent[]>([]);
+  const [allStudents, setAllStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   // ตรวจสอบข้อมูล
@@ -107,33 +108,6 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       time_out: checkedOut?.time_out || null,
     };
   });
-
-  // ✅ สร้าง enrichedStudents จากข้อมูล API โดยตรง
-  const apiStudents = [
-    ...checkedInStudents.map(student => ({
-      id: student.students_id.toString(),
-      first_name_tha: student.first_name_tha,
-      last_name_tha: student.last_name_tha,
-      department_short_name: student.department_short_name,
-      username: student.username,
-      fullName: `${student.first_name_tha || ''} ${student.last_name_tha || ''}`.trim(),
-      time_in: student.time_in,
-      time_out: null,
-    })),
-    ...checkedOutStudents.map(student => ({
-      id: student.students_id.toString(),
-      first_name_tha: student.first_name_tha,
-      last_name_tha: student.last_name_tha,
-      department_short_name: student.department_short_name,
-      username: student.username,
-      fullName: `${student.first_name_tha || ''} ${student.last_name_tha || ''}`.trim(),
-      time_in: student.time_in,
-      time_out: student.time_out,
-    }))
-  ];
-
-  // ✅ ใช้ enrichedStudents ถ้ามีข้อมูล หรือใช้ apiStudents ถ้าไม่มี
-  const finalStudents = enrichedStudents.length > 0 ? enrichedStudents : apiStudents;
 
   // Debug: แสดงข้อมูล enrichedStudents
   console.log("🔍 ScannedStudentsCard: enrichedStudents:", enrichedStudents);
@@ -221,32 +195,32 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       {/* สถิติการเข้าร่วม */}
       <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-800">{finalStudents.length}</div>
+          <div className="text-2xl font-bold text-gray-800">{enrichedStudents.length}</div>
           <div className="text-sm text-gray-600">รวมทั้งหมด</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-green-600">
-            {finalStudents.filter(s => s.time_in).length}
+            {enrichedStudents.filter(s => s.time_in).length}
           </div>
           <div className="text-sm text-gray-600">ลงชื่อเข้า {}</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-red-600">
-            {finalStudents.filter(s => s.time_out).length}
+            {enrichedStudents.filter(s => s.time_out).length}
           </div>
           <div className="text-sm text-gray-600">ลงชื่อออก</div>
         </div>
       </div>
       
       {/* ตรวจสอบข้อมูลก่อนแสดง Table */}
-      {finalStudents.length === 0 ? (
+      {!Array.isArray(scannedStudents) || scannedStudents.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <p>ยังไม่มีนักเรียนลงทะเบียน</p>
         </div>
       ) : (
         <Table_re
           columns={columns}
-          rows={finalStudents}
+          rows={enrichedStudents}
           height={400}
           initialPageSize={10}
           getRowId={(row) => row.id}
