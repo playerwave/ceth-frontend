@@ -119,21 +119,29 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
     fetchCheckInOutData();
   }, [activityId]);
 
-  // ฟังก์ชันแปลงเวลา
+  // ฟังก์ชันแปลงเวลา - แสดงเวลาตามที่บันทึกในฐานข้อมูลโดยไม่ปรับ timezone
   const formatTime = (timeString: string | null | undefined): string => {
     if (!timeString) return "-";
     
     try {
+      // แปลง string เป็น Date object
       const date = new Date(timeString);
-      return date.toLocaleString('th-TH', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
+      
+      // ตรวจสอบว่าเป็น valid date หรือไม่
+      if (isNaN(date.getTime())) {
+        console.warn("⚠️ Invalid date string:", timeString);
+        return "-";
+      }
+      
+      // แสดงเวลาตามที่บันทึกในฐานข้อมูลโดยไม่ปรับ timezone
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     } catch (error) {
       console.error("❌ Error formatting time:", error);
       return "-";
