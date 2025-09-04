@@ -48,9 +48,9 @@ interface ScannedStudentsCardProps {
 }
 
 export default function ScannedStudentsCard({ scannedStudents, activityId }: ScannedStudentsCardProps) {
-  const [checkedInStudents, setCheckedInStudents] = useState<CheckedInStudent[]>([]);
-  const [checkedOutStudents, setCheckedOutStudents] = useState<CheckedOutStudent[]>([]);
-  // const [allStudents, setAllStudents] = useState<any[]>([]);
+  const [allScannedStudents, setAllScannedStudents] = useState<ScannedStudent[]>([]);
+  // const [checkedInStudents, setCheckedInStudents] = useState<CheckedInStudent[]>([]);
+  // const [checkedOutStudents, setCheckedOutStudents] = useState<CheckedOutStudent[]>([]);
   const [loading, setLoading] = useState(false);
 
   // ตรวจสอบข้อมูล
@@ -79,13 +79,36 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
           axiosInstance.get(`/teacher/activity/students-checked-out/${activityId}`)
         ]);
 
-        setCheckedInStudents(checkedInResponse.data.data || []);
-        setCheckedOutStudents(checkedOutResponse.data.data || []);
+        const checkedInData = checkedInResponse.data.data || [];
+        const checkedOutData = checkedOutResponse.data.data || [];
+
+        // setCheckedInStudents(checkedInData);
+        // setCheckedOutStudents(checkedOutData);
         
         console.log("📊 Checked-in students response:", checkedInResponse);
         console.log("📊 Checked-out students response:", checkedOutResponse);
-        console.log("📊 Checked-in students data:", checkedInResponse.data.data);
-        console.log("📊 Checked-out students data:", checkedOutResponse.data.data);
+        console.log("📊 Checked-in students data:", checkedInData);
+        console.log("📊 Checked-out students data:", checkedOutData);
+
+        // สร้างข้อมูลรวมจาก checked-in students (ทุกคนที่มี time_in)
+        const combinedStudents: ScannedStudent[] = checkedInData.map((student: CheckedInStudent) => {
+          const checkedOut = checkedOutData.find((s: CheckedOutStudent) => s.username === student.username);
+          
+          return {
+            id: student.students_id.toString(),
+            first_name_tha: student.first_name_tha,
+            last_name_tha: student.last_name_tha,
+            department_short_name: student.department_short_name,
+            username: student.username,
+            fullName: `${student.first_name_tha} ${student.last_name_tha}`,
+            time_in: student.time_in,
+            time_out: checkedOut?.time_out || null,
+          };
+        });
+
+        setAllScannedStudents(combinedStudents);
+        console.log("🔍 Combined students:", combinedStudents);
+        
       } catch (error) {
         console.error("❌ Error fetching check-in/out data:", error);
       } finally {
@@ -95,24 +118,6 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
 
     fetchCheckInOutData();
   }, [activityId]);
-
-  // รวมข้อมูล scanned students กับ check-in/out data
-  const enrichedStudents = scannedStudents.map(student => {
-    const checkedIn = checkedInStudents.find(s => s.username === student.username);
-    const checkedOut = checkedOutStudents.find(s => s.username === student.username);
-    
-    return {
-      ...student,
-      fullName: `${student.first_name_tha || ''} ${student.last_name_tha || ''}`.trim(),
-      time_in: checkedIn?.time_in || null,
-      time_out: checkedOut?.time_out || null,
-    };
-  });
-
-  // Debug: แสดงข้อมูล enrichedStudents
-  console.log("🔍 ScannedStudentsCard: enrichedStudents:", enrichedStudents);
-  console.log("🔍 ScannedStudentsCard: Students with time_in:", enrichedStudents.filter(s => s.time_in));
-  console.log("🔍 ScannedStudentsCard: Students with time_out:", enrichedStudents.filter(s => s.time_out));
 
   // ฟังก์ชันแปลงเวลา
   const formatTime = (timeString: string | null | undefined): string => {
@@ -195,32 +200,36 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       {/* สถิติการเข้าร่วม */}
       <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-800">{enrichedStudents.length}</div>
+          <div className="text-2xl font-bold text-gray-800">{allScannedStudents.length}</div>
           <div className="text-sm text-gray-600">รวมทั้งหมด</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-green-600">
-            {enrichedStudents.filter(s => s.time_in).length}
+            {allScannedStudents.filter(s => s.time_in).length}
           </div>
-          <div className="text-sm text-gray-600">ลงชื่อเข้า {}</div>
+          <div className="text-sm text-gray-600">ลงชื่อเข้า</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-red-600">
-            {enrichedStudents.filter(s => s.time_out).length}
+            {allScannedStudents.filter(s => s.time_out).length}
           </div>
           <div className="text-sm text-gray-600">ลงชื่อออก</div>
         </div>
       </div>
       
       {/* ตรวจสอบข้อมูลก่อนแสดง Table */}
-      {!Array.isArray(scannedStudents) || scannedStudents.length === 0 ? (
+      {!Array.isArray(allScannedStudents) || allScannedStudents.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          <p>ยังไม่มีนักเรียนลงทะเบียน</p>
+          {loading ? (
+            <p>กำลังโหลดข้อมูล...</p>
+          ) : (
+            <p>ยังไม่มีนักเรียนลงทะเบียน</p>
+          )}
         </div>
       ) : (
         <Table_re
           columns={columns}
-          rows={enrichedStudents}
+          rows={allScannedStudents}
           height={400}
           initialPageSize={10}
           getRowId={(row) => row.id}
