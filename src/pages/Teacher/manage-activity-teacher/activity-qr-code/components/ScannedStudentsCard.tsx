@@ -119,15 +119,26 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
     
     try {
       const date = new Date(timeString);
-      return date.toLocaleString('th-TH', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      });
+      
+      // Debug: แสดงข้อมูลเวลา
+      console.log("🔍 formatTime: Original timeString:", timeString);
+      console.log("🔍 formatTime: Date object:", date);
+      console.log("🔍 formatTime: Local time:", date.toLocaleString());
+      console.log("🔍 formatTime: UTC time:", date.toUTCString());
+      
+      // แปลงเป็นเวลาท้องถิ่นโดยไม่บวก timezone offset
+      // ใช้ UTC methods เพื่อหลีกเลี่ยง timezone conversion
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(date.getUTCDate()).padStart(2, '0');
+      const hours = String(date.getUTCHours()).padStart(2, '0');
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+      const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+      
+      const formattedTime = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+      console.log("🔍 formatTime: Formatted result:", formattedTime);
+      
+      return formattedTime;
     } catch (error) {
       console.error("❌ Error formatting time:", error);
       return "-";
@@ -201,7 +212,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
           <div className="text-2xl font-bold text-green-600">
             {enrichedStudents.filter(s => s.time_in).length}
           </div>
-          <div className="text-sm text-gray-600">ลงชื่อเข้า</div>
+          <div className="text-sm text-gray-600">ลงชื่อเข้า {}</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-red-600">
