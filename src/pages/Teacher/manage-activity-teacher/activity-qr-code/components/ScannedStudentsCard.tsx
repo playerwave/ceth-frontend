@@ -50,7 +50,7 @@ interface ScannedStudentsCardProps {
 export default function ScannedStudentsCard({ scannedStudents, activityId }: ScannedStudentsCardProps) {
   const [checkedInStudents, setCheckedInStudents] = useState<CheckedInStudent[]>([]);
   const [checkedOutStudents, setCheckedOutStudents] = useState<CheckedOutStudent[]>([]);
-  const [allStudents, setAllStudents] = useState<any[]>([]);
+  // const [allStudents, setAllStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   // ตรวจสอบข้อมูล
