@@ -8,38 +8,29 @@ const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+// ✅ ดึงทั้งหมด
 export const getSetNumbers = async () => {
   const res = await axios.get(`${API_URL}/get-set-numbers`, {
     headers: getAuthHeader(),
   });
-
-  console.log("📥 Response getSetNumbers:", res.data);
-
-  // ✅ backend ส่ง { message, data: [...] }
-  if (Array.isArray(res.data)) {
-    return res.data;
-  }
-  if (res.data?.data) {
-    return res.data.data;   // ดึง array ออกมา
-  }
-  return [];
+  return res.data?.data ?? [];
 };
 
+// ✅ ดึงเฉพาะตัวเดียว
+export const getSetNumberById = async (id: number) => {
+  const res = await axios.get(`${API_URL}/get-set-number/${id}`, {
+    headers: getAuthHeader(),
+  });
+  return res.data?.data;
+};
 
 export const createSetNumber = async (data: { name: string; status: string }) => {
   const res = await axios.post(`${API_URL}/create-set-number`, data, {
     headers: getAuthHeader(),
   });
-
-  console.log("📥 Response จาก backend (create-set-number):", res.data);
-
-  // ถ้า backend ส่ง { message, setNumber: {...} }
-  if (res.data?.setNumber) {
-    return res.data.setNumber;
-  }
-
-  return res.data;
+  return res.data?.setNumber ?? res.data;
 };
+
 export const updateSetNumber = async (id: number, data: any) => {
   const res = await axios.put(`${API_URL}/update-set-number/${id}`, data, {
     headers: getAuthHeader(),

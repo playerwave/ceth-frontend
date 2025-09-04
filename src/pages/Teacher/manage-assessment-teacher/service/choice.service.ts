@@ -11,17 +11,16 @@ export const getChoices = async () => {
   const res = await axios.get(`${API_URL}/get-choices`, {
     headers: getAuthHeader(),
   });
-  return res.data;
+  return res.data?.data ?? [];
 };
 
 export const getChoicesByQuestion = async (questionId: number) => {
   const res = await axios.get(`${API_URL}/get-choices-by-question/${questionId}`, {
     headers: getAuthHeader(),
   });
-  return res.data;
+  return res.data?.data ?? [];
 };
 
-// ✅ แก้ endpoint ให้ตรงกับ backend
 export const createChoice = async (data: any) => {
   const res = await axios.post(`${API_URL}/add`, data, {
     headers: getAuthHeader(),

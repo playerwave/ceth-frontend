@@ -11,10 +11,19 @@ export const getQuestions = async () => {
   const res = await axios.get(`${API_URL}/get-questions`, {
     headers: getAuthHeader(),
   });
-  return res.data;
+  return res.data?.data ?? [];
 };
 
-// ✅ แก้ให้ตรงกับ backend route
+// ✅ เรียก endpoint ที่มีอยู่จริง
+export const getQuestionsBySetNumberId = async (setNumberId: number) => {
+  const res = await axios.get(
+    `http://localhost:5090/api/teacher/setNumber/get-set-number-qyestion/${setNumberId}`,
+    { headers: getAuthHeader() }
+  );
+  return res.data?.data ?? [];
+};
+
+
 export const createQuestion = async (data: any) => {
   const res = await axios.post(`${API_URL}/add`, data, {
     headers: getAuthHeader(),

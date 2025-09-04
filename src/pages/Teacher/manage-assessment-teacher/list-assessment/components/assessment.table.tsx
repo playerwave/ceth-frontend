@@ -6,6 +6,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import { useState } from "react";
 
+import { useNavigate } from "react-router-dom"; // ✅ import useNavigate
 import { Assessment } from "../../../../../types/model";
 
 import {
@@ -40,6 +41,7 @@ export default function AssessmentTable({
   const filteredRows = rows;
   console.log("Rows received by AssessmentTable:", rows);
   console.log("Filtered Rows (no type filter):", filteredRows);
+  const navigate = useNavigate(); // ✅ ใช้งาน navigate
 
   const columns: GridColDef[] = [
     {
@@ -159,6 +161,10 @@ export default function AssessmentTable({
             disableRowSelectionOnClick
             autoHeight={false}
             rowHeight={40}
+            // ✅ ดับเบิลคลิกเพื่อไปหน้าแก้ไข
+            onRowDoubleClick={(params) =>
+              navigate(`/update-assessment-teacher/${params.row.set_number_id}`)
+            }
             sx={{
               "&.MuiDataGrid-root": {
                 border: "none",
