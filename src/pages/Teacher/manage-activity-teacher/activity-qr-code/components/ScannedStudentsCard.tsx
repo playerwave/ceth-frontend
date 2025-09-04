@@ -108,6 +108,33 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
     };
   });
 
+  // ✅ สร้าง enrichedStudents จากข้อมูล API โดยตรง
+  const apiStudents = [
+    ...checkedInStudents.map(student => ({
+      id: student.students_id.toString(),
+      first_name_tha: student.first_name_tha,
+      last_name_tha: student.last_name_tha,
+      department_short_name: student.department_short_name,
+      username: student.username,
+      fullName: `${student.first_name_tha || ''} ${student.last_name_tha || ''}`.trim(),
+      time_in: student.time_in,
+      time_out: null,
+    })),
+    ...checkedOutStudents.map(student => ({
+      id: student.students_id.toString(),
+      first_name_tha: student.first_name_tha,
+      last_name_tha: student.last_name_tha,
+      department_short_name: student.department_short_name,
+      username: student.username,
+      fullName: `${student.first_name_tha || ''} ${student.last_name_tha || ''}`.trim(),
+      time_in: student.time_in,
+      time_out: student.time_out,
+    }))
+  ];
+
+  // ✅ ใช้ enrichedStudents ถ้ามีข้อมูล หรือใช้ apiStudents ถ้าไม่มี
+  const finalStudents = enrichedStudents.length > 0 ? enrichedStudents : apiStudents;
+
   // Debug: แสดงข้อมูล enrichedStudents
   console.log("🔍 ScannedStudentsCard: enrichedStudents:", enrichedStudents);
   console.log("🔍 ScannedStudentsCard: Students with time_in:", enrichedStudents.filter(s => s.time_in));
@@ -119,26 +146,15 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
     
     try {
       const date = new Date(timeString);
-      
-      // Debug: แสดงข้อมูลเวลา
-      console.log("🔍 formatTime: Original timeString:", timeString);
-      console.log("🔍 formatTime: Date object:", date);
-      console.log("🔍 formatTime: Local time:", date.toLocaleString());
-      console.log("🔍 formatTime: UTC time:", date.toUTCString());
-      
-      // แปลงเป็นเวลาท้องถิ่นโดยไม่บวก timezone offset
-      // ใช้ UTC methods เพื่อหลีกเลี่ยง timezone conversion
-      const year = date.getUTCFullYear();
-      const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(date.getUTCDate()).padStart(2, '0');
-      const hours = String(date.getUTCHours()).padStart(2, '0');
-      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-      const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-      
-      const formattedTime = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
-      console.log("🔍 formatTime: Formatted result:", formattedTime);
-      
-      return formattedTime;
+      return date.toLocaleString('th-TH', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
     } catch (error) {
       console.error("❌ Error formatting time:", error);
       return "-";
@@ -205,32 +221,32 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       {/* สถิติการเข้าร่วม */}
       <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-800">{enrichedStudents.length}</div>
+          <div className="text-2xl font-bold text-gray-800">{finalStudents.length}</div>
           <div className="text-sm text-gray-600">รวมทั้งหมด</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-green-600">
-            {enrichedStudents.filter(s => s.time_in).length}
+            {finalStudents.filter(s => s.time_in).length}
           </div>
           <div className="text-sm text-gray-600">ลงชื่อเข้า {}</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-red-600">
-            {enrichedStudents.filter(s => s.time_out).length}
+            {finalStudents.filter(s => s.time_out).length}
           </div>
           <div className="text-sm text-gray-600">ลงชื่อออก</div>
         </div>
       </div>
       
       {/* ตรวจสอบข้อมูลก่อนแสดง Table */}
-      {!Array.isArray(scannedStudents) || scannedStudents.length === 0 ? (
+      {finalStudents.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <p>ยังไม่มีนักเรียนลงทะเบียน</p>
         </div>
       ) : (
         <Table_re
           columns={columns}
-          rows={enrichedStudents}
+          rows={finalStudents}
           height={400}
           initialPageSize={10}
           getRowId={(row) => row.id}
