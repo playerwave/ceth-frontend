@@ -41,46 +41,30 @@ export default function AssessmentTable({
   console.log("Rows received by AssessmentTable:", rows);
   console.log("Filtered Rows (no type filter):", filteredRows);
 
-  const columns: GridColDef[] = [
-    {
-      field: "assessment_name",
-      headerName: "ชื่อแบบประเมิน",
-      flex: 1,
-      // minWidth: 180,
-      align: "center",
-      headerAlign: "center",
-      sortable: true, // ✅ ทำให้ sortable
-    },
-    {
-      field: "create_date",
-      headerName: "วันที่สร้าง",
-      // width: 180,
-      flex: 1,
-      align: "center",
-      headerAlign: "center",
-      sortable: true, // ✅ ทำให้ sortable
-      valueFormatter: (value) =>
-        value ? new Date(value as string).toLocaleDateString("th-TH") : "N/A",
-    },
-    {
-      field: "last_update",
-      headerName: "วันที่แก้ไข",
-      // width: 180,
-      flex: 1,
-      align: "center",
-      headerAlign: "center",
-      sortable: true, // ✅ ทำให้ sortable
-      valueFormatter: (value) =>
-        value ? new Date(value as string).toLocaleDateString("th-TH") : "N/A",
-    },
-    {
-      field: "actions",
-      headerName: "",
-      sortable: false,
-      // width: 180,
-      align: "center",
-      headerAlign: "center",
-      renderCell: (params: GridRenderCellParams) => (
+ const columns: GridColDef[] = [
+  {
+    field: "name",
+    headerName: "ชื่อชุดข้อสอบ",
+    flex: 1,
+    align: "center",
+    headerAlign: "center",
+    sortable: true,
+  },
+  {
+    field: "status",
+    headerName: "สถานะ",
+    flex: 1,
+    align: "center",
+    headerAlign: "center",
+    sortable: true,
+  },
+  {
+    field: "actions",
+    headerName: "จัดการ",
+    sortable: false,
+    align: "center",
+    headerAlign: "center",
+     renderCell: (params: GridRenderCellParams) => (
         <Box
           sx={{
             display: "flex",
@@ -125,8 +109,9 @@ export default function AssessmentTable({
           )}
         </Box>
       ),
-    },
-  ];
+  },
+];
+
 
   return (
     <Box sx={{ mb: 4 }}>
@@ -161,7 +146,7 @@ export default function AssessmentTable({
           <DataGrid
             columns={columns}
             rows={filteredRows}
-            getRowId={(row) => row.assessment_id}
+            getRowId={(row) => row.set_number_id}
             pageSizeOptions={[5, 10, 20]}
             initialState={{
               pagination: {

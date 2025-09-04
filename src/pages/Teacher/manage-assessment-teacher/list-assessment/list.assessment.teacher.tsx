@@ -1,43 +1,47 @@
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../../../../components/Searchbar";
-// import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher"; // ❌ ไม่จำเป็นแล้ว
-import { useAssessmentStore } from "../../../../stores/Teacher/assessment.store"; // ✅ นำเข้า useAssessmentStore
 import { CopyPlus } from "lucide-react";
-import AssessmentTablePage from "./list.assessment.tablepage"
-import { useState, useEffect } from "react"; // ✅ เพิ่ม useEffect
+import AssessmentTablePage from "./list.assessment.tablepage";
+import { useState, useEffect } from "react";
+
+// ✅ ใช้ store ใหม่ (SetNumber)
+import { useSetNumberStore } from "../store/setNumber.store";
 
 const ListAssessmentTeacher = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // ✅ ดึงฟังก์ชัน fetchAssessments และ searchAssessments จาก useAssessmentStore
+  // ✅ ดึงจาก useSetNumberStore
   const {
-    fetchAssessments,
-    searchAssessments,
-    searchResults, // ✅ ดึง searchResults มาใช้
-    assessments, // ✅ ดึง assessments (ข้อมูลทั้งหมด) มาใช้
-  } = useAssessmentStore();
+    setNumbers,
+    fetchSetNumbers,
+    loading,
+    error,
+  } = useSetNumberStore();
 
-  // ✅ ใช้ useEffect เพื่อโหลดข้อมูลทั้งหมดเมื่อ component mount
+  // ✅ โหลดข้อมูล SetNumber ตอน mount
   useEffect(() => {
-    fetchAssessments();
-  }, [fetchAssessments]); // เพิ่ม fetchAssessments ใน dependency array
+    fetchSetNumbers();
+  }, [fetchSetNumbers]);
 
+  // ✅ ฟังก์ชันค้นหา
   const handleSearch = (term: string) => {
-    // ตรวจสอบว่า term มีการเปลี่ยนแปลงจริงๆ ก่อนที่จะ search
-    if (term.trim() === searchTerm.trim()) return;
-
     setSearchTerm(term);
-    searchAssessments?.(term); // ✅ เรียกใช้ searchAssessments จาก useAssessmentStore
   };
 
-  // ✅ กำหนดข้อมูลที่จะส่งให้ AssessmentTablePage
-  // ถ้ามี searchResults ให้ใช้ searchResults ถ้าไม่มีให้ใช้ assessments (ข้อมูลทั้งหมด)
-  const dataToDisplay = searchResults !== null ? searchResults : assessments;
+  // ✅ กรองข้อมูลตาม searchTerm (ค้นได้ทั้ง id และ name)
+  const dataToDisplay = setNumbers.filter(
+    (s) =>
+      s.set_number_id?.toString().includes(searchTerm) ||
+      s.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.status?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-10">
-      <h1 className="text-center text-3xl font-bold mb-9 mt-4">จัดการแบบประเมิน</h1>
+      <h1 className="text-center text-3xl font-bold mb-9 mt-4">
+        จัดการแบบประเมิน (ชุดข้อสอบ)
+      </h1>
 
       <div className="flex justify-center w-full mb-4">
         <SearchBar onSearch={handleSearch} />
@@ -50,12 +54,16 @@ const ListAssessmentTeacher = () => {
             navigate("/create-assessment-teacher", { state: { reload: true } })
           }
         >
-          เพิ่มแบบประเมิน <CopyPlus className="w-4 h-4" />
+          เพิ่มชุดข้อสอบ <CopyPlus className="w-4 h-4" />
         </button>
       </div>
 
+      {/* ✅ แสดงสถานะโหลด/ error */}
+      {loading && <p className="text-center">กำลังโหลด...</p>}
+      {error && <p className="text-center text-red-500">{error}</p>}
+
       <div>
-        {/* ✅ ส่ง dataToDisplay (ผลการค้นหาหรือข้อมูลทั้งหมด) ไปให้ AssessmentTablePage */}
+        {/* ✅ ส่ง setNumbers ไปที่ตาราง */}
         <AssessmentTablePage rows={dataToDisplay} />
       </div>
     </div>
