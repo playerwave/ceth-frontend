@@ -127,8 +127,8 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       // แยกวันที่และเวลาจาก string โดยตรง (ไม่ใช้ Date object ที่จะปรับ timezone)
       // ตัวอย่าง: "2025-09-04T13:00:00.000Z" หรือ "2025-09-04 13:00:00"
       
-      // ลบ timezone indicator และแยกส่วน
-      const cleanTimeString = timeString.replace(/[TZ]/g, ' ').trim();
+      // ลบ timezone indicator และมิลลิวินาทีออก แล้วแยกส่วน
+      const cleanTimeString = timeString.replace(/[TZ]/g, ' ').replace(/\.\d+$/, '').trim();
       const parts = cleanTimeString.split(/[\s:-]/);
       
       if (parts.length >= 6) {
