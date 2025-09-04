@@ -128,7 +128,11 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       // ตัวอย่าง: "2025-09-04T13:00:00.000Z" หรือ "2025-09-04 13:00:00"
       
       // ลบ timezone indicator และมิลลิวินาทีออก แล้วแยกส่วน
-      const cleanTimeString = timeString.replace(/[TZ]/g, ' ').replace(/\.\d+$/, '').trim();
+      // ใช้ regex ที่ครอบคลุมมากขึ้นเพื่อลบมิลลิวินาทีในทุกกรณี
+      const cleanTimeString = timeString
+        .replace(/[TZ]/g, ' ')  // ลบ T และ Z
+        .replace(/\.\d+/g, '')  // ลบจุดทศนิยมและตัวเลขที่ตามมา (มิลลิวินาที)
+        .trim();
       const parts = cleanTimeString.split(/[\s:-]/);
       
       if (parts.length >= 6) {
