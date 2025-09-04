@@ -121,7 +121,7 @@ export const activityRoutes = [
     element: <ActivityCheckInOutStudent />,
     label: "ลงทะเบียนเข้าร่วมกิจกรรม",
     icon: "UserCheck",
-    roles: ["Visitor"] as RoleName[],
+    roles: ["Visitor","Teacher", "Student","Admin"] as RoleName[],
     visibleInSidebar: false,
     protectionLevel: ProtectionLevel.NONE
   }
