@@ -142,15 +142,19 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
         />
 
         {/* Main Content - QR Code and Table */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* QR Code Section */}
-          <QrCodeCard activityId={activityId} />
+          <div className="lg:col-span-1">
+            <QrCodeCard activityId={activityId} />
+          </div>
 
-          {/* Table Section */}
-          <ScannedStudentsCard 
-            scannedStudents={scannedStudents} 
-            activityId={activityId}
-          />
+          {/* Table Section - ขยายให้กว้างขึ้น */}
+          <div className="lg:col-span-3">
+            <ScannedStudentsCard 
+              scannedStudents={scannedStudents} 
+              activityId={activityId}
+            />
+          </div>
         </div>
       </div>
     </div>

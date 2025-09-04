@@ -204,7 +204,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
   ];
 
   return (
-    <Card className="lg:col-span-2">
+    <Card className="w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-gray-800">
           รายชื่อนิสิตที่สแกนแล้ว
@@ -249,8 +249,8 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
         <Table_re
           columns={columns}
           rows={allScannedStudents}
-          height={400}
-          initialPageSize={10}
+          height={500}
+          initialPageSize={15}
           getRowId={(row) => row.id}
         />
       )}
