@@ -18,8 +18,9 @@ export const getChoicesByQuestion = async (questionId: number) => {
   const res = await axios.get(`${API_URL}/get-choices-by-question/${questionId}`, {
     headers: getAuthHeader(),
   });
-  return res.data?.data ?? [];
+  return Array.isArray(res.data) ? res.data : [];   // ✅ คืน array ที่ถูกต้อง
 };
+
 
 export const createChoice = async (data: any) => {
   const res = await axios.post(`${API_URL}/add`, data, {

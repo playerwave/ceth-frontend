@@ -53,11 +53,12 @@ const EditAssessmentTeacher = () => {
         // 2) โหลดคำถามในชุด
         const questions = await getQuestionsBySetNumberId(Number(id));
 
-
         // 3) enrich ด้วย choices
         const enrichedSections = await Promise.all(
           questions.map(async (q: any) => {
             const choices = await getChoicesByQuestion(q.question_id);
+
+            console.log("📌 Question:", q.question_id, "Choices:", choices);
             return {
               id: q.question_id,
               title: `คำถามที่ ${q.question_number}`,
@@ -66,7 +67,7 @@ const EditAssessmentTeacher = () => {
                   id: q.question_id,
                   type: mapBackendTypeToUI(q.question_type),
                   question: q.question_text,
-                  options: choices.map((c: any) => c.choice_text),
+                  options: (choices ?? []).map((c: any) => c.choice_text), // 👈 ตรงนี้แหละ
                   required: false,
                 },
               ],
