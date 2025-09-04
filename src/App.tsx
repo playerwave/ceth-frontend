@@ -30,6 +30,7 @@ import {emailRoutes} from "./routes/email.route"
 
 // Visitor pages
 import VisitorActivityList from "./pages/visitor/activity-list/visiter";
+import ActivityCheckInOutStudent from "./pages/Student/activity-student/activity-checkin-checkout/activity_checkinout_student";
 
 // auth store
 import { useAuthStore } from "./stores/Visitor/auth.store";
@@ -122,6 +123,16 @@ function App() {
 
       <Routes>
         <Route path="/login" element={<Login />} />
+
+        {/* 🔓 QR Code Check-in/out route - ไม่ต้อง login */}
+        <Route
+          path="/qr-activity-checkinout-student/:id"
+          element={
+            <QRCodeLayout>
+              <ActivityCheckInOutStudent />
+            </QRCodeLayout>
+          }
+        />
 
         {/* หน้าหลัก */}
         <Route

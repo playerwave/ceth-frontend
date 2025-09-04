@@ -85,7 +85,7 @@ export const activityRoutes = [
     element: <ActivityCheckInOutStudent />,
     label: "ลงทะเบียนเข้าร่วมกิจกรรม",
     icon: "UserCheck",
-    roles: ["Student", "Teacher", "Admin"] as RoleName[],
+    roles: ["Visitor","Student", "Teacher", "Admin"] as RoleName[],
     visibleInSidebar: false,
     protectionLevel: ProtectionLevel.ENCRYPTED // เข้ารหัสแบบเต็มเพราะมีข้อมูลสำคัญ
   },
@@ -121,7 +121,7 @@ export const activityRoutes = [
     element: <ActivityCheckInOutStudent />,
     label: "ลงทะเบียนเข้าร่วมกิจกรรม",
     icon: "UserCheck",
-    roles: ["Visitor","Teacher", "Student","Admin"] as RoleName[],
+    roles: ["Teacher","Admin"] as RoleName[],
     visibleInSidebar: false,
     protectionLevel: ProtectionLevel.NONE
   }
