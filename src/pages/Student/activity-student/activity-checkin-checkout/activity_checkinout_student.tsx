@@ -101,7 +101,9 @@ export default function ActivityCheckInOutStudent() {
       if (result.success) {
         setMessage({
           type: "success",
-          text: result.message || "ลงทะเบียนเข้าร่วมกิจกรรมสำเร็จ!"
+          text: result.message || (activity.activity_state === "End Activity" 
+            ? "ลงชื่อออกกิจกรรมสำเร็จ!" 
+            : "ลงทะเบียนเข้าร่วมกิจกรรมสำเร็จ!")
         });
         
         // แสดงเอฟเฟกต์ confetti
@@ -285,10 +287,16 @@ export default function ActivityCheckInOutStudent() {
             <div className="bg-green-50 p-6 rounded-lg border border-green-200">
               <div className="text-green-600 text-6xl mb-4"></div>
               <h2 className="text-xl font-bold text-green-800 mb-2">
-                ลงชื่อเข้าร่วมกิจกรรมเรียบร้อย!
+                {activity.activity_state === "End Activity" 
+                  ? "ลงชื่อออกกิจกรรมเรียบร้อย!" 
+                  : "ลงชื่อเข้าร่วมกิจกรรมเรียบร้อย!"
+                }
               </h2>
               <p className="text-green-700">
-                ขอบคุณที่เข้าร่วมกิจกรรมของเรา
+                {activity.activity_state === "End Activity"
+                  ? "ขอบคุณที่เข้าร่วมกิจกรรมของเรา"
+                  : "ขอบคุณที่เข้าร่วมกิจกรรมของเรา"
+                }
               </p>
             </div>
 

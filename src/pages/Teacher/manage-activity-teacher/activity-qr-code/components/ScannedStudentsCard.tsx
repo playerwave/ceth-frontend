@@ -58,11 +58,21 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
 
   // ดึงข้อมูล check-in และ check-out students
   useEffect(() => {
-    if (!activityId) return;
+    console.log("🔍 ScannedStudentsCard: useEffect triggered");
+    console.log("🔍 ScannedStudentsCard: activityId:", activityId);
+    console.log("🔍 ScannedStudentsCard: activityId type:", typeof activityId);
+    
+    // ✅ ตรวจสอบ activityId อย่างเข้มงวด
+    if (!activityId || isNaN(Number(activityId)) || Number(activityId) <= 0) {
+      console.log("❌ ScannedStudentsCard: Invalid activityId:", activityId);
+      return;
+    }
 
     const fetchCheckInOutData = async () => {
       setLoading(true);
       try {
+        console.log("🔍 ScannedStudentsCard: Fetching data for activityId:", activityId);
+        
         const [checkedInResponse, checkedOutResponse] = await Promise.all([
           axiosInstance.get(`/teacher/activity/students-checked-in/${activityId}`),
           axiosInstance.get(`/teacher/activity/students-checked-out/${activityId}`)
@@ -97,6 +107,11 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       time_out: checkedOut?.time_out || null,
     };
   });
+
+  // Debug: แสดงข้อมูล enrichedStudents
+  console.log("🔍 ScannedStudentsCard: enrichedStudents:", enrichedStudents);
+  console.log("🔍 ScannedStudentsCard: Students with time_in:", enrichedStudents.filter(s => s.time_in));
+  console.log("🔍 ScannedStudentsCard: Students with time_out:", enrichedStudents.filter(s => s.time_out));
 
   // ฟังก์ชันแปลงเวลา
   const formatTime = (timeString: string | null | undefined): string => {

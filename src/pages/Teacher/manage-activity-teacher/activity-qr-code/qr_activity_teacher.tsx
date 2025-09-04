@@ -122,6 +122,10 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
     scannedStudentsCount: scannedStudents.length
   });
 
+  // Debug: ตรวจสอบ activityId ที่จะส่งไปยัง ScannedStudentsCard
+  console.log("🔍 QrActivityTeacher: activityId to be sent to ScannedStudentsCard:", activityId);
+  console.log("🔍 QrActivityTeacher: activityId type:", typeof activityId);
+
   if (loading) {
     return <Loading />;
   }
@@ -143,7 +147,10 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
           <QrCodeCard activityId={activityId} />
 
           {/* Table Section */}
-          <ScannedStudentsCard scannedStudents={scannedStudents} />
+          <ScannedStudentsCard 
+            scannedStudents={scannedStudents} 
+            activityId={activityId}
+          />
         </div>
       </div>
     </div>
