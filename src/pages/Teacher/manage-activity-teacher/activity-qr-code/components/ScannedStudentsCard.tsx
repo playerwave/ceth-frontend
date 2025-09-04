@@ -124,27 +124,38 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
     if (!timeString) return "-";
     
     try {
-      // แปลง string เป็น Date object
-      const date = new Date(timeString);
+      // แยกวันที่และเวลาจาก string โดยตรง (ไม่ใช้ Date object ที่จะปรับ timezone)
+      // ตัวอย่าง: "2025-09-04T13:00:00.000Z" หรือ "2025-09-04 13:00:00"
       
-      // ตรวจสอบว่าเป็น valid date หรือไม่
-      if (isNaN(date.getTime())) {
-        console.warn("⚠️ Invalid date string:", timeString);
-        return "-";
+      // ลบ timezone indicator และแยกส่วน
+      const cleanTimeString = timeString.replace(/[TZ]/g, ' ').trim();
+      const parts = cleanTimeString.split(/[\s:-]/);
+      
+      if (parts.length >= 6) {
+        const year = parts[0];
+        const month = parts[1];
+        const day = parts[2];
+        const hours = parts[3];
+        const minutes = parts[4];
+        const seconds = parts[5];
+        
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+      } else if (parts.length >= 3) {
+        // กรณีที่มีแค่วันที่
+        const year = parts[0];
+        const month = parts[1];
+        const day = parts[2];
+        
+        return `${day}/${month}/${year}`;
       }
       
-      // แสดงเวลาตามที่บันทึกในฐานข้อมูลโดยไม่ปรับ timezone
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
+      // ถ้าไม่สามารถแยกได้ ให้ใช้วิธีเดิม
+      console.warn("⚠️ Cannot parse time string format:", timeString);
+      return timeString;
       
-      return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     } catch (error) {
       console.error("❌ Error formatting time:", error);
-      return "-";
+      return timeString || "-";
     }
   };
 
