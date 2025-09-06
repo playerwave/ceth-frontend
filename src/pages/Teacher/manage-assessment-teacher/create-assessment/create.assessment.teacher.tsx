@@ -1,7 +1,7 @@
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Plus } from "lucide-react";
 import Section from "../create-assessment/components/Section";
-import { useAssessmentStore } from "../create-assessment/store/assessmentStore";
+import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore";
 import Button from "../../../../components/Button";
 
 const CreateAssessmentTeacher = () => {
@@ -13,7 +13,7 @@ const CreateAssessmentTeacher = () => {
     setFormDescription,
     setSections,
     addSection,
-  } = useAssessmentStore();
+  } = useAssessmentStoreUi();
 
   // Drag สำหรับ Section (desktop)
   const onSectionDragEnd = (result: DropResult) => {

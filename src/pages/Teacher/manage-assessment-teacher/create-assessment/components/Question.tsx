@@ -2,7 +2,7 @@ import React from "react";
 import { Trash2, Copy, GripVertical } from "lucide-react";
 import QuestionRenderer from "./QuestionRenderer";
 import { Question as QuestionType } from "../type/type.create";
-import { useAssessmentStore } from "../store/assessmentStore";
+import { useAssessmentStoreUi } from "../store/assessmentStore";
 
 interface QuestionProps {
   sectionId: number;
@@ -22,7 +22,7 @@ const Question: React.FC<QuestionProps> = ({
   isDragging = false,
   dragHandleProps,
 }) => {
-  const { sections, setSections } = useAssessmentStore();
+  const { sections, setSections } = useAssessmentStoreUi();
 
   const updateQuestion = (field: keyof QuestionType, value: any) => {
     setSections(

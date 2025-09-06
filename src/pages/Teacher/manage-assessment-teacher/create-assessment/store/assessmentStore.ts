@@ -13,7 +13,7 @@ interface AssessmentState {
   deleteSection: (id: number) => void;
 }
 
-export const useAssessmentStore = create<AssessmentState>((set, get) => ({
+export const useAssessmentStoreUi = create<AssessmentState>((set, get) => ({
   formTitle: "แบบประเมินใหม่",
   formDescription: "คำอธิบายแบบประเมิน",
   sections: [

@@ -8,7 +8,7 @@ import {
 } from "@hello-pangea/dnd";
 import { Plus } from "lucide-react";
 import Section from "../create-assessment/components/Section";
-import { useAssessmentStore } from "../create-assessment/store/assessmentStore";
+import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore";
 import Button from "../../../../components/Button";
 import assessmentService from "../../../../service/Teacher/assessment.service";
 import { useSetNumberStore } from "../../../../stores/Teacher/setNumberStore";
@@ -25,7 +25,7 @@ const EditAssessmentTeacher = () => {
     setFormDescription,
     setSections,
     addSection,
-  } = useAssessmentStore();
+  } = useAssessmentStoreUi();
 
   const [loading, setLoading] = useState(false);
   const { setNumbers, fetchSetNumbersByAssessment } = useSetNumberStore();

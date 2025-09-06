@@ -5,7 +5,7 @@ import {
   Section as SectionType,
   Question as QuestionType,
 } from "../type/type.create";
-import { useAssessmentStore } from "../store/assessmentStore";
+import { useAssessmentStoreUi } from "../store/assessmentStore";
 import {
   DragDropContext,
   Droppable,
@@ -33,7 +33,7 @@ const Section: React.FC<SectionProps> = ({
   const assessmentId = Number(id);
 
   const { sections, setSections, updateSectionTitle, deleteSection } =
-    useAssessmentStore();
+    useAssessmentStoreUi();
 
   // ✅ อัปเดต Section title
   const handleChangeTitle = async (newTitle: string) => {

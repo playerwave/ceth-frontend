@@ -1,6 +1,6 @@
 import React from "react";
 import { Question } from "../type/type.create";
-import { useAssessmentStore } from "../store/assessmentStore";
+import { useAssessmentStoreUi } from "../store/assessmentStore";
 
 interface OptionListProps {
   sectionId: number;
@@ -8,7 +8,7 @@ interface OptionListProps {
 }
 
 const OptionList: React.FC<OptionListProps> = ({ sectionId, question }) => {
-  const { sections, setSections } = useAssessmentStore();
+  const { sections, setSections } = useAssessmentStoreUi();
 
   const updateOption = (index: number, value: string) => {
     setSections(
