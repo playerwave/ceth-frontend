@@ -11,6 +11,7 @@ import Section from "../create-assessment/components/Section";
 import { useAssessmentStore } from "../create-assessment/store/assessmentStore";
 import Button from "../../../../components/Button";
 import assessmentService from "../../../../service/Teacher/assessment.service";
+import { useSetNumberStore } from "../../../../stores/Teacher/setNumberStore";
 
 const EditAssessmentTeacher = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +20,7 @@ const EditAssessmentTeacher = () => {
   const {
     formTitle,
     formDescription,
-    sections,
+    sections,          // ✅ ใช้ sections จาก store
     setFormTitle,
     setFormDescription,
     setSections,
@@ -27,32 +28,39 @@ const EditAssessmentTeacher = () => {
   } = useAssessmentStore();
 
   const [loading, setLoading] = useState(false);
+  const { setNumbers, fetchSetNumbersByAssessment } = useSetNumberStore();
 
-  // โหลดข้อมูล assessment ตาม id
+  // โหลดข้อมูล assessment + setNumbers ตาม id
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
       try {
         const data = await assessmentService.getAssessmentById(Number(id));
 
-        setFormTitle(data.assessment_name);
-        setFormDescription(data.description);
+        setFormTitle(data?.assessment_name ?? "");
+        setFormDescription(data?.description ?? "");
 
-        // TODO: mapping sections/questions ถ้ามีจาก backend
-        setSections([
-          {
-            id: 1,
-            title: "หัวข้อ (ยังไม่มีข้อมูลจาก backend)",
-            questions: [],
-          },
-        ]);
+        await fetchSetNumbersByAssessment(Number(id));
       } catch (err) {
         console.error("❌ Error loading assessment:", err);
       }
     };
 
     fetchData();
-  }, [id, setFormTitle, setFormDescription, setSections]);
+  }, [id, setFormTitle, setFormDescription, fetchSetNumbersByAssessment]);
+
+  // ✅ sync setNumbers → sections ของ store
+  useEffect(() => {
+    if (setNumbers.length > 0) {
+      setSections(
+        setNumbers.map((sn) => ({
+          id: sn.set_number_id,
+          title: sn.name,
+          questions: [],
+        }))
+      );
+    }
+  }, [setNumbers, setSections]);
 
   // Drag สำหรับ Section
   const onSectionDragEnd = (result: DropResult) => {
@@ -66,14 +74,6 @@ const EditAssessmentTeacher = () => {
     setSections(newSections);
   };
 
-  const moveSection = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0 || toIndex >= sections.length) return;
-    const newSections = Array.from(sections);
-    const [moved] = newSections.splice(fromIndex, 1);
-    newSections.splice(toIndex, 0, moved);
-    setSections(newSections);
-  };
-
   // ✅ บันทึกการแก้ไข Assessment
   const saveForm = async () => {
     if (!id) return;
@@ -83,15 +83,15 @@ const EditAssessmentTeacher = () => {
         assessment_id: Number(id),
         assessment_name: formTitle,
         description: formDescription,
-        status: "Active" as const, // ✅ กำหนดสถานะ
-        assessment_status: "Not finished" as const, // ✅ สมมติค่า
+        status: "Active" as const,
+        assessment_status: "Not finished" as const,
         last_update: new Date().toISOString(),
       };
 
       await assessmentService.updateAssessment(payload);
 
       alert("✅ แก้ไขแบบประเมินสำเร็จ!");
-      navigate("/list-assessment-teacher"); // กลับหน้ารายการ
+      navigate("/list-assessment-teacher");
     } catch (err) {
       console.error("❌ Error updating assessment:", err);
       alert("❌ แก้ไขไม่สำเร็จ");
@@ -106,14 +106,14 @@ const EditAssessmentTeacher = () => {
       <div className="bg-white rounded-xl shadow-lg mb-6 p-6">
         <input
           type="text"
-          value={formTitle}
+          value={formTitle ?? ""}
           onChange={(e) => setFormTitle(e.target.value)}
           className="text-3xl font-normal w-full mb-2 text-gray-800 border border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-300 rounded-lg px-2 py-1 transition-all"
           placeholder="ชื่อแบบฟอร์ม"
         />
         <input
           type="text"
-          value={formDescription}
+          value={formDescription ?? ""}
           onChange={(e) => setFormDescription(e.target.value)}
           className="text-gray-600 w-full border border-transparent focus:border-blue-400 focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1 transition-all"
           placeholder="คำอธิบายแบบฟอร์ม"
@@ -141,8 +141,8 @@ const EditAssessmentTeacher = () => {
                         section={section}
                         index={index}
                         dragHandleProps={provided.dragHandleProps}
-                        onMoveUp={() => moveSection(index, index - 1)}
-                        onMoveDown={() => moveSection(index, index + 1)}
+                        onMoveUp={() => { }}
+                        onMoveDown={() => { }}
                       />
                     </div>
                   )}
