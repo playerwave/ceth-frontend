@@ -42,7 +42,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       assessment_name,
       description,
       assessment_status,
-      set_number,
+
       status,
       create_date,
       last_update,
@@ -52,7 +52,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       !assessment_name ||
       !description ||
       !assessment_status ||
-      !set_number ||
+
       !status
     ) {
       set({ assessmentError: "ข้อมูลไม่ครบ ไม่สามารถสร้างแบบประเมินได้" });
@@ -63,7 +63,6 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       assessment_name,
       description,
       assessment_status,
-      set_number,
       status,
       create_date: create_date ?? new Date().toISOString(),
       last_update: last_update ?? new Date().toISOString(),

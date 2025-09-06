@@ -30,10 +30,10 @@ export function mapApiToAssessment(api: ApiAssessment): Assessment {
     create_date: api.create_date || new Date().toISOString(),
     last_update: api.last_update || new Date().toISOString(),
     assessment_status: api.assessment_status || "Not finished",
-    set_number: api.set_number_id,
     status: api.status || "Active",
   };
 }
+
 
 export function mapApiToAssessments(arr: ApiAssessment[]): Assessment[] {
   return arr.map(mapApiToAssessment);

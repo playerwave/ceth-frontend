@@ -3,10 +3,9 @@ import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-
+import { useNavigate } from "react-router-dom"; // ✅ เพิ่ม import
 import { useState } from "react";
 
-import { useNavigate } from "react-router-dom"; // ✅ import useNavigate
 import { Assessment } from "../../../../../types/model";
 
 import {
@@ -41,29 +40,44 @@ export default function AssessmentTable({
   const filteredRows = rows;
   console.log("Rows received by AssessmentTable:", rows);
   console.log("Filtered Rows (no type filter):", filteredRows);
-  const navigate = useNavigate(); // ✅ ใช้งาน navigate
-
+  const navigate = useNavigate(); // ✅ ใช้สำหรับเปลี่ยนหน้
   const columns: GridColDef[] = [
     {
-      field: "name",
-      headerName: "ชื่อชุดข้อสอบ",
+      field: "assessment_name",
+      headerName: "ชื่อแบบประเมิน",
       flex: 1,
+      // minWidth: 180,
       align: "center",
       headerAlign: "center",
-      sortable: true,
+      sortable: true, // ✅ ทำให้ sortable
     },
     {
-      field: "status",
-      headerName: "สถานะ",
+      field: "create_date",
+      headerName: "วันที่สร้าง",
+      // width: 180,
       flex: 1,
       align: "center",
       headerAlign: "center",
-      sortable: true,
+      sortable: true, // ✅ ทำให้ sortable
+      valueFormatter: (value) =>
+        value ? new Date(value as string).toLocaleDateString("th-TH") : "N/A",
+    },
+    {
+      field: "last_update",
+      headerName: "วันที่แก้ไข",
+      // width: 180,
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+      sortable: true, // ✅ ทำให้ sortable
+      valueFormatter: (value) =>
+        value ? new Date(value as string).toLocaleDateString("th-TH") : "N/A",
     },
     {
       field: "actions",
-      headerName: "จัดการ",
+      headerName: "",
       sortable: false,
+      // width: 180,
       align: "center",
       headerAlign: "center",
       renderCell: (params: GridRenderCellParams) => (
@@ -114,7 +128,6 @@ export default function AssessmentTable({
     },
   ];
 
-
   return (
     <Box sx={{ mb: 4 }}>
       {title && (
@@ -147,8 +160,8 @@ export default function AssessmentTable({
         >
           <DataGrid
             columns={columns}
-            rows={rows}
-            getRowId={(row) => row.set_number_id}
+            rows={filteredRows}
+            getRowId={(row) => row.assessment_id}
             pageSizeOptions={[5, 10, 20]}
             initialState={{
               pagination: {
@@ -161,10 +174,9 @@ export default function AssessmentTable({
             disableRowSelectionOnClick
             autoHeight={false}
             rowHeight={40}
-            // ✅ ดับเบิลคลิกเพื่อไปหน้าแก้ไข
-            onRowDoubleClick={(params) =>
-              navigate(`/update-assessment-teacher/${params.row.set_number_id}`)
-            }
+            onRowDoubleClick={(params) => {
+              navigate(`/update-assessment-teacher/${params.row.assessment_id}`);
+            }}
             sx={{
               "&.MuiDataGrid-root": {
                 border: "none",

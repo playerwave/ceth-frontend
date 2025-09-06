@@ -1,6 +1,6 @@
 import ListAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/list-assessment/list.assessment.teacher";
 import CreateAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/create-assessment/create.assessment.teacher";
-import EditAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/create-assessment/edit.assessment.teacher";
+import EditAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/edit-assessment/edit.assessment.teacher";
 
 import AssessmentStudent from "../pages/Student/assessment-student/assessmentStudent";
 import { ProtectionLevel } from "./secure/urlEnCryption";

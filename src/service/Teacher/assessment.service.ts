@@ -3,10 +3,11 @@ import { ApiAssessment } from "../../stores/api/assessment.api";
 
 // 🔄 ดึงรายการแบบประเมินทั้งหมด
 export const getAllAssessments = async (): Promise<ApiAssessment[]> => {
-  const response = await axiosInstance.get<{ data: ApiAssessment[] }>(
-    "/teacher/assessment/get-all-assessments"
+  const response = await axiosInstance.get<ApiAssessment[]>(
+    "/teacher/assessment/get-assessments"
   );
-  return response.data.data; // ✅ เข้าถึง array ข้างใน
+  // ✅ สมมติ backend คืน array ตรง ๆ (ไม่ห่อ { data: [...] })
+  return response.data;
 };
 
 // 📥 ดึงแบบประเมินตาม ID
@@ -22,7 +23,7 @@ export const createAssessment = async (payload: {
   assessment_name: string;
   description: string;
   assessment_status: "Not finished" | "Finished" | "Unsuccessful";
-  set_number: number;
+  
   status: "Active" | "Inactive";
   create_date: string;
   last_update: string;
@@ -36,7 +37,7 @@ export const updateAssessment = async (payload: {
   assessment_name: string;
   description: string;
   assessment_status: "Not finished" | "Finished" | "Unsuccessful";
-  set_number: number;
+  
   status: "Active" | "Inactive";
   last_update: string;
 }): Promise<void> => {

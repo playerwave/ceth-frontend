@@ -104,7 +104,7 @@ export interface Assessment {
   create_date: string; // ISO format (e.g., 2024-06-17T12:00:00Z)
   last_update: string; // ISO format (e.g., 2024-06-17T12:00:00Z)
   assessment_status: "Not finished" | "Finished" | "Unsuccessful";
-  set_number: number;
+  // set_number: number;
   status: "Active" | "Inactive";
 }
 
@@ -122,6 +122,7 @@ export interface SetNumber {
   set_number_id: number;
   name: string;
   status: "Active" | "Inactive";
+  assessment_id: number; // FK ไปยัง Assessment
 }
 //-----------------------------------------------------------------------------
 
@@ -132,7 +133,7 @@ export interface Question {
   question_text: string; // Text of the question
   question_type_id: number; // FK to QuestionType
   question_number: number; // Order of the question in the set
-  set_number: number; // FK to SetNumber
+  set_number_id: number;
 }
 //-----------------------------------------------------------------------------
 
@@ -157,7 +158,7 @@ export interface Choice {
 export interface Answer {
   answer_id: number;
   join_id: number; // FK to ActivityDetail
-  questioon_id: number; // FK to Question
+  question_id: number;  // FK to Question
   choice_id: number; // FK to Choice
   answer_text: string; // Textual answer
   set_number_id: number; // FK to SetNumber
