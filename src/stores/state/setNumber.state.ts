@@ -9,8 +9,10 @@ export interface SetNumberState {
   fetchSetNumbers: () => Promise<void>;
   fetchSetNumbersByAssessment: (assessmentId: number) => Promise<void>;
   fetchSetNumberById: (id: number) => Promise<SetNumber | null>;
-  createSetNumber: (data: Omit<SetNumber, "set_number_id">) => Promise<void>;
-  updateSetNumber: (data: SetNumber) => Promise<void>;
-  deleteSetNumber: (id: number) => Promise<void>;
+
+  createSetNumber: (data: Omit<SetNumber, "set_number_id">) => Promise<SetNumber | null>;
+  updateSetNumber: (data: SetNumber) => Promise<SetNumber | null>;
+  deleteSetNumber: (id: number) => Promise<SetNumber | null>;
+
   clearSelectedSetNumber: () => void;
 }

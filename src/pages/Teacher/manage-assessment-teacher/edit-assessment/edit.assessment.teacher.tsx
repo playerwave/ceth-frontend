@@ -16,7 +16,7 @@ import { useSetNumberStore } from "../../../../stores/Teacher/setNumberStore";
 const EditAssessmentTeacher = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
+  const { createSetNumber } = useSetNumberStore();
   const {
     formTitle,
     formDescription,
@@ -29,6 +29,26 @@ const EditAssessmentTeacher = () => {
 
   const [loading, setLoading] = useState(false);
   const { setNumbers, fetchSetNumbersByAssessment } = useSetNumberStore();
+  const handleAddSection = async () => {
+    if (!id) return;
+
+    const newSec = await createSetNumber({
+      name: "หัวข้อใหม่",
+      status: "Active",
+      assessment_id: Number(id),
+    });
+
+    if (newSec) {
+      setSections([
+        ...sections,
+        {
+          id: newSec.set_number_id,
+          title: newSec.name,
+          questions: [],
+        },
+      ]);
+    }
+  };
 
   // โหลดข้อมูล assessment + setNumbers ตาม id
   useEffect(() => {
@@ -156,12 +176,15 @@ const EditAssessmentTeacher = () => {
 
       {/* Add Section */}
       <div className="text-center mt-4">
-        <button
-          onClick={addSection}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 mx-auto transition-colors"
-        >
-          <Plus size={20} /> เพิ่มหัวข้อใหม่
-        </button>
+        <div className="text-center mt-4">
+          <button
+            onClick={handleAddSection}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 mx-auto transition-colors"
+          >
+            <Plus size={20} /> เพิ่มหัวข้อใหม่
+          </button>
+        </div>
+
       </div>
 
       {/* Action */}

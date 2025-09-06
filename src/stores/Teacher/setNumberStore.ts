@@ -44,30 +44,52 @@ export const useSetNumberStore = create<SetNumberState>((set, get) => ({
     }
   },
 
+  // ✅ สร้างหัวข้อใหม่
   createSetNumber: async (data) => {
     try {
-      await setNumberService.createSetNumber(data);
-      await get().fetchSetNumbers();
+      const apiData = await setNumberService.createSetNumber(data);
+      const newSection = mapApiToSetNumber(apiData);
+      set((state) => ({
+        setNumbers: [...state.setNumbers, newSection],
+      }));
+      return newSection;
     } catch (err) {
       console.error("❌ createSetNumber error:", err);
+      return null;
     }
   },
 
+  // ✅ อัปเดตหัวข้อ
   updateSetNumber: async (data) => {
     try {
-      await setNumberService.updateSetNumber(data);
-      await get().fetchSetNumbers();
+      const apiData = await setNumberService.updateSetNumber(data);
+      const updated = mapApiToSetNumber(apiData);
+      set((state) => ({
+        setNumbers: state.setNumbers.map((s) =>
+          s.set_number_id === updated.set_number_id ? updated : s
+        ),
+      }));
+      return updated;
     } catch (err) {
       console.error("❌ updateSetNumber error:", err);
+      return null;
     }
   },
 
+  // ✅ ลบหัวข้อ
   deleteSetNumber: async (id) => {
     try {
-      await setNumberService.deleteSetNumber(id);
-      await get().fetchSetNumbers();
+      const apiData = await setNumberService.deleteSetNumber(id);
+      const deleted = mapApiToSetNumber(apiData);
+      set((state) => ({
+        setNumbers: state.setNumbers.filter(
+          (s) => s.set_number_id !== deleted.set_number_id
+        ),
+      }));
+      return deleted;
     } catch (err) {
       console.error("❌ deleteSetNumber error:", err);
+      return null;
     }
   },
 
