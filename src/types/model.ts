@@ -128,21 +128,37 @@ export interface SetNumber {
 
 //--------------------------- Question ----------------------------------------
 
+// export interface Question {
+//   question_id: number;
+//   question_text: string; // Text of the question
+//   question_type_id: number; // FK to QuestionType
+//   question_number: number; // Order of the question in the set
+//   set_number_id: number;
+// }
+export enum QuestionType {
+  FIX_SINGLE = "Fix Single answer",
+  SINGLE = "Single answer",
+  MULTIPLE = "Multiple answer",
+  TEXT = "Text answer",
+}
+
 export interface Question {
   question_id: number;
-  question_text: string; // Text of the question
-  question_type_id: number; // FK to QuestionType
-  question_number: number; // Order of the question in the set
+  question_text: string;
+  question_number: number;
   set_number_id: number;
+  question_type: QuestionType;   // ใช้ enum แทน union
 }
+
+
 //-----------------------------------------------------------------------------
 
 //--------------------------- Other Models -------------------------------------
 
-export interface QuestionType {
-  question_type_id: number;
-  question_type_name: string; // Name of the question type (e.g., 'Multiple Choice', 'Short Answer')
-}
+// export interface QuestionType {
+//   question_type_id: number;
+//   question_type_name: string; // Name of the question type (e.g., 'Multiple Choice', 'Short Answer')
+// }
 //------------------------------------------------------------------------------
 
 //--------------------------- Choice -------------------------------------------

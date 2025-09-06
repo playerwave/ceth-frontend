@@ -1,10 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Plus, Trash2, Copy, GripVertical } from "lucide-react";
 import Question from "./Question";
-import {
-  Section as SectionType,
-  Question as QuestionType,
-} from "../type/type.create";
+import { Section as SectionType } from "../type/type.create";
 import { useAssessmentStoreUi } from "../store/assessmentStore";
 import {
   DragDropContext,
@@ -12,8 +9,10 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
-import setNumberService from "../../../../../service/Teacher/setNumber.service"; // ✅ import service
+import setNumberService from "../../../../../service/Teacher/setNumber.service";
 import { useParams } from "react-router-dom";
+import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
+import { QuestionType } from "../../../../../types/model";
 
 interface SectionProps {
   section: SectionType;
@@ -22,6 +21,24 @@ interface SectionProps {
   onMoveUp: () => void;
   onMoveDown: () => void;
 }
+
+// ✅ map type backend → frontend
+const mapType = (
+  type: string
+): "choice" | "checkbox" | "text" | "rating" => {
+  switch (type) {
+    case QuestionType.SINGLE:
+      return "choice";
+    case QuestionType.FIX_SINGLE:
+      return "rating";
+    case QuestionType.MULTIPLE:
+      return "checkbox";
+    case QuestionType.TEXT:
+      return "text";
+    default:
+      return "text";
+  }
+};
 
 const Section: React.FC<SectionProps> = ({
   section,
@@ -32,10 +49,22 @@ const Section: React.FC<SectionProps> = ({
   const { id } = useParams<{ id: string }>();
   const assessmentId = Number(id);
 
-  const { sections, setSections, updateSectionTitle, deleteSection } =
-    useAssessmentStoreUi();
+  const { updateSectionTitle, deleteSection } = useAssessmentStoreUi();
 
-  // ✅ อัปเดต Section title
+  const {
+    questions,
+    fetchQuestionsBySetNumber,
+    createQuestion,
+  } = useQuestionStore();
+
+  // โหลดคำถามจาก backend
+  useEffect(() => {
+    if (section.id) {
+      fetchQuestionsBySetNumber(section.id);
+    }
+  }, [section.id, fetchQuestionsBySetNumber]);
+
+  // อัปเดตชื่อหัวข้อ
   const handleChangeTitle = async (newTitle: string) => {
     updateSectionTitle(section.id, newTitle);
     try {
@@ -50,7 +79,7 @@ const Section: React.FC<SectionProps> = ({
     }
   };
 
-  // ✅ ลบ Section
+  // ลบ Section
   const handleDelete = async () => {
     try {
       await setNumberService.deleteSetNumber(section.id);
@@ -60,83 +89,23 @@ const Section: React.FC<SectionProps> = ({
     }
   };
 
-  // duplicate section (เฉพาะ frontend)
-  const duplicateSection = () => {
-    const maxQuestionId = Math.max(...section.questions.map((q) => q.id), 0);
-    const duplicated: SectionType = {
-      ...section,
-      id: Math.max(...sections.map((s) => s.id)) + 1,
-      title: section.title + " (Copy)",
-      questions: section.questions.map((q, idx) => ({
-        ...q,
-        id: maxQuestionId + idx + 1,
-      })),
-    };
-    const idx = sections.findIndex((s) => s.id === section.id);
-    const newSections = [...sections];
-    newSections.splice(idx + 1, 0, duplicated);
-    setSections(newSections);
+  // เพิ่มคำถามใหม่ (backend)
+  const handleAddQuestion = async () => {
+    const newQ = await createQuestion({
+      question_text: "คำถามใหม่",
+      question_number: questions.length + 1,
+      set_number_id: section.id,
+      question_type: QuestionType.SINGLE,   // ✅ ใช้ enum
+    });
+
+    if (newQ) {
+      await fetchQuestionsBySetNumber(section.id);
+    }
   };
-
-  // เพิ่ม Question
-  const addQuestion = () => {
-    const newId =
-      section.questions.length > 0
-        ? Math.max(...section.questions.map((q) => q.id)) + 1
-        : 1;
-
-    const newQuestion: QuestionType = {
-      id: newId,
-      type: "choice",
-      question: "คำถามใหม่",
-      options: ["ตัวเลือก 1"],
-      required: false,
-    };
-
-    setSections(
-      sections.map((s) =>
-        s.id === section.id
-          ? { ...s, questions: [...s.questions, newQuestion] }
-          : s
-      )
-    );
-  };
-
   // Drag Question
   const onQuestionDragEnd = (result: DropResult) => {
-    const { source, destination } = result;
-    if (!destination) return;
-
-    const newSections = [...sections];
-    const secIndex = newSections.findIndex((s) => s.id === section.id);
-    if (secIndex === -1) return;
-
-    const sec = newSections[secIndex];
-    const questions = Array.from(sec.questions);
-
-    const [moved] = questions.splice(source.index, 1);
-    questions.splice(destination.index, 0, moved);
-
-    newSections[secIndex] = { ...sec, questions };
-    setSections(newSections);
-  };
-
-  // move question (↑ ↓)
-  const moveQuestion = (fromIndex: number, toIndex: number) => {
-    const secIndex = sections.findIndex((s) => s.id === section.id);
-    if (secIndex === -1) return;
-
-    const sec = sections[secIndex];
-    const questions = Array.from(sec.questions);
-
-    if (toIndex < 0 || toIndex >= questions.length) return;
-
-    const [moved] = questions.splice(fromIndex, 1);
-    questions.splice(toIndex, 0, moved);
-
-    const newSections = [...sections];
-    newSections[secIndex] = { ...sec, questions };
-    setSections(newSections);
+    if (!result.destination) return;
+    // TODO: ถ้าจะทำ reorder backend ต้องส่ง order ใหม่ไป update
   };
 
   return (
@@ -150,24 +119,12 @@ const Section: React.FC<SectionProps> = ({
           >
             <GripVertical size={20} />
           </div>
-
           <div className="lg:hidden flex flex-col">
-            <button
-              onClick={onMoveUp}
-              className="text-gray-400 hover:text-blue-500 leading-none"
-            >
-              ↑
-            </button>
-            <button
-              onClick={onMoveDown}
-              className="text-gray-400 hover:text-blue-500 leading-none"
-            >
-              ↓
-            </button>
+            <button onClick={onMoveUp} className="text-gray-400 hover:text-blue-500 leading-none">↑</button>
+            <button onClick={onMoveDown} className="text-gray-400 hover:text-blue-500 leading-none">↓</button>
           </div>
         </div>
 
-        {/* Title input */}
         <input
           type="text"
           value={section.title}
@@ -175,63 +132,58 @@ const Section: React.FC<SectionProps> = ({
           className="flex-1 min-w-0 text-base sm:text-lg font-medium border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1 transition-all"
         />
 
-        {/* Copy / Delete */}
         <div className="flex gap-2 flex-shrink-0">
-          <button
-            onClick={duplicateSection}
-            className="text-gray-400 hover:text-blue-500"
-          >
-            <Copy size={16} />
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={sections.length === 1}
-            className="text-gray-400 hover:text-red-500 disabled:opacity-30"
-          >
-            <Trash2 size={16} />
-          </button>
+          <button className="text-gray-400 hover:text-blue-500"><Copy size={16} /></button>
+          <button onClick={handleDelete} className="text-gray-400 hover:text-red-500 disabled:opacity-30"><Trash2 size={16} /></button>
         </div>
       </div>
 
-      {/* DragDropContext สำหรับ Questions */}
+      {/* Questions */}
       <DragDropContext onDragEnd={onQuestionDragEnd}>
         <Droppable droppableId={`questions-${section.id}`} type="QUESTION">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              {section.questions.map((q, index) => (
-                <Draggable
-                  key={`question-${q.id}`}
-                  draggableId={`question-${section.id}-${q.id}`}
-                  index={index}
-                >
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      className="mb-4"
-                    >
-                      <Question
-                        sectionId={section.id}
-                        question={q}
-                        index={index}
-                        onMoveUp={() => moveQuestion(index, index - 1)}
-                        onMoveDown={() => moveQuestion(index, index + 1)}
-                        dragHandleProps={provided.dragHandleProps}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
+              {questions
+                .filter((q) => q.set_number_id === section.id)
+                .map((q, index) => (
+                  <Draggable
+                    key={q.question_id}
+                    draggableId={`question-${section.id}-${q.question_id}`}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className="mb-4"
+                      >
+                        <Question
+                          sectionId={section.id}
+                          question={{
+                            id: q.question_id,
+                            question: q.question_text,
+                            type: mapType(q.question_type),
+                            options: [],
+                            required: false,
+                          }}
+                          index={index}
+                          onMoveUp={() => { }}
+                          onMoveDown={() => { }}
+                          dragHandleProps={provided.dragHandleProps}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
               {provided.placeholder}
             </div>
           )}
         </Droppable>
       </DragDropContext>
 
-      {/* Add Question */}
       <div className="mt-6">
         <button
-          onClick={addQuestion}
+          onClick={handleAddQuestion}
           className="mt-2 flex items-center gap-2 text-blue-600"
         >
           <Plus size={16} /> เพิ่มคำถาม
