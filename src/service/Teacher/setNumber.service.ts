@@ -10,7 +10,9 @@ export const getAllSetNumbers = async (): Promise<ApiSetNumber[]> => {
 };
 
 // ✅ ดึง SetNumber ตาม Assessment
-export const getSetNumbersByAssessment = async (assessmentId: number): Promise<ApiSetNumber[]> => {
+export const getSetNumbersByAssessment = async (
+  assessmentId: number
+): Promise<ApiSetNumber[]> => {
   const response = await axiosInstance.get<{ data: ApiSetNumber[] }>(
     `/teacher/setNumber/get-set-numbers-by-assessment/${assessmentId}`
   );
@@ -25,28 +27,39 @@ export const getSetNumberById = async (id: number): Promise<ApiSetNumber> => {
   return response.data.data;
 };
 
+// ✅ สร้าง Section (return object ที่สร้างมาใหม่)
 export const createSetNumber = async (payload: {
   name: string;
   status: "Active" | "Inactive";
   assessment_id: number;
-}): Promise<void> => {
-  await axiosInstance.post("/teacher/setNumber/create-set-number", payload);
+}): Promise<ApiSetNumber> => {
+  const response = await axiosInstance.post<{ data: ApiSetNumber }>(
+    "/teacher/setNumber/create-set-number",
+    payload
+  );
+  return response.data.data;
 };
 
+// ✅ อัปเดต Section (return object ที่แก้ไขแล้ว)
 export const updateSetNumber = async (payload: {
   set_number_id: number;
   name: string;
   status: "Active" | "Inactive";
-  assessment_id: number; // ✅ ต้องเพิ่ม
-}): Promise<void> => {
-  await axiosInstance.put(
+  assessment_id: number;
+}): Promise<ApiSetNumber> => {
+  const response = await axiosInstance.put<{ data: ApiSetNumber }>(
     `/teacher/setNumber/update-set-number/${payload.set_number_id}`,
     payload
   );
+  return response.data.data;
 };
 
-export const deleteSetNumber = async (id: number): Promise<void> => {
-  await axiosInstance.delete(`/teacher/setNumber/delete-set-number/${id}`);
+// ✅ ลบ Section (return object ที่ถูกลบ)
+export const deleteSetNumber = async (id: number): Promise<ApiSetNumber> => {
+  const response = await axiosInstance.delete<{ data: ApiSetNumber }>(
+    `/teacher/setNumber/delete-set-number/${id}`
+  );
+  return response.data.data;
 };
 
 const setNumberService = {
