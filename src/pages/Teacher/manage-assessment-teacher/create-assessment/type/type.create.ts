@@ -2,7 +2,7 @@ export interface Question {
   id: number;
   type: 'choice' | 'checkbox' | 'text' | 'rating';
   question: string;
-  options: string[];
+  options: LocalChoice[];
   required: boolean;
 }
 
@@ -19,4 +19,13 @@ export interface FormData {
   createdAt: string;
   totalSections: number;
   totalQuestions: number;
+}
+
+
+
+export interface LocalChoice {
+  choice_id?: number;      // ยังไม่สร้างใน backend
+  choice_text: string;
+  question_id?: number;    // ยังไม่ผูกกับ question จริง
+  choice_number?: number;
 }

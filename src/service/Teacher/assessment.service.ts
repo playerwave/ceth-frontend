@@ -18,19 +18,27 @@ export const getAssessmentById = async (id: number): Promise<ApiAssessment> => {
   return response.data;
 };
 
+
+// ➕ เพิ่มแบบประเมินแบบเต็ม (สำหรับการสร้างพร้อมชุดคำถาม)
+export const createAssessmentFull = async (payload: any): Promise<any> => {
+  const response = await axiosInstance.post("/teacher/assessment/create-assessment-full", payload);
+  return response.data;
+};
 // ➕ เพิ่มแบบประเมิน
 export const createAssessment = async (payload: {
   assessment_name: string;
   description: string;
   assessment_status: "Not finished" | "Finished" | "Unsuccessful";
-  
   status: "Active" | "Inactive";
   create_date: string;
   last_update: string;
-}): Promise<void> => {
-  await axiosInstance.post("/teacher/assessment/create-assessment", payload);
+}): Promise<{ assessment_id: number }> => {
+  const response = await axiosInstance.post<{ assessment_id: number }>(
+    "/teacher/assessment/create-assessment",
+    payload
+  );
+  return response.data; // ✅ จะได้ assessment_id กลับมา
 };
-
 // ✏️ แก้ไขแบบประเมิน
 export const updateAssessment = async (payload: {
   assessment_id: number;
@@ -70,6 +78,7 @@ const assessmentService = {
   updateAssessment,
   deleteAssessment,
   searchAssessments,
+   createAssessmentFull, // ✅
 };
 
 export default assessmentService;

@@ -8,6 +8,8 @@ import RatingQuestion from "../components/question/Rating";
 interface QuestionRendererProps {
   sectionId: number;
   question: Question;
+  mode: "create" | "edit";  // 👈 เพิ่ม
+
 }
 
 const QuestionRenderer: React.FC<QuestionRendererProps> = ({ sectionId, question }) => {

@@ -3,30 +3,26 @@ import { Trash2, Copy, GripVertical } from "lucide-react";
 import QuestionRenderer from "./QuestionRenderer";
 import { Question as QuestionType } from "../type/type.create";
 import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
+import { useAssessmentStoreUi } from "../store/assessmentStore";
 import { QuestionType as BackendQuestionType } from "../../../../../types/model";
 
 interface QuestionProps {
   sectionId: number;
   question: QuestionType;
   index: number;
+  mode: "create" | "edit";
   onMoveUp: () => void;
   onMoveDown: () => void;
   dragHandleProps?: any;
 }
 
-// แปลง frontend type → backend enum
 const mapFrontendToBackend = (frontendType: string): BackendQuestionType => {
   switch (frontendType) {
-    case "choice":
-      return BackendQuestionType.SINGLE;
-    case "checkbox": 
-      return BackendQuestionType.MULTIPLE;
-    case "text":
-      return BackendQuestionType.TEXT;
-    case "rating":
-      return BackendQuestionType.FIX_SINGLE;
-    default:
-      return BackendQuestionType.SINGLE;
+    case "choice": return BackendQuestionType.SINGLE;
+    case "checkbox": return BackendQuestionType.MULTIPLE;
+    case "text": return BackendQuestionType.TEXT;
+    case "rating": return BackendQuestionType.FIX_SINGLE;
+    default: return BackendQuestionType.SINGLE;
   }
 };
 
@@ -34,43 +30,60 @@ const Question: React.FC<QuestionProps> = ({
   sectionId,
   question,
   index,
+  mode,
   onMoveUp,
   onMoveDown,
   dragHandleProps,
 }) => {
   const { updateQuestion, deleteQuestion, createQuestion } = useQuestionStore();
+  const { updateQuestionInSection, deleteQuestionFromSection, addQuestionToSection } = useAssessmentStoreUi();
 
   const handleUpdate = async (field: keyof QuestionType, value: any) => {
-    await updateQuestion({
-      question_id: question.id,
-      question_text: field === "question" ? value : question.question,
-      question_number: index + 1,
-      set_number_id: sectionId,
-      question_type: field === "type" ? mapFrontendToBackend(value) : mapFrontendToBackend(question.type),
-    } as any);
+    if (mode === "create") {
+      updateQuestionInSection(sectionId, question.id, {
+        [field]: value,
+      });
+    } else {
+      await updateQuestion({
+        question_id: question.id,
+        question_text: field === "question" ? value : question.question,
+        question_number: index + 1,
+        set_number_id: sectionId,
+        question_type: field === "type" ? mapFrontendToBackend(value) : mapFrontendToBackend(question.type),
+      } as any);
+    }
   };
 
   const handleDelete = async () => {
-    await deleteQuestion(question.id);
+    if (mode === "create") {
+      deleteQuestionFromSection(sectionId, question.id);
+    } else {
+      await deleteQuestion(question.id);
+    }
   };
 
   const handleDuplicate = async () => {
-    await createQuestion({
-      question_text: question.question + " (Copy)",
-      question_number: index + 1,
-      set_number_id: sectionId,
-      question_type: mapFrontendToBackend(question.type),
-    } as any);
+    if (mode === "create") {
+      addQuestionToSection(sectionId, {
+        ...question,
+        id: Date.now(),
+        question: question.question + " (Copy)",
+      });
+    } else {
+      await createQuestion({
+        question_text: question.question + " (Copy)",
+        question_number: index + 1,
+        set_number_id: sectionId,
+        question_type: mapFrontendToBackend(question.type),
+      } as any);
+    }
   };
 
   return (
     <div className="border-l-4 border-blue-500 pl-4 mb-6 bg-white rounded-lg shadow-md p-6">
       <div className="flex gap-2 items-start mb-2">
         <div className="flex flex-col items-center">
-          <div
-            className="hidden lg:block cursor-grab p-1 text-gray-400"
-            {...dragHandleProps}
-          >
+          <div className="hidden lg:block cursor-grab p-1 text-gray-400" {...dragHandleProps}>
             <GripVertical size={20} />
           </div>
           <div className="lg:hidden flex flex-col">
@@ -100,16 +113,18 @@ const Question: React.FC<QuestionProps> = ({
         </div>
       </div>
 
-      <QuestionRenderer sectionId={sectionId} question={question} />
+      <QuestionRenderer mode={mode} sectionId={sectionId} question={question} />
 
-      <div className="flex justify-end gap-2 mt-4">
-        <button onClick={handleDuplicate} className="text-gray-400 hover:text-blue-500">
-          <Copy size={18} />
-        </button>
-        <button onClick={handleDelete} className="text-gray-400 hover:text-red-500">
-          <Trash2 size={18} />
-        </button>
-      </div>
+      {mode === "edit" && (
+        <div className="flex justify-end gap-2 mt-4">
+          <button onClick={handleDuplicate} className="text-gray-400 hover:text-blue-500">
+            <Copy size={18} />
+          </button>
+          <button onClick={handleDelete} className="text-gray-400 hover:text-red-500">
+            <Trash2 size={18} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

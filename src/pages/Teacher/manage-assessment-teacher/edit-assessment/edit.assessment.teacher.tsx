@@ -160,6 +160,7 @@ const EditAssessmentTeacher = () => {
                       <Section
                         section={section}
                         index={index}
+                        mode="edit"   // 👈 เพิ่มตรงนี้
                         dragHandleProps={provided.dragHandleProps}
                         onMoveUp={() => { }}
                         onMoveDown={() => { }}

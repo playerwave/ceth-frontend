@@ -3,6 +3,19 @@ import { Plus } from "lucide-react";
 import Section from "../create-assessment/components/Section";
 import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore";
 import Button from "../../../../components/Button";
+import assessmentService from "../../../../service/Teacher/assessment.service";
+import { QuestionType as BackendQuestionType } from "../../../../types/model";  // ✅ enum จาก backend
+
+// แปลง type จาก frontend → backend
+const mapFrontendToBackend = (frontendType: string): BackendQuestionType => {
+  switch (frontendType) {
+    case "choice": return BackendQuestionType.SINGLE;
+    case "checkbox": return BackendQuestionType.MULTIPLE;
+    case "text": return BackendQuestionType.TEXT;
+    case "rating": return BackendQuestionType.FIX_SINGLE;
+    default: return BackendQuestionType.SINGLE;
+  }
+};
 
 const CreateAssessmentTeacher = () => {
   const {
@@ -15,7 +28,7 @@ const CreateAssessmentTeacher = () => {
     addSection,
   } = useAssessmentStoreUi();
 
-  // Drag สำหรับ Section (desktop)
+  // drag section (desktop)
   const onSectionDragEnd = (result: DropResult) => {
     const { source, destination, type } = result;
     if (!destination) return;
@@ -27,7 +40,7 @@ const CreateAssessmentTeacher = () => {
     setSections(newSections);
   };
 
-  // ปุ่ม ↑ ↓ สำหรับ Section (mobile/tablet)
+  // move section (mobile)
   const moveSection = (fromIndex: number, toIndex: number) => {
     if (toIndex < 0 || toIndex >= sections.length) return;
     const newSections = Array.from(sections);
@@ -36,63 +49,73 @@ const CreateAssessmentTeacher = () => {
     setSections(newSections);
   };
 
-  const saveForm = () => {
-    console.log("=== FORM DATA ===", {
-      title: formTitle,
-      description: formDescription,
-      sections,
-      createdAt: new Date().toISOString(),
-      totalSections: sections.length,
-      totalQuestions: sections.reduce((t, s) => t + s.questions.length, 0),
-    });
-    alert(
-      `บันทึกสำเร็จ! หัวข้อ ${sections.length} คำถาม ${sections.reduce(
-        (t, s) => t + s.questions.length,
-        0
-      )}`
-    );
+  // ✅ บันทึกทั้งก้อน
+  const saveForm = async () => {
+    try {
+      const payload = {
+        assessment_name: formTitle,
+        description: formDescription,
+        assessment_status: "Not finished" as const,
+        status: "Active" as const,
+        create_date: new Date().toISOString(),
+        last_update: new Date().toISOString(),
+        sections: sections.map((section) => ({
+          name: section.title,
+          status: "Active",
+          questions: section.questions.map((q, i) => ({
+            question_text: q.question,
+            question_number: i + 1,
+            question_type: mapFrontendToBackend(q.type),
+            choices: q.options.map((opt, j) => ({
+              choice_text: opt,
+              choice_number: j + 1,
+            })),
+          })),
+        })),
+      };
+
+      await assessmentService.createAssessmentFull(payload);
+
+      alert("✅ สร้างแบบประเมินสำเร็จ!");
+    } catch (err) {
+      console.error("❌ Error creating assessment:", err);
+      alert("❌ สร้างแบบประเมินไม่สำเร็จ");
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto bg-gray-200 rounded-xl px-4 py-8">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow mb-6 p-6">
+      <div className="bg-white rounded-xl shadow-lg mb-6 p-6">
         <input
           type="text"
           value={formTitle}
           onChange={(e) => setFormTitle(e.target.value)}
-          className="text-3xl font-normal w-full mb-2 text-gray-800 border border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-300 rounded-lg px-2 py-1 transition-all"
+          className="text-3xl font-normal w-full mb-2 border border-transparent focus:border-blue-500 rounded-lg px-2 py-1"
           placeholder="ชื่อแบบฟอร์ม"
         />
         <input
           type="text"
           value={formDescription}
           onChange={(e) => setFormDescription(e.target.value)}
-          className="text-gray-600 w-full border border-transparent focus:border-blue-400 focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1 transition-all"
+          className="text-gray-600 w-full border border-transparent focus:border-blue-400 rounded-lg px-2 py-1"
           placeholder="คำอธิบายแบบฟอร์ม"
         />
       </div>
 
-      {/* DragDropContext สำหรับ Section */}
+      {/* Sections */}
       <DragDropContext onDragEnd={onSectionDragEnd}>
         <Droppable droppableId="sections" type="SECTION">
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
               {sections.map((section, index) => (
-                <Draggable
-                  key={`section-${section.id}`}
-                  draggableId={`section-${section.id}`}
-                  index={index}
-                >
+                <Draggable key={`section-${section.id}`} draggableId={`section-${section.id}`} index={index}>
                   {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      className="mb-4"
-                    >
+                    <div ref={provided.innerRef} {...provided.draggableProps} className="mb-4">
                       <Section
                         section={section}
                         index={index}
+                        mode="create"   // ✅ โหมด create
                         dragHandleProps={provided.dragHandleProps}
                         onMoveUp={() => moveSection(index, index - 1)}
                         onMoveDown={() => moveSection(index, index + 1)}
@@ -111,7 +134,7 @@ const CreateAssessmentTeacher = () => {
       <div className="text-center mt-4">
         <button
           onClick={addSection}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 mx-auto transition-colors"
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 mx-auto"
         >
           <Plus size={20} /> เพิ่มหัวข้อใหม่
         </button>
@@ -119,12 +142,8 @@ const CreateAssessmentTeacher = () => {
 
       {/* Action */}
       <div className="flex justify-center gap-4 mt-6">
-        <Button type="button" bgColor="#dc2626">
-          ยกเลิก
-        </Button>
-        <Button type="submit" bgColor="#1E3A8A" onClick={saveForm}>
-          บันทึก
-        </Button>
+        <Button type="button" bgColor="#dc2626">ยกเลิก</Button>
+        <Button type="submit" bgColor="#1E3A8A" onClick={saveForm}>บันทึก</Button>
       </div>
     </div>
   );
