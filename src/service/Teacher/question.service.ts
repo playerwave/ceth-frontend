@@ -35,7 +35,7 @@ export const createQuestion = async (payload: {
   question_type: string; // "Fix Single answer" | "Single answer" | "Multiple answer" | "Text answer"
 }): Promise<ApiQuestion> => {
   const response = await axiosInstance.post<{ data: ApiQuestion }>(
-    "/teacher/question/create-question",
+    "/teacher/question/add",
     payload
   );
   return response.data.data;
@@ -50,14 +50,14 @@ export const updateQuestion = async (payload: {
   question_type: string;
 }): Promise<void> => {
   await axiosInstance.put(
-    `/teacher/question/update-question/${payload.question_id}`,
+    `/teacher/question/edit/${payload.question_id}`,
     payload
   );
 };
 
 // ✅ ลบคำถาม
 export const deleteQuestion = async (id: number): Promise<void> => {
-  await axiosInstance.delete(`/teacher/question/delete-question/${id}`);
+  await axiosInstance.delete(`/teacher/question/delete/${id}`);
 };
 
 const questionService = {

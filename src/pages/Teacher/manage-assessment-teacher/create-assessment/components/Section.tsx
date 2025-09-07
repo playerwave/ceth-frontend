@@ -22,18 +22,22 @@ interface SectionProps {
   onMoveDown: () => void;
 }
 
-// ✅ map type backend → frontend
-const mapType = (
+// แปลง backend enum → frontend type
+const mapBackendToFrontend = (
   type: string
 ): "choice" | "checkbox" | "text" | "rating" => {
   switch (type) {
     case QuestionType.SINGLE:
+    case "Single answer":
       return "choice";
     case QuestionType.FIX_SINGLE:
+    case "Fix Single answer":
       return "rating";
     case QuestionType.MULTIPLE:
+    case "Multiple answer":
       return "checkbox";
     case QuestionType.TEXT:
+    case "Text answer":
       return "text";
     default:
       return "text";
@@ -90,15 +94,41 @@ const Section: React.FC<SectionProps> = ({
   };
 
   // เพิ่มคำถามใหม่ (backend)
-  const handleAddQuestion = async () => {
-    const newQ = await createQuestion({
-      question_text: "คำถามใหม่",
-      question_number: questions.length + 1,
-      set_number_id: section.id,
-      question_type: QuestionType.SINGLE,   // ✅ ใช้ enum
-    });
+  // const handleAddQuestion = async () => {
+  //   const newQ = await createQuestion({
+  //     question_text: "คำถามใหม่",
+  //     question_number: questions.filter(q => q.set_number_id === section.id).length + 1,
+  //     set_number_id: section.id,
+  //     question_type: QuestionType.SINGLE,   // ✅ ใช้ enum ถูกต้อง
+  //   });
 
-    if (newQ) {
+  //   if (newQ) {
+  //     await fetchQuestionsBySetNumber(section.id);
+  //   }
+  // };
+
+  const handleAddQuestion = async () => {
+    console.log("🔄 Adding new question to section:", section.id);
+
+    try {
+      const newQ = await createQuestion({
+        question_text: "คำถามใหม่",
+        question_number: questions.filter(q => q.set_number_id === section.id).length + 1,
+        set_number_id: section.id,
+        question_type: QuestionType.SINGLE,
+      });
+
+      console.log("✅ Question created:", newQ);
+
+      // ✅ ไม่ต้อง fetchQuestionsBySetNumber อีกรอบ เพราะ createQuestion จะ update state แล้ว
+      // เว้นแต่ว่า newQ เป็น null (เกิด error)
+      if (!newQ) {
+        console.log("⚠️ Question creation failed, refreshing...");
+        await fetchQuestionsBySetNumber(section.id);
+      }
+    } catch (err) {
+      console.error("❌ Error in handleAddQuestion:", err);
+      // ✅ ถ้าเกิด error ให้ refresh
       await fetchQuestionsBySetNumber(section.id);
     }
   };
@@ -162,7 +192,7 @@ const Section: React.FC<SectionProps> = ({
                           question={{
                             id: q.question_id,
                             question: q.question_text,
-                            type: mapType(q.question_type),
+                            type: mapBackendToFrontend(q.question_type),
                             options: [],
                             required: false,
                           }}

@@ -3,34 +3,50 @@ import { Trash2, Copy, GripVertical } from "lucide-react";
 import QuestionRenderer from "./QuestionRenderer";
 import { Question as QuestionType } from "../type/type.create";
 import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
+import { QuestionType as BackendQuestionType } from "../../../../../types/model";
 
 interface QuestionProps {
   sectionId: number;
   question: QuestionType;
-  index: number;   // ✅ index มาจาก props
+  index: number;
   onMoveUp: () => void;
   onMoveDown: () => void;
   dragHandleProps?: any;
 }
 
+// แปลง frontend type → backend enum
+const mapFrontendToBackend = (frontendType: string): BackendQuestionType => {
+  switch (frontendType) {
+    case "choice":
+      return BackendQuestionType.SINGLE;
+    case "checkbox": 
+      return BackendQuestionType.MULTIPLE;
+    case "text":
+      return BackendQuestionType.TEXT;
+    case "rating":
+      return BackendQuestionType.FIX_SINGLE;
+    default:
+      return BackendQuestionType.SINGLE;
+  }
+};
+
 const Question: React.FC<QuestionProps> = ({
   sectionId,
   question,
-  index,   // ✅ destructure index มาจาก props ตรงนี้
+  index,
   onMoveUp,
   onMoveDown,
   dragHandleProps,
 }) => {
   const { updateQuestion, deleteQuestion, createQuestion } = useQuestionStore();
 
-  // ✅ ใช้ index จาก props
   const handleUpdate = async (field: keyof QuestionType, value: any) => {
     await updateQuestion({
       question_id: question.id,
       question_text: field === "question" ? value : question.question,
-      question_number: index + 1,   // ใช้ index จาก props
+      question_number: index + 1,
       set_number_id: sectionId,
-      question_type: field === "type" ? value : question.type,
+      question_type: field === "type" ? mapFrontendToBackend(value) : mapFrontendToBackend(question.type),
     } as any);
   };
 
@@ -41,9 +57,9 @@ const Question: React.FC<QuestionProps> = ({
   const handleDuplicate = async () => {
     await createQuestion({
       question_text: question.question + " (Copy)",
-      question_number: index + 1,   // ใช้ index จาก props
+      question_number: index + 1,
       set_number_id: sectionId,
-      question_type: question.type,
+      question_type: mapFrontendToBackend(question.type),
     } as any);
   };
 
