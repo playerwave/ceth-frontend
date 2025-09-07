@@ -9,7 +9,7 @@ interface OptionListProps {
   mode: "create" | "edit";
 }
 
-const OptionList: React.FC<OptionListProps> = ({ sectionId, question, mode }) => {
+const OptionList: React.FC<OptionListProps> = ({  question, mode }) => {
   const { choices, fetchChoicesByQuestion, createChoice, updateChoice, deleteChoice } = useChoiceStore();
 
   // โหลด choices จาก backend เฉพาะ edit เท่านั้น

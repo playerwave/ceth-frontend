@@ -24,7 +24,7 @@ const EditAssessmentTeacher = () => {
     setFormTitle,
     setFormDescription,
     setSections,
-    addSection,
+    
   } = useAssessmentStoreUi();
 
   const [loading, setLoading] = useState(false);

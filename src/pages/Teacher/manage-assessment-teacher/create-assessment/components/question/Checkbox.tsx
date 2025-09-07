@@ -12,6 +12,7 @@ const CheckboxQuestion: React.FC<Props> = ({ sectionId, question }) => {
     <OptionList
       sectionId={sectionId}
       question={question}
+       mode="create"   // 👈 ใส่ mode
     />
   );
 };
