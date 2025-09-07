@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
-import { Question, LocalChoice } from "../type/type.create"; // 👈 import LocalChoice ด้วย
+import { Question } from "../type/type.create";
 import { useChoiceStore } from "../../../../../stores/Teacher/choiceStore";
-import { Choice } from "../../../../../types/model"; // 👈 backend type
+import { useAssessmentStoreUi } from "../store/assessmentStore";
+import { Choice } from "../../../../../types/model";
 
 interface OptionListProps {
   sectionId: number;
@@ -9,47 +10,72 @@ interface OptionListProps {
   mode: "create" | "edit";
 }
 
-const OptionList: React.FC<OptionListProps> = ({  question, mode }) => {
+const OptionList: React.FC<OptionListProps> = ({ sectionId, question, mode }) => {
   const { choices, fetchChoicesByQuestion, createChoice, updateChoice, deleteChoice } = useChoiceStore();
+  const { updateQuestionInSection } = useAssessmentStoreUi();
 
-  // โหลด choices จาก backend เฉพาะ edit เท่านั้น
   useEffect(() => {
-    if (question.id && mode === "edit") {
+    if (mode === "edit" && question.id) {
       fetchChoicesByQuestion(question.id);
     }
-  }, [question.id, fetchChoicesByQuestion, mode]);
+  }, [mode, question.id, fetchChoicesByQuestion]);
 
-  // ✅ ใช้ Union Type (Choice | LocalChoice)
-  const options: (Choice | LocalChoice)[] =
-    mode === "edit" ? choices[question.id] || [] : (question.options as LocalChoice[]) || [];
+  const options: Choice[] =
+    mode === "edit" ? choices[question.id] || [] : (question.options as Choice[]) || [];
+
+  const handleUpdateChoice = (choiceId: number | undefined, newText: string, index: number) => {
+    if (mode === "edit") {
+      if (choiceId) updateChoice(choiceId, newText);
+    } else {
+      const newOptions = options.map((opt, i) =>
+        i === index ? { ...opt, choice_text: newText } : opt
+      );
+      updateQuestionInSection(sectionId, question.id, { options: newOptions });
+    }
+  };
+
+  const handleAddChoice = () => {
+    if (mode === "edit") {
+      createChoice(question.id, `ตัวเลือก ${options.length + 1}`);
+    } else {
+      const newOptions = [
+        ...options,
+        { choice_id: Date.now(), choice_text: `ตัวเลือก ${options.length + 1}`, question_id: question.id },
+      ];
+      updateQuestionInSection(sectionId, question.id, { options: newOptions });
+    }
+  };
+
+  const handleDeleteChoice = (choiceId: number | undefined, index: number) => {
+    if (mode === "edit") {
+      if (choiceId) deleteChoice(choiceId, question.id);
+    } else {
+      const newOptions = options.filter((_, i) => i !== index);
+      updateQuestionInSection(sectionId, question.id, { options: newOptions });
+    }
+  };
 
   return (
     <div className="space-y-2">
       {options.map((opt, i) => (
         <div key={opt.choice_id ?? i} className="flex items-center gap-2">
-          {question.type === "choice"
-            ? <input type="radio" disabled className="w-4 h-4 text-blue-500" />
-            : <input type="checkbox" disabled className="w-4 h-4 text-blue-500" />
-          }
+          {question.type === "choice" ? (
+            <input type="radio" disabled className="w-4 h-4 text-blue-500" />
+          ) : (
+            <input type="checkbox" disabled className="w-4 h-4 text-blue-500" />
+          )}
 
           <input
             type="text"
-            value={opt.choice_text}
-            onChange={(e) =>
-              mode === "edit"
-                ? updateChoice((opt as Choice).choice_id, e.target.value) // 👈 แปลงเป็น Choice เวลา edit
-                : console.log("update local choice", e.target.value)
-            }
+            value={opt.choice_text ?? ""}   // 👈 fallback
+            onChange={(e) => handleUpdateChoice(opt.choice_id, e.target.value, i)}
             className="flex-1 p-2 border-b border-gray-300 focus:border-blue-500 outline-none"
           />
 
+
           {options.length > 1 && (
             <button
-              onClick={() =>
-                mode === "edit"
-                  ? deleteChoice((opt as Choice).choice_id, question.id)
-                  : console.log("delete local choice")
-              }
+              onClick={() => handleDeleteChoice(opt.choice_id, i)}
               className="text-gray-400 hover:text-red-500"
             >
               ×
@@ -59,14 +85,7 @@ const OptionList: React.FC<OptionListProps> = ({  question, mode }) => {
       ))}
 
       <div className="mt-6">
-        <button
-          onClick={() =>
-            mode === "edit"
-              ? createChoice(question.id, `ตัวเลือก ${options.length + 1}`)
-              : console.log("add local choice")
-          }
-          className="text-blue-600 hover:text-blue-700 text-sm"
-        >
+        <button onClick={handleAddChoice} className="text-blue-600 hover:text-blue-700 text-sm">
           + เพิ่มตัวเลือก
         </button>
       </div>

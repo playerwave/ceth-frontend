@@ -18,11 +18,16 @@ interface QuestionProps {
 
 const mapFrontendToBackend = (frontendType: string): BackendQuestionType => {
   switch (frontendType) {
-    case "choice": return BackendQuestionType.SINGLE;
-    case "checkbox": return BackendQuestionType.MULTIPLE;
-    case "text": return BackendQuestionType.TEXT;
-    case "rating": return BackendQuestionType.FIX_SINGLE;
-    default: return BackendQuestionType.SINGLE;
+    case "choice":
+      return BackendQuestionType.SINGLE;
+    case "checkbox":
+      return BackendQuestionType.MULTIPLE;
+    case "text":
+      return BackendQuestionType.TEXT;
+    case "rating":
+      return BackendQuestionType.FIX_SINGLE;
+    default:
+      return BackendQuestionType.SINGLE;
   }
 };
 
@@ -40,9 +45,7 @@ const Question: React.FC<QuestionProps> = ({
 
   const handleUpdate = async (field: keyof QuestionType, value: any) => {
     if (mode === "create") {
-      updateQuestionInSection(sectionId, question.id, {
-        [field]: value,
-      });
+      updateQuestionInSection(sectionId, question.id, { [field]: value });
     } else {
       await updateQuestion({
         question_id: question.id,
@@ -113,18 +116,16 @@ const Question: React.FC<QuestionProps> = ({
         </div>
       </div>
 
-      <QuestionRenderer mode={mode} sectionId={sectionId} question={question} />
+      <QuestionRenderer sectionId={sectionId} question={question} mode={mode} />
 
-      {mode === "edit" && (
-        <div className="flex justify-end gap-2 mt-4">
-          <button onClick={handleDuplicate} className="text-gray-400 hover:text-blue-500">
-            <Copy size={18} />
-          </button>
-          <button onClick={handleDelete} className="text-gray-400 hover:text-red-500">
-            <Trash2 size={18} />
-          </button>
-        </div>
-      )}
+      <div className="flex justify-end gap-2 mt-4">
+        <button onClick={handleDuplicate} className="text-gray-400 hover:text-blue-500">
+          <Copy size={18} />
+        </button>
+        <button onClick={handleDelete} className="text-gray-400 hover:text-red-500">
+          <Trash2 size={18} />
+        </button>
+      </div>
     </div>
   );
 };

@@ -5,14 +5,15 @@ import { Question } from "../../type/type.create";
 interface Props {
   sectionId: number;
   question: Question;
+  mode: "create" | "edit"; // 👈 ตรงนี้ถูกแล้ว
 }
 
-const Choice: React.FC<Props> = ({ sectionId, question }) => {
+const Choice: React.FC<Props> = ({ sectionId, question , mode}) => {
   return (
     <OptionList
       sectionId={sectionId}
       question={question}
-      mode="create"   // 👈 ใส่ mode
+      mode={mode} // ✅ ใช้งานได้แล้ว
     />
   );
 };

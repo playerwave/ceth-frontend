@@ -163,9 +163,10 @@ export interface Question {
 
 //--------------------------- Choice -------------------------------------------
 export interface Choice {
-  choice_id: number;
-  choice_text: string; // Text of the choice
-  question_id: number; // FK to Question
+  choice_id?: number;       // backend generate
+  choice_text: string;      // ข้อความตัวเลือก
+  question_id?: number;     // FK, จะได้หลังจาก question ถูกสร้าง
+  choice_number?: number;   // ลำดับตัวเลือก (optional เผื่อ backend ใช้)
 }
 //------------------------------------------------------------------------------
 

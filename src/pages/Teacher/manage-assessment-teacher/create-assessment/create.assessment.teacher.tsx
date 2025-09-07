@@ -67,10 +67,11 @@ const CreateAssessmentTeacher = () => {
             question_number: i + 1,
             question_type: mapFrontendToBackend(q.type),
             choices: q.options.map((opt, j) => ({
-              choice_text: opt,
+              choice_text: typeof opt === "string" ? opt : opt.choice_text,  // ✅ fix
               choice_number: j + 1,
             })),
           })),
+
         })),
       };
 

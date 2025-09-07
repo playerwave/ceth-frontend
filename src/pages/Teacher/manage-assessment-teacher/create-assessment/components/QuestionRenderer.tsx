@@ -8,16 +8,15 @@ import RatingQuestion from "../components/question/Rating";
 interface QuestionRendererProps {
   sectionId: number;
   question: Question;
-  mode: "create" | "edit";  // 👈 เพิ่ม
-
+  mode: "create" | "edit";
 }
 
-const QuestionRenderer: React.FC<QuestionRendererProps> = ({ sectionId, question }) => {
+const QuestionRenderer: React.FC<QuestionRendererProps> = ({ sectionId, question, mode }) => {
   switch (question.type) {
     case "choice":
-      return <Choice sectionId={sectionId} question={question} />;
+      return <Choice sectionId={sectionId} question={question} mode={mode} />;
     case "checkbox":
-      return <CheckboxQuestion sectionId={sectionId} question={question} />;
+      return <CheckboxQuestion sectionId={sectionId} question={question} mode={mode} />;
     case "text":
       return <TextQuestion />;
     case "rating":

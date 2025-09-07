@@ -1,8 +1,10 @@
+import { Choice } from "../../../../../types/model"; // 👈 import Choice มาด้วย
+
 export interface Question {
   id: number;
-  type: 'choice' | 'checkbox' | 'text' | 'rating';
+  type: "choice" | "checkbox" | "text" | "rating";
   question: string;
-  options: LocalChoice[];
+  options: string[] | Choice[];   // ✅ รองรับทั้ง string[] และ Choice[]
   required: boolean;
 }
 
@@ -19,13 +21,4 @@ export interface FormData {
   createdAt: string;
   totalSections: number;
   totalQuestions: number;
-}
-
-
-
-export interface LocalChoice {
-  choice_id?: number;      // ยังไม่สร้างใน backend
-  choice_text: string;
-  question_id?: number;    // ยังไม่ผูกกับ question จริง
-  choice_number?: number;
 }

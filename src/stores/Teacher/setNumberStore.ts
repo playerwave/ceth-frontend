@@ -3,7 +3,7 @@ import { SetNumberState } from "../state/setNumber.state";
 import setNumberService from "../../service/Teacher/setNumber.service";
 import { mapApiToSetNumbers, mapApiToSetNumber } from "../mapper/setNumber.mapper";
 
-export const useSetNumberStore = create<SetNumberState>((set) => ({
+export const useSetNumberStore = create<SetNumberState>((set, get) => ({
   setNumbers: [],
   selectedSetNumber: null,
   setNumberLoading: false,

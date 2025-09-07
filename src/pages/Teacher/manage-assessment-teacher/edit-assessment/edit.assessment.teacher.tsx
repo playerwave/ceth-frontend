@@ -24,7 +24,7 @@ const EditAssessmentTeacher = () => {
     setFormTitle,
     setFormDescription,
     setSections,
-    
+    addSection,
   } = useAssessmentStoreUi();
 
   const [loading, setLoading] = useState(false);
@@ -160,11 +160,12 @@ const EditAssessmentTeacher = () => {
                       <Section
                         section={section}
                         index={index}
-                        mode="edit"   // 👈 เพิ่มตรงนี้
+                        mode="edit"   // ✅ บอกว่าโหมดแก้ไข
                         dragHandleProps={provided.dragHandleProps}
                         onMoveUp={() => { }}
                         onMoveDown={() => { }}
                       />
+
                     </div>
                   )}
                 </Draggable>
