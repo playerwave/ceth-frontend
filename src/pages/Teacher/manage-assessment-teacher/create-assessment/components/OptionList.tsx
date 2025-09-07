@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Question } from "../type/type.create";
-import { useAssessmentStoreUi } from "../store/assessmentStore";
+import { useChoiceStore } from "../../../../../stores/Teacher/choiceStore";
 
 interface OptionListProps {
   sectionId: number;
@@ -8,77 +8,21 @@ interface OptionListProps {
 }
 
 const OptionList: React.FC<OptionListProps> = ({ sectionId, question }) => {
-  const { sections, setSections } = useAssessmentStoreUi();
+  const { choices, fetchChoicesByQuestion, createChoice, updateChoice, deleteChoice } = useChoiceStore();
 
-  const updateOption = (index: number, value: string) => {
-    setSections(
-      sections.map((s) =>
-        s.id === sectionId
-          ? {
-              ...s,
-              questions: s.questions.map((q) =>
-                q.id === question.id
-                  ? {
-                      ...q,
-                      options: q.options.map((opt, i) =>
-                        i === index ? value : opt
-                      ),
-                    }
-                  : q
-              ),
-            }
-          : s
-      )
-    );
-  };
+  // โหลด choices ของคำถามนี้จาก backend
+  useEffect(() => {
+    if (question.id) {
+      fetchChoicesByQuestion(question.id);
+    }
+  }, [question.id, fetchChoicesByQuestion]);
 
-  const addOption = () => {
-    setSections(
-      sections.map((s) =>
-        s.id === sectionId
-          ? {
-              ...s,
-              questions: s.questions.map((q) =>
-                q.id === question.id
-                  ? {
-                      ...q,
-                      options: [
-                        ...q.options,
-                        `ตัวเลือก ${q.options.length + 1}`,
-                      ],
-                    }
-                  : q
-              ),
-            }
-          : s
-      )
-    );
-  };
-
-  const deleteOption = (index: number) => {
-    setSections(
-      sections.map((s) =>
-        s.id === sectionId
-          ? {
-              ...s,
-              questions: s.questions.map((q) =>
-                q.id === question.id
-                  ? {
-                      ...q,
-                      options: q.options.filter((_, i) => i !== index),
-                    }
-                  : q
-              ),
-            }
-          : s
-      )
-    );
-  };
+  const options = choices[question.id] || [];
 
   return (
     <div className="space-y-2">
-      {question.options.map((option, idx) => (
-        <div key={idx} className="flex items-center gap-2">
+      {options.map((opt) => (
+        <div key={opt.choice_id} className="flex items-center gap-2">
           {question.type === "choice" ? (
             <input type="radio" disabled className="w-4 h-4 text-blue-500" />
           ) : (
@@ -87,14 +31,14 @@ const OptionList: React.FC<OptionListProps> = ({ sectionId, question }) => {
 
           <input
             type="text"
-            value={option}
-            onChange={(e) => updateOption(idx, e.target.value)}
+            value={opt.choice_text}
+            onChange={(e) => updateChoice(opt.choice_id, e.target.value)}
             className="flex-1 p-2 border-b border-gray-300 focus:border-blue-500 outline-none"
           />
 
-          {question.options.length > 1 && (
+          {options.length > 1 && (
             <button
-              onClick={() => deleteOption(idx)}
+              onClick={() => deleteChoice(opt.choice_id, question.id)}
               className="text-gray-400 hover:text-red-500"
             >
               ×
@@ -105,7 +49,7 @@ const OptionList: React.FC<OptionListProps> = ({ sectionId, question }) => {
 
       <div className="mt-6">
         <button
-          onClick={addOption}
+          onClick={() => createChoice(question.id, `ตัวเลือก ${options.length + 1}`)}
           className="text-blue-600 hover:text-blue-700 text-sm"
         >
           + เพิ่มตัวเลือก
