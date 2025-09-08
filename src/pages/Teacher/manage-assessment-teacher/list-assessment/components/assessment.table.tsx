@@ -5,12 +5,12 @@ import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom"; // ✅ เพิ่ม import
 import { useState } from "react";
+import { useAssessmentStore } from "../../../../../stores/Teacher/assessment.store";
 
 import { Assessment } from "../../../../../types/model";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-import {
-  Button, // ✅ นำเข้า Button ของ MUI กลับมา
-} from "@mui/material";
 
 export interface AssessmentTableProps {
   height?: number | string;
@@ -35,6 +35,20 @@ export default function AssessmentTable({
 
   const handleToggleActions = (id: string) => {
     setOpenActionRowId((prevId) => (prevId === id ? null : id));
+  };
+
+
+  const { deleteAssessment } = useAssessmentStore();
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteAssessment!(Number(id)); // ✅ ใส่ ! ปลอดภัยแน่นอน
+      console.log("ลบ Assessment ID:", id);
+    } catch (error) {
+      console.error("❌ Error deleting assessment:", error);
+    } finally {
+      setOpenActionRowId(null);
+    }
   };
 
   const filteredRows = rows;
@@ -77,7 +91,6 @@ export default function AssessmentTable({
       field: "actions",
       headerName: "",
       sortable: false,
-      // width: 180,
       align: "center",
       headerAlign: "center",
       renderCell: (params: GridRenderCellParams) => (
@@ -90,29 +103,39 @@ export default function AssessmentTable({
             width: "100%",
             position: "relative",
             maxHeight: 2,
+            gap: 1,
           }}
         >
           {openActionRowId === params.row.assessment_id ? (
             <>
+              {/* ✅ IconButton Duplicate */}
               <Tooltip title="ทำซ้ำ">
-                <div style={{ padding: "1x" }}>
-                  <Button
-                    onClick={() => handleDuplicate(params.row.assessment_id)}
-                    variant="contained" // ✅ ทำให้ปุ่มมีพื้นหลัง
-                    sx={{
-                      backgroundColor: "#1E3A8A", // ✅ กำหนดสีพื้นหลัง
-                      color: "#FFFFFF", // ✅ กำหนดสีตัวอักษร
-                      borderRadius: "20px", // ✅ ทำให้ปุ่มมีขอบมน (ตัวอย่าง 20px)
-                      whiteSpace: "nowrap",
-                      // ถ้าอยากลดความสูงของปุ่มลงอีก สามารถใช้ paddingY หรือ minHeight ได้
-                      // paddingY: '4px', // ตัวอย่าง: ลด padding บน-ล่างเหลือ 4px
-                      // minHeight: '30px', // ตัวอย่าง: กำหนดความสูงขั้นต่ำ
-                    }}
-                    size="small" // ✅ กำหนดขนาดปุ่มเป็น small (ความสูงเริ่มต้นจะประมาณ 28-32px)
-                  >
-                    Duplicate
-                  </Button>
-                </div>
+                <IconButton
+                  onClick={() => handleDuplicate(params.row.assessment_id)}
+                  size="small"
+                  sx={{
+                    backgroundColor: "#1E3A8A",
+                    color: "#FFFFFF",
+                    "&:hover": { backgroundColor: "#1E40AF" },
+                  }}
+                >
+                  <ContentCopyIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+
+              {/* ✅ IconButton Delete */}
+              <Tooltip title="ลบ">
+                <IconButton
+                  onClick={() => handleDelete(params.row.assessment_id)}
+                  size="small"
+                  sx={{
+                    backgroundColor: "#B91C1C",
+                    color: "#FFFFFF",
+                    "&:hover": { backgroundColor: "#991B1B" },
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
               </Tooltip>
             </>
           ) : (
@@ -125,7 +148,9 @@ export default function AssessmentTable({
           )}
         </Box>
       ),
-    },
+    }
+
+
   ];
 
   return (
