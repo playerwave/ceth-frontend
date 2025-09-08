@@ -5,6 +5,8 @@ import { Question as QuestionType } from "../type/type.create";
 import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
 import { useAssessmentStoreUi } from "../store/assessmentStore";
 import { QuestionType as BackendQuestionType } from "../../../../../types/model";
+import { createQuestionWithChoices } from "../../../../../service/Teacher/question.service";
+import { useChoiceStore } from "../../../../../stores/Teacher/choiceStore";
 
 interface QuestionProps {
   sectionId: number;
@@ -40,7 +42,7 @@ const Question: React.FC<QuestionProps> = ({
   onMoveDown,
   dragHandleProps,
 }) => {
-  const { updateQuestion, deleteQuestion, createQuestion } = useQuestionStore();
+  const { updateQuestion, deleteQuestion, fetchQuestionsBySetNumber  } = useQuestionStore();
   const { updateQuestionInSection, deleteQuestionFromSection, addQuestionToSection } = useAssessmentStoreUi();
 
   const handleUpdate = async (field: keyof QuestionType, value: any) => {
@@ -64,6 +66,7 @@ const Question: React.FC<QuestionProps> = ({
       await deleteQuestion(question.id);
     }
   };
+  const { choices } = useChoiceStore();
 
   const handleDuplicate = async () => {
     if (mode === "create") {
@@ -73,61 +76,69 @@ const Question: React.FC<QuestionProps> = ({
         question: question.question + " (Copy)",
       });
     } else {
-      await createQuestion({
+      // 🟢 ดึง choices ของ question ปัจจุบันจาก store
+      const qChoices = choices[question.id] || [];
+
+      await createQuestionWithChoices({
         question_text: question.question + " (Copy)",
-        question_number: index + 1,
         set_number_id: sectionId,
         question_type: mapFrontendToBackend(question.type),
-      } as any);
-    }
-  };
+        question_number: index + 1, // ✅ เพิ่มตรงนี้
+        options: qChoices.map((c) => ({
+          choice_text: c.choice_text,
+        })),
+      });
+      await fetchQuestionsBySetNumber(sectionId);
+    
+  }
+};
 
-  return (
-    <div className="border-l-4 border-blue-500 pl-4 mb-6 bg-white rounded-lg shadow-md p-6">
-      <div className="flex gap-2 items-start mb-2">
-        <div className="flex flex-col items-center">
-          <div className="hidden lg:block cursor-grab p-1 text-gray-400" {...dragHandleProps}>
-            <GripVertical size={20} />
-          </div>
-          <div className="lg:hidden flex flex-col">
-            <button onClick={onMoveUp}>↑</button>
-            <button onClick={onMoveDown}>↓</button>
-          </div>
+return (
+  <div className="border-l-4 border-blue-500 pl-4 mb-6 bg-white rounded-lg shadow-md p-6">
+    <div className="flex gap-2 items-start mb-2">
+      <div className="flex flex-col items-center">
+        <div className="hidden lg:block cursor-grab p-1 text-gray-400" {...dragHandleProps}>
+          <GripVertical size={20} />
         </div>
-
-        <div className="flex flex-col sm:flex-row gap-2 w-full">
-          <input
-            type="text"
-            value={question.question}
-            onChange={(e) => handleUpdate("question", e.target.value)}
-            className="flex-1 text-base sm:text-lg border border-gray-300 rounded-lg px-2 py-1"
-            placeholder="พิมพ์คำถาม..."
-          />
-          <select
-            value={question.type}
-            onChange={(e) => handleUpdate("type", e.target.value)}
-            className="w-full sm:w-48 p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="choice">ตัวเลือกเดียว</option>
-            <option value="checkbox">หลายตัวเลือก</option>
-            <option value="text">ถามตอบ</option>
-            <option value="rating">ความพึงพอใจ</option>
-          </select>
+        <div className="lg:hidden flex flex-col">
+          <button onClick={onMoveUp}>↑</button>
+          <button onClick={onMoveDown}>↓</button>
         </div>
       </div>
 
-      <QuestionRenderer sectionId={sectionId} question={question} mode={mode} />
-
-      <div className="flex justify-end gap-2 mt-4">
-        <button onClick={handleDuplicate} className="text-gray-400 hover:text-blue-500">
-          <Copy size={18} />
-        </button>
-        <button onClick={handleDelete} className="text-gray-400 hover:text-red-500">
-          <Trash2 size={18} />
-        </button>
+      <div className="flex flex-col sm:flex-row gap-2 w-full">
+        <input
+          type="text"
+          value={question.question}
+          onChange={(e) => handleUpdate("question", e.target.value)}
+          className="flex-1 text-base sm:text-lg border border-gray-300 rounded-lg px-2 py-1"
+          placeholder="พิมพ์คำถาม..."
+        />
+        <select
+          value={question.type}
+          onChange={(e) => handleUpdate("type", e.target.value)}
+          className="w-full sm:w-48 p-2 border border-gray-300 rounded-lg"
+        >
+          <option value="choice">ตัวเลือกเดียว</option>
+          <option value="checkbox">หลายตัวเลือก</option>
+          <option value="text">ถามตอบ</option>
+          <option value="rating">ความพึงพอใจ</option>
+        </select>
       </div>
     </div>
-  );
+
+    <QuestionRenderer sectionId={sectionId} question={question} mode={mode} />
+
+    <div className="flex justify-end gap-2 mt-4">
+      <button onClick={handleDuplicate} className="text-gray-400 hover:text-blue-500">
+        <Copy size={18} />
+      </button>
+      <button onClick={handleDelete} className="text-gray-400 hover:text-red-500">
+        <Trash2 size={18} />
+      </button>
+    </div>
+  </div>
+);
 };
 
 export default Question;

@@ -111,44 +111,75 @@ export const useQuestionStore = create<QuestionState>((set, get) => ({
   //   }
   // },
 
-  createQuestion: async (data) => {
-  try {
-    console.log("📝 Creating question with data:", data);
-    const apiData = await questionService.createQuestion(data);
+  createQuestionWithChoices: async (data: {
+    question_text: string;
+    question_number: number;   // ✅ เพิ่มตรงนี้
+    set_number_id: number;
+    question_type: string;
+    options: { choice_text: string }[];
+  }) => {
+    try {
+      console.log("📝 Creating question+choices:", data);
+      const apiData = await questionService.createQuestionWithChoices(data);
 
-    console.log("📨 API Response:", apiData);
+      if (!apiData || !apiData.question_id) {
+        console.error("❌ API ไม่คืน question_id:", apiData);
+        await get().fetchQuestionsBySetNumber(data.set_number_id);
+        return null;
+      }
 
-    // ✅ รองรับทั้ง { question_id: ... } และ { data: { question_id: ... } }
-    const raw = (apiData as any)?.data ?? apiData;
-
-    if (!raw || !raw.question_id) {
-      console.error("❌ API response missing question_id:", apiData);
-
-      // ✅ ถ้า API ไม่ส่ง question_id กลับมา ให้ refresh แทน
+      // ✅ map กลับเข้าร้าน
+      const newQ = mapApiToQuestion(apiData, data.set_number_id);
+      set({ questions: [...get().questions, newQ] });
+      return newQ;
+    } catch (err) {
+      console.error("❌ createQuestionWithChoices error:", err);
       await get().fetchQuestionsBySetNumber(data.set_number_id);
       return null;
     }
+  },
 
-    const newQ = mapApiToQuestion(raw, data.set_number_id);
-    console.log("✅ Mapped new question:", newQ);
 
-    // ✅ เพิ่มคำถามใหม่เข้าไปใน state
-    set({ questions: [...get().questions, newQ] });
 
-    return newQ;
-  } catch (err) {
-    console.error("❌ createQuestion error:", err);
 
-    // ✅ ถ้าเกิด error ให้ refresh เพื่อให้แน่ใจว่าข้อมูลถูกต้อง
+  createQuestion: async (data) => {
     try {
-      await get().fetchQuestionsBySetNumber(data.set_number_id);
-    } catch (fetchErr) {
-      console.error("❌ Failed to refresh questions:", fetchErr);
-    }
+      console.log("📝 Creating question with data:", data);
+      const apiData = await questionService.createQuestion(data);
 
-    return null;
-  }
-},
+      console.log("📨 API Response:", apiData);
+
+      // ✅ รองรับทั้ง { question_id: ... } และ { data: { question_id: ... } }
+      const raw = (apiData as any)?.data ?? apiData;
+
+      if (!raw || !raw.question_id) {
+        console.error("❌ API response missing question_id:", apiData);
+
+        // ✅ ถ้า API ไม่ส่ง question_id กลับมา ให้ refresh แทน
+        await get().fetchQuestionsBySetNumber(data.set_number_id);
+        return null;
+      }
+
+      const newQ = mapApiToQuestion(raw, data.set_number_id);
+      console.log("✅ Mapped new question:", newQ);
+
+      // ✅ เพิ่มคำถามใหม่เข้าไปใน state
+      set({ questions: [...get().questions, newQ] });
+
+      return newQ;
+    } catch (err) {
+      console.error("❌ createQuestion error:", err);
+
+      // ✅ ถ้าเกิด error ให้ refresh เพื่อให้แน่ใจว่าข้อมูลถูกต้อง
+      try {
+        await get().fetchQuestionsBySetNumber(data.set_number_id);
+      } catch (fetchErr) {
+        console.error("❌ Failed to refresh questions:", fetchErr);
+      }
+
+      return null;
+    }
+  },
 
 
   // ✅ อัปเดตคำถาม

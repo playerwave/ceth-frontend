@@ -60,6 +60,18 @@ export const deleteQuestion = async (id: number): Promise<void> => {
   await axiosInstance.delete(`/teacher/question/delete/${id}`);
 };
 
+//duplicate 
+export async function createQuestionWithChoices(data: {
+  question_text: string;
+  set_number_id: number;
+  question_type: string;
+  question_number: number;   // ✅ เพิ่มตรงนี้
+
+  options: { choice_text: string }[];
+}) {
+  const res = await axiosInstance.post("/teacher/question/add-with-choices", data);
+  return res.data;
+}
 const questionService = {
   getAllQuestions,
   getQuestionsBySetNumber,
@@ -67,6 +79,7 @@ const questionService = {
   createQuestion,
   updateQuestion,
   deleteQuestion,
+  createQuestionWithChoices,
 };
 
 export default questionService;
