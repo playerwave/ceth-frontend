@@ -28,9 +28,16 @@ export default function AssessmentTable({
 }: AssessmentTableProps) {
   const [openActionRowId, setOpenActionRowId] = useState<string | null>(null);
 
-  const handleDuplicate = (id: string) => {
-    console.log("ทำซ้ำ Assessment ID:", id);
-    setOpenActionRowId(null);
+  
+  const { duplicateAssessment } = useAssessmentStore();
+  const handleDuplicate = async (id: string) => {
+    try {
+      await duplicateAssessment(Number(id));
+    } catch (error) {
+      console.error("❌ Error duplicating assessment:", error);
+    } finally {
+      setOpenActionRowId(null);
+    }
   };
 
   const handleToggleActions = (id: string) => {

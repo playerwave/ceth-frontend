@@ -14,4 +14,6 @@ export interface AssessmentState {
   deleteAssessment?: (id: number) => Promise<void>;
   clearSelectedAssessment?: () => void;
   searchAssessments?: (name: string) => Promise<void>;
+
+  duplicateAssessment: (id: number) => Promise<void>;
 }

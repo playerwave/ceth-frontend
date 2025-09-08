@@ -70,6 +70,14 @@ export const searchAssessments = async (
   return response.data;
 };
 
+
+// 📥 ดึงแบบประเมินเต็ม (รวม sections, questions, choices)
+export const getAssessmentFullById = async (id: number): Promise<any> => {
+  const response = await axiosInstance.get(`/teacher/assessment/get-assessment-full/${id}`);
+  return response.data;
+};
+
+
 // ✅ Export แบบ object สำหรับใช้ใน store
 const assessmentService = {
   getAllAssessments,
@@ -78,7 +86,9 @@ const assessmentService = {
   updateAssessment,
   deleteAssessment,
   searchAssessments,
-   createAssessmentFull, // ✅
+   createAssessmentFull,
+   getAssessmentFullById,
+    // ✅
 };
 
 export default assessmentService;

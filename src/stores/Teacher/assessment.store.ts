@@ -80,6 +80,37 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     }
   },
 
+
+
+  duplicateAssessment: async (id: number) => {
+    try {
+      // 1. ดึงข้อมูลเต็มของ assessment
+      const original = await assessmentService.getAssessmentFullById(id);
+
+      if (!original) {
+        throw new Error("ไม่พบข้อมูล Assessment ที่จะทำซ้ำ");
+      }
+
+      // 2. clone assessment (ตัด id ทิ้ง + แก้ชื่อ + อัปเดตวันที่)
+      const newAssessment = {
+        ...original,
+        assessment_id: undefined,
+        assessment_name: `${original.assessment_name} (สำเนา)`,
+        create_date: new Date().toISOString(),
+        last_update: new Date().toISOString(),
+      };
+
+      // 3. สร้างใหม่แบบ full (assessment + sections + questions + choices)
+      await assessmentService.createAssessmentFull(newAssessment);
+
+      // 4. refresh list
+      await get().fetchAssessments();
+
+    } catch (error) {
+      console.error("❌ Error duplicating assessment", error);
+    }
+  },
+
   deleteAssessment: async (id) => {
     try {
       await assessmentService.deleteAssessment(id);
