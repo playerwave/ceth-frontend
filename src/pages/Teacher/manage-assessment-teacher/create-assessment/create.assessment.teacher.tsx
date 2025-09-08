@@ -5,6 +5,7 @@ import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore
 import Button from "../../../../components/Button";
 import assessmentService from "../../../../service/Teacher/assessment.service";
 import { QuestionType as BackendQuestionType } from "../../../../types/model";  // ✅ enum จาก backend
+import { useEffect } from "react";
 
 // แปลง type จาก frontend → backend
 const mapFrontendToBackend = (frontendType: string): BackendQuestionType => {
@@ -39,6 +40,29 @@ const CreateAssessmentTeacher = () => {
     newSections.splice(destination.index, 0, moved);
     setSections(newSections);
   };
+  useEffect(() => {
+    setFormTitle("แบบประเมินใหม่");
+    setFormDescription("คำอธิบายแบบประเมิน");
+    setSections([
+      {
+        id: 0, // dummy id
+        title: "หัวข้อที่ 1",
+        questions: [
+          {
+            id: 0, // dummy id
+            type: "choice",
+            question: "คำถามตัวอย่าง",
+            options: [
+              { choice_id: 0, choice_text: "ตัวเลือก 1", question_id: 0 },
+              { choice_id: 1, choice_text: "ตัวเลือก 2", question_id: 0 },
+            ],
+            required: false,
+          },
+        ],
+      },
+    ]);
+  }, [setFormTitle, setFormDescription, setSections]);
+
 
   // move section (mobile)
   const moveSection = (fromIndex: number, toIndex: number) => {
