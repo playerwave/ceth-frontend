@@ -45,15 +45,16 @@ export const updateAssessment = async (payload: {
   assessment_name: string;
   description: string;
   assessment_status: "Not finished" | "Finished" | "Unsuccessful";
-  
   status: "Active" | "Inactive";
   last_update: string;
-}): Promise<void> => {
-  await axiosInstance.put(
+}): Promise<ApiAssessment> => {
+  const response = await axiosInstance.put<ApiAssessment>(
     `/teacher/assessment/update-assessment/${payload.assessment_id}`,
     payload
   );
+  return response.data; // ✅ ได้ข้อมูล assessment กลับมา
 };
+
 
 // 🗑️ ลบแบบประเมิน
 export const deleteAssessment = async (id: number): Promise<void> => {
@@ -86,9 +87,9 @@ const assessmentService = {
   updateAssessment,
   deleteAssessment,
   searchAssessments,
-   createAssessmentFull,
-   getAssessmentFullById,
-    // ✅
+  createAssessmentFull,
+  getAssessmentFullById,
+  // ✅
 };
 
 export default assessmentService;

@@ -24,7 +24,7 @@ const EditAssessmentTeacher = () => {
     setFormTitle,
     setFormDescription,
     setSections,
-    
+
   } = useAssessmentStoreUi();
 
   const [loading, setLoading] = useState(false);
@@ -68,6 +68,29 @@ const EditAssessmentTeacher = () => {
 
     fetchData();
   }, [id, setFormTitle, setFormDescription, fetchSetNumbersByAssessment]);
+
+
+
+
+  const handleBlurUpdate = async () => {
+    if (!id) return;
+    try {
+      const payload = {
+        assessment_id: Number(id),
+        assessment_name: formTitle,       // ✅ ใช้ state ปัจจุบันเลย
+        description: formDescription,
+        status: "Active" as const,
+        assessment_status: "Not finished" as const,
+        last_update: new Date().toISOString(),
+      };
+
+      await assessmentService.updateAssessment(payload);
+      console.log("✅ Auto update success!", payload);
+    } catch (err) {
+      console.error("❌ Error auto updating assessment:", err);
+    }
+  };
+
 
   // ✅ sync setNumbers → sections ของ store
   useEffect(() => {
@@ -127,14 +150,18 @@ const EditAssessmentTeacher = () => {
         <input
           type="text"
           value={formTitle ?? ""}
-          onChange={(e) => setFormTitle(e.target.value)}
+          onChange={(e) => setFormTitle(e.target.value)}   // 🔹 UI เปลี่ยนทันที
+          onBlur={handleBlurUpdate}                        // 🔹 ยิง API แค่ตอนหลุดโฟกัส
           className="text-3xl font-normal w-full mb-2 text-gray-800 border border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-300 rounded-lg px-2 py-1 transition-all"
           placeholder="ชื่อแบบฟอร์ม"
         />
+
+
         <input
           type="text"
           value={formDescription ?? ""}
-          onChange={(e) => setFormDescription(e.target.value)}
+          onChange={(e) => setFormDescription(e.target.value)}   // 🔹 UI เปลี่ยนทันที
+          onBlur={handleBlurUpdate}                              // 🔹 ยิง API แค่ตอนหลุดโฟกัส
           className="text-gray-600 w-full border border-transparent focus:border-blue-400 focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1 transition-all"
           placeholder="คำอธิบายแบบฟอร์ม"
         />

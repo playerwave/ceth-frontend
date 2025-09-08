@@ -69,21 +69,21 @@ const Section: React.FC<SectionProps> = ({
       }
     }
   };
-  const handleChangeTitle = async (newTitle: string) => {
-    updateSectionTitle(section.id, newTitle);
-    if (mode === "edit") {
-      try {
-        await setNumberService.updateSetNumber({
-          set_number_id: section.id,
-          name: newTitle,
-          status: "Active",
-          assessment_id: assessmentId,
-        });
-      } catch (err) {
-        console.error("❌ Error updating section:", err);
-      }
-    }
-  };
+  // const handleChangeTitle = async (newTitle: string) => {
+  //   updateSectionTitle(section.id, newTitle);
+  //   if (mode === "edit") {
+  //     try {
+  //       await setNumberService.updateSetNumber({
+  //         set_number_id: section.id,
+  //         name: newTitle,
+  //         status: "Active",
+  //         assessment_id: assessmentId,
+  //       });
+  //     } catch (err) {
+  //       console.error("❌ Error updating section:", err);
+  //     }
+  //   }
+  // };
 
   const handleDelete = async () => {
     if (mode === "edit") {
@@ -239,9 +239,25 @@ const Section: React.FC<SectionProps> = ({
         <input
           type="text"
           value={section.title}
-          onChange={(e) => handleChangeTitle(e.target.value)}
+          onChange={(e) => updateSectionTitle(section.id, e.target.value)} // 🟢 update state local เท่านั้น
+          onBlur={async (e) => {
+            if (mode === "edit") {
+              try {
+                await setNumberService.updateSetNumber({
+                  set_number_id: section.id,
+                  name: e.target.value,
+                  status: "Active",
+                  assessment_id: assessmentId,
+                });
+                console.log("✅ Updated section title:", e.target.value);
+              } catch (err) {
+                console.error("❌ Error updating section:", err);
+              }
+            }
+          }}
           className="flex-1 min-w-0 text-base sm:text-lg font-medium border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1 transition-all"
         />
+
 
         <div className="flex gap-2 flex-shrink-0">
           <button

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Question } from "../type/type.create";
 import { useChoiceStore } from "../../../../../stores/Teacher/choiceStore";
 import { useAssessmentStoreUi } from "../store/assessmentStore";
@@ -14,14 +14,37 @@ const OptionList: React.FC<OptionListProps> = ({ sectionId, question, mode }) =>
   const { choices, fetchChoicesByQuestion, createChoice, updateChoice, deleteChoice } = useChoiceStore();
   const { updateQuestionInSection } = useAssessmentStoreUi();
 
+  // ✅ ต้องประกาศ options ก่อน
+  const options: Choice[] =
+    mode === "edit" ? choices[question.id] || [] : (question.options as Choice[]) || [];
+
+  // ✅ เก็บค่า local ของแต่ละ choice
+  const [localTexts, setLocalTexts] = useState<Record<number, string>>({});
+
+  // ✅ sync เมื่อ options เปลี่ยน
+  useEffect(() => {
+    const initTexts: Record<number, string> = {};
+    options.forEach((opt, i) => {
+      initTexts[opt.choice_id ?? i] = opt.choice_text ?? "";
+    });
+
+    // ✅ setState เฉพาะถ้าค่าเปลี่ยนจริงๆ
+    setLocalTexts((prev) => {
+      const same =
+        Object.keys(initTexts).length === Object.keys(prev).length &&
+        Object.keys(initTexts).every((key) => initTexts[Number(key)] === prev[Number(key)]);
+
+      return same ? prev : initTexts;
+    });
+  }, [options]);
+
+
+  
   useEffect(() => {
     if (mode === "edit" && question.id) {
       fetchChoicesByQuestion(question.id);
     }
   }, [mode, question.id, fetchChoicesByQuestion]);
-
-  const options: Choice[] =
-    mode === "edit" ? choices[question.id] || [] : (question.options as Choice[]) || [];
 
   const handleUpdateChoice = (choiceId: number | undefined, newText: string, index: number) => {
     if (mode === "edit") {
@@ -55,6 +78,10 @@ const OptionList: React.FC<OptionListProps> = ({ sectionId, question, mode }) =>
     }
   };
 
+  const handleLocalChange = (choiceId: number, value: string) => {
+    setLocalTexts((prev) => ({ ...prev, [choiceId]: value }));
+  };
+
   return (
     <div className="space-y-2">
       {options.map((opt, i) => (
@@ -67,11 +94,11 @@ const OptionList: React.FC<OptionListProps> = ({ sectionId, question, mode }) =>
 
           <input
             type="text"
-            value={opt.choice_text ?? ""}   // 👈 fallback
-            onChange={(e) => handleUpdateChoice(opt.choice_id, e.target.value, i)}
+            value={localTexts[opt.choice_id ?? i] ?? ""}
+            onChange={(e) => handleLocalChange(opt.choice_id ?? i, e.target.value)}
+            onBlur={() => handleUpdateChoice(opt.choice_id, localTexts[opt.choice_id ?? i], i)}
             className="flex-1 p-2 border-b border-gray-300 focus:border-blue-500 outline-none"
           />
-
 
           {options.length > 1 && (
             <button
