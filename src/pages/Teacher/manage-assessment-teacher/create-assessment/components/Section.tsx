@@ -13,6 +13,7 @@ import setNumberService from "../../../../../service/Teacher/setNumber.service";
 import { useParams } from "react-router-dom";
 import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
 import { QuestionType } from "../../../../../types/model";
+import { useSetNumberStore } from "../../../../../stores/Teacher/setNumberStore";
 
 interface SectionProps {
   section: SectionType;
@@ -46,13 +47,27 @@ const Section: React.FC<SectionProps> = ({
 
   const { updateSectionTitle, deleteSection, addQuestionToSection } = useAssessmentStoreUi();
   const { questions, fetchQuestionsBySetNumber, createQuestion } = useQuestionStore();
-
+  const { duplicateSetNumber } = useSetNumberStore();
   useEffect(() => {
     if (mode === "edit" && section.id) {
       fetchQuestionsBySetNumber(section.id);
     }
   }, [mode, section.id, fetchQuestionsBySetNumber]);
 
+
+
+  const handleDuplicate = async () => {
+    if (mode === "edit") {
+      try {
+        const duplicated = await duplicateSetNumber(section.id);
+        if (duplicated) {
+          console.log("✅ duplicated section:", duplicated);
+        }
+      } catch (err) {
+        console.error("❌ Error duplicating section:", err);
+      }
+    }
+  };
   const handleChangeTitle = async (newTitle: string) => {
     updateSectionTitle(section.id, newTitle);
     if (mode === "edit") {
@@ -136,7 +151,13 @@ const Section: React.FC<SectionProps> = ({
         />
 
         <div className="flex gap-2 flex-shrink-0">
-          <button className="text-gray-400 hover:text-blue-500"><Copy size={16} /></button>
+          <button
+            onClick={handleDuplicate}
+            className="text-gray-400 hover:text-blue-500"
+          >
+            <Copy size={16} />
+          </button>
+
           <button onClick={handleDelete} className="text-gray-400 hover:text-red-500 disabled:opacity-30"><Trash2 size={16} /></button>
         </div>
       </div>
@@ -148,41 +169,41 @@ const Section: React.FC<SectionProps> = ({
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {mode === "edit"
                 ? questions
-                    .filter((q) => q.set_number_id === section.id)
-                    .map((q, index) => (
-                      <Draggable key={q.question_id} draggableId={`q-${q.question_id}`} index={index}>
-                        {(provided) => (
-                          <div ref={provided.innerRef} {...provided.draggableProps} className="mb-4">
-                            <Question
-                              sectionId={section.id}
-                              question={{
-                                id: q.question_id,
-                                question: q.question_text,
-                                type: mapBackendToFrontend(q.question_type),
-                                options: [],
-                                required: false,
-                              }}
-                              index={index}
-                              mode="edit"
-                              onMoveUp={() => {}}
-                              onMoveDown={() => {}}
-                              dragHandleProps={provided.dragHandleProps}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))
+                  .filter((q) => q.set_number_id === section.id)
+                  .map((q, index) => (
+                    <Draggable key={q.question_id} draggableId={`q-${q.question_id}`} index={index}>
+                      {(provided) => (
+                        <div ref={provided.innerRef} {...provided.draggableProps} className="mb-4">
+                          <Question
+                            sectionId={section.id}
+                            question={{
+                              id: q.question_id,
+                              question: q.question_text,
+                              type: mapBackendToFrontend(q.question_type),
+                              options: [],
+                              required: false,
+                            }}
+                            index={index}
+                            mode="edit"
+                            onMoveUp={() => { }}
+                            onMoveDown={() => { }}
+                            dragHandleProps={provided.dragHandleProps}
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))
                 : section.questions.map((q, index) => (
-                    <Question
-                      key={q.id}
-                      sectionId={section.id}
-                      question={q}
-                      index={index}
-                      mode="create"
-                      onMoveUp={() => {}}
-                      onMoveDown={() => {}}
-                    />
-                  ))}
+                  <Question
+                    key={q.id}
+                    sectionId={section.id}
+                    question={q}
+                    index={index}
+                    mode="create"
+                    onMoveUp={() => { }}
+                    onMoveDown={() => { }}
+                  />
+                ))}
               {provided.placeholder}
             </div>
           )}

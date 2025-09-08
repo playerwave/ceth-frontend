@@ -13,6 +13,6 @@ export interface SetNumberState {
   createSetNumber: (data: Omit<SetNumber, "set_number_id">) => Promise<SetNumber | null>;
   updateSetNumber: (data: SetNumber) => Promise<SetNumber | null>;
   deleteSetNumber: (id: number) => Promise<SetNumber | null>;
-
+  duplicateSetNumber: (id: number) => Promise<SetNumber | null>;
   clearSelectedSetNumber: () => void;
 }

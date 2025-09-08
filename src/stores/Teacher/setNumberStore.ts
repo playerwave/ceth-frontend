@@ -59,6 +59,22 @@ export const useSetNumberStore = create<SetNumberState>((set) => ({
     }
   },
 
+  duplicateSetNumber: async (id: number) => {
+    try {
+      const apiData = await setNumberService.duplicateSetNumber(id);
+      const duplicated = mapApiToSetNumber(apiData);
+      set((state) => ({
+        setNumbers: [...state.setNumbers, duplicated],
+      }));
+      return duplicated;
+    } catch (err) {
+      console.error("❌ duplicateSetNumber error:", err);
+      return null;
+    }
+  },
+
+
+
   // ✅ อัปเดตหัวข้อ
   updateSetNumber: async (data) => {
     try {
@@ -75,6 +91,8 @@ export const useSetNumberStore = create<SetNumberState>((set) => ({
       return null;
     }
   },
+
+
 
   // ✅ ลบหัวข้อ
   deleteSetNumber: async (id) => {

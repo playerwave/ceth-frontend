@@ -62,6 +62,16 @@ export const deleteSetNumber = async (id: number): Promise<ApiSetNumber> => {
   return response.data.data;
 };
 
+
+export const duplicateSetNumber = async (
+  id: number
+): Promise<ApiSetNumber> => {
+  const response = await axiosInstance.post<{ data: ApiSetNumber }>(
+    `/teacher/setNumber/duplicate-set-number/${id}`
+  );
+  return response.data.data;
+};
+
 const setNumberService = {
   getAllSetNumbers,
   getSetNumbersByAssessment,
@@ -69,6 +79,7 @@ const setNumberService = {
   createSetNumber,
   updateSetNumber,
   deleteSetNumber,
+  duplicateSetNumber, // ✅ เพิ่มตรงนี้
 };
 
 export default setNumberService;
