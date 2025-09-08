@@ -14,6 +14,7 @@ import { useParams } from "react-router-dom";
 import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
 import { QuestionType } from "../../../../../types/model";
 import { useSetNumberStore } from "../../../../../stores/Teacher/setNumberStore";
+import { updateQuestion } from "../../../../../service/Teacher/question.service";
 
 interface SectionProps {
   section: SectionType;
@@ -45,7 +46,7 @@ const Section: React.FC<SectionProps> = ({
   const { id } = useParams<{ id: string }>();
   const assessmentId = Number(id);
 
-  const { updateSectionTitle, deleteSection, addQuestionToSection } = useAssessmentStoreUi();
+  const { updateSectionTitle, deleteSection, addQuestionToSection, sections, setSections } = useAssessmentStoreUi();
   const { questions, fetchQuestionsBySetNumber, createQuestion } = useQuestionStore();
   const { duplicateSetNumber } = useSetNumberStore();
   useEffect(() => {
@@ -125,9 +126,101 @@ const Section: React.FC<SectionProps> = ({
     }
   };
 
-  const onQuestionDragEnd = (result: DropResult) => {
+  //   const onQuestionDragEnd = async (result: DropResult) => {
+  //   if (!result.destination) return;
+
+  //   const { source, destination } = result;
+  //   if (source.index === destination.index) return;
+
+  //   if (mode === "create") {
+  //     // 🟢 frontend state only
+  //     const newQuestions = Array.from(section.questions);
+  //     const [moved] = newQuestions.splice(source.index, 1);
+  //     newQuestions.splice(destination.index, 0, moved);
+
+  //     // update state ใน store
+  //     newQuestions.forEach((q, i) => {
+  //       updateQuestionInSection(section.id, q.id, { ...q, question_number: i + 1 });
+  //     });
+  //   } else {
+  //     // 🟢 mode edit → update DB
+  //     const qInSection = questions.filter((q) => q.set_number_id === section.id);
+  //     const newOrder = Array.from(qInSection);
+  //     const [moved] = newOrder.splice(source.index, 1);
+  //     newOrder.splice(destination.index, 0, moved);
+
+  //     // update question_number ใหม่ใน DB
+  //     for (let i = 0; i < newOrder.length; i++) {
+  //       const q = newOrder[i];
+  //       await updateQuestion({
+  //         question_id: q.question_id,
+  //         question_text: q.question_text,
+  //         question_number: i + 1,   // อัปเดตลำดับใหม่
+  //         set_number_id: section.id,
+  //         question_type: q.question_type,
+  //       } as any);
+  //     }
+
+  //     // refresh ให้ state ตรงกับ DB
+  //     fetchQuestionsBySetNumber(section.id);
+  //   }
+  // };
+
+  const onQuestionDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
+
+    const { source, destination } = result;
+    if (source.index === destination.index) return;
+
+    if (mode === "create") {
+      const newQuestions = Array.from(section.questions);
+      const [moved] = newQuestions.splice(source.index, 1);
+      newQuestions.splice(destination.index, 0, moved);
+
+      // ✅ update ทั้ง section.questions กลับเข้า store
+      setSections(
+        sections.map(s =>
+          s.id === section.id
+            ? {
+              ...s,
+              questions: newQuestions.map((q, i) => ({
+                ...q,
+                question_number: i + 1,
+              })),
+            }
+            : s
+        )
+      );
+
+    }
+
+    if (mode === "edit") {
+      // 🟢 edit mode → อัปเดต DB จริง
+      const qInSection = questions.filter(
+        (q) => q.set_number_id === section.id
+      );
+
+      const newOrder = Array.from(qInSection);
+      const [moved] = newOrder.splice(source.index, 1);
+      newOrder.splice(destination.index, 0, moved);
+
+      // อัปเดต question_number ใหม่ทั้งหมด
+      for (let i = 0; i < newOrder.length; i++) {
+        const q = newOrder[i];
+        await updateQuestion({
+          question_id: q.question_id,
+          question_text: q.question_text,
+          question_number: i + 1, // ✅ reset ลำดับใหม่
+          set_number_id: section.id,
+          question_type: q.question_type,
+        } as any);
+      }
+
+      // refresh state หลังจาก DB update
+      await fetchQuestionsBySetNumber(section.id);
+    }
   };
+
 
   return (
     <div className="bg-white p-10 rounded-xl shadow-lg hover:shadow-2xl transition-shadow">
@@ -163,7 +256,7 @@ const Section: React.FC<SectionProps> = ({
       </div>
 
       {/* Questions */}
-      <DragDropContext onDragEnd={onQuestionDragEnd}>
+      {/* <DragDropContext onDragEnd={onQuestionDragEnd}>
         <Droppable droppableId={`questions-${section.id}`} type="QUESTION">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -202,7 +295,72 @@ const Section: React.FC<SectionProps> = ({
                     mode="create"
                     onMoveUp={() => { }}
                     onMoveDown={() => { }}
+                    
                   />
+                ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext> */}
+      <DragDropContext onDragEnd={onQuestionDragEnd}>
+        <Droppable droppableId={`questions-${section.id}`} type="QUESTION">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {mode === "edit"
+                ? questions
+                  .filter((q) => q.set_number_id === section.id)
+                  .map((q, index) => (
+                    <Draggable
+                      key={q.question_id}
+                      draggableId={`q-${q.question_id}`}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className="mb-4"
+                        >
+                          <Question
+                            sectionId={section.id}
+                            question={{
+                              id: q.question_id,
+                              question: q.question_text,
+                              type: mapBackendToFrontend(q.question_type),
+                              options: [],
+                              required: false,
+                            }}
+                            index={index}
+                            mode="edit"
+                            onMoveUp={() => { }}
+                            onMoveDown={() => { }}
+                            dragHandleProps={provided.dragHandleProps}
+                          />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))
+                : section.questions.map((q, index) => (
+                  <Draggable key={q.id} draggableId={`q-${q.id}`} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className="mb-4"
+                      >
+                        <Question
+                          sectionId={section.id}
+                          question={q}
+                          index={index}
+                          mode="create"
+                          onMoveUp={() => { }}
+                          onMoveDown={() => { }}
+                          dragHandleProps={provided.dragHandleProps}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
                 ))}
               {provided.placeholder}
             </div>
