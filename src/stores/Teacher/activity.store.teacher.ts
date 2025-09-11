@@ -68,15 +68,46 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   fetchActivities: async () => {
     console.log("📥 Fetching all activities for teacher...");
 
-    set({ loading: true, error: null });
-    try {
-      const data = await activityService.fetchAllActivities();
-      set({ activities: data });
-      console.log("teacher fetchActivities: ", data);
-    } catch (err) {
-      set({ error: "Failed to fetch activities" });
-    } finally {
-      set({ loading: false });
+    set({ loading: true, error: null, activityLoading: true, activityError: null });
+    
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        const data = await activityService.fetchAllActivities();
+        
+        // ✅ ตรวจสอบข้อมูลที่ได้
+        if (!data || !Array.isArray(data)) {
+          console.warn("⚠️ Invalid data received from service:", data);
+          if (retries > 1) {
+            retries--;
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            continue;
+          }
+          set({ activities: [], loading: false, activityLoading: false });
+          return;
+        }
+
+        set({ activities: data, loading: false, activityLoading: false });
+        console.log(`✅ teacher fetchActivities: Retrieved ${data.length} activities`);
+        return;
+      } catch (err) {
+        retries--;
+        console.error(`❌ fetchActivities error (retries left: ${retries}):`, err);
+        
+        if (retries === 0) {
+          const errorMessage = err instanceof Error ? err.message : "Failed to fetch activities";
+          set({ 
+            error: errorMessage, 
+            activityError: errorMessage,
+            loading: false, 
+            activityLoading: false 
+          });
+          return;
+        }
+        
+        // ✅ รอสักครู่ก่อนลองใหม่
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
   },
   //----------------------------------------------------------------
@@ -186,10 +217,7 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     try {
       console.log("🔄 Updating activity status:", { id, status });
 
-      // เรียก service ที่อัปเดตสถานะใน backend
-      await activityService.updateActivityStatus(id, status);
-
-      // ✅ อัปเดต state ทันทีเพื่อให้ UI แสดงผลทันที
+      // ✅ อัปเดต state ทันทีเพื่อให้ UI แสดงผลทันที (Optimistic Update)
       set((state) => {
         const updatedActivities = state.activities.map((activity) =>
           activity.activity_id.toString() === id
@@ -202,7 +230,7 @@ export const useActivityStore = create<ActivityStore>((set) => ({
             : activity
         );
         
-        console.log("🔄 Updating store state:", {
+        console.log("🔄 Optimistic update applied:", {
           id,
           status,
           activitiesCount: updatedActivities.length,
@@ -216,17 +244,35 @@ export const useActivityStore = create<ActivityStore>((set) => ({
         };
       });
 
-      // ✅ โหลดรายการกิจกรรมใหม่จาก backend เพื่อให้ข้อมูลตรงกัน
-      setTimeout(async () => {
-        try {
-          const updatedList = await activityService.fetchAllActivities();
+      // ✅ เรียก service ที่อัปเดตสถานะใน backend
+      await activityService.updateActivityStatus(id, status);
+      console.log("✅ Backend update successful");
+
+      // ✅ โหลดรายการกิจกรรมใหม่จาก backend เพื่อให้ข้อมูลตรงกัน (ไม่ใช้ setTimeout)
+      try {
+        const updatedList = await activityService.fetchAllActivities();
+        if (updatedList && Array.isArray(updatedList)) {
           set({ activities: updatedList });
-        } catch (refreshError) {
-          console.error("❌ Error refreshing activities:", refreshError);
+          console.log("✅ Activities refreshed from backend");
         }
-      }, 1000); // รอ 1 วินาทีแล้วค่อย refresh
+      } catch (refreshError) {
+        console.error("❌ Error refreshing activities:", refreshError);
+        // ✅ ไม่ throw error เพราะ optimistic update สำเร็จแล้ว
+      }
     } catch (error) {
       console.error("❌ Error updating activity status:", error);
+      
+      // ✅ Revert optimistic update ถ้า backend update ล้มเหลว
+      try {
+        const currentList = await activityService.fetchAllActivities();
+        if (currentList && Array.isArray(currentList)) {
+          set({ activities: currentList });
+          console.log("🔄 Reverted to backend state after error");
+        }
+      } catch (revertError) {
+        console.error("❌ Error reverting state:", revertError);
+      }
+      
       set({ error: "ไม่สามารถอัปเดตสถานะกิจกรรมได้" });
       throw error; // ✅ re-throw เพื่อให้ component รู้ว่าเกิด error
     }

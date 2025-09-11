@@ -7,10 +7,33 @@ const TEACHER_ACTIVITY_PATH = "/teacher/activity";
 
 //--------------------- Fetch Activities -------------------------
 export const fetchAllActivities = async (): Promise<Activity[]> => {
-  const response = await axiosInstance.get<Activity[]>(
-    `${TEACHER_ACTIVITY_PATH}/get-activities`
-  );
-  return response.data;
+  try {
+    const response = await axiosInstance.get<Activity[]>(
+      `${TEACHER_ACTIVITY_PATH}/get-activities`
+    );
+    
+    // ✅ ตรวจสอบ response data
+    if (!response.data || !Array.isArray(response.data)) {
+      console.warn("⚠️ Invalid response data from API:", response.data);
+      return [];
+    }
+    
+    console.log(`✅ fetchAllActivities: Retrieved ${response.data.length} activities`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ fetchAllActivities error:", error);
+    
+    // ✅ ตรวจสอบ error type และ return appropriate response
+    if (error instanceof Error) {
+      if (error.message.includes('Network Error') || error.message.includes('timeout')) {
+        console.warn("⚠️ Network error, returning empty array");
+        return [];
+      }
+    }
+    
+    // ✅ Re-throw error เพื่อให้ store จัดการ
+    throw error;
+  }
 };
 //----------------------------------------------------------------
 
