@@ -26,6 +26,7 @@ export default function BarChartX({
       <h2 className="font-bold text-lg mb-2">{title}</h2>
       {data.map(({ label, count, total, color, barColor }) => {
         const percent = Math.round((count / total) * 100);
+        const minWidth = Math.max(percent, 2); // ความยาวขั้นต่ำ 2%
         return (
           <div
             key={label}
@@ -42,9 +43,9 @@ export default function BarChartX({
                     useTailwindColors ? barColor : ''
                   }`}
                   style={!useTailwindColors ? { 
-                    width: `${percent}%`, 
+                    width: `${minWidth}%`, 
                     backgroundColor: color 
-                  } : { width: `${percent}%` }}
+                  } : { width: `${minWidth}%` }}
                 ></div>
               </div>
             </div>
