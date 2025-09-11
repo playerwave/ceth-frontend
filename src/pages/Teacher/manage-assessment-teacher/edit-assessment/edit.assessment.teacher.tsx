@@ -7,6 +7,7 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import { Plus } from "lucide-react";
+import { TextField } from "@mui/material";
 import Section from "../create-assessment/components/Section";
 import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore";
 import Button from "../../../../components/Button";
@@ -94,16 +95,20 @@ const EditAssessmentTeacher = () => {
 
   // ✅ sync setNumbers → sections ของ store
   useEffect(() => {
+    console.log("🚀 useEffect triggered, setNumbers length:", setNumbers.length);
     if (setNumbers.length > 0) {
-      setSections(
-        setNumbers.map((sn) => ({
-          id: sn.set_number_id,
-          title: sn.name,
-          questions: [],
-        }))
-      );
+      const newSections = setNumbers.map((sn) => ({
+        id: sn.set_number_id,
+        title: sn.name,
+        questions: [],
+      }));
+      console.log("📋 New sections to set:", newSections.map(s => ({ id: s.id, title: s.title })));
+      
+      setSections(newSections);
+      
+      console.log("✅ setSections called");
     }
-  }, [setNumbers, setSections]);
+  }, [setNumbers]); // ✅ เอา sections ออกจาก dependency เพื่อป้องกัน infinite loop
 
   // Drag สำหรับ Section
   const onSectionDragEnd = (result: DropResult) => {
@@ -144,27 +149,48 @@ const EditAssessmentTeacher = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-gray-200 rounded-xl px-4 py-8">
+    <div className="max-w-6xl mx-auto bg-gray-200 rounded-xl px-4 py-8">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-lg mb-6 p-6">
-        <input
-          type="text"
-          value={formTitle ?? ""}
-          onChange={(e) => setFormTitle(e.target.value)}   // 🔹 UI เปลี่ยนทันที
-          onBlur={handleBlurUpdate}                        // 🔹 ยิง API แค่ตอนหลุดโฟกัส
-          className="text-3xl font-normal w-full mb-2 text-gray-800 border border-transparent focus:border-blue-500 focus:ring-2 focus:ring-blue-300 rounded-lg px-2 py-1 transition-all"
-          placeholder="ชื่อแบบฟอร์ม"
-        />
+        <div className="flex flex-col space-y-4">
+          <div className="flex flex-col">
+            <label className="block font-semibold mb-2 text-gray-700">ชื่อแบบฟอร์ม *</label>
+            <TextField
+              name="formTitle"
+              placeholder="ชื่อแบบฟอร์ม"
+              value={formTitle ?? ""}
+              onChange={(e) => setFormTitle(e.target.value)}   // 🔹 UI เปลี่ยนทันที
+              onBlur={handleBlurUpdate}                        // 🔹 ยิง API แค่ตอนหลุดโฟกัส
+              className="w-full"
+              sx={{ 
+                height: "56px",
+                "& .MuiOutlinedInput-root": {
+                  fontSize: "1.125rem", // text-lg equivalent
+                  fontWeight: "normal"
+                }
+              }}
+            />
+          </div>
 
-
-        <input
-          type="text"
-          value={formDescription ?? ""}
-          onChange={(e) => setFormDescription(e.target.value)}   // 🔹 UI เปลี่ยนทันที
-          onBlur={handleBlurUpdate}                              // 🔹 ยิง API แค่ตอนหลุดโฟกัส
-          className="text-gray-600 w-full border border-transparent focus:border-blue-400 focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1 transition-all"
-          placeholder="คำอธิบายแบบฟอร์ม"
-        />
+          <div className="flex flex-col">
+            <label className="block font-semibold mb-2 text-gray-700">คำอธิบายแบบฟอร์ม</label>
+            <TextField
+              name="formDescription"
+              placeholder="คำอธิบายแบบฟอร์ม"
+              value={formDescription ?? ""}
+              onChange={(e) => setFormDescription(e.target.value)}   // 🔹 UI เปลี่ยนทันที
+              onBlur={handleBlurUpdate}                              // 🔹 ยิง API แค่ตอนหลุดโฟกัส
+              className="w-full"
+              sx={{ 
+                height: "56px",
+                "& .MuiOutlinedInput-root": {
+                  fontSize: "1rem", // text-base equivalent
+                  color: "#6B7280" // text-gray-500 equivalent
+                }
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Sections */}
@@ -214,25 +240,6 @@ const EditAssessmentTeacher = () => {
           </button>
         </div>
 
-      </div>
-
-      {/* Action */}
-      <div className="flex justify-center gap-4 mt-6">
-        <Button
-          type="button"
-          bgColor="#dc2626"
-          onClick={() => navigate("/teacher/assessment")}
-        >
-          ยกเลิก
-        </Button>
-        <Button
-          type="submit"
-          bgColor="#1E3A8A"
-          onClick={saveForm}
-          disabled={loading}
-        >
-          {loading ? "กำลังบันทึก..." : "บันทึกการแก้ไข"}
-        </Button>
       </div>
     </div>
   );

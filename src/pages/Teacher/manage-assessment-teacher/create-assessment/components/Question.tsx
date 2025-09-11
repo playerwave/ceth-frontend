@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Trash2, Copy, GripVertical } from "lucide-react";
+import { TextField, Select, MenuItem, FormControl } from "@mui/material";
 import QuestionRenderer from "./QuestionRenderer";
 import { Question as QuestionType } from "../type/type.create";
 import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
@@ -44,6 +45,19 @@ const Question: React.FC<QuestionProps> = ({
 }) => {
   const { updateQuestion, deleteQuestion, fetchQuestionsBySetNumber  } = useQuestionStore();
   const { updateQuestionInSection, deleteQuestionFromSection, addQuestionToSection } = useAssessmentStoreUi();
+  
+  // ✅ เพิ่ม local state สำหรับ input field
+  const [localQuestionText, setLocalQuestionText] = useState(question.question);
+  
+  // ✅ เพิ่ม state สำหรับติดตามสถานะการใช้งาน
+  const [isActive, setIsActive] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  
+  // ✅ sync local state เมื่อ question.question เปลี่ยน
+  useEffect(() => {
+    setLocalQuestionText(question.question);
+  }, [question.question]);
 
   const handleUpdate = async (field: keyof QuestionType, value: any) => {
     if (mode === "create") {
@@ -94,10 +108,22 @@ const Question: React.FC<QuestionProps> = ({
 };
 
 return (
-  <div className="border-l-4 border-blue-500 pl-4 mb-6 bg-white rounded-lg shadow-md p-6">
+  <div 
+    className={`border-l-4 pl-4 mb-6 bg-white rounded-lg shadow-md p-6 transition-colors duration-200 ${
+      (isActive || isDragging || isHovered) ? 'border-blue-500' : 'border-gray-300'
+    }`}
+    onMouseEnter={() => setIsHovered(true)}
+    onMouseLeave={() => setIsHovered(false)}
+  >
     <div className="flex gap-2 items-start mb-2">
       <div className="flex flex-col items-center">
-        <div className="hidden lg:block cursor-grab p-1 text-gray-400" {...dragHandleProps}>
+        <div 
+          className="hidden lg:block cursor-grab p-1 text-gray-400" 
+          {...dragHandleProps}
+          onMouseDown={() => setIsDragging(true)}
+          onMouseUp={() => setIsDragging(false)}
+          onMouseLeave={() => setIsDragging(false)}
+        >
           <GripVertical size={20} />
         </div>
         <div className="lg:hidden flex flex-col">
@@ -107,23 +133,46 @@ return (
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2 w-full">
-        <input
-          type="text"
-          value={question.question}
-          onChange={(e) => handleUpdate("question", e.target.value)}
-          className="flex-1 text-base sm:text-lg border border-gray-300 rounded-lg px-2 py-1"
+        <TextField
+          name="questionText"
+          value={localQuestionText}
+          onChange={(e) => setLocalQuestionText(e.target.value)}   // 🔹 UI เปลี่ยนทันที
+          onFocus={() => setIsActive(true)}                        // 🔹 ตั้งค่า active เมื่อ focus
+          onBlur={async () => {                                    // 🔹 ยิง API แค่ตอนหลุดโฟกัส
+            setIsActive(false);                                    // 🔹 ตั้งค่า inactive เมื่อ blur
+            if (localQuestionText !== question.question) {
+              await handleUpdate("question", localQuestionText);
+            }
+          }}
           placeholder="พิมพ์คำถาม..."
+          className="flex-1"
+          sx={{ 
+            height: "56px",
+            "& .MuiOutlinedInput-root": {
+              fontSize: "1rem", // text-base equivalent
+              fontWeight: "normal"
+            }
+          }}
         />
-        <select
-          value={question.type}
-          onChange={(e) => handleUpdate("type", e.target.value)}
-          className="w-full sm:w-48 p-2 border border-gray-300 rounded-lg"
-        >
-          <option value="choice">ตัวเลือกเดียว</option>
-          <option value="checkbox">หลายตัวเลือก</option>
-          <option value="text">ถามตอบ</option>
-          <option value="rating">ความพึงพอใจ</option>
-        </select>
+        <FormControl className="w-full sm:w-48" sx={{ height: "56px" }}>
+          <Select
+            value={question.type}
+            onChange={(e) => handleUpdate("type", e.target.value)}
+            onFocus={() => setIsActive(true)}                        // 🔹 ตั้งค่า active เมื่อ focus
+            onBlur={() => setIsActive(false)}                        // 🔹 ตั้งค่า inactive เมื่อ blur
+            sx={{
+              height: "56px",
+              "& .MuiOutlinedInput-root": {
+                fontSize: "1rem"
+              }
+            }}
+          >
+            <MenuItem value="choice">ตัวเลือกเดียว</MenuItem>
+            <MenuItem value="checkbox">หลายตัวเลือก</MenuItem>
+            <MenuItem value="text">ถามตอบ</MenuItem>
+            <MenuItem value="rating">ความพึงพอใจ</MenuItem>
+          </Select>
+        </FormControl>
       </div>
     </div>
 

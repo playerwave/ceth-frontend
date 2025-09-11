@@ -13,6 +13,7 @@ interface QuestionState {
   createQuestion: (data: Omit<Question, "question_id">) => Promise<Question | null>;
   updateQuestion: (data: Question) => Promise<void>;
   deleteQuestion: (id: number) => Promise<void>;
+  updateQuestionsOrder: (setNumberId: number, newOrder: Question[]) => void;
 }
 
 export const useQuestionStore = create<QuestionState>((set, get) => ({
@@ -204,5 +205,22 @@ export const useQuestionStore = create<QuestionState>((set, get) => ({
     } catch (err) {
       console.error("❌ deleteQuestion error:", err);
     }
+  },
+
+  // ✅ อัปเดตลำดับคำถามแบบ Optimistic Update
+  updateQuestionsOrder: (setNumberId, newOrder) => {
+    const { questions } = get();
+    
+    // ✅ รวมคำถามจาก section อื่น + คำถามใหม่ที่เรียงลำดับแล้ว
+    const otherQuestions = questions.filter((q) => q.set_number_id !== setNumberId);
+    
+    // ✅ อัปเดต question_number ตามลำดับใหม่
+    const updatedOrder = newOrder.map((q, index) => ({
+      ...q,
+      question_number: index + 1,
+    }));
+    
+    set({ questions: [...otherQuestions, ...updatedOrder] });
+    console.log("✅ Optimistic update applied for section:", setNumberId);
   },
 }));

@@ -63,9 +63,26 @@ export const useSetNumberStore = create<SetNumberState>((set) => ({
     try {
       const apiData = await setNumberService.duplicateSetNumber(id);
       const duplicated = mapApiToSetNumber(apiData);
-      set((state) => ({
-        setNumbers: [...state.setNumbers, duplicated],
-      }));
+      set((state) => {
+        // ✅ หาตำแหน่งของ section ต้นฉบับ
+        const originalIndex = state.setNumbers.findIndex(s => s.set_number_id === id);
+        console.log("🔍 Original section index:", originalIndex, "for id:", id);
+        
+        // ✅ ถ้าไม่พบ section ต้นฉบับ ให้เพิ่มที่ท้าย
+        if (originalIndex === -1) {
+          console.log("⚠️ Original section not found, adding to end");
+          return { setNumbers: [...state.setNumbers, duplicated] };
+        }
+        
+        // ✅ แทรก section ที่ copy มาใหม่ถัดจาก section ต้นฉบับ
+        const newSetNumbers = [...state.setNumbers];
+        newSetNumbers.splice(originalIndex + 1, 0, duplicated);
+        
+        console.log("✅ Inserted duplicated section at index:", originalIndex + 1);
+        console.log("📋 New order:", newSetNumbers.map(s => ({ id: s.set_number_id, title: s.name })));
+        
+        return { setNumbers: newSetNumbers };
+      });
       return duplicated;
     } catch (err) {
       console.error("❌ duplicateSetNumber error:", err);

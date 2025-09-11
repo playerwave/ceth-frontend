@@ -105,8 +105,8 @@ const feedbackData = [
 
 export default function SetNumberAssessmentDataCard() {
   return (
-    <div className="space-y-8">
-      <h2 className="text-2xl font-bold">สรุปผลแบบประเมิน</h2>
+    <div className="space-y-8 mt-15 mb-15">
+      <h1 className="text-2xl font-bold">สรุปผลแบบประเมิน</h1>
 
       {/* ตารางผลการประเมิน - หัวข้อ 1 */}
       <CustomCard
@@ -116,7 +116,8 @@ export default function SetNumberAssessmentDataCard() {
                 md:max-w-[700px]     // ✅ เมื่อ ≥ 768px (md)
                 lg:max-w-[100%]
                 p-4 sm:p-6 relative
-                mx-0 self-start"
+                mx-0 self-start
+                shadow-lg"
       >
         <h3 className="font-bold text-lg mb-4">
           หัวข้อ: 1. ประเมินผลเนื้อหาการอบรม
@@ -161,7 +162,8 @@ export default function SetNumberAssessmentDataCard() {
                 md:max-w-[700px]     // ✅ เมื่อ ≥ 768px (md)
                 lg:max-w-[100%]
                 p-4 sm:p-6 relative
-                mx-0 self-start"
+                mx-0 self-start
+                shadow-lg"
       >
         <h3 className="font-bold text-lg mb-4">หัวข้อ: 2. ประเมินวิทยากร</h3>
         <div className="w-full overflow-x-auto">
@@ -204,7 +206,8 @@ export default function SetNumberAssessmentDataCard() {
                 md:max-w-[700px]     // ✅ เมื่อ ≥ 768px (md)
                 lg:max-w-[100%]
                 p-4 sm:p-6 relative
-                mx-0 self-start"
+                mx-0 self-start
+                shadow-lg"
       >
         <h3 className="font-bold text-lg mb-4">ข้อเสนอแนะจากนิสิต</h3>
         <table className="w-full text-sm table-auto">
