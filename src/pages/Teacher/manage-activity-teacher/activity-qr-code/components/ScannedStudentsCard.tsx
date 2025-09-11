@@ -15,32 +15,6 @@ interface ScannedStudent {
   time_out?: string | null;
 }
 
-interface CheckedInStudent {
-  students_id: number;
-  first_name_tha: string;
-  last_name_tha: string;
-  department_short_name: string;
-  username: string;
-  activity_detail_id: number;
-  time_in: string;
-  register_date: string;
-  join_date: string;
-  join_status: string;
-}
-
-interface CheckedOutStudent {
-  students_id: number;
-  first_name_tha: string;
-  last_name_tha: string;
-  department_short_name: string;
-  username: string;
-  activity_detail_id: number;
-  time_in: string;
-  time_out: string;
-  register_date: string;
-  join_date: string;
-  join_status: string;
-}
 
 interface ScannedStudentsCardProps {
   scannedStudents: ScannedStudent[];
@@ -57,7 +31,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
   console.log("🔍 ScannedStudentsCard: received students:", scannedStudents);
   console.log("🔍 ScannedStudentsCard: activityId:", activityId);
 
-  // ดึงข้อมูล check-in และ check-out students
+  // ดึงข้อมูลนิสิตที่ลงทะเบียนทั้งหมด
   useEffect(() => {
     console.log("🔍 ScannedStudentsCard: useEffect triggered");
     console.log("🔍 ScannedStudentsCard: activityId:", activityId);
@@ -69,54 +43,50 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       return;
     }
 
-    const fetchCheckInOutData = async () => {
+    const fetchEnrolledStudents = async () => {
       setLoading(true);
       try {
-        console.log("🔍 ScannedStudentsCard: Fetching data for activityId:", activityId);
+        console.log("🔍 ScannedStudentsCard: Fetching enrolled students for activityId:", activityId);
         
-        const [checkedInResponse, checkedOutResponse] = await Promise.all([
-          axiosInstance.get(`/teacher/activity/students-checked-in/${activityId}`),
-          axiosInstance.get(`/teacher/activity/students-checked-out/${activityId}`)
-        ]);
-
-        const checkedInData = checkedInResponse.data.data || [];
-        const checkedOutData = checkedOutResponse.data.data || [];
-
-        // setCheckedInStudents(checkedInData);
-        // setCheckedOutStudents(checkedOutData);
+        // ✅ ดึงข้อมูลนิสิตที่ลงทะเบียนทั้งหมด (รวม time_in/time_out แล้ว)
+        const enrolledResponse = await axiosInstance.get(`/teacher/activity/get-enrolled-students/${activityId}`);
+        const enrolledData = enrolledResponse.data?.data || enrolledResponse.data || [];
         
-        console.log("📊 Checked-in students response:", checkedInResponse);
-        console.log("📊 Checked-out students response:", checkedOutResponse);
-        console.log("📊 Checked-in students data:", checkedInData);
-        console.log("📊 Checked-out students data:", checkedOutData);
+        console.log("📊 Full enrolled response:", enrolledResponse);
+        console.log("📊 Enrolled students data:", enrolledData);
+        console.log("📊 Enrolled students count:", enrolledData.length);
 
-        // สร้างข้อมูลรวมจาก checked-in students (ทุกคนที่มี time_in)
-        const combinedStudents: ScannedStudent[] = checkedInData.map((student: CheckedInStudent) => {
-          const checkedOut = checkedOutData.find((s: CheckedOutStudent) => s.username === student.username);
+        // ✅ สร้างข้อมูลรวมจากนิสิตที่ลงทะเบียนทั้งหมด
+        const combinedStudents: ScannedStudent[] = enrolledData.map((student: any) => {
+          console.log("🔍 Processing student:", student);
           
-          return {
-            id: student.students_id.toString(),
+          // ✅ ใช้ time_in และ time_out จาก enrolledData โดยตรง
+          const mappedStudent = {
+            id: student.id?.toString() || student.students_id?.toString() || student.username,
             first_name_tha: student.first_name_tha,
             last_name_tha: student.last_name_tha,
             department_short_name: student.department_short_name,
             username: student.username,
             fullName: `${student.first_name_tha} ${student.last_name_tha}`,
-            time_in: student.time_in,
-            time_out: checkedOut?.time_out || null,
+            time_in: student.time_in || null,
+            time_out: student.time_out || null,
           };
+          
+          console.log("🔍 Mapped student:", mappedStudent);
+          return mappedStudent;
         });
 
         setAllScannedStudents(combinedStudents);
-        console.log("🔍 Combined students:", combinedStudents);
+        console.log("🔍 Combined enrolled students:", combinedStudents);
         
       } catch (error) {
-        console.error("❌ Error fetching check-in/out data:", error);
+        console.error("❌ Error fetching enrolled students data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCheckInOutData();
+    fetchEnrolledStudents();
   }, [activityId]);
 
   // ฟังก์ชันแปลงเวลา - แสดงเวลาตามที่บันทึกในฐานข้อมูลโดยไม่ปรับ timezone
@@ -190,7 +160,7 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       flex: 1,
       renderCell: (params) => (
         <span className={params.value ? "text-green-600 font-medium" : "text-gray-400"}>
-          {formatTime(params.value)}
+          {params.value ? formatTime(params.value) : "ยังไม่ลงชื่อ"}
         </span>
       ),
     },
@@ -201,17 +171,17 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       flex: 1,
       renderCell: (params) => (
         <span className={params.value ? "text-red-600 font-medium" : "text-gray-400"}>
-          {formatTime(params.value)}
+          {params.value ? formatTime(params.value) : "ยังไม่ลงชื่อ"}
         </span>
       ),
     },
   ];
 
   return (
-    <Card className="w-full">
-      <div className="flex justify-between items-center mb-4">
+    <Card className="w-full h-full flex flex-col">
+      <div className="flex justify-between items-center mb-4 flex-shrink-0">
         <h2 className="text-xl font-semibold text-gray-800">
-          รายชื่อนิสิตที่สแกนแล้ว
+          รายชื่อนิสิตที่ลงทะเบียน
         </h2>
         {loading && (
           <div className="text-sm text-blue-600">
@@ -221,43 +191,47 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       </div>
       
       {/* สถิติการเข้าร่วม */}
-      <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
+      <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gray-50 rounded-lg flex-shrink-0">
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-800">{allScannedStudents.length}</div>
-          <div className="text-sm text-gray-600">รวมทั้งหมด</div>
+          <div className="text-2xl font-bold text-blue-600">{allScannedStudents.length}</div>
+          <div className="text-sm text-gray-600">ลงทะเบียนทั้งหมด</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-green-600">
             {allScannedStudents.filter(s => s.time_in).length}
           </div>
-          <div className="text-sm text-gray-600">ลงชื่อเข้า</div>
+          <div className="text-sm text-gray-600">ลงชื่อเข้าแล้ว</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-red-600">
             {allScannedStudents.filter(s => s.time_out).length}
           </div>
-          <div className="text-sm text-gray-600">ลงชื่อออก</div>
+          <div className="text-sm text-gray-600">ลงชื่อออกแล้ว</div>
         </div>
       </div>
       
       {/* ตรวจสอบข้อมูลก่อนแสดง Table */}
-      {!Array.isArray(allScannedStudents) || allScannedStudents.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          {loading ? (
-            <p>กำลังโหลดข้อมูล...</p>
-          ) : (
-            <p>ยังไม่มีนักเรียนลงทะเบียน</p>
-          )}
-        </div>
-      ) : (
-        <Table_re
-          columns={columns}
-          rows={allScannedStudents}
-          height={500}
-          initialPageSize={15}
-          getRowId={(row) => row.id}
-        />
-      )}
+      <div className="flex-1 flex flex-col">
+        {!Array.isArray(allScannedStudents) || allScannedStudents.length === 0 ? (
+          <div className="text-center py-8 text-gray-500 flex-1 flex items-center justify-center">
+            {loading ? (
+              <p>กำลังโหลดข้อมูล...</p>
+            ) : (
+              <p>ยังไม่มีนิสิตลงทะเบียนกิจกรรมนี้</p>
+            )}
+          </div>
+        ) : (
+          <div className="flex-1">
+            <Table_re
+              columns={columns}
+              rows={allScannedStudents}
+              height={600}
+              initialPageSize={50}
+              getRowId={(row) => row.id}
+            />
+          </div>
+        )}
+      </div>
     </Card>
   );
 }

@@ -129,75 +129,78 @@ export default function QrCodeCard({ activityId }: QrCodeCardProps) {
         </div>
       )}
       
-      <div className="flex justify-center">
-        {loading || isResetting ? (
-          <div className="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-              <p className="text-gray-500">
-                {isResetting ? "กำลังรีเซ็ต QR Code..." : "กำลังสร้าง QR Code..."}
-              </p>
+      <div className="text-center">
+        {/* QR Code Display Area */}
+        <div className="flex justify-center mb-4">
+          {loading || isResetting ? (
+            <div className="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                <p className="text-gray-500">
+                  {isResetting ? "กำลังรีเซ็ต QR Code..." : "กำลังสร้าง QR Code..."}
+                </p>
+              </div>
             </div>
-          </div>
-        ) : qrCodeUrl ? (
-          <div className="text-center">
-            {/* QR Code Image */}
+          ) : qrCodeUrl ? (
             <img 
               src={qrCodeUrl} 
               alt="QR Code" 
               className="mx-auto border-2 border-gray-200 rounded-lg w-64 h-64"
             />
-            
-            {/* Instructions */}
-            <p className="text-sm text-gray-500 mt-2">
-              สแกนเพื่อลงทะเบียนเข้าร่วมกิจกรรม
-            </p>
-            
-            {/* Token Info */}
-            <div className="mt-2 p-2 bg-gray-50 rounded-lg">
-              <p className="text-xs text-gray-600">
-                Scan URL: {qrCodeUrl.split('data=')[1] ? decodeURIComponent(qrCodeUrl.split('data=')[1]).split('/scan/')[1]?.substring(0, 8) + '...' : 'N/A'}
+          ) : (
+            <div className="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+              <p className="text-gray-500">ไม่สามารถสร้าง QR Code ได้</p>
+            </div>
+          )}
+        </div>
+        
+        {/* Instructions - แสดงตลอดเวลา */}
+        <p className="text-sm text-gray-500 mb-2">
+          สแกนเพื่อลงทะเบียนเข้าร่วมกิจกรรม
+        </p>
+        
+        {/* Token Info - แสดงตลอดเวลา */}
+        <div className="mb-3 p-2 bg-gray-50 rounded-lg">
+          <p className="text-xs text-gray-600">
+            Scan URL: {qrCodeUrl && qrCodeUrl.split('data=')[1] ? 
+              decodeURIComponent(qrCodeUrl.split('data=')[1]).split('/scan/')[1]?.substring(0, 8) + '...' : 
+              'undefined...'
+            }
+          </p>
+        </div>
+        
+        {/* Realtime Countdown - แสดงตลอดเวลา */}
+        {expiresAt && (
+          <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              <p className="text-sm font-medium text-blue-800">
+                QR Code จะหมดอายุใน: <span className="text-red-600 font-bold">{timeRemaining}</span>
               </p>
             </div>
-            
-            {/* Realtime Countdown */}
-            {expiresAt && (
-              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <p className="text-sm font-medium text-blue-800">
-                    QR Code จะหมดอายุใน: <span className="text-red-600 font-bold">{timeRemaining}</span>
-                  </p>
-                </div>
-                <p className="text-xs text-blue-600 mt-1">
-                  จะรีเฟรชอัตโนมัติทุก 15 วินาที
-                </p>
-              </div>
-            )}
-            
-            {/* Reset Button */}
-            <div className="mt-4">
-              <button
-                onClick={handleResetQRCode}
-                disabled={isResetting}
-                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 text-sm font-medium"
-              >
-                {isResetting ? (
-                  <span className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    กำลังรีเซ็ต...
-                  </span>
-                ) : (
-                  "รีเซ็ต QR Code"
-                )}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="w-64 h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-            <p className="text-gray-500">ไม่สามารถสร้าง QR Code ได้</p>
+            <p className="text-xs text-blue-600 mt-1">
+              จะรีเฟรชอัตโนมัติทุก 15 วินาที
+            </p>
           </div>
         )}
+        
+        {/* Reset Button - แสดงตลอดเวลา */}
+        <div>
+          <button
+            onClick={handleResetQRCode}
+            disabled={isResetting}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 text-sm font-medium"
+          >
+            {isResetting ? (
+              <span className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                กำลังรีเซ็ต...
+              </span>
+            ) : (
+              "รีเซ็ต QR Code"
+            )}
+          </button>
+        </div>
       </div>
     </Card>
   );

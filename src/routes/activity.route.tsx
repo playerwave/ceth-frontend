@@ -13,6 +13,7 @@ import ActivityInfoVisitor from "../pages/visitor/activity-info/activity_info_vi
 
 import type { Roles } from "../types/model";
 import { ProtectionLevel } from "./secure/urlEnCryption";
+import StatisticActivityTeacher from "../pages/Teacher/manage-activity-teacher/activity-statistic/statistic_activity_teacher";
 
 type RoleName = Roles["role_name"];
 
@@ -121,6 +122,15 @@ export const activityRoutes = [
     element: <ActivityCheckInOutStudent />,
     label: "ลงทะเบียนเข้าร่วมกิจกรรม",
     icon: "UserCheck",
+    roles: ["Teacher","Admin"] as RoleName[],
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.NONE
+  },
+  {
+    path: "/statistic-activity-teacher/:id",
+    element: <StatisticActivityTeacher />,
+    label: "สถิติกิจกรรม",
+    icon: "BarChart",
     roles: ["Teacher","Admin"] as RoleName[],
     visibleInSidebar: false,
     protectionLevel: ProtectionLevel.NONE

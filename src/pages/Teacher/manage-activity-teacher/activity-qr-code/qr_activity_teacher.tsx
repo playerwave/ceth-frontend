@@ -4,6 +4,7 @@ import Loading from "../../../../components/Loading";
 import HeaderCard from "./components/HeaderCard";
 import QrCodeCard from "./components/QrCodeCard";
 import ScannedStudentsCard from "./components/ScannedStudentsCard";
+import StatisticCard from "./components/StatisticCard";
 import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
 import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 
@@ -142,14 +143,17 @@ export default function QrActivityTeacher({ secureParams }: QrActivityTeacherPro
         />
 
         {/* Main Content - QR Code and Table */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* QR Code Section */}
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch">
+          {/* Left Column - QR Code and Statistic */}
+          <div className="lg:col-span-1 space-y-4 flex flex-col h-full">
             <QrCodeCard activityId={activityId} />
+            <div className="flex-1">
+              <StatisticCard activityId={activityId} />
+            </div>
           </div>
 
-          {/* Table Section - ขยายให้กว้างขึ้น */}
-          <div className="lg:col-span-3">
+          {/* Right Column - Table Section */}
+          <div className="lg:col-span-3 h-full">
             <ScannedStudentsCard 
               scannedStudents={scannedStudents} 
               activityId={activityId}
