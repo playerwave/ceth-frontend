@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import activityReportService, { 
   EnrollmentByDepartmentResponse, 
-  ParticipationStatusResponse 
+  ParticipationStatusResponse,
+  AssessmentTopic
 } from "../../service/Teacher/activity-report.service";
 
 interface ActivityReportState {
@@ -15,11 +16,18 @@ interface ActivityReportState {
   participationLoading: boolean;
   participationError: string | null;
 
+  // Assessment Data
+  assessmentData: AssessmentTopic[] | null;
+  assessmentLoading: boolean;
+  assessmentError: string | null;
+
   // Actions
   fetchEnrollmentByDepartment: (activityId: string | number) => Promise<void>;
   fetchParticipationStatus: (activityId: string | number) => Promise<void>;
+  fetchAssessmentData: (activityId: string | number) => Promise<void>;
   clearEnrollmentError: () => void;
   clearParticipationError: () => void;
+  clearAssessmentError: () => void;
   reset: () => void;
 }
 
@@ -31,6 +39,9 @@ export const useActivityReportStore = create<ActivityReportState>((set) => ({
   participationData: null,
   participationLoading: false,
   participationError: null,
+  assessmentData: null,
+  assessmentLoading: false,
+  assessmentError: null,
 
   // Actions
   fetchEnrollmentByDepartment: async (activityId) => {
@@ -61,8 +72,23 @@ export const useActivityReportStore = create<ActivityReportState>((set) => ({
     }
   },
 
+  fetchAssessmentData: async (activityId) => {
+    set({ assessmentLoading: true, assessmentError: null });
+    try {
+      console.log("🔄 [ActivityReportStore] Fetching assessment data for activity:", activityId);
+      const data = await activityReportService.getAssessmentData(activityId);
+      set({ assessmentData: data, assessmentLoading: false });
+      console.log("✅ [ActivityReportStore] Assessment data loaded:", data);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to fetch assessment data";
+      set({ assessmentError: errorMessage, assessmentLoading: false });
+      console.error("❌ [ActivityReportStore] Error fetching assessment data:", error);
+    }
+  },
+
   clearEnrollmentError: () => set({ enrollmentError: null }),
   clearParticipationError: () => set({ participationError: null }),
+  clearAssessmentError: () => set({ assessmentError: null }),
   
   reset: () => set({
     enrollmentData: null,
@@ -71,5 +97,8 @@ export const useActivityReportStore = create<ActivityReportState>((set) => ({
     participationData: null,
     participationLoading: false,
     participationError: null,
+    assessmentData: null,
+    assessmentLoading: false,
+    assessmentError: null,
   }),
 }));

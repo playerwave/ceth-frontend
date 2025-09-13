@@ -51,6 +51,39 @@ export interface ParticipationStatusResponse {
   studentStatusData: StudentStatusData[];
 }
 
+export interface AssessmentQuestion {
+  questionId: number;
+  questionText: string;
+  questionType: string;
+  choices: Array<{
+    choiceId: number;
+    choiceText: string;
+  }>;
+  totalAnswers: number;
+  choiceStats?: Array<{
+    choiceText: string;
+    count: number;
+    percentage: string;
+  }>;
+  average?: number;
+}
+
+export interface AssessmentTopic {
+  topicId: number;
+  topicName: string;
+  questions: AssessmentQuestion[];
+  pieData: Array<{
+    name: string;
+    value: string;
+    color: string;
+  }>;
+  totalRespondents: number;
+}
+
+export interface AssessmentDataResponse {
+  topics: AssessmentTopic[];
+}
+
 class ActivityReportService {
   /**
    * ดึงข้อมูลจำนวนนิสิตที่ลงทะเบียนแยกตามสาขาและชั้นปี
@@ -87,6 +120,25 @@ class ActivityReportService {
       console.error("❌ [ActivityReportService] Error getting participation status:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       throw new Error(`Failed to get participation status: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * ดึงข้อมูลแบบประเมินและผลการตอบ
+   */
+  async getAssessmentData(activityId: string | number): Promise<AssessmentTopic[]> {
+    try {
+      console.log("📊 [ActivityReportService] Getting assessment data for activity:", activityId);
+      
+      const response = await axiosInstance.get(`/teacher/activity-report/${activityId}/assessment-data`);
+      
+      console.log("✅ [ActivityReportService] Assessment data received:", response.data.data);
+      
+      return response.data.data;
+    } catch (error) {
+      console.error("❌ [ActivityReportService] Error getting assessment data:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      throw new Error(`Failed to get assessment data: ${errorMessage}`);
     }
   }
 }

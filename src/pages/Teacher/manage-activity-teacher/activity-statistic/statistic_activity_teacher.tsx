@@ -5,7 +5,7 @@ import EnrolledByDepartmentCard from "./components/EnrolledByDepartmentCard";
 import EnrolledmentDataCard from "./components/EnrolledmentDataCard";
 import SatisfactionSurveyCard from "./components/SatisfactionSurveyCard";
 import StudentDoAssessmentDataCard from "./components/StudentDoAssessmentDataCard";
-import SetNumberAssessmentDataCard from "./components/SetNumberAssessmentDataCard";
+import AssessmentDataContainer from "./components/AssessmentDataContainer";
 
 
 const StatisticActivityTeacher = () => {
@@ -55,9 +55,9 @@ const StatisticActivityTeacher = () => {
             </div>
           </div>
 
-          {/* SetNumberAssessmentDataCard วางแยกต่างหาก */}
+          {/* AssessmentDataContainer วางแยกต่างหาก */}
           <div className="mt-6">
-            <SetNumberAssessmentDataCard />
+            <AssessmentDataContainer />
           </div>
         </div>
       </div>
