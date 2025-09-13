@@ -1,18 +1,24 @@
 import CustomCard from "../../../../components/Card";
 
+interface AssessmentQuestion {
+  question_id: number;
+  question_text: string;
+  question_type: "satisfaction" | "multiple_choice" | "single_choice" | "open_ended";
+  options?: string[];
+  required: boolean;
+}
+
 export interface ChoiceAnswerProps {
   title?: string;
-  questions: string[];
-  options: string[];
-  answers: { [qIndex: number]: string };
-  onChange: (qIndex: number, value: string) => void;
+  questions: AssessmentQuestion[];
+  answers: { [questionId: number]: string };
+  onChange: (questionId: number, value: string) => void;
   className?: string;
 }
 
 export default function ChoiceAnswer({
-  title = "ตัวอย่างคำถามตอบแบบข้อความ",
-  questions,
-  options,
+  title = "คำถามแบบตัวเลือกเดียว",
+  questions = [],
   answers,
   onChange,
   className,
@@ -26,18 +32,18 @@ export default function ChoiceAnswer({
       <br />
       <div className="w-full overflow-x-auto">
         <div className="space-y-6">
-          {questions.map((q, qIndex) => (
-            <div key={qIndex}>
-              <p className="text-[16px] mb-2">{q}</p>
+          {questions.map((question) => (
+            <div key={question.question_id}>
+              <p className="text-[16px] mb-2">{question.question_text}</p>
               <div className="flex flex-col gap-2">
-                {options.map((option, optIndex) => (
+                {(question.options || []).map((option, optIndex) => (
                   <label key={optIndex} className="flex items-center gap-2">
                     <input
                       type="radio"
-                      name={`choice-${qIndex}`}
+                      name={`choice-${question.question_id}`}
                       value={option}
-                      checked={answers[qIndex] === option}
-                      onChange={() => onChange(qIndex, option)}
+                      checked={answers[question.question_id] === option}
+                      onChange={() => onChange(question.question_id, option)}
                       className="accent-purple-600"
                     />
                     <span>{option}</span>

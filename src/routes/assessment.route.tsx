@@ -38,7 +38,7 @@ export const assessmentRoutes = [
   },
   ,
      {
-    path: "/assessment-student",
+    path: "/assessment-student/:activityId?",
     element: <AssessmentStudent />,
     label: "",
     icon: "ClipboardList",
