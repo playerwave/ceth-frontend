@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { Plus, Trash2, Copy, GripVertical } from "lucide-react";
-import { TextField } from "@mui/material";
 import Question from "./Question";
 import { Section as SectionType } from "../type/type.create";
 import { useAssessmentStoreUi } from "../store/assessmentStore";
@@ -196,7 +195,7 @@ const Section: React.FC<SectionProps> = ({
     }
 
     if (mode === "edit") {
-      // ✅ 1. Optimistic Update - อัปเดต UI ทันที
+      // 🟢 edit mode → อัปเดต DB จริง
       const qInSection = questions.filter(
         (q) => q.set_number_id === section.id
       );
@@ -205,32 +204,20 @@ const Section: React.FC<SectionProps> = ({
       const [moved] = newOrder.splice(source.index, 1);
       newOrder.splice(destination.index, 0, moved);
 
-      // ✅ 2. อัปเดต local state ทันที (Optimistic Update)
-      const { updateQuestionsOrder } = useQuestionStore.getState();
-      updateQuestionsOrder(section.id, newOrder);
-
-      // ✅ 3. อัปเดต DB ในพื้นหลัง (ไม่ต้องรอ)
-      updateQuestionNumbersInBackground(newOrder, section.id);
-    }
-  };
-
-  // ✅ ฟังก์ชันอัปเดต DB ในพื้นหลัง
-  const updateQuestionNumbersInBackground = async (newOrder: any[], sectionId: number) => {
-    try {
+      // อัปเดต question_number ใหม่ทั้งหมด
       for (let i = 0; i < newOrder.length; i++) {
+        const q = newOrder[i];
         await updateQuestion({
-          question_id: newOrder[i].question_id,
-          question_text: newOrder[i].question_text,
-          question_number: i + 1,
-          set_number_id: sectionId,
-          question_type: newOrder[i].question_type,
+          question_id: q.question_id,
+          question_text: q.question_text,
+          question_number: i + 1, // ✅ reset ลำดับใหม่
+          set_number_id: section.id,
+          question_type: q.question_type,
         } as any);
       }
-      console.log("✅ Background update completed for section:", sectionId);
-    } catch (err) {
-      console.error("❌ Background update failed, refreshing data:", err);
-      // ✅ ถ้า error ให้ refresh ข้อมูลจริง
-      await fetchQuestionsBySetNumber(sectionId);
+
+      // refresh state หลังจาก DB update
+      await fetchQuestionsBySetNumber(section.id);
     }
   };
 
@@ -249,8 +236,8 @@ const Section: React.FC<SectionProps> = ({
           </div>
         </div>
 
-        <TextField
-          name="sectionTitle"
+        <input
+          type="text"
           value={section.title}
           onChange={(e) => updateSectionTitle(section.id, e.target.value)} // 🟢 update state local เท่านั้น
           onBlur={async (e) => {
@@ -268,15 +255,7 @@ const Section: React.FC<SectionProps> = ({
               }
             }
           }}
-          placeholder="หัวข้อแบบประเมิน"
-          className="flex-1 min-w-0"
-          sx={{ 
-            height: "56px",
-            "& .MuiOutlinedInput-root": {
-              fontSize: "1rem", // text-base equivalent
-              fontWeight: "medium"
-            }
-          }}
+          className="flex-1 min-w-0 text-base sm:text-lg font-medium border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg px-2 py-1 transition-all"
         />
 
 

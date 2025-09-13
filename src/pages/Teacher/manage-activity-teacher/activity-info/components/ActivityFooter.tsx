@@ -134,24 +134,20 @@ export default function ActivityFooter({
   const navigate = useNavigate();
   const isCourse = eventFormat === "Course";
   
-  // ✅ ตรวจสอบเงื่อนไขใหม่: activity_state และ event_format
-  const isQrCodeEnabled = 
-    (state === "Start Activity" || state === "End Activity") && 
-    (eventFormat === "Online" || eventFormat === "Onsite");
+  // ✅ เปลี่ยนเป็นปุ่มรายงานที่เปิดตลอด
+  const isReportEnabled = true; // เปิดตลอดไม่ว่า activity_state จะเป็นอะไร
     
-  // ✅ Debug: Log QR code conditions
-  console.log("🔍 [ActivityFooter] QR Code Debug:", {
+  // ✅ Debug: Log report conditions
+  console.log("🔍 [ActivityFooter] Report Debug:", {
     state,
     eventFormat,
     isCourse,
-    stateCheck: state === "Start Activity" || state === "End Activity",
-    formatCheck: eventFormat === "Online" || eventFormat === "Onsite",
-    isQrCodeEnabled,
+    isReportEnabled,
   });
 
-  // ✅ สร้าง URL ที่เข้ารหัสสำหรับ QR Code
-  const handleQrCodeClick = () => {
-    if (!isCourse && isQrCodeEnabled && activityId) {
+  // ✅ สร้าง URL ที่เข้ารหัสสำหรับรายงาน
+  const handleReportClick = () => {
+    if (activityId) {
       try {
         // สร้าง URL ที่เข้ารหัสแบบเต็ม (ENCRYPTED)
         const secureUrl = RouteHelpers.generateSecurePath(
@@ -189,15 +185,12 @@ export default function ActivityFooter({
         <Button width="120px" onClick={onBack}>
           ← กลับ
         </Button>
-        <div className={isCourse || !isQrCodeEnabled ? "opacity-50 pointer-events-none" : ""}>
-          <Button
-            width="120px"
-            onClick={handleQrCodeClick}
-            bgColor={isQrCodeEnabled ? undefined : "gray"}
-          >
-            Qr Code
-          </Button>
-        </div>
+        <Button
+          width="120px"
+          onClick={handleReportClick}
+        >
+          รายงาน
+        </Button>
         <Button width="120px" onClick={onEdit}>
           แก้ไข
         </Button>

@@ -27,7 +27,8 @@ export const activityHistoryRoutes = [
     label: "",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
-    visibleInSidebar: false
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.NONE
   },
   {
     path: "/list-activity-history-student",

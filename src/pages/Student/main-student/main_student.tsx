@@ -92,8 +92,49 @@ const MainStudent = () => {
     }
   }, [user?.student?.students_id, fetchEnrolledActivities, fetchOngoingActivities]);
 
-  // แปลง Activity[] เป็น MainActivity[] สำหรับ TableListSection
-  const mainActivities = enrolledActivities.map((act) => ({
+  // ✅ กรองกิจกรรมที่ลงทะเบียนไว้ตาม activity_state ที่กำหนด - ต้องไม่รวม "Start Assessment"
+  const filteredEnrolledActivities = enrolledActivities.filter((act) => {
+    const allowedStates = [
+      "Special Open Register",
+      "Open Register", 
+      "Close Register",
+      "Start Activity",
+      "End Activity"
+    ];
+    const shouldShow = allowedStates.includes(act.activity_state);
+    console.log("🔍 [Debug] Activity filtering for enrolled:", {
+      activity_id: act.activity_id,
+      activity_name: act.activity_name,
+      activity_state: act.activity_state,
+      shouldShow,
+      allowedStates
+    });
+    return shouldShow;
+  });
+
+  // แปลง Activity[] เป็น MainActivity[] สำหรับ TableListSection (ไม่ใช้แล้ว ใช้ filteredEnrolledActivities แทน)
+  // const mainActivities = filteredEnrolledActivities.map((act) => ({
+  //   ac_id: act.activity_id,
+  //   ac_name: act.activity_name || "",
+  //   ac_company_lecturer: act.presenter_company_name || "",
+  //   ac_description: act.description || "",
+  //   ac_type: (act.type === "Soft" ? "Soft Skill" : "Hard Skill") as "Soft Skill" | "Hard Skill",
+  //   ac_start_time: act.start_activity_date ? new Date(act.start_activity_date).toISOString() : new Date().toISOString(),
+  //   ac_end_time: act.end_activity_date ? new Date(act.end_activity_date).toISOString() : new Date().toISOString(),
+  //   ac_seat: act.seat || 0,
+  //   ac_registered_count: 0, // ต้องดึงจาก database ถ้าต้องการ
+  //   ac_status: act.activity_status || "Private",
+  //   ac_state: "Enrolled" as "Not Start" | "Enrolled" | "Ended", // เนื่องจากเป็น enrolled activities
+  //   ac_location_type: act.event_format || "Online",
+  //   ac_soft_hours: act.type === "Soft" ? (act.recieve_hours || 0) : 0,
+  //   ac_hard_hours: act.type === "Hard" ? (act.recieve_hours || 0) : 0,
+  //   ac_start_assessment: act.start_assessment ? new Date(act.start_assessment) : null,
+  //   ac_end_assessment: act.end_assessment ? new Date(act.end_assessment) : null,
+  //   activity_state: act.activity_state, // ✅ เพิ่ม activity_state เพื่อให้ TablePendingEvaluation ใช้งานได้
+  // }));
+
+  // ✅ สร้าง mainActivities สำหรับ pending evaluation ที่รวมกิจกรรมทั้งหมดที่มี "Start Assessment"
+  const allActivitiesForPending = enrolledActivities.map((act) => ({
     ac_id: act.activity_id,
     ac_name: act.activity_name || "",
     ac_company_lecturer: act.presenter_company_name || "",
@@ -102,18 +143,33 @@ const MainStudent = () => {
     ac_start_time: act.start_activity_date ? new Date(act.start_activity_date).toISOString() : new Date().toISOString(),
     ac_end_time: act.end_activity_date ? new Date(act.end_activity_date).toISOString() : new Date().toISOString(),
     ac_seat: act.seat || 0,
-    ac_registered_count: 0, // ต้องดึงจาก database ถ้าต้องการ
+    ac_registered_count: 0,
     ac_status: act.activity_status || "Private",
-    ac_state: "Enrolled" as "Not Start" | "Enrolled" | "Ended", // เนื่องจากเป็น enrolled activities
+    ac_state: "Enrolled" as "Not Start" | "Enrolled" | "Ended",
     ac_location_type: act.event_format || "Online",
     ac_soft_hours: act.type === "Soft" ? (act.recieve_hours || 0) : 0,
     ac_hard_hours: act.type === "Hard" ? (act.recieve_hours || 0) : 0,
     ac_start_assessment: act.start_assessment ? new Date(act.start_assessment) : null,
     ac_end_assessment: act.end_assessment ? new Date(act.end_assessment) : null,
+    activity_state: act.activity_state, // ✅ สำคัญมาก!
   }));
 
+  // ✅ Debug: Log ข้อมูลที่ส่งไปยัง TablePendingEvaluation
+  console.log("🔍 [Debug] allActivitiesForPending:", allActivitiesForPending);
+  console.log("🔍 [Debug] Activities with Start Assessment:", allActivitiesForPending.filter(a => a.activity_state === "Start Assessment"));
+
+  // ✅ กรองกิจกรรมสำหรับตาราง "กิจกรรมที่ยังไม่ได้ทำแบบประเมิน" - แสดงเฉพาะกิจกรรมที่มี activity_state เป็น "Start Assessment"
   const transformedActivities = enrolledActivities
-    .filter((act) => act.activity_status === "Public")
+    .filter((act) => {
+      console.log("🔍 [Debug] Activity filtering for assessment:", {
+        activity_id: act.activity_id,
+        activity_name: act.activity_name,
+        activity_status: act.activity_status,
+        activity_state: act.activity_state,
+        shouldShow: act.activity_status === "Public" && act.activity_state === "Start Assessment"
+      });
+      return act.activity_status === "Public" && act.activity_state === "Start Assessment";
+    })
     .map((act) => ({
       id: act.activity_id.toString(),
       name: act.activity_name,
@@ -123,6 +179,7 @@ const MainStudent = () => {
       start_time: new Date(act.start_activity_date),
       seat: act.seat,
       status: act.activity_status as "Public" | "Private",
+      activity_state: act.activity_state, // ✅ เพิ่ม activity_state
       // registered_count: act.ac_registered_count,
     }));
 
@@ -152,7 +209,7 @@ const MainStudent = () => {
         <CustomCard className="flex flex-col gap-6 text-lg mt-4">
           {activeTab === "enrolled" ? (
             <>
-              <TableActivitySection />
+              <TableActivitySection filteredActivities={filteredEnrolledActivities} />
               <TableOngoingSection
                 ongoingActivities={ongoingActivities}
                 loading={ongoingLoading}
@@ -163,7 +220,7 @@ const MainStudent = () => {
             <TablePendingEvaluation
               activityLoading={activityLoading}
               activityError={activityError}
-              enrolledActivities={mainActivities}
+              enrolledActivities={allActivitiesForPending}
               transformedActivities={transformedActivities}
             />
           )}

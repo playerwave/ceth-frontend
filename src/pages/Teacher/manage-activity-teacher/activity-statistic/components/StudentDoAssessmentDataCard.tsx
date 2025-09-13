@@ -20,12 +20,15 @@ export default function StudentDoAssessmentDataCard() {
   return (
     <CustomCard
       className="w-full
-                max-w-[90vw]         // ✅ ขนาดที่กำหนดเอง สำหรับหน้าจอเล็ก (ต่ำกว่า md)
-                sm:max-w-[600px]     // ✅ เมื่อ ≥ 640px (sm)
-                md:max-w-[700px]     // ✅ เมื่อ ≥ 768px (md)
-                lg:max-w-[35%]
-                p-4 sm:p-6 relative
-                mx-0 self-start h-[341px]"
+                max-w-[90vw]       
+                sm:max-w-[600px]     
+                md:max-w-[700px]    
+                lg:max-w-full
+                p-4 sm:p-6
+                relative
+                mx-0
+                self-start
+                h-full"
     >
       <BarChartX 
         data={evaluationStatusData}

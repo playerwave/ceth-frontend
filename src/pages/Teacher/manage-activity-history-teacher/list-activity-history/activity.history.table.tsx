@@ -45,13 +45,10 @@ const ActivityHistoryTable = ({ rows1 }: Props) => {
   );
 
    const handleRowDoubleClick = (row: Activity) => {
-    // วิธีที่ 1: ส่ง state ไปด้วย (อ่านได้จาก useLocation().state)
+    // ส่ง state ไปด้วย (อ่านได้จาก useLocation().state)
     navigate("/activity-history-info-teacher", {
       state: { activityId: row.activity_id, activity: row },
     });
-
-    // วิธีที่ 2 (ถ้าจะใช้พาธมี id): 
-    // navigate(`/activity-history-info-teacher/${row.activity_id}`);
   };
 
   return (

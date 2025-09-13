@@ -7,7 +7,11 @@ import { getTableListColumn } from "./TableListColumn";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
 import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 
-export default function TableListSection() {
+interface TableListSectionProps {
+  filteredActivities?: any[]; // ✅ เพิ่ม prop สำหรับข้อมูลที่กรองแล้ว
+}
+
+export default function TableListSection({ filteredActivities }: TableListSectionProps) {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
   const handleTypeChange = (type: string) => {
@@ -78,10 +82,17 @@ export default function TableListSection() {
     studentId
   });
 
+  // ✅ ใช้ข้อมูลที่กรองแล้วถ้ามี หรือใช้ข้อมูลจาก store เป็น fallback
+  const activitiesToShow = filteredActivities || enrolledActivities;
+  
+  console.log("🔍 [DEBUG] TableListSection - filteredActivities:", filteredActivities);
+  console.log("🔍 [DEBUG] TableListSection - activitiesToShow:", activitiesToShow);
+  console.log("🔍 [DEBUG] TableListSection - activitiesToShow length:", activitiesToShow?.length);
+
   return (
     <div>
       <Typography variant="h6" fontWeight="bold" gutterBottom>
-        ลิสต์กิจกรรมของฉัน ({enrolledActivities?.length || 0} รายการ)
+        ลิสต์กิจกรรมของฉัน ({activitiesToShow?.length || 0} รายการ)
       </Typography>
 
       {activityLoading ? (
@@ -104,7 +115,7 @@ export default function TableListSection() {
             ลองใหม่
           </button>
         </div>
-      ) : !enrolledActivities || enrolledActivities.length === 0 ? (
+      ) : !activitiesToShow || activitiesToShow.length === 0 ? (
         <div className="text-center text-gray-500 p-4">
           <p>📭 ไม่พบกิจกรรมที่ลงทะเบียน</p>
           <p className="text-sm mt-2">Student ID: {studentId}</p>
@@ -118,7 +129,7 @@ export default function TableListSection() {
       ) : (
         <TableListRow
           columns={columns}
-          rows={enrolledActivities}     // ✅ ใช้ข้อมูลจาก store
+          rows={activitiesToShow}     // ✅ ใช้ข้อมูลที่กรองแล้ว
           height={420}
           width="100%"
           initialPageSize={10}

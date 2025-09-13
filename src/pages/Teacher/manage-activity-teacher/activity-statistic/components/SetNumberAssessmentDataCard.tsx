@@ -1,4 +1,6 @@
+import { useState } from "react";
 import CustomCard from "../../../../../components/Card";
+import PieChart from "../../../../../components/Charts/PieChart";
 
 const summaryTableData = [
   {
@@ -103,10 +105,18 @@ const feedbackData = [
   { comment: "พิธีกรหล่อมากค่ะ :)", department: "AI" },
 ];
 
+const pieData = [
+  { name: "มากที่สุด", value: 60.0, color: "#52C41A" },
+  { name: "มาก", value: 26.7, color: "#B7EB8F" },
+  { name: "ปานกลาง", value: 10.0, color: "#FADB14" },
+  { name: "น้อย", value: 2.0, color: "#FA8C16" },
+  { name: "น้อยที่สุด", value: 1.3, color: "#F5222D" },
+];
+
 export default function SetNumberAssessmentDataCard() {
+  const [showChart, setShowChart] = useState(false);
   return (
     <div className="space-y-8 mt-15 mb-15">
-      <h1 className="text-2xl font-bold">สรุปผลแบบประเมิน</h1>
 
       {/* ตารางผลการประเมิน - หัวข้อ 1 */}
       <CustomCard
@@ -119,38 +129,76 @@ export default function SetNumberAssessmentDataCard() {
                 mx-0 self-start
                 shadow-lg"
       >
-        <h3 className="font-bold text-lg mb-4">
-          หัวข้อ: 1. ประเมินผลเนื้อหาการอบรม
-        </h3>
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-sm table-auto min-w-[600px]">
-            <thead>
-              <tr className="text-left text-[#A0AEC0]">
-                <th className="p-2">คำถาม</th>
-                <th className="p-2 text-center">มากที่สุด</th>
-                <th className="p-2 text-center">มาก</th>
-                <th className="p-2 text-center">ปานกลาง</th>
-                <th className="p-2 text-center">น้อย</th>
-                <th className="p-2 text-center">น้อยที่สุด</th>
-                <th className="p-2 text-right">ค่าเฉลี่ย</th>
-              </tr>
-            </thead>
-            <tbody>
-              {summaryTableData.map((item, i) => (
-                <tr key={i} className="hover:bg-gray-50">
-                  <td className="p-2">{item.question}</td>
-                  <td className="p-2 text-center">{item.most}</td>
-                  <td className="p-2 text-center">{item.much}</td>
-                  <td className="p-2 text-center">{item.medium}</td>
-                  <td className="p-2 text-center">{item.less}</td>
-                  <td className="p-2 text-center">{item.least}</td>
-                  <td className="p-2 text-right font-semibold">
-                    {item.average.toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-bold text-lg">
+            หัวข้อ: 1. ประเมินผลเนื้อหาการอบรม
+          </h3>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowChart(false)}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                !showChart 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              หัวข้อ
+            </button>
+            <button
+              onClick={() => setShowChart(true)}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                showChart 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              กราฟ
+            </button>
+          </div>
+        </div>
+        
+        <div className={'overflow-y-auto'}>
+          {showChart ? (
+            <PieChart 
+              data={pieData}
+              height={250}
+              outerRadius={90}
+              showLegend={true}
+              legendPosition="right"
+              totalText="จากผู้ทำแบบประเมินทั้งหมด 40 คน"
+            />
+          ) : (
+            <div className="w-full overflow-x-auto">
+              <table className="w-full text-sm table-auto min-w-[600px]">
+                <thead>
+                  <tr className="text-left text-[#A0AEC0]">
+                    <th className="p-2">คำถาม</th>
+                    <th className="p-2 text-center">มากที่สุด</th>
+                    <th className="p-2 text-center">มาก</th>
+                    <th className="p-2 text-center">ปานกลาง</th>
+                    <th className="p-2 text-center">น้อย</th>
+                    <th className="p-2 text-center">น้อยที่สุด</th>
+                    <th className="p-2 text-right">ค่าเฉลี่ย</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {summaryTableData.map((item, i) => (
+                    <tr key={i} className="hover:bg-gray-50">
+                      <td className="p-2">{item.question}</td>
+                      <td className="p-2 text-center">{item.most}</td>
+                      <td className="p-2 text-center">{item.much}</td>
+                      <td className="p-2 text-center">{item.medium}</td>
+                      <td className="p-2 text-center">{item.less}</td>
+                      <td className="p-2 text-center">{item.least}</td>
+                      <td className="p-2 text-right font-semibold">
+                        {item.average.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </CustomCard>
 

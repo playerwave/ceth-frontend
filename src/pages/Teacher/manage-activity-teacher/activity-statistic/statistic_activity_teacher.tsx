@@ -15,34 +15,48 @@ const StatisticActivityTeacher = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-         <div className="flex mb-6 ml-20">
-            <div className="ml-20">
-                <Button onClick={() => window.history.back()}>← กลับ</Button>
-            </div>
-            <div className="ml-25">
-                <h1 className="text-4xl font-bold text-gray-800 flex-1 text-center">สรุปผลกิจกรรม</h1>
-            </div>
-            <div className="ml-220">
-                <Button onClick={() => {console.log("export data")}} bgColor="green"> export data</Button>
-            </div>
-        </div>
+      <Button className="ml-40" onClick={() => window.history.back()}>← กลับ</Button>
+
+<div className="max-w-7xl mx-auto px-8">
+  {/* Header row with title and export button */}
+  <div className="flex justify-between items-center mb-6">
+    <h1 className="text-4xl font-bold text-gray-800">สรุปผลกิจกรรม</h1>
+    <Button onClick={() => { console.log("export data") }} bgColor="green">export data</Button>
+  </div>
+  </div>
+
       <div className="max-w-7xl mx-auto px-8">
-        {/* Header with Title and Back Button */}
-        
         <div className="space-y-6 overflow-x-hidden">
-          {/* กราฟแท่ง + การเข้าร่วมกิจกรรม */}
-          <div className="flex flex-col lg:flex-row w-full gap-6 items-stretch">
-            <EnrolledByDepartmentCard />
-            <EnrolledmentDataCard />
+          {/* Layout แบบ figma - การ์ดซ้ายกว้างกว่าขวา */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* แถวบนซ้าย: จำนวนนิสิตที่ลงทะเบียนแยกตามสาขาและชั้นปี (กว้าง 2/3) */}
+            <div className="lg:col-span-2">
+              <EnrolledByDepartmentCard />
+            </div>
+
+            {/* แถวบนขวา: การเข้าร่วมกิจกรรมของนิสิต (กว้าง 1/3) */}
+            <div className="lg:col-span-1">
+              <EnrolledmentDataCard />
+            </div>
           </div>
 
-          {/* 🔽 สรุปผลแบบประเมิน (วางไว้ด้านล่างหลัง 2 การ์ดด้านบน) */}
-          <div className="mt-10">
-            <div className="flex flex-col lg:flex-row gap-6">
+          <div className="mb-6 mt-15">
+            <h1 className="text-4xl font-bold text-gray-800">สรุปผลแบบประเมิน</h1>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* แถวล่างซ้าย: แบบประเมินความพึงพอใจ (กว้าง 2/3) */}
+            <div className="lg:col-span-2">
               <SatisfactionSurveyCard />
+            </div>
+            
+            {/* แถวล่างขวา: การทำแบบประเมินของนิสิต (กว้าง 1/3) */}
+            <div className="lg:col-span-1">
               <StudentDoAssessmentDataCard />
             </div>
+          </div>
 
+          {/* SetNumberAssessmentDataCard วางแยกต่างหาก */}
+          <div className="mt-6">
             <SetNumberAssessmentDataCard />
           </div>
         </div>

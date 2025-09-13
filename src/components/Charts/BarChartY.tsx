@@ -113,8 +113,7 @@ export default function BarChartY({
                 className="flex items-center gap-2 text-sm text-gray-700"
               >
                 <span
-                  className="inline-block w-3 h-3 rounded-full"
-                  style={{ backgroundColor: item.color }}
+                  className={`inline-block w-3 h-3 rounded-full ${colors[idx] || 'bg-gray-400'}`}
                 />
                 {item.label} : {item.count} คน ({item.percent})
               </li>

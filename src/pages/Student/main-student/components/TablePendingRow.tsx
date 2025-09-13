@@ -1,11 +1,8 @@
 import { DataGrid, GridColDef, GridEventListener } from "@mui/x-data-grid";
 import {
   Box,
-  Typography,
-  FormControl,
-  SelectChangeEvent
 } from "@mui/material";
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export interface TablePendingRowProps {
   height?: number | string;
@@ -26,55 +23,16 @@ export default function TablePendingRow({
   initialPageSize,
 }: TablePendingRowProps) {
   
-  const [locationFilter, setLocationFilter] = useState<string>("");
+  const navigate = useNavigate();
 
-  const handleRowClick: GridEventListener<"rowClick"> = (params) => {
-    const id = params.row.ac_id;
-    if (id) {
-      // Navigate to assessment page for pending evaluation activities
-      console.log("Navigating to assessment for activity:", id);
-      // You can customize this navigation based on your routing
+  const handleRowDoubleClick: GridEventListener<"rowDoubleClick"> = (params) => {
+    const activityId = params.row.ac_id;
+    if (activityId) {
+      console.log("🔄 Double clicked activity:", activityId);
+      console.log("🔗 Navigating to assessment page");
+      navigate(`/assessment-student/${activityId}`);
     }
   };
-
-  const handleLocationChange = (event: SelectChangeEvent) => {
-    setLocationFilter(event.target.value);
-  };
-
-  const filteredRows = locationFilter
-    ? rows.filter((row) => row.ac_location_type === locationFilter)
-    : rows;
-
-  const columnsWithDropdown = columns.map((col) => {
-    if (col.field === "ac_location_type") {
-      return {
-        ...col,
-        renderHeader: () => (
-          <Box display="flex" alignItems="center" gap={1}>
-            <Typography fontWeight={600}>สถานที่</Typography>
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <select
-                value={locationFilter}
-                onChange={(event) => handleLocationChange(event as any)}
-                style={{
-                  padding: "4px 8px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  fontSize: "12px",
-                }}
-              >
-                <option value="">ทั้งหมด</option>
-                <option value="Online">Online</option>
-                <option value="Onsite">Onsite</option>
-                <option value="Course">Course</option>
-              </select>
-            </FormControl>
-          </Box>
-        ),
-      };
-    }
-    return col;
-  });
 
   return (
     <Box
@@ -88,9 +46,9 @@ export default function TablePendingRow({
       }}
     >
       <DataGrid
-        columns={columnsWithDropdown}
-        rows={filteredRows}
-        onRowClick={handleRowClick}
+        columns={columns}
+        rows={rows}
+        onRowDoubleClick={handleRowDoubleClick}
         pageSizeOptions={[5, 10, 20]}
         initialState={{
           pagination: { paginationModel: { pageSize: initialPageSize || 10, page: 0 } },

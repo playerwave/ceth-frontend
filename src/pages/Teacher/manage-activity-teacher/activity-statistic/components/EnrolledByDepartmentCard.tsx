@@ -1,86 +1,120 @@
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 import CustomCard from "../../../../../components/Card";
-import { BarChart3 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import BarChartY from "../../../../../components/Charts/BarChartY";
-
-const barData = [
-  {
-    name: "SE",
-    year1: 5,
-    year2: 3,
-    year3: 9,
-    year4: 3,
-    total: 17,
-    percent: "37.0%",
-  },
-  {
-    name: "AI",
-    year1: 1,
-    year2: 2,
-    year3: 2,
-    year4: 1,
-    total: 5,
-    percent: "10.9%",
-  },
-  {
-    name: "CS",
-    year1: 6,
-    year2: 5,
-    year3: 11,
-    year4: 4,
-    total: 18,
-    percent: "39.1%",
-  },
-  {
-    name: "IT",
-    year1: 3,
-    year2: 8,
-    year3: 4,
-    year4: 4,
-    total: 6,
-    percent: "13.0%",
-  },
-];
-
-const barLegend = [
-  { label: "ชั้นปี 1", count: 15, percent: "10.9%", color: "#6659FF" },
-  { label: "ชั้นปี 2", count: 11, percent: "23.9%", color: "#404CCC" },
-  { label: "ชั้นปี 3", count: 26, percent: "56.5%", color: "#89AFFF" },
-  { label: "ชั้นปี 4", count: 4, percent: "8.7%", color: "#D9D9D9" },
-];
+import { useActivityReportStore } from "../../../../../stores/Teacher/activity-report.store";
 
 export default function EnrolledByDepartmentCard() {
+  const { id: activityId } = useParams<{ id: string }>();
+  const { 
+    enrollmentData, 
+    enrollmentLoading, 
+    enrollmentError, 
+    fetchEnrollmentByDepartment,
+    clearEnrollmentError 
+  } = useActivityReportStore();
+
+  useEffect(() => {
+    if (activityId) {
+      fetchEnrollmentByDepartment(activityId);
+    }
+  }, [activityId, fetchEnrollmentByDepartment]);
+
+  // แสดง loading state
+  if (enrollmentLoading) {
+    return (
+      <CustomCard
+        className="w-full
+                  max-w-[90vw]       
+                  sm:max-w-[600px]     
+                  md:max-w-[700px]    
+                  lg:max-w-full
+                  p-4 sm:p-6
+                  relative
+                  mx-0
+                  self-start
+                  h-full"
+      >
+        <div className="flex items-center justify-center h-64">
+          <div className="flex items-center space-x-2">
+            <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+            <span className="text-gray-600">กำลังโหลดข้อมูล...</span>
+          </div>
+        </div>
+      </CustomCard>
+    );
+  }
+
+  // แสดง error state
+  if (enrollmentError) {
+    return (
+      <CustomCard
+        className="w-full
+                  max-w-[90vw]       
+                  sm:max-w-[600px]     
+                  md:max-w-[700px]    
+                  lg:max-w-full
+                  p-4 sm:p-6
+                  relative
+                  mx-0
+                  self-start
+                  h-full"
+      >
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-red-500 mb-2">เกิดข้อผิดพลาด</div>
+            <div className="text-gray-600 mb-4">{enrollmentError}</div>
+            <button 
+              onClick={() => {
+                clearEnrollmentError();
+                if (activityId) {
+                  fetchEnrollmentByDepartment(activityId);
+                }
+              }}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              ลองใหม่
+            </button>
+          </div>
+        </div>
+      </CustomCard>
+    );
+  }
+
+  // ใช้ข้อมูลจริงจาก API หรือ fallback data
+  const barData = enrollmentData?.departments || [];
+  const barLegend = enrollmentData?.legend || [];
+  const totalText = enrollmentData?.totalText || "ไม่มีข้อมูล";
   return (
     <CustomCard
       className="w-full
                 max-w-[90vw]       
                 sm:max-w-[600px]     
                 md:max-w-[700px]    
-                lg:max-w-[65%]
+                lg:max-w-full
                 p-4 sm:p-6
                 relative
                 mx-0
-                self-start"
+                self-start
+                h-full"
     >
-      <div className="relative mb-4">
-        <h2 className="font-bold text-lg pr-12 leading-snug">
+      <div className="relative mb-6">
+        <h2 className="font-bold text-xl pr-12 leading-snug">
           จำนวนนิสิตที่ลงทะเบียนแยกตามสาขาและชั้นปี
         </h2>
-
-        <button className="absolute top-0 right-0 p-2 bg-gray-100 rounded-xl hover:bg-gray-200">
-          <BarChart3 className="w-5 h-5 text-[#7a5fff]" />
-        </button>
       </div>
 
       <BarChartY 
         data={barData}
         legend={barLegend}
         stackKeys={["year1", "year2", "year3", "year4"]}
-        colors={["#7a5fff", "#365eff", "#8fd6ff", "#d9d9d9"]}
-        height={300}
-        barSize={30}
+        colors={["bg-purple-700", "bg-blue-600", "bg-sky-300", "bg-gray-300"]}
+        height={400}
+        barSize={40}
         showLegend={true}
         legendPosition="right"
-        totalText="จากผู้เข้าร่วมเต็มเวลาทั้งหมด 46 คน (100.0%)"
+        totalText={totalText}
       />
     </CustomCard>
   );
