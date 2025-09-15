@@ -109,9 +109,9 @@ const Question: React.FC<QuestionProps> = ({
 
 return (
   <div 
-    className={`border-l-4 pl-4 mb-6 bg-white rounded-lg shadow-md p-6 transition-colors duration-200 ${
+    className={`border-l-4 pl-4 mb-6 bg-white rounded-lg shadow-md p-6 transition-all duration-300 ease-in-out transform hover:scale-[1.01] hover:shadow-lg ${
       (isActive || isDragging || isHovered) ? 'border-blue-500' : 'border-gray-300'
-    }`}
+    } ${isDragging ? 'rotate-2 shadow-2xl scale-105' : ''}`}
     onMouseEnter={() => setIsHovered(true)}
     onMouseLeave={() => setIsHovered(false)}
   >

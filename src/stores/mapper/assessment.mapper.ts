@@ -36,5 +36,8 @@ export function mapApiToAssessment(api: ApiAssessment): Assessment {
 
 
 export function mapApiToAssessments(arr: ApiAssessment[]): Assessment[] {
-  return arr.map(mapApiToAssessment);
+  console.log("🔄 [AssessmentMapper] Mapping API data:", arr);
+  const mapped = arr.map(mapApiToAssessment);
+  console.log("✅ [AssessmentMapper] Mapped result:", mapped);
+  return mapped;
 }

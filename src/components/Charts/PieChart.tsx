@@ -7,7 +7,7 @@ import {
 
 interface PieChartData {
   name: string;
-  value: number;
+  value: number | string;
   color: string;
 }
 
@@ -28,6 +28,25 @@ export default function PieChart({
   legendPosition = "right",
   totalText
 }: PieChartProps) {
+  // แปลง string values เป็น number สำหรับ recharts
+  const chartData = data.map(item => ({
+    ...item,
+    value: typeof item.value === 'string' ? parseFloat(item.value) : item.value
+  }));
+
+  // Debug log
+  console.log("🔍 [PieChart] Data received:", data);
+  console.log("🔍 [PieChart] Chart data after conversion:", chartData);
+
+  // ตรวจสอบว่ามีข้อมูลหรือไม่
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-500">ไม่มีข้อมูลสำหรับแสดงกราฟ</p>
+      </div>
+    );
+  }
+
   return (
     <div className={`flex ${legendPosition === "right" ? "flex-col lg:flex-row items-center lg:items-start" : "flex-col items-center"} gap-6`}>
       {/* Pie Chart */}
@@ -35,14 +54,14 @@ export default function PieChart({
         <ResponsiveContainer width="100%" height="100%">
           <RechartsPieChart>
             <Pie
-              data={data}
+              data={chartData}
               dataKey="value"
               nameKey="name"
               cx="50%"
               cy="50%"
               outerRadius={outerRadius}
             >
-              {data.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>

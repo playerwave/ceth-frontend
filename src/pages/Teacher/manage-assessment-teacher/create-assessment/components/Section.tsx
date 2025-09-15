@@ -47,7 +47,14 @@ const Section: React.FC<SectionProps> = ({
   const assessmentId = Number(id);
 
   const { updateSectionTitle, deleteSection, addQuestionToSection, sections, setSections } = useAssessmentStoreUi();
-  const { questions, fetchQuestionsBySetNumber, createQuestion } = useQuestionStore();
+  const { 
+    questions, 
+    fetchQuestionsBySetNumber, 
+    createQuestion,
+    updateQuestionsOrder,
+    updateQuestionsOrderInDatabase,
+    revertQuestionsOrder,
+  } = useQuestionStore();
   const { duplicateSetNumber } = useSetNumberStore();
   useEffect(() => {
     if (mode === "edit" && section.id) {
@@ -191,33 +198,35 @@ const Section: React.FC<SectionProps> = ({
             : s
         )
       );
-
     }
 
     if (mode === "edit") {
-      // 🟢 edit mode → อัปเดต DB จริง
+      // 🟢 edit mode → ใช้ Optimistic Updates
       const qInSection = questions.filter(
         (q) => q.set_number_id === section.id
       );
 
+      const originalOrder = Array.from(qInSection);
       const newOrder = Array.from(qInSection);
       const [moved] = newOrder.splice(source.index, 1);
       newOrder.splice(destination.index, 0, moved);
 
-      // อัปเดต question_number ใหม่ทั้งหมด
-      for (let i = 0; i < newOrder.length; i++) {
-        const q = newOrder[i];
-        await updateQuestion({
-          question_id: q.question_id,
-          question_text: q.question_text,
-          question_number: i + 1, // ✅ reset ลำดับใหม่
-          set_number_id: section.id,
-          question_type: q.question_type,
-        } as any);
-      }
+      // ✅ 1. อัปเดต UI ทันที (Optimistic Update)
+      console.log("🚀 Applying optimistic update for smooth drag & drop");
+      updateQuestionsOrder(section.id, newOrder);
 
-      // refresh state หลังจาก DB update
-      await fetchQuestionsBySetNumber(section.id);
+      // ✅ 2. อัปเดต Database ในพื้นหลัง
+      try {
+        await updateQuestionsOrderInDatabase(section.id, newOrder);
+        console.log("✅ Database update completed successfully");
+      } catch (error) {
+        console.error("❌ Database update failed, reverting UI:", error);
+        // ✅ 3. ถ้า error ให้ revert กลับ
+        revertQuestionsOrder(section.id, originalOrder);
+        
+        // แสดง error message ให้ user
+        alert("❌ เกิดข้อผิดพลาดในการบันทึกลำดับคำถาม กรุณาลองใหม่อีกครั้ง");
+      }
     }
   };
 
@@ -282,7 +291,15 @@ const Section: React.FC<SectionProps> = ({
                   .map((q, index) => (
                     <Draggable key={q.question_id} draggableId={`q-${q.question_id}`} index={index}>
                       {(provided) => (
-                        <div ref={provided.innerRef} {...provided.draggableProps} className="mb-4">
+                        <div 
+                          ref={provided.innerRef} 
+                          {...provided.draggableProps} 
+                          className="mb-4 transition-all duration-200 ease-in-out"
+                          style={{
+                            ...provided.draggableProps.style,
+                            transition: 'transform 0.2s ease',
+                          }}
+                        >
                           <Question
                             sectionId={section.id}
                             question={{
@@ -322,7 +339,11 @@ const Section: React.FC<SectionProps> = ({
       <DragDropContext onDragEnd={onQuestionDragEnd}>
         <Droppable droppableId={`questions-${section.id}`} type="QUESTION">
           {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
+            <div 
+              ref={provided.innerRef} 
+              {...provided.droppableProps}
+              className="min-h-[100px] transition-all duration-200"
+            >
               {mode === "edit"
                 ? questions
                   .filter((q) => q.set_number_id === section.id)

@@ -98,7 +98,15 @@ export default function AssessmentTopicCard({
               <tbody>
                 {questions.map((item, i) => (
                   <tr key={i} className="hover:bg-gray-50">
-                    <td className="p-2 w-[300px] break-words">{item.question}</td>
+                    <td className="p-2 w-[300px] break-words leading-relaxed">
+                      {item.question.length > 75 ? (
+                        <span className="whitespace-pre-line">
+                          {item.question.replace(/(.{75}[^\s]*)\s/g, '$1\n')}
+                        </span>
+                      ) : (
+                        item.question
+                      )}
+                    </td>
                     <td className="p-2 text-center w-[80px]">{item.most}</td>
                     <td className="p-2 text-center w-[60px]">{item.much}</td>
                     <td className="p-2 text-center w-[80px]">{item.medium}</td>

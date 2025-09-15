@@ -122,10 +122,48 @@ class AssessmentService {
     try {
       console.log("📤 [AssessmentService] Submitting assessment:", assessmentResponse);
       
-      // เพิ่ม join_id ใน payload (จะต้องได้จาก session หรือ context)
+      // ดึง join_id จาก localStorage หรือ session
+      const storedUser = localStorage.getItem('auth-store');
+      let join_id = null;
+      
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          const studentId = parsedUser?.state?.user?.student?.students_id;
+          
+          if (studentId) {
+            // ดึง join_id จาก API โดยใช้ student_id และ activity_id
+            const activityId = window.location.pathname.split('/').pop();
+            if (activityId) {
+              const joinResponse = await fetch(`${API_BASE_URL}/student/activity/${activityId}/join-id/${studentId}`, {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                credentials: "include",
+              });
+              
+              if (joinResponse.ok) {
+                const joinData = await joinResponse.json();
+                join_id = joinData.join_id;
+                console.log("✅ [AssessmentService] Found join_id:", join_id);
+              } else {
+                console.error("❌ [AssessmentService] Failed to get join_id:", joinResponse.status);
+              }
+            }
+          }
+        } catch (error) {
+          console.error("❌ [AssessmentService] Error parsing stored user:", error);
+        }
+      }
+      
+      if (!join_id) {
+        throw new Error("ไม่พบข้อมูลการลงทะเบียนกิจกรรม กรุณาลงทะเบียนเข้าร่วมกิจกรรมก่อน");
+      }
+      
       const payload = {
         ...assessmentResponse,
-        join_id: 1 // TODO: ต้องได้จาก authentication context
+        join_id: join_id
       };
       
       const response = await fetch(`${API_BASE_URL}/student/assessment/submit`, {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Button from "../../../components/Button";
 import { useAssessmentStore } from "../../../stores/Student/assessment.store.student";
 import { AssessmentResponse } from "../../../types/assessment.types";
@@ -11,6 +11,8 @@ import OpenEndedQuestion from "./components/OpenEndedQuestion";
 
 function AssessmentStudent() {
   const { activityId } = useParams<{ activityId?: string }>();
+  const navigate = useNavigate();
+  
   const { 
     assessment, 
     loading, 
@@ -128,6 +130,9 @@ function AssessmentStudent() {
       await submitAssessment(payload);
       
       alert("ส่งคำตอบเรียบร้อยแล้ว!");
+      
+      // Redirect กลับไปหน้า main-student
+      navigate("/main-student");
     } catch (error) {
       console.error("❌ [AssessmentStudent] Error submitting assessment:", error);
       alert("เกิดข้อผิดพลาดในการส่งคำตอบ กรุณาลองใหม่อีกครั้ง");

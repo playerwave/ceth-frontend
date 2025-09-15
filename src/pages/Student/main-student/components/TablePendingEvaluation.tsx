@@ -26,9 +26,9 @@ const TablePendingEvaluation: React.FC<TablePendingEvaluationProps> = ({
     );
   };
 
-  // ✅ 2. กรองกิจกรรมที่มี activity_state เป็น "End Activity" หรือ "Start Assessment" + ตามประเภท
+  // ✅ 2. กรองกิจกรรมที่มี activity_state เป็น "Start Assessment" และยังไม่ได้ทำแบบประเมิน + ตามประเภท
   const rows = enrolledActivities
-    .filter((a) => a.activity_state === "End Activity" || a.activity_state === "Start Assessment")
+    .filter((a) => a.activity_state === "Start Assessment" && !a.has_submitted_assessment)
     .filter(
       (a) => selectedTypes.length === 0 || selectedTypes.includes(a.ac_type),
     )

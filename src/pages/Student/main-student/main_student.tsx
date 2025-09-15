@@ -106,6 +106,7 @@ const MainStudent = () => {
       activity_id: act.activity_id,
       activity_name: act.activity_name,
       activity_state: act.activity_state,
+      has_submitted_assessment: act.has_submitted_assessment,
       shouldShow,
       allowedStates
     });

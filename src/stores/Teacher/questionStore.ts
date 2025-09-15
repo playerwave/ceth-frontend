@@ -3,6 +3,19 @@ import questionService from "../../service/Teacher/question.service";
 import { Question } from "../../types/model";
 import { mapApiToQuestion, mapApiToQuestions } from "../mapper/question.mapper";
 
+// ✅ Debounce utility function
+const debounce = (func: Function, wait: number) => {
+  let timeout: NodeJS.Timeout;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
 interface QuestionState {
   questions: Question[];
   loading: boolean;
@@ -14,6 +27,8 @@ interface QuestionState {
   updateQuestion: (data: Question) => Promise<void>;
   deleteQuestion: (id: number) => Promise<void>;
   updateQuestionsOrder: (setNumberId: number, newOrder: Question[]) => void;
+  updateQuestionsOrderInDatabase: (setNumberId: number, newOrder: Question[]) => Promise<void>;
+  revertQuestionsOrder: (setNumberId: number, originalOrder: Question[]) => void;
 }
 
 export const useQuestionStore = create<QuestionState>((set, get) => ({
@@ -222,5 +237,61 @@ export const useQuestionStore = create<QuestionState>((set, get) => ({
     
     set({ questions: [...otherQuestions, ...updatedOrder] });
     console.log("✅ Optimistic update applied for section:", setNumberId);
+  },
+
+  // ✅ อัปเดตลำดับคำถามใน database (สำหรับใช้ในพื้นหลัง)
+  updateQuestionsOrderInDatabase: async (setNumberId, newOrder) => {
+    try {
+      console.log("🔄 Updating questions order in database for section:", setNumberId);
+      
+      // อัปเดต question_number ใหม่ทั้งหมด
+      for (let i = 0; i < newOrder.length; i++) {
+        const q = newOrder[i];
+        await questionService.updateQuestion({
+          question_id: q.question_id,
+          question_text: q.question_text,
+          question_number: i + 1,
+          set_number_id: setNumberId,
+          question_type: q.question_type,
+        } as any);
+      }
+      
+      console.log("✅ Database update completed for section:", setNumberId);
+    } catch (error) {
+      console.error("❌ Error updating questions order in database:", error);
+      throw error;
+    }
+  },
+
+  // ✅ Debounced version สำหรับกรณีที่ต้องการ debounce
+  debouncedUpdateQuestionsOrderInDatabase: debounce(async (setNumberId: number, newOrder: Question[]) => {
+    try {
+      console.log("🔄 [Debounced] Updating questions order in database for section:", setNumberId);
+      
+      for (let i = 0; i < newOrder.length; i++) {
+        const q = newOrder[i];
+        await questionService.updateQuestion({
+          question_id: q.question_id,
+          question_text: q.question_text,
+          question_number: i + 1,
+          set_number_id: setNumberId,
+          question_type: q.question_type,
+        } as any);
+      }
+      
+      console.log("✅ [Debounced] Database update completed for section:", setNumberId);
+    } catch (error) {
+      console.error("❌ [Debounced] Error updating questions order in database:", error);
+      throw error;
+    }
+  }, 500),
+
+  // ✅ Revert questions order ถ้าเกิด error
+  revertQuestionsOrder: (setNumberId, originalOrder) => {
+    const { questions } = get();
+    const otherQuestions = questions.filter((q) => q.set_number_id !== setNumberId);
+    
+    set({ questions: [...otherQuestions, ...originalOrder] });
+    console.log("🔄 Reverted questions order for section:", setNumberId);
   },
 }));

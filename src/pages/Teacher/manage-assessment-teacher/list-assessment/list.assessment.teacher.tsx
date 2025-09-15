@@ -16,6 +16,8 @@ const ListAssessmentTeacher = () => {
     searchAssessments,
     searchResults, // ✅ ดึง searchResults มาใช้
     assessments, // ✅ ดึง assessments (ข้อมูลทั้งหมด) มาใช้
+    assessmentLoading, // ✅ ดึง loading state
+    assessmentError, // ✅ ดึง error state
   } = useAssessmentStore();
 
   // ✅ ใช้ useEffect เพื่อโหลดข้อมูลทั้งหมดเมื่อ component mount
@@ -34,6 +36,13 @@ const ListAssessmentTeacher = () => {
   // ✅ กำหนดข้อมูลที่จะส่งให้ AssessmentTablePage
   // ถ้ามี searchResults ให้ใช้ searchResults ถ้าไม่มีให้ใช้ assessments (ข้อมูลทั้งหมด)
   const dataToDisplay = searchResults !== null ? searchResults : assessments;
+  
+  // ✅ Debug logs
+  console.log("🔍 [ListAssessmentTeacher] assessmentLoading:", assessmentLoading);
+  console.log("🔍 [ListAssessmentTeacher] assessmentError:", assessmentError);
+  console.log("🔍 [ListAssessmentTeacher] assessments:", assessments);
+  console.log("🔍 [ListAssessmentTeacher] searchResults:", searchResults);
+  console.log("🔍 [ListAssessmentTeacher] dataToDisplay:", dataToDisplay);
 
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-10">
@@ -55,8 +64,26 @@ const ListAssessmentTeacher = () => {
       </div>
 
       <div>
+        {/* ✅ แสดง loading state */}
+        {assessmentLoading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="text-blue-600">กำลังโหลดข้อมูล...</div>
+          </div>
+        )}
+        
+        {/* ✅ แสดง error state */}
+        {assessmentError && (
+          <div className="flex justify-center items-center py-8">
+            <div className="text-red-600 bg-red-100 px-4 py-2 rounded">
+              {assessmentError}
+            </div>
+          </div>
+        )}
+        
         {/* ✅ ส่ง dataToDisplay (ผลการค้นหาหรือข้อมูลทั้งหมด) ไปให้ AssessmentTablePage */}
-        <AssessmentTablePage rows={dataToDisplay} />
+        {!assessmentLoading && !assessmentError && (
+          <AssessmentTablePage rows={dataToDisplay} />
+        )}
       </div>
     </div>
   );

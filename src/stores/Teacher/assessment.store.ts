@@ -15,16 +15,24 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   searchResults: null,
 
   fetchAssessments: async () => {
+    console.log("🔄 [AssessmentStore] Starting fetchAssessments...");
     set({ assessmentLoading: true, assessmentError: null });
     try {
+      console.log("🌐 [AssessmentStore] Calling getAllAssessments API...");
       const apiAssessments = await assessmentService.getAllAssessments();
+      console.log("✅ [AssessmentStore] API response received:", apiAssessments);
+      
       const mapped = mapApiToAssessments(apiAssessments);
+      console.log("🔄 [AssessmentStore] Mapped assessments:", mapped);
+      
       set({ assessments: mapped });
+      console.log("✅ [AssessmentStore] Assessments set in store successfully");
     } catch (err) {
-      console.error("❌ fetchAssessments error:", err);
+      console.error("❌ [AssessmentStore] fetchAssessments error:", err);
       set({ assessmentError: "ไม่สามารถโหลดข้อมูลแบบประเมินได้" });
     } finally {
       set({ assessmentLoading: false });
+      console.log("🏁 [AssessmentStore] fetchAssessments completed");
     }
   },
 

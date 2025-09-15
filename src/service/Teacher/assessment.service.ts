@@ -3,11 +3,20 @@ import { ApiAssessment } from "../../stores/api/assessment.api";
 
 // 🔄 ดึงรายการแบบประเมินทั้งหมด
 export const getAllAssessments = async (): Promise<ApiAssessment[]> => {
-  const response = await axiosInstance.get<ApiAssessment[]>(
-    "/teacher/assessment/get-assessments"
-  );
-  // ✅ สมมติ backend คืน array ตรง ๆ (ไม่ห่อ { data: [...] })
-  return response.data;
+  console.log("🌐 [AssessmentService] Calling getAllAssessments API...");
+  try {
+    // เพิ่ม query parameters เพื่อให้ backend รู้ว่าต้องการข้อมูลแบบไหน
+    // เปลี่ยนจาก 'latest' เป็น 'all' เพื่อดูข้อมูลทั้งหมด
+    const response = await axiosInstance.get<{data: ApiAssessment[]}>(
+      "/teacher/assessment/get-assessments?type=all&page=1&limit=100"
+    );
+    console.log("✅ [AssessmentService] API response:", response.data);
+    // ✅ Backend คืน { data: [...] } ดังนั้นต้องดึง response.data.data
+    return response.data.data || [];
+  } catch (error) {
+    console.error("❌ [AssessmentService] getAllAssessments error:", error);
+    throw error;
+  }
 };
 
 // 📥 ดึงแบบประเมินตาม ID
