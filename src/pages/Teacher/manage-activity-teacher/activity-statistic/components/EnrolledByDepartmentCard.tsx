@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import CustomCard from "../../../../../components/Card";
+import CustomCard from "@components/Card";
 import { Loader2 } from "lucide-react";
-import BarChartY from "../../../../../components/Charts/BarChartY";
-import { useActivityReportStore } from "../../../../../stores/Teacher/activity-report.store";
+import BarChartY from "@components/Charts/BarChartY";
+import { useActivityReportStore } from "@stores/Teacher/activity-report.store";
 
 export default function EnrolledByDepartmentCard() {
   const { id: activityId } = useParams<{ id: string }>();

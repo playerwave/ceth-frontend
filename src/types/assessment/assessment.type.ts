@@ -1,3 +1,13 @@
+export interface Assessment {
+  assessment_id: number;
+  assessment_name?: string;
+  description?: string;
+  create_date?: Date;
+  last_update?: Date;
+  assessment_status?: "Not finished" | "Finished" | "Unsuccessful";
+  status?: "Active" | "Inactive";
+}
+
 export interface AssessmentQuestion {
   question_id: number;
   question_text: string;
@@ -14,14 +24,6 @@ export interface AssessmentSection {
   section_name: string;
   section_order: number;
   questions: AssessmentQuestion[];
-}
-
-export interface Assessment {
-  assessment_id: number;
-  assessment_name: string;
-  assessment_description?: string;
-  questions: AssessmentQuestion[];
-  sections?: AssessmentSection[];
 }
 
 export interface AssessmentResponse {

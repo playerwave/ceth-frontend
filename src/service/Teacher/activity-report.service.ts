@@ -84,6 +84,29 @@ export interface AssessmentDataResponse {
   topics: AssessmentTopic[];
 }
 
+export interface SatisfactionSurveyResponse {
+  pieData: Array<{
+    name: string;
+    value: string;
+    color: string;
+  }>;
+  totalRespondents: number;
+  totalText: string;
+}
+
+export interface StudentAssessmentStatusResponse {
+  evaluationStatusData: Array<{
+    label: string;
+    count: number;
+    total: number;
+    barColor: string;
+  }>;
+  totalStudents: number;
+  completedAssessments: number;
+  pendingAssessments: number;
+  totalText: string;
+}
+
 class ActivityReportService {
   /**
    * ดึงข้อมูลจำนวนนิสิตที่ลงทะเบียนแยกตามสาขาและชั้นปี
@@ -139,6 +162,44 @@ class ActivityReportService {
       console.error("❌ [ActivityReportService] Error getting assessment data:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       throw new Error(`Failed to get assessment data: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * ดึงข้อมูลแบบประเมินความพึงพอใจ
+   */
+  async getSatisfactionSurvey(activityId: string | number): Promise<SatisfactionSurveyResponse> {
+    try {
+      console.log("📊 [ActivityReportService] Getting satisfaction survey for activity:", activityId);
+      
+      const response = await axiosInstance.get(`/teacher/activity-report/${activityId}/satisfaction-survey`);
+      
+      console.log("✅ [ActivityReportService] Satisfaction survey received:", response.data.data);
+      
+      return response.data.data;
+    } catch (error) {
+      console.error("❌ [ActivityReportService] Error getting satisfaction survey:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      throw new Error(`Failed to get satisfaction survey: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * ดึงข้อมูลสถานะการทำแบบประเมินของนิสิต
+   */
+  async getStudentAssessmentStatus(activityId: string | number): Promise<StudentAssessmentStatusResponse> {
+    try {
+      console.log("📊 [ActivityReportService] Getting student assessment status for activity:", activityId);
+      
+      const response = await axiosInstance.get(`/teacher/activity-report/${activityId}/student-assessment-status`);
+      
+      console.log("✅ [ActivityReportService] Student assessment status received:", response.data.data);
+      
+      return response.data.data;
+    } catch (error) {
+      console.error("❌ [ActivityReportService] Error getting student assessment status:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      throw new Error(`Failed to get student assessment status: ${errorMessage}`);
     }
   }
 }

@@ -24,7 +24,19 @@
 
     /* Type declarations */
     "typeRoots": ["./node_modules/@types", "./src/types"],
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+
+    /* Path mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@stores/*": ["./src/stores/*"],
+      "@types/*": ["./src/types/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@service/*": ["./src/service/*"]
+    }
   },
   "include": ["src", "src/types"]
 }

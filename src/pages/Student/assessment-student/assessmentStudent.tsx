@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Button from "../../../components/Button";
 import { useAssessmentStore } from "../../../stores/Student/assessment.store.student";
-import { AssessmentResponse } from "../../../types/assessment.types";
+import { AssessmentResponse } from "../../../types/assessment/assessment.type";
 
 import SatisfactionQuestions from "./components/SatisfactionQuestions";
 import MultipleChoice from "./components/MultipleChoice";

@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import AssessmentTopicCard from "./SetNumberAssessmentDataCard";
-import CustomCard from "../../../../../components/Card";
-import { useActivityReportStore } from "../../../../../stores/Teacher/activity-report.store";
+import AssessmentTopicCard from "./FixSingleAnswerResponse";
+import CustomCard from "@components/Card";
+import { useActivityReportStore } from "@stores/Teacher/activity-report.store";
 import { Loader2 } from "lucide-react";
+import { FeedbackItem } from "@/types/activity-report.type";
 
 // ข้อมูลข้อเสนอแนะ (ยังคงใช้ mock data)
-const feedbackData = [
+const feedbackData: FeedbackItem[] = [
   { comment: "ข้าวอร่อยมากครับ", department: "CS" },
   { comment: "ควรหน้าขอไข่ดาวด้วยครับ", department: "SE" },
   { comment: "พิธีกรหล่อมากค่ะ :)", department: "AI" },
@@ -100,7 +101,7 @@ export default function AssessmentDataContainer() {
     <div className="space-y-8 mt-15 mb-15">
       {/* แสดงข้อมูลแบบประเมินจาก API */}
       {assessmentData && assessmentData.length > 0 ? (
-        assessmentData.map((topic, index) => {
+        assessmentData.map((topic) => {
           const transformedData = transformAssessmentData(topic);
           return (
             <AssessmentTopicCard
@@ -138,8 +139,8 @@ export default function AssessmentDataContainer() {
             </tr>
           </thead>
           <tbody>
-            {feedbackData.map((item, index) => (
-              <tr key={index} className="hover:bg-gray-50">
+            {feedbackData.map((item) => (
+              <tr key={item.department} className="hover:bg-gray-50">
                 <td className="p-2 font-semibold">{item.comment}</td>
                 <td className="p-2 text-center font-semibold">
                   {item.department}

@@ -1,7 +1,8 @@
-import CustomCard from "../../../../../components/Card";
-import PieChart from "../../../../../components/Charts/PieChart";
+import CustomCard from "@components/Card";
+import PieChart from "@components/Charts/PieChart";
+import { PieChartData } from "@/types/activity-report.type";
 
-const pieData = [
+const pieData: PieChartData[] = [
   { name: "มากที่สุด", value: 60.0, color: "#52C41A" },
   { name: "มาก", value: 26.7, color: "#B7EB8F" },
   { name: "ปานกลาง", value: 10.0, color: "#FADB14" },

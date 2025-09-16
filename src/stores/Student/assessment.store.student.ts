@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Assessment } from "../../types/assessment.types";
+import { Assessment } from "../../types/assessment/assessment.type";
 import assessmentService from "../../service/Student/assessment.service.student";
 
 interface AssessmentState {
