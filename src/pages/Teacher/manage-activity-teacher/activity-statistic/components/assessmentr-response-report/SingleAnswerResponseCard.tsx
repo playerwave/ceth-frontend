@@ -1,53 +1,12 @@
 import CustomCard from "@components/Card";
-import { useMemo } from "react";
 import { AssessmentQuestionData } from "@/types/activity-report.type";
 
 // ===== Types =====
 type SingleChoiceQuestion = AssessmentQuestionData;
 
-// ===== Mock Data =====
-const mockSingleAnswerData: ReadonlyArray<SingleChoiceQuestion> = [
-  {
-    questionId: 101,
-    questionText: "ความพึงพอใจต่อเนื้อหาภาพรวมของการอบรม",
-    questionType: "Single answer" as const,
-    questionNumber: 1,
-    choices: [
-      { choiceId: 1, choiceText: "มากที่สุด", count: 47 },
-      { choiceId: 2, choiceText: "มาก", count: 31 },
-      { choiceId: 3, choiceText: "ปานกลาง", count: 20 },
-      { choiceId: 4, choiceText: "น้อย", count: 3 },
-      { choiceId: 5, choiceText: "น้อยที่สุด", count: 0 }
-    ],
-    totalRespondents: 101
-  },
-  {
-    questionId: 102,
-    questionText: "ระยะเวลาการจัดกิจกรรมเหมาะสมหรือไม่",
-    questionType: "Single answer" as const,
-    questionNumber: 2,
-    choices: [
-      { choiceId: 6, choiceText: "เหมาะสมมาก", count: 28 },
-      { choiceId: 7, choiceText: "เหมาะสม", count: 52 },
-      { choiceId: 8, choiceText: "พอใช้", count: 16 },
-      { choiceId: 9, choiceText: "ไม่น่าพอใจ", count: 5 }
-    ],
-    totalRespondents: 101
-  },
-  {
-    questionId: 103,
-    questionText: "รูปแบบกิจกรรมตรงตามความคาดหวังหรือไม่",
-    questionType: "Single answer" as const,
-    questionNumber: 3,
-    choices: [
-      { choiceId: 10, choiceText: "ตรงมาก", count: 42 },
-      { choiceId: 11, choiceText: "ตรง", count: 40 },
-      { choiceId: 12, choiceText: "พอใช้", count: 14 },
-      { choiceId: 13, choiceText: "ไม่ตรง", count: 5 }
-    ],
-    totalRespondents: 101
-  }
-];
+interface SingleAnswerResponseCardProps {
+  questions: SingleChoiceQuestion[];
+}
 
 // ===== Helpers =====
 const pct = (count: number, total: number): string =>
@@ -61,8 +20,7 @@ const barClass = (percentage: number): string => {
   return "bg-red-400";
 };
 
-export default function SingleChoiceResponseCard() {
-  const questions = useMemo(() => mockSingleAnswerData, []);
+export default function SingleChoiceResponseCard({ questions }: SingleAnswerResponseCardProps) {
 
   return (
     <CustomCard

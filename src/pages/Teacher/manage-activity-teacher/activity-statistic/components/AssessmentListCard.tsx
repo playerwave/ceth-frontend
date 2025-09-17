@@ -6,6 +6,8 @@ import { Loader2 } from "lucide-react";
 import { 
   AssessmentQuestionData
 } from "@/types/activity-report.type";
+import SingleAnswerResponseCard from "./assessmentr-response-report/SingleAnswerResponseCard";
+import MultipleAnswerResponseCard from "./assessmentr-response-report/MultipleAnswerResponseCard";
 
 // ===== Types =====
 type Question = AssessmentQuestionData;
@@ -60,146 +62,7 @@ const FixSingleAnswerRenderer = ({ questions }: { questions: Question[] }) => (
   </div>
 );
 
-// Single Answer Renderer (Radio button style)
-const SingleAnswerRenderer = ({ questions }: { questions: Question[] }) => {
-  const pct = (count: number, total: number): string =>
-    total > 0 ? `${((count / total) * 100).toFixed(1)}%` : "0.0%";
-
-  const barClass = (percentage: number): string => {
-    if (percentage >= 80) return "bg-green-400";
-    if (percentage >= 60) return "bg-blue-600";
-    if (percentage >= 40) return "bg-yellow-400";
-    if (percentage >= 20) return "bg-orange-400";
-    return "bg-red-400";
-  };
-
-  return (
-    <div className="space-y-6">
-      {questions.map((question) => (
-        <div key={question.questionId} className="border-b border-gray-200 pb-6 last:border-b-0">
-          <div className="mb-4">
-            <h4 className="font-semibold text-base text-gray-800 leading-relaxed">
-              {question.questionNumber}. {question.questionText}
-            </h4>
-            <p className="text-sm text-gray-500 mt-1">
-              จากผู้ตอบ {question.totalRespondents || 0} คน
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            {question.choices?.map((choice: any) => {
-              const percentageNumber = question.totalRespondents ? 
-                (choice.count || 0) / question.totalRespondents * 100 : 0;
-              return (
-                <div
-                  key={choice.choiceId}
-                  className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center flex-1">
-                      <div className="w-5 h-5 border-2 border-gray-400 rounded-full mr-3 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-blue-500" />
-                      </div>
-                      <span className="text-gray-800 font-medium">{choice.choiceText}</span>
-                    </div>
-
-                    <div className="flex items-center space-x-4 text-sm">
-                      <div className="text-center">
-                        <div className="font-semibold text-blue-600">{choice.count || 0}</div>
-                        <div className="text-gray-500 text-xs">คน</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="font-semibold text-green-600">
-                          {pct(choice.count || 0, question.totalRespondents || 0)}
-                        </div>
-                        <div className="text-gray-500 text-xs">เปอร์เซ็นต์</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-300 ${barClass(percentageNumber)}`}
-                        style={{ width: `${percentageNumber.toFixed(1)}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-// Multiple Answer Renderer (Checkbox style)
-const MultipleAnswerRenderer = ({ questions }: { questions: Question[] }) => (
-  <div className="space-y-6">
-    {questions.map((question) => (
-      <div key={question.questionId} className="border-b border-gray-200 pb-6 last:border-b-0">
-        <div className="mb-4">
-          <h4 className="font-semibold text-base text-gray-800 leading-relaxed">
-            {question.questionNumber}. {question.questionText}
-          </h4>
-          <p className="text-sm text-gray-500 mt-1">
-            จากผู้ตอบ {question.totalRespondents || 0} คน
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          {question.choices?.map((choice: any) => (
-            <div
-              key={choice.choiceId}
-              className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center flex-1">
-                  <div className="w-5 h-5 border-2 border-gray-400 rounded mr-3 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  </div>
-                  <span className="text-gray-800 font-medium">{choice.choiceText}</span>
-                </div>
-
-                <div className="flex items-center space-x-4 text-sm">
-                  <div className="text-center">
-                    <div className="font-semibold text-blue-600">{choice.count || 0}</div>
-                    <div className="text-gray-500 text-xs">คน</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-green-600">{choice.percentage || "0.0%"}</div>
-                    <div className="text-gray-500 text-xs">เปอร์เซ็นต์</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-3">
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      parseFloat(choice.percentage || "0") >= 80
-                        ? 'bg-green-400'
-                        : parseFloat(choice.percentage || "0") >= 60
-                        ? 'bg-blue-600'
-                        : parseFloat(choice.percentage || "0") >= 40
-                        ? 'bg-yellow-400'
-                        : parseFloat(choice.percentage || "0") >= 20
-                        ? 'bg-orange-400'
-                        : 'bg-red-400'
-                    }`}
-                    style={{ width: choice.percentage || "0%" }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    ))}
-  </div>
-);
+// Single Answer และ Multiple Answer Renderers ถูกย้ายไปใช้ component แยกแล้ว
 
 // Text Answer Renderer (ข้อเสนอแนะ)
 const TextAnswerRenderer = ({ questions }: { questions: Question[] }) => (
@@ -243,65 +106,177 @@ export default function AssessmentListCard() {
 
   // จัดกลุ่มคำถามตาม setNumber และเรียงตาม questionNumber
   const groupedQuestions = useMemo(() => {
-    // ===== ข้อมูล Mock สำหรับการทดสอบ =====
+    // Debug: ตรวจสอบข้อมูลจาก API
+    console.log("🔍 [AssessmentListCard] assessmentData:", assessmentData);
+    console.log("🔍 [AssessmentListCard] assessmentData length:", assessmentData?.length || 0);
+    
+    // ใช้ข้อมูลจริงจาก API แทนข้อมูล Mock
+    if (!assessmentData || assessmentData.length === 0) {
+      console.log("⚠️ [AssessmentListCard] No assessment data from API, returning empty array");
+      return [];
+    }
+
+    // ตรวจสอบโครงสร้างข้อมูล - อาจเป็น nested structure (topics -> questions)
+    let processedData = assessmentData;
+    
+    // ถ้าข้อมูลมีโครงสร้างแบบ nested (มี topics และ questions แยกกัน)
+    if (assessmentData[0] && assessmentData[0].questions) {
+      console.log("🔍 [AssessmentListCard] Detected nested structure (topics -> questions)");
+      processedData = assessmentData; // ใช้ข้อมูลตามที่เป็น
+    } else {
+      console.log("🔍 [AssessmentListCard] Detected flat structure (questions only)");
+      // ถ้าเป็น flat structure ให้สร้าง topic ปลอม
+      processedData = [{
+        setNumberId: 1,
+        setName: "แบบประเมิน",
+        questions: assessmentData
+      }] as any[];
+    }
+
+    // จัดกลุ่มข้อมูลตาม setNumber (รองรับ field names ที่แตกต่างกัน)
+    const grouped = processedData.reduce((acc: SetNumberGroup[], item: any) => {
+      console.log("🔍 [AssessmentListCard] Processing item:", item);
+      
+      // รองรับ field names ที่แตกต่างกัน
+      const setNumberId = item.setNumberId || item.topicId || item.id || 1;
+      const setName = item.setName || item.topicName || item.name || `หัวข้อ ${setNumberId}`;
+      
+      console.log("🔍 [AssessmentListCard] Extracted - setNumberId:", setNumberId, "setName:", setName);
+      
+      // ถ้ามี questions array ให้ใช้ ถ้าไม่มีให้ใช้ item เอง
+      let questions = item.questions || [item];
+      
+      // แปลงข้อมูล Fix Single Answer questions ให้มีโครงสร้างที่ถูกต้อง
+      questions = questions.map((question: any) => {
+        if (question.questionType === "Fix Single answer") {
+          // ถ้าไม่มี most, much, medium, less, least ให้แปลงจาก choiceStats
+          if (!question.most && !question.much && !question.medium && !question.less && !question.least) {
+            if (question.choiceStats && Array.isArray(question.choiceStats)) {
+              const stats = question.choiceStats;
+              return {
+                ...question,
+                most: stats.find((s: any) => s.choiceText === 'มากที่สุด')?.count || 0,
+                much: stats.find((s: any) => s.choiceText === 'มาก')?.count || 0,
+                medium: stats.find((s: any) => s.choiceText === 'ปานกลาง')?.count || 0,
+                less: stats.find((s: any) => s.choiceText === 'น้อย')?.count || 0,
+                least: stats.find((s: any) => s.choiceText === 'น้อยที่สุด')?.count || 0,
+              };
+            }
+          }
+        }
+        return question;
+      });
+      
+      acc.push({
+        setNumberId: setNumberId,
+        setName: setName,
+        questions: questions
+      });
+      
+      return acc;
+    }, []);
+
+    // เรียงลำดับคำถามในแต่ละกลุ่มตาม questionNumber
+    grouped.forEach(group => {
+      group.questions.sort((a, b) => a.questionNumber - b.questionNumber);
+    });
+
+    console.log("🔍 [AssessmentListCard] Final grouped questions:", grouped);
+    
+    // Debug: ตรวจสอบโครงสร้างข้อมูลแต่ละคำถาม
+    grouped.forEach((group, groupIndex) => {
+      console.log(`🔍 [AssessmentListCard] Group ${groupIndex + 1}:`, group.setName);
+      group.questions.forEach((question, questionIndex) => {
+        console.log(`🔍 [AssessmentListCard] Question ${questionIndex + 1}:`, {
+          questionId: question.questionId,
+          questionText: question.questionText,
+          questionType: question.questionType,
+          most: question.most,
+          much: question.much,
+          medium: question.medium,
+          less: question.less,
+          least: question.least,
+          average: question.average,
+          choices: question.choices,
+          choiceStats: question.choiceStats,
+          totalRespondents: question.totalRespondents,
+          totalAnswers: question.totalAnswers
+        });
+      });
+    });
+    
+    return grouped;
+
+    // ===== ข้อมูล Mock สำหรับการทดสอบ (ถูกปิดใช้งาน) =====
+    /*
     const mockData = [
       {
+        // หัวข้อที่ 1: ความพึงพอใจ - ตัวอย่างคำถามเกี่ยวกับความพึงพอใจของผู้เข้าร่วมกิจกรรม
         setNumberId: 1,
         setName: "หัวข้อ 1: ความพึงพอใจ",
         questions: [
           {
+            // คำถามที่ 1: Fix Single answer - แสดงผลเป็นตารางแบบคงที่
+            // ข้อมูล: จำนวนผู้ตอบในแต่ละระดับ (มากที่สุด, มาก, ปานกลาง, น้อย, น้อยที่สุด) และค่าเฉลี่ย
             questionId: 1,
             questionText: "คุณพึงพอใจกับการจัดกิจกรรมครั้งนี้มากน้อยเพียงใด?",
             questionType: "Fix Single answer",
             questionNumber: 1,
-            most: 25,
-            much: 30,
-            medium: 20,
-            less: 15,
-            least: 10,
-            average: 3.45
+            most: 25,      // จำนวนผู้ตอบ "มากที่สุด"
+            much: 30,      // จำนวนผู้ตอบ "มาก"
+            medium: 20,    // จำนวนผู้ตอบ "ปานกลาง"
+            less: 15,      // จำนวนผู้ตอบ "น้อย"
+            least: 10,     // จำนวนผู้ตอบ "น้อยที่สุด"
+            average: 3.45  // ค่าเฉลี่ย (1-5)
           },
           {
+            // คำถามที่ 2: Single answer - แสดงผลเป็น radio button style พร้อม progress bar
+            // ข้อมูล: ตัวเลือกคำตอบแบบอิสระ พร้อมจำนวนผู้ตอบและเปอร์เซ็นต์
             questionId: 2,
             questionText: "คุณคิดว่าการใช้เวลาของกิจกรรมเหมาะสมหรือไม่?",
             questionType: "Single answer",
             questionNumber: 2,
-            totalRespondents: 100,
+            totalRespondents: 100,  // จำนวนผู้ตอบทั้งหมด
             choices: [
-              { choiceId: 1, choiceText: "เหมาะสมมาก", count: 40 },
-              { choiceId: 2, choiceText: "เหมาะสม", count: 35 },
-              { choiceId: 3, choiceText: "ปานกลาง", count: 20 },
-              { choiceId: 4, choiceText: "ไม่เหมาะสม", count: 5 }
+              { choiceId: 1, choiceText: "เหมาะสมมาก", count: 40 },  // 40% ของผู้ตอบ
+              { choiceId: 2, choiceText: "เหมาะสม", count: 35 },      // 35% ของผู้ตอบ
+              { choiceId: 3, choiceText: "ปานกลาง", count: 20 },      // 20% ของผู้ตอบ
+              { choiceId: 4, choiceText: "ไม่เหมาะสม", count: 5 }     // 5% ของผู้ตอบ
             ]
           },
           {
+            // คำถามที่ 3: Multiple answer - แสดงผลเป็น checkbox style พร้อม progress bar
+            // ข้อมูล: ตัวเลือกคำตอบหลายข้อ พร้อมจำนวนผู้ตอบและเปอร์เซ็นต์ (รวมกันอาจเกิน 100%)
             questionId: 3,
             questionText: "คุณชอบกิจกรรมแบบไหนบ้าง? (เลือกได้มากกว่า 1 ข้อ)",
             questionType: "Multiple answer",
             questionNumber: 3,
-            totalRespondents: 100,
+            totalRespondents: 100,  // จำนวนผู้ตอบทั้งหมด
             choices: [
-              { choiceId: 1, choiceText: "การบรรยาย", count: 60, percentage: "60.0%" },
-              { choiceId: 2, choiceText: "การสาธิต", count: 45, percentage: "45.0%" },
-              { choiceId: 3, choiceText: "การทำกิจกรรม", count: 70, percentage: "70.0%" },
-              { choiceId: 4, choiceText: "การอภิปราย", count: 30, percentage: "30.0%" }
+              { choiceId: 1, choiceText: "การบรรยาย", count: 60, percentage: "60.0%" },    // 60% เลือก
+              { choiceId: 2, choiceText: "การสาธิต", count: 45, percentage: "45.0%" },      // 45% เลือก
+              { choiceId: 3, choiceText: "การทำกิจกรรม", count: 70, percentage: "70.0%" },  // 70% เลือก
+              { choiceId: 4, choiceText: "การอภิปราย", count: 30, percentage: "30.0%" }     // 30% เลือก
             ]
           },
           {
+            // คำถามที่ 4: Text answer - แสดงผลเป็นข้อความข้อเสนอแนะ
+            // ข้อมูล: รายการข้อความที่ผู้ตอบเขียนมา
             questionId: 4,
             questionText: "คุณมีความคิดเห็นเพิ่มเติมเกี่ยวกับความพึงพอใจหรือไม่?",
             questionType: "Text answer",
             questionNumber: 4,
             answers: [
-              "กิจกรรมน่าสนใจมาก ได้ความรู้เยอะ",
-              "อยากให้จัดบ่อยๆ",
-              "วิทยากรสอนดีมาก",
-              "เวลาจัดเหมาะสม"
+              "กิจกรรมน่าสนใจมาก ได้ความรู้เยอะ",  // ข้อเสนอแนะที่ 1
+              "อยากให้จัดบ่อยๆ",                    // ข้อเสนอแนะที่ 2
+              "วิทยากรสอนดีมาก",                    // ข้อเสนอแนะที่ 3
+              "เวลาจัดเหมาะสม"                      // ข้อเสนอแนะที่ 4
             ]
           }
         ]
       },
       {
+        // หัวข้อที่ 2: ประเมินวิทยากร - ตัวอย่างคำถามเกี่ยวกับการประเมินวิทยากร
         setNumberId: 2,
         setName: "หัวข้อ 2: ประเมินวิทยากร",
         questions: [
@@ -358,6 +333,7 @@ export default function AssessmentListCard() {
         ]
       },
       {
+        // หัวข้อที่ 3: ประเมินผลการอบรม - ตัวอย่างคำถามเกี่ยวกับผลการอบรม
         setNumberId: 3,
         setName: "หัวข้อ 3: ประเมินผลการอบรม",
         questions: [
@@ -414,6 +390,7 @@ export default function AssessmentListCard() {
         ]
       },
       {
+        // หัวข้อที่ 4: ข้อเสนอแนะและความคิดเห็น - ตัวอย่างคำถามเกี่ยวกับข้อเสนอแนะ
         setNumberId: 4,
         setName: "หัวข้อ 4: ข้อเสนอแนะและความคิดเห็น",
         questions: [
@@ -472,9 +449,10 @@ export default function AssessmentListCard() {
       }
     ];
 
-    // บังคับใช้ข้อมูล mock เพื่อแสดงทุกประเภทคำถาม (สำหรับการทดสอบ)
-    console.log("🔍 [AssessmentListCard] Force using mock data to show all question types");
-    return mockData as SetNumberGroup[];
+    // ข้อมูล Mock ถูกปิดใช้งานแล้ว ใช้ข้อมูลจริงจาก API แทน
+    // console.log("🔍 [AssessmentListCard] Force using mock data to show all question types");
+    // return mockData as SetNumberGroup[];
+    */
   }, [assessmentData]);
 
   // แสดง loading state
@@ -525,6 +503,17 @@ export default function AssessmentListCard() {
             <div className="text-sm text-gray-400 mt-2">
               Debug: assessmentData length = {assessmentData?.length || 0}
             </div>
+            <div className="text-sm text-gray-400 mt-1">
+              Loading: {assessmentLoading ? 'Yes' : 'No'}
+            </div>
+            <div className="text-sm text-gray-400 mt-1">
+              Error: {assessmentError || 'None'}
+            </div>
+            {assessmentData && (
+              <div className="text-sm text-gray-400 mt-2">
+                Raw data: {JSON.stringify(assessmentData, null, 2)}
+              </div>
+            )}
           </div>
         </div>
       </CustomCard>
@@ -533,33 +522,35 @@ export default function AssessmentListCard() {
 
   return (
     <div className="space-y-8">
-      {/* Mock Data Warning - แสดงเสมอเพื่อทดสอบ */}
-      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
-        <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-xs font-bold">!</span>
-          </div>
-          <div>
-            <h4 className="font-semibold text-orange-800">ข้อมูล Mock สำหรับการทดสอบ</h4>
-            <p className="text-sm text-orange-700">
-              กำลังแสดงข้อมูลตัวอย่าง (Mock Data) เพื่อแสดงคำถามครบทุกประเภทในแต่ละหัวเรื่อง
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Debug Information */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-        <h4 className="font-semibold text-yellow-800 mb-2">Debug Information:</h4>
-        <div className="text-sm text-yellow-700">
+      {/* Debug Information - แสดงข้อมูล debug เพื่อตรวจสอบ */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+        <h4 className="font-semibold text-blue-800 mb-2">Debug Information:</h4>
+        <div className="text-sm text-blue-700">
           <p>Total groups found: {groupedQuestions.length}</p>
           <p>Groups: {groupedQuestions.map(g => `Set ${g.setNumberId} (${g.questions.length} questions)`).join(', ')}</p>
-          <p>Data source: Mock Data (บังคับใช้เพื่อทดสอบ)</p>
+          <p>Data source: API Data</p>
+          <p>Assessment Data Length: {assessmentData?.length || 0}</p>
+          {assessmentData && assessmentData.length > 0 && (
+            <details className="mt-2">
+              <summary className="cursor-pointer font-medium">Raw API Data (Click to expand)</summary>
+              <pre className="mt-2 text-xs bg-white p-2 rounded border overflow-auto max-h-40">
+                {JSON.stringify(assessmentData, null, 2)}
+              </pre>
+            </details>
+          )}
+          {groupedQuestions.length > 0 && (
+            <details className="mt-2">
+              <summary className="cursor-pointer font-medium">Processed Questions Data (Click to expand)</summary>
+              <pre className="mt-2 text-xs bg-white p-2 rounded border overflow-auto max-h-40">
+                {JSON.stringify(groupedQuestions, null, 2)}
+              </pre>
+            </details>
+          )}
         </div>
       </div>
 
       {groupedQuestions.map((group) => (
-        <CustomCard key={group.setNumberId} className="w-full p-6">
+        <CustomCard key={`group-${group.setNumberId}`} className="w-full p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-xl text-blue-800">
               {group.setName}
@@ -596,20 +587,14 @@ export default function AssessmentListCard() {
                 {/* Single Answer Questions */}
                 {singleQuestions.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-lg mb-4 text-gray-700">
-                      คำถามแบบเลือกคำตอบเดียว (แบบอิสระ)
-                    </h4>
-                    <SingleAnswerRenderer questions={singleQuestions as Question[]} />
+                    <SingleAnswerResponseCard questions={singleQuestions as Question[]} />
                   </div>
                 )}
 
                 {/* Multiple Answer Questions */}
                 {multipleQuestions.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-lg mb-4 text-gray-700">
-                      คำถามแบบเลือกตอบหลายข้อ
-                    </h4>
-                    <MultipleAnswerRenderer questions={multipleQuestions as Question[]} />
+                    <MultipleAnswerResponseCard questions={multipleQuestions as Question[]} />
                   </div>
                 )}
 

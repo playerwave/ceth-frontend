@@ -1,10 +1,15 @@
-// import { useEffect } from "react";
-// import { useParams } from "react-router-dom";
 import CustomCard from "@components/Card";
-// import { useActivityReportStore } from "@stores/Teacher/activity-report.store";
 import { AssessmentQuestionData } from "@/types/activity-report.type";
 
-// Mock data สำหรับ Multiple Answer questions
+// ===== Types =====
+type MultipleAnswerQuestion = AssessmentQuestionData;
+
+interface MultipleAnswerResponseCardProps {
+  questions: MultipleAnswerQuestion[];
+}
+
+// ===== Mock Data (ถูกปิดใช้งาน) =====
+/*
 const mockMultipleAnswerData = [
   {
     questionId: 1,
@@ -277,96 +282,10 @@ const mockMultipleAnswerData = [
     totalRespondents: 56
   }
 ];
+*/
 
-// ใช้ interface จาก type files แทน
-type MultipleAnswerQuestion = AssessmentQuestionData;
+export default function MultipleAnswerResponseCard({ questions }: MultipleAnswerResponseCardProps) {
 
-export default function MultipleAnswerResponseCard() {
-  // const { id } = useParams<{ id: string }>();
-  // const { 
-  //   assessmentData, 
-  //   assessmentLoading, 
-  //   assessmentError, 
-  //   fetchAssessmentData,
-  //   clearAssessmentError 
-  // } = useActivityReportStore();
-
-  // useEffect(() => {
-  //   if (id) {
-  //     fetchAssessmentData(id);
-  //   }
-  // }, [id, fetchAssessmentData]);
-
-  // กรองเฉพาะคำถามประเภท Multiple answer
-  const getMultipleAnswerQuestions = (): MultipleAnswerQuestion[] => {
-    // ใช้ mock data เสมอสำหรับการแสดงผล
-    return mockMultipleAnswerData;
-    
-    // TODO: เมื่อมีข้อมูลจริงจาก API แล้ว ให้ uncomment ส่วนนี้
-    // if (assessmentData && assessmentData.length > 0) {
-    //   const allQuestions: MultipleAnswerQuestion[] = [];
-      
-    //   assessmentData.forEach(topic => {
-    //     topic.questions.forEach(question => {
-    //       if (question.questionType === 'Multiple answer') {
-    //         // แปลงข้อมูลจาก API ให้เข้ากับ format ที่ต้องการ
-    //         const choices: MultipleAnswerChoice[] = question.choices?.map(choice => ({
-    //           choiceId: choice.choiceId,
-    //           choiceText: choice.choiceText,
-    //           count: question.choiceStats?.find(stat => stat.choiceText === choice.choiceText)?.count || 0,
-    //           percentage: question.choiceStats?.find(stat => stat.choiceText === choice.choiceText)?.percentage || "0.0%"
-    //         })) || [];
-            
-    //         allQuestions.push({
-    //           questionId: question.questionId,
-    //           questionText: question.questionText,
-    //           questionType: question.questionType,
-    //           choices,
-    //           totalRespondents: question.totalAnswers || 0
-    //         });
-    //       }
-    //     });
-    //   });
-      
-    //   return allQuestions;
-    // }
-    
-    // return mockMultipleAnswerData;
-  };
-
-  const multipleAnswerQuestions = getMultipleAnswerQuestions();
-
-  // แสดง loading state (ปิดการใช้งานชั่วคราวเพื่อแสดง mock data)
-  // if (assessmentLoading) {
-  //   return (
-  //     <CustomCard>
-  //       <h3 className="font-bold text-lg mb-4">คำถามแบบเลือกตอบหลายข้อ</h3>
-  //       <div className="flex items-center justify-center h-64">
-  //         <p className="text-blue-600">กำลังโหลดข้อมูล...</p>
-  //       </div>
-  //     </CustomCard>
-  //   );
-  // }
-
-  // แสดง error state (ปิดการใช้งานชั่วคราวเพื่อแสดง mock data)
-  // if (assessmentError) {
-  //   return (
-  //     <CustomCard>
-  //       <h3 className="font-bold text-lg mb-4">คำถามแบบเลือกตอบหลายข้อ</h3>
-  //       <div className="flex items-center justify-center h-64">
-  //         <div className="text-red-600 bg-red-100 px-4 py-2 rounded">
-  //           {assessmentError}
-  //           <button 
-  //             onClick={clearAssessmentError}
-  //             className="ml-2 text-red-800 underline"
-  //           >
-  //             ลองใหม่
-  //           </button>
-  //         </div>
-  //       </div>
-  //     </CustomCard>
-  //   );
-  // }
 
   return (
     <CustomCard
@@ -383,9 +302,9 @@ export default function MultipleAnswerResponseCard() {
     >
       <h3 className="font-bold text-lg mb-6">คำถามแบบเลือกตอบหลายข้อ</h3>
 
-      {multipleAnswerQuestions.length > 0 ? (
+      {questions.length > 0 ? (
         <div className="space-y-8">
-          {multipleAnswerQuestions.map((question, index) => (
+          {questions.map((question, index) => (
             <div key={question.questionId} className="border-b border-gray-200 pb-6 last:border-b-0">
               {/* คำถาม */}
               <div className="mb-4">
@@ -481,7 +400,7 @@ export default function MultipleAnswerResponseCard() {
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-600">
-                    {multipleAnswerQuestions.length}
+                    {questions.length}
                   </div>
                   <div className="text-sm text-gray-600">จำนวนคำถาม</div>
                 </div>
@@ -490,7 +409,7 @@ export default function MultipleAnswerResponseCard() {
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">
-                    {multipleAnswerQuestions.reduce((total, q) => total + (q.choices?.length || 0), 0)}
+                    {questions.reduce((total, q) => total + (q.choices?.length || 0), 0)}
                   </div>
                   <div className="text-sm text-gray-600">ตัวเลือกทั้งหมด</div>
                 </div>
@@ -499,8 +418,8 @@ export default function MultipleAnswerResponseCard() {
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-600">
-                      {multipleAnswerQuestions.length > 0 
-                        ? Math.round(multipleAnswerQuestions.reduce((sum, q) => sum + (q.totalRespondents || 0), 0) / multipleAnswerQuestions.length)
+                      {questions.length > 0 
+                        ? Math.round(questions.reduce((sum, q) => sum + (q.totalRespondents || 0), 0) / questions.length)
                         : 0
                       }
                   </div>
@@ -512,7 +431,7 @@ export default function MultipleAnswerResponseCard() {
             <div className="mt-4 text-sm text-blue-700">
               <p className="font-medium">ข้อมูลการตอบแบบประเมิน:</p>
               <ul className="mt-2 space-y-1">
-                {multipleAnswerQuestions.map((question, index) => (
+                {questions.map((question, index) => (
                   <li key={question.questionId} className="flex justify-between">
                     <span>คำถาม {index + 1}:</span>
                     <span className="font-medium">{question.totalRespondents || 0} คน</span>

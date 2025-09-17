@@ -1,17 +1,22 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import AssessmentTopicCard from "./FixSingleAnswerResponse";
-import CustomCard from "@components/Card";
+// import CustomCard from "@components/Card"; // ไม่ได้ใช้แล้วเพราะซ่อนตารางข้อเสนอแนะ
 import { useActivityReportStore } from "@stores/Teacher/activity-report.store";
 import { Loader2 } from "lucide-react";
-import { FeedbackItem } from "@/types/activity-report.type";
+// import { FeedbackItem } from "@/types/activity-report.type"; // ไม่ได้ใช้แล้วเพราะซ่อนตารางข้อเสนอแนะ
 
-// ข้อมูลข้อเสนอแนะ (ยังคงใช้ mock data)
+// ===== ข้อมูล Mock สำหรับข้อเสนอแนะ (ถูกซ่อนไว้) =====
+// ข้อมูล Mock นี้ถูกสร้างขึ้นเพื่อทดสอบการแสดงผลของตารางข้อเสนอแนะ
+// ประกอบด้วยข้อมูลตัวอย่างข้อเสนอแนะจากนิสิตในสาขาต่างๆ
+// หมายเหตุ: ในสภาพแวดล้อมจริง ควรใช้ข้อมูลจาก API แทน
+/*
 const feedbackData: FeedbackItem[] = [
-  { comment: "ข้าวอร่อยมากครับ", department: "CS" },
-  { comment: "ควรหน้าขอไข่ดาวด้วยครับ", department: "SE" },
-  { comment: "พิธีกรหล่อมากค่ะ :)", department: "AI" },
+  { comment: "ข้าวอร่อยมากครับ", department: "CS" },        // ข้อเสนอแนะจากสาขา Computer Science
+  { comment: "ควรหน้าขอไข่ดาวด้วยครับ", department: "SE" },    // ข้อเสนอแนะจากสาขา Software Engineering  
+  { comment: "พิธีกรหล่อมากค่ะ :)", department: "AI" },      // ข้อเสนอแนะจากสาขา Artificial Intelligence
 ];
+*/
 
 export default function AssessmentDataContainer() {
   const { id: activityId } = useParams<{ id: string }>();
@@ -119,7 +124,8 @@ export default function AssessmentDataContainer() {
         </div>
       )}
 
-      {/* ตารางข้อเสนอแนะ */}
+      {/* ตารางข้อเสนอแนะ - ใช้ข้อมูล Mock สำหรับการทดสอบ (ถูกซ่อนไว้) */}
+      {/* 
       <CustomCard
         className="w-full
                 max-w-[90vw]         
@@ -150,6 +156,7 @@ export default function AssessmentDataContainer() {
           </tbody>
         </table>
       </CustomCard>
+      */}
     </div>
   );
 }

@@ -5,7 +5,6 @@ import EnrolledByDepartmentCard from "./components/EnrolledByDepartmentCard";
 import EnrolledmentDataCard from "./components/EnrolledmentDataCard";
 import SatisfactionSurveyCard from "./components/SatisfactionSurveyCard";
 import StudentDoAssessmentDataCard from "./components/StudentDoAssessmentDataCard";
-import AssessmentDataContainer from "./components/assessmentr-response-report/TextResponseCard";
 import AssessmentListCard from "./components/AssessmentListCard";
 
 
@@ -56,12 +55,7 @@ const StatisticActivityTeacher = () => {
             </div>
           </div>
 
-          {/* AssessmentDataContainer วางแยกต่างหาก (สำหรับข้อเสนอแนะ) */}
-          <div className="mt-6">
-            <AssessmentDataContainer />
-          </div>
-
-          {/* AssessmentListCard - Unified Question Renderer */}
+          {/* AssessmentListCard - Unified Question Renderer (รวมข้อเสนอแนะด้วย) */}
           <div className="mt-6">
             <AssessmentListCard />
           </div>
