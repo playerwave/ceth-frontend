@@ -1,18 +1,22 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import CustomCard from "../../../../components/Card";
 import DepartmentCard from "./components/DepartmentCard";
 
 const UserDepartment: React.FC = () => {
+  const navigate = useNavigate();
+  
   const departments = [
     { name: "Software Engineering", code: "SE" },
-    { name: "Artificial Applied Intelligence", code: "AAI" },
+    { name: "Applied Artificial Intelligence", code: "AAI" },
     { name: "Computer Science", code: "CS" },
     { name: "Information Technology", code: "IT" },
   ];
 
   const handleDepartmentClick = (departmentCode: string) => {
     console.log(`Clicked department: ${departmentCode}`);
-    // TODO: Navigate to department details or filter students
+    // Navigate to list user teacher page with department code
+    navigate(`/list-user-teacher?department=${departmentCode}`);
   };
 
   return (
