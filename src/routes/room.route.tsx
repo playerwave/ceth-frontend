@@ -1,6 +1,6 @@
-import ListRoomAdmin from "../pages/Teacher/manageroom-teacher/list-room/list.room.teacher";
-import CreateRoomAdmin from "../pages/Teacher/manageroom-teacher/create-room/create.room.teacher";
-import EditRoomAdmin from "../pages/Teacher/manageroom-teacher/edit-room/edit.room.teacher";
+import ListRoomAdmin from "../pages/Teacher/manage-room-teacher/list-room/list.room.teacher";
+import CreateRoomAdmin from "../pages/Teacher/manage-room-teacher/create-room/create.room.teacher";
+import EditRoomAdmin from "../pages/Teacher/manage-room-teacher/edit-room/edit.room.teacher";
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 

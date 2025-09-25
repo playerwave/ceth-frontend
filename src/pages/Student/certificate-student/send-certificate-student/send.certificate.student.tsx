@@ -6,6 +6,7 @@ import UploadCertificate from "./components/UploadCertificate";
 import OcrResult from "./components/OcrResult";
 import { callBuuOcr } from "./utils/ocrHelper";
 import Button from "../../../../components/Button";
+import { useCertificateStore } from "../../../../stores/Student/certificate.store.student";
 
 function makeFileSig(f: File | null) {
   return f ? `${f.name}:${f.size}:${f.lastModified}` : null;
@@ -19,6 +20,13 @@ export default function SendCertificateStudent() {
 
   const [disabled] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // ✅ ใช้ Certificate Store
+  const { 
+    uploadCertificate, 
+    certificateLoading, 
+    certificateError 
+  } = useCertificateStore();
 
   // เก็บ “ไฟล์ที่ส่งล่าสุด” เป็น signature
   const [lastSubmittedSig, setLastSubmittedSig] = useState<string | null>(null);
@@ -34,13 +42,41 @@ export default function SendCertificateStudent() {
       alert("กรุณาเลือกไฟล์ก่อน");
       return;
     }
-    if (loading) return;
+    if (loading || certificateLoading) return;
 
     setLoading(true);
     try {
-      const result = await callBuuOcr(file);
-      setOcrResult({ ...result, score: "-", score_float: 0 });
+      // ✅ ใช้ store แทน direct API call
+      const result = await uploadCertificate(file);
+      console.log("🔍 OCR Result from API:", result);
+      console.log("🔍 OCR Result keys:", Object.keys(result));
+      console.log("🔍 OCR Result structure:", JSON.stringify(result, null, 2));
+      
+      // ✅ ใช้ข้อมูลที่ backend process แล้ว
+      const ocrData = {
+        fullName: result.fullName || "-",
+        courseName: result.courseName || "-", 
+        teacher: result.teacher || "-",
+        certificateId: result.certificateId || "-",
+        date: result.date || "-",
+        score: "-",
+        score_float: 0,
+        rawText: result.rawText || ""
+      };
+      
+      console.log("🔍 Processed OCR Data:", ocrData);
+      console.log("🔍 Missing fields check:", {
+        fullName: ocrData.fullName === "-",
+        courseName: ocrData.courseName === "-",
+        teacher: ocrData.teacher === "-",
+        certificateId: ocrData.certificateId === "-",
+        date: ocrData.date === "-"
+      });
+      setOcrResult(ocrData);
       setLastSubmittedSig(makeFileSig(file)); // ทำเครื่องหมายว่าไฟล์นี้ "ส่งแล้ว"
+    } catch (error) {
+      console.error("❌ Error uploading certificate:", error);
+      alert("เกิดข้อผิดพลาดในการอัปโหลด: " + (certificateError || "ไม่ทราบสาเหตุ"));
     } finally {
       setLoading(false);
     }
@@ -75,12 +111,12 @@ export default function SendCertificateStudent() {
         <div className="flex justify-end mt-4 gap-3">
           <Button
             onClick={handleSendToOcr}
-            disabled={loading || submittedForCurrentFile}             // ✅ กันกดซ้ำเฉพาะไฟล์เดิม
+            disabled={loading || certificateLoading || submittedForCurrentFile}             // ✅ กันกดซ้ำเฉพาะไฟล์เดิม
             bgColor={submittedForCurrentFile ? "#22C55E" : undefined} // ✅ ไฟล์ใหม่กลับเป็น default
             textColor="#FFFFFF"
-            className={`${loading || submittedForCurrentFile ? "cursor-not-allowed" : "hover:bg-blue-700"} mt-4 flex items-center gap-2`}
+            className={`${loading || certificateLoading || submittedForCurrentFile ? "cursor-not-allowed" : "hover:bg-blue-700"} mt-4 flex items-center gap-2`}
           >
-            {loading
+            {loading || certificateLoading
               ? "กำลังตรวจสอบ..."
               : submittedForCurrentFile
               ? (<><Check className="w-4 h-4" /> ส่งแล้ว</>)
