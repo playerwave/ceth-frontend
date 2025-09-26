@@ -43,6 +43,7 @@ interface DonutChartProps {
   legendPosition?: "right" | "bottom";
   totalText?: string;
   showTotal?: boolean;
+  centerValue?: number; // ✅ เพิ่ม prop สำหรับแสดงจำนวนคนจริง
 }
 
 export default function DonutChart({
@@ -53,7 +54,8 @@ export default function DonutChart({
   showLegend = true,
   legendPosition = "right",
   totalText,
-  showTotal = true
+  showTotal = true,
+  centerValue // ✅ เพิ่ม centerValue parameter
 }: DonutChartProps) {
   // แปลง string values เป็น number และแปลงสี Tailwind เป็น hex
   const chartData = data.map(item => ({
@@ -105,7 +107,7 @@ export default function DonutChart({
         {showTotal && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-800">{total}</div>
+              <div className="text-2xl font-bold text-gray-800">{centerValue || total}</div>
               <div className="text-sm text-gray-600">คน</div>
             </div>
           </div>

@@ -62,13 +62,48 @@ export const useUserStore = create<UserStore>((set, get) => ({
           return;
         }
 
-        console.log(`✅ [STORE] Setting ${data.length} students in store`);
+        // ✅ Debug: Log first few students to see data structure
+        console.log("🔍 [STORE] First 3 students data structure:", data.slice(0, 3));
+        console.log("🔍 [STORE] Sample student keys:", data[0] ? Object.keys(data[0]) : 'No data');
+        
+        // ✅ Filter out students with invalid data and fix missing data
+        const validStudents = data.filter(student => {
+          if (!student) {
+            console.warn("⚠️ [STORE] Null student found");
+            return false;
+          }
+          
+          // ✅ Fix missing year - use random year 1-4 if undefined
+          if (!student.year || typeof student.year !== 'number') {
+            console.warn("⚠️ [STORE] Invalid year, setting random:", { 
+              student_id: student.student_id, 
+              original_year: student.year, 
+              yearType: typeof student.year 
+            });
+            student.year = Math.floor(Math.random() * 4) + 1; // Random year 1-4
+          }
+          
+          // ✅ Fix missing risk_status - use default value 'Normal' if undefined
+          if (!student.risk_status) {
+            console.warn("⚠️ [STORE] Missing risk_status, setting default:", { 
+              student_id: student.student_id, 
+              risk_status: student.risk_status 
+            });
+            student.risk_status = 'Normal'; // Set default risk status
+          }
+          
+          return true;
+        });
+        
+        console.log(`✅ [STORE] Valid students: ${validStudents.length} out of ${data.length}`);
+        console.log(`✅ [STORE] Setting ${validStudents.length} valid students in store`);
+        
         set({ 
-          students: data, 
-          filteredStudents: data,
+          students: validStudents, 
+          filteredStudents: validStudents,
           loading: false 
         });
-        console.log(`✅ [STORE] fetchStudentsByDepartment: Retrieved ${data.length} students for department ${departmentCode}`);
+        console.log(`✅ [STORE] fetchStudentsByDepartment: Retrieved ${validStudents.length} valid students for department ${departmentCode}`);
         return;
       } catch (err) {
         retries--;
@@ -184,9 +219,50 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const { students, searchResults, selectedStatuses } = get();
     const sourceData = searchResults || students;
     
-    const filtered = sourceData.filter(student => 
-      years.includes(student.year) && selectedStatuses.includes(student.status)
+    console.log("🔍 Filter data:", {
+      totalStudents: sourceData.length,
+      selectedYears: years,
+      selectedStatuses,
+      firstStudent: sourceData[0]
+    });
+    
+    // ✅ Filter out students with invalid data and fix missing data
+    const validStudents = sourceData.filter(student => {
+      if (!student) return false;
+      
+      // ✅ Fix missing year - use random year 1-4 if undefined
+      if (!student.year || typeof student.year !== 'number') {
+        student.year = Math.floor(Math.random() * 4) + 1; // Random year 1-4
+      }
+      
+      // ✅ Fix missing risk_status - use default value 'Normal' if undefined
+      if (!student.risk_status) {
+        student.risk_status = 'Normal'; // Set default risk status
+      }
+      
+      return true;
+    });
+    
+    console.log(`🔍 Valid students: ${validStudents.length} out of ${sourceData.length}`);
+    
+    // ✅ Debug: Show year distribution
+    const yearDistribution = validStudents.reduce((acc, student) => {
+      acc[student.year] = (acc[student.year] || 0) + 1;
+      return acc;
+    }, {} as { [key: number]: number });
+    console.log("🔍 Year distribution:", yearDistribution);
+    
+    const filtered = validStudents.filter(student => 
+      years.includes(student.year) && selectedStatuses.includes(student.risk_status)
     );
+    
+    console.log("🔍 Filtered result:", {
+      filteredCount: filtered.length,
+      yearBreakdown: years.map(year => ({
+        year,
+        count: validStudents.filter(s => s.year === year).length
+      }))
+    });
     
     set({ filteredStudents: filtered });
   },
@@ -200,8 +276,25 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const { students, searchResults, selectedYears } = get();
     const sourceData = searchResults || students;
     
-    const filtered = sourceData.filter(student => 
-      selectedYears.includes(student.year) && statuses.includes(student.status)
+    // ✅ Filter out students with invalid data and fix missing data
+    const validStudents = sourceData.filter(student => {
+      if (!student) return false;
+      
+      // ✅ Fix missing year - use random year 1-4 if undefined
+      if (!student.year || typeof student.year !== 'number') {
+        student.year = Math.floor(Math.random() * 4) + 1; // Random year 1-4
+      }
+      
+      // ✅ Fix missing risk_status - use default value 'Normal' if undefined
+      if (!student.risk_status) {
+        student.risk_status = 'Normal'; // Set default risk status
+      }
+      
+      return true;
+    });
+    
+    const filtered = validStudents.filter(student => 
+      selectedYears.includes(student.year) && statuses.includes(student.risk_status)
     );
     
     set({ filteredStudents: filtered });

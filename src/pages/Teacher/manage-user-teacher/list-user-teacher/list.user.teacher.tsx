@@ -34,63 +34,53 @@ const ListUserTeacher: React.FC = () => {
   // Table columns configuration - Updated to match backend data structure
   const columns: GridColDef[] = [
     {
-      field: "email",
-      headerName: "อีเมล",
-      width: 200,
+      field: "full_name",
+      headerName: "ชื่อ-นามสกุล",
+      width: 350,
       headerAlign: "center",
       align: "center",
+      cellClassName: "px-8",
+      renderCell: (params) => {
+        // ✅ Try to get Thai name first, fallback to English name
+        const firstName = params.row.first_name_tha || params.row.first_name || '';
+        const lastName = params.row.last_name_tha || params.row.last_name || '';
+        return `${firstName} ${lastName}`.trim() || params.value;
+      },
     },
     {
-      field: "department",
-      headerName: "สาขา",
-      width: 150,
+      field: "year",
+      headerName: "ชั้นปี",
+      width: 250,
       headerAlign: "center",
       align: "center",
-      renderCell: (params) => params.value?.department_short_name || params.value,
-    },
-    {
-      field: "status",
-      headerName: "สถานะ",
-      width: 120,
-      headerAlign: "center",
-      align: "center",
+      cellClassName: "px-8",
       renderCell: (params) => (
-        <span className={`px-3 py-1 rounded-full text-sm ${
-          params.value === 'Active' 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
+        <span className="text-sm font-semibold">
           {params.value}
         </span>
       ),
     },
     {
-      field: "risk_status",
-      headerName: "ความเสี่ยง",
-      width: 120,
+      field: "department",
+      headerName: "สาขา",
+      width: 300,
       headerAlign: "center",
       align: "center",
+      cellClassName: "px-8",
+      renderCell: (params) => params.value?.department_short_name || params.value,
+    },
+    {
+      field: "risk_status",
+      headerName: "ความเสี่ยง",
+      width: 270,
+      headerAlign: "center",
+      align: "center",
+      cellClassName: "px-8",
       renderCell: (params) => (
         <span className={`px-3 py-1 rounded-full text-sm ${
           params.value === 'Normal' 
             ? 'bg-green-100 text-green-800' 
             : 'bg-red-100 text-red-800'
-        }`}>
-          {params.value}
-        </span>
-      ),
-    },
-    {
-      field: "education_status",
-      headerName: "สถานะการศึกษา",
-      width: 150,
-      headerAlign: "center",
-      align: "center",
-      renderCell: (params) => (
-        <span className={`px-3 py-1 rounded-full text-sm ${
-          params.value === 'Studying' 
-            ? 'bg-blue-100 text-blue-800' 
-            : 'bg-gray-100 text-gray-800'
         }`}>
           {params.value}
         </span>
@@ -117,16 +107,21 @@ const ListUserTeacher: React.FC = () => {
     
     const normalCount = filteredStudents.filter(student => student && student.risk_status === 'Normal').length;
     const riskCount = filteredStudents.filter(student => student && student.risk_status === 'Risk').length;
+    const totalCount = filteredStudents.length;
+    
+    // ✅ Calculate percentages
+    const normalPercentage = totalCount > 0 ? Math.round((normalCount / totalCount) * 100) : 0;
+    const riskPercentage = totalCount > 0 ? Math.round((riskCount / totalCount) * 100) : 0;
     
     return [
       {
         name: "คนที่มีสถานะ Normal",
-        value: normalCount,
+        value: normalPercentage,
         color: "bg-green-400"
       },
       {
         name: "คนที่มีสถานะ Risk",
-        value: riskCount,
+        value: riskPercentage,
         color: "bg-red-600"
       }
     ];
@@ -140,19 +135,28 @@ const ListUserTeacher: React.FC = () => {
     
     const yearData: { [key: string]: { normal: number; risk: number } } = {};
     
-    filteredStudents.forEach(student => {
-      // ✅ Handle undefined/null student
+    // ✅ Filter out invalid students first
+    const validStudents = filteredStudents.filter(student => {
       if (!student) {
         console.warn("⚠️ Null/undefined student found");
-        return;
+        return false;
       }
       
-      // ✅ Handle undefined year
-      if (!student.year) {
-        console.warn("⚠️ Student with undefined year:", student);
-        return;
+      if (!student.year || typeof student.year !== 'number') {
+        console.warn("⚠️ Student with invalid year:", {
+          student_id: student.student_id,
+          year: student.year,
+          email: student.email
+        });
+        return false;
       }
       
+      return true;
+    });
+    
+    console.log(`🔍 Processing ${validStudents.length} valid students out of ${filteredStudents.length} total`);
+    
+    validStudents.forEach(student => {
       const year = student.year.toString();
       if (!yearData[year]) {
         yearData[year] = { normal: 0, risk: 0 };
@@ -182,6 +186,13 @@ const ListUserTeacher: React.FC = () => {
     const newYears = selectedYears.includes(year) 
       ? selectedYears.filter(y => y !== year)
       : [...selectedYears, year];
+    
+    console.log("🔍 Year filter changed:", {
+      year,
+      selectedYears,
+      newYears
+    });
+    
     filterStudentsByYear(newYears);
   };
 
@@ -190,6 +201,13 @@ const ListUserTeacher: React.FC = () => {
     const newStatuses = selectedStatuses.includes(status) 
       ? selectedStatuses.filter(s => s !== status)
       : [...selectedStatuses, status];
+    
+    console.log("🔍 Status filter changed:", {
+      status,
+      selectedStatuses,
+      newStatuses
+    });
+    
     filterStudentsByStatus(newStatuses);
   };
 
@@ -436,7 +454,8 @@ const ListUserTeacher: React.FC = () => {
                 showLegend={true}
                 legendPosition="right"
                 showTotal={true}
-                totalText="รวมทั้งหมด 90 คน"
+                centerValue={filteredStudents.length}
+                totalText={`รวมทั้งหมด ${filteredStudents.length} คน`}
               />
             </CustomCard>
 

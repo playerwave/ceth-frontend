@@ -34,7 +34,19 @@ export const fetchStudentsByDepartment = async (departmentCode: string): Promise
       return [];
     }
     
+    // ✅ Debug: Log first student data structure before mapping
+    console.log("🔍 [SERVICE] First student before mapping:", studentsData[0]);
+    console.log("🔍 [SERVICE] First student keys:", studentsData[0] ? Object.keys(studentsData[0]) : 'No data');
+    console.log("🔍 [SERVICE] First student year:", studentsData[0]?.year, typeof studentsData[0]?.year);
+    console.log("🔍 [SERVICE] First student risk_status:", studentsData[0]?.risk_status);
+    
     const students = mapApiToStudents(studentsData);
+    
+    // ✅ Debug: Log first student after mapping
+    console.log("🔍 [SERVICE] First student after mapping:", students[0]);
+    console.log("🔍 [SERVICE] First student year:", students[0]?.year, typeof students[0]?.year);
+    console.log("🔍 [SERVICE] First student risk_status:", students[0]?.risk_status);
+    
     console.log(`✅ fetchStudentsByDepartment: Retrieved ${students.length} students for department ${departmentCode}`);
     return students;
   } catch (error) {

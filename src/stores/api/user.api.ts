@@ -1,5 +1,4 @@
 // src/stores/api/user.api.ts
-import { Department } from "../../types/model";
 
 /**
  * Extended Student interface for user management
@@ -9,6 +8,8 @@ export interface Student {
   user_id: number;
   first_name: string;
   last_name: string;
+  first_name_tha?: string;
+  last_name_tha?: string;
   full_name: string;
   email: string;
   phone: string;
@@ -36,6 +37,8 @@ export interface ApiStudent {
   user_id: number;
   first_name: string;
   last_name: string;
+  first_name_tha?: string;
+  last_name_tha?: string;
   full_name: string;
   email: string;
   phone: string;

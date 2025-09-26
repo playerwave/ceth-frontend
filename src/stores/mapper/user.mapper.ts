@@ -12,6 +12,8 @@ export function mapApiToStudent(apiStudent: ApiStudent): Student {
     user_id: apiStudent.user_id,
     first_name: apiStudent.first_name,
     last_name: apiStudent.last_name,
+    first_name_tha: apiStudent.first_name_tha,
+    last_name_tha: apiStudent.last_name_tha,
     full_name: apiStudent.full_name,
     email: apiStudent.email,
     phone: apiStudent.phone,
