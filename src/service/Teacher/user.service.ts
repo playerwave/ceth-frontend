@@ -171,6 +171,78 @@ export const searchStudents = async (searchTerm: string): Promise<Student[]> => 
 };
 //----------------------------------------------------------------
 
+//--------------------- Upload Students -------------------------
+export const uploadStudents = async (file: File): Promise<{ success: boolean; message: string }> => {
+  try {
+    console.log("📤 [SERVICE] Uploading students file:", file.name);
+    
+    // ✅ Validate file
+    if (!file) {
+      return { success: false, message: "กรุณาเลือกไฟล์" };
+    }
+    
+    // ✅ Validate file type
+    const allowedTypes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/vnd.ms-excel', // .xls
+      'text/csv' // .csv
+    ];
+    
+    if (!allowedTypes.includes(file.type)) {
+      return { success: false, message: "รองรับเฉพาะไฟล์ .xlsx, .xls, .csv เท่านั้น" };
+    }
+    
+    // ✅ Validate file size (10MB max)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      return { success: false, message: "ขนาดไฟล์ต้องไม่เกิน 10 MB" };
+    }
+    
+    // ✅ Create FormData
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // ✅ Upload file
+    const response = await axiosInstance.post(
+      `${TEACHER_USER_PATH}/upload`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    
+    console.log("🔍 [SERVICE] Upload response:", response.data);
+    
+    if (response.data && response.data.success) {
+      return { 
+        success: true, 
+        message: response.data.message || "อัปโหลดไฟล์สำเร็จ" 
+      };
+    } else {
+      return { 
+        success: false, 
+        message: response.data.message || "อัปโหลดไฟล์ไม่สำเร็จ" 
+      };
+    }
+  } catch (error) {
+    console.error("❌ [SERVICE] Upload error:", error);
+    
+    if (error instanceof Error) {
+      if (error.message.includes('Network Error')) {
+        return { success: false, message: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้" };
+      }
+      if (error.message.includes('timeout')) {
+        return { success: false, message: "การอัปโหลดใช้เวลานานเกินไป" };
+      }
+    }
+    
+    return { success: false, message: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์" };
+  }
+};
+//----------------------------------------------------------------
+
 //--------------------- Export Service -----------------------------
 // เป็นการทำ Object literal เพื่อรวมฟังก์ชันทั้งหมดที่เกี่ยวข้องกับ user management
 const userService = {
@@ -178,6 +250,7 @@ const userService = {
   fetchAllStudents,
   fetchAllDepartments,
   searchStudents,
+  uploadStudents,
 };
 //----------------------------------------------------------------
 

@@ -21,6 +21,7 @@ interface UserStore {
   filterStudentsByYear: (years: number[]) => void;
   filterStudentsByStatus: (statuses: string[]) => void;
   clearFilters: () => void;
+  uploadStudents: (file: File) => Promise<{ success: boolean; message: string }>;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -310,6 +311,32 @@ export const useUserStore = create<UserStore>((set, get) => ({
       selectedYears: [1, 2, 3, 4],
       selectedStatuses: ['Normal', 'Risk']
     });
+  },
+  //----------------------------------------------------------------
+
+  //--------------------- Upload Students -------------------------
+  uploadStudents: async (file: File) => {
+    console.log("📤 [STORE] Uploading students file:", file.name);
+    set({ loading: true, error: null });
+    
+    try {
+      const result = await userService.uploadStudents(file);
+      
+      if (result.success) {
+        console.log("✅ [STORE] Upload successful:", result.message);
+        set({ loading: false });
+        return { success: true, message: result.message };
+      } else {
+        console.error("❌ [STORE] Upload failed:", result.message);
+        set({ loading: false, error: result.message });
+        return { success: false, message: result.message };
+      }
+    } catch (error) {
+      console.error("❌ [STORE] Upload error:", error);
+      const errorMessage = error instanceof Error ? error.message : "ไม่สามารถอัปโหลดไฟล์ได้";
+      set({ loading: false, error: errorMessage });
+      return { success: false, message: errorMessage };
+    }
   },
   //----------------------------------------------------------------
 

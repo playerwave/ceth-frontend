@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomCard from "../../../../components/Card";
 import DepartmentCard from "./components/DepartmentCard";
+import Button from "../../../../components/Button";
+import UploadStudentsDialog from "./components/UploadStudentsDialog";
+import { useUserStore } from "../../../../stores/Teacher/user.store";
 
 const UserDepartment: React.FC = () => {
   const navigate = useNavigate();
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   
   const departments = [
     { name: "Software Engineering", code: "SE" },
@@ -19,6 +23,30 @@ const UserDepartment: React.FC = () => {
     navigate(`/list-user-teacher?department=${departmentCode}`);
   };
 
+  const handleUploadClick = () => {
+    setUploadDialogOpen(true);
+  };
+
+  const { uploadStudents } = useUserStore();
+
+  const handleFileUpload = async (file: File) => {
+    console.log("Uploading file:", file.name);
+    try {
+      const result = await uploadStudents(file);
+      if (result.success) {
+        console.log("Upload successful:", result.message);
+      } else {
+        console.error("Upload failed:", result.message);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setUploadDialogOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -26,6 +54,10 @@ const UserDepartment: React.FC = () => {
         <h1 className="text-3xl font-bold text-black-600 text-center mb-8">
           จัดการนิสิต
         </h1>
+
+<div className="mb-10 flex justify-end">
+<Button onClick={handleUploadClick}>อัพโหลดข้อมูลนิสิต</Button>
+</div>
 
         {/* Main Card Container */}
         <CustomCard className="p-8" width={"100%"} minHeight={"700px"}>
@@ -44,6 +76,13 @@ const UserDepartment: React.FC = () => {
           </div>
         </CustomCard>
       </div>
+
+      {/* Upload Dialog */}
+      <UploadStudentsDialog
+        open={uploadDialogOpen}
+        onClose={handleCloseDialog}
+        onUpload={handleFileUpload}
+      />
     </div>
   );
 };
