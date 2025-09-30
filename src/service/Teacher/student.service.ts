@@ -1,8 +1,8 @@
 // src/service/Teacher/user.service.ts
-import axiosInstance from "../../libs/axios";
-import { Student } from "../../stores/api/user.api";
-import { ApiStudent, ApiDepartment } from "../../stores/api/user.api";
-import { mapApiToStudents, mapApiToDepartments } from "../../stores/mapper/user.mapper";
+import axiosInstance from "@/libs/axios";
+import { ApiStudent, ApiDepartment } from "@/stores/api/student.api";
+import { mapApiToStudents, mapApiToDepartments } from "@/stores/mapper/student.mapper";
+import { Student } from "@/types/student.type";
 
 // Base path
 const TEACHER_USER_PATH = "/teacher/user-management";

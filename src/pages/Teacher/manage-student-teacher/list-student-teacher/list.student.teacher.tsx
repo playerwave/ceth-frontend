@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import CustomCard from "../../../../components/Card";
 import Searchbar from "../../../../components/Searchbar";
@@ -17,8 +17,12 @@ const ListUserTeacher: React.FC = () => {
   const [hasError, setHasError] = React.useState(false);
   const [errorInfo, setErrorInfo] = React.useState<string | null>(null);
   
+  // Local search state
+  const [searchTerm, setSearchTerm] = useState("");
+  
   // User store
   const {
+    students,
     filteredStudents,
     selectedYears,
     selectedStatuses,
@@ -36,7 +40,7 @@ const ListUserTeacher: React.FC = () => {
     {
       field: "full_name",
       headerName: "ชื่อ-นามสกุล",
-      width: 350,
+      width: 300,
       headerAlign: "center",
       align: "center",
       cellClassName: "px-8",
@@ -50,7 +54,7 @@ const ListUserTeacher: React.FC = () => {
     {
       field: "year",
       headerName: "ชั้นปี",
-      width: 250,
+      width: 150,
       headerAlign: "center",
       align: "center",
       cellClassName: "px-8",
@@ -61,9 +65,25 @@ const ListUserTeacher: React.FC = () => {
       ),
     },
     {
+      field: "username",
+      headerName: "รหัสนิสิต",
+      width: 200,
+      headerAlign: "center",
+      align: "center",
+      cellClassName: "px-8",
+      renderCell: (params) => {
+        const username = params.value || params.row.username || 'ไม่ระบุ';
+        return (
+          <span className="text-sm px-2 py-1 rounded">
+            {username}
+          </span>
+        );
+      },
+    },
+    {
       field: "department",
       headerName: "สาขา",
-      width: 300,
+      width: 200,
       headerAlign: "center",
       align: "center",
       cellClassName: "px-8",
@@ -176,10 +196,116 @@ const ListUserTeacher: React.FC = () => {
     }));
   }, [filteredStudents]);
 
-  const handleSearch = (searchValue: string) => {
+  // ✅ Realtime search function
+  const handleSearch = useCallback((searchValue: string) => {
     console.log("🔍 Search term:", searchValue);
-    searchStudents(searchValue);
-  };
+    // ✅ ส่งค่าไปยัง parent state (ไม่ต้องตรวจสอบค่าว่างที่นี่)
+    setSearchTerm(searchValue);
+  }, []);
+
+  // ✅ Realtime filtered students based on search term
+  const realtimeFilteredStudents = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return filteredStudents;
+    }
+
+    const searchLower = searchTerm.toLowerCase().trim();
+    
+    return filteredStudents.filter(student => {
+      if (!student) return false;
+
+      // ✅ Search in Thai names
+      const thaiFirstName = student.first_name_tha?.toLowerCase() || '';
+      const thaiLastName = student.last_name_tha?.toLowerCase() || '';
+      
+      // ✅ Search in English names  
+      const engFirstName = student.first_name_eng?.toLowerCase() || '';
+      const engLastName = student.last_name_eng?.toLowerCase() || '';
+      
+      // ✅ Search in username (if available)
+      const username = student.username?.toLowerCase() || '';
+      
+      return (
+        thaiFirstName.includes(searchLower) ||
+        thaiLastName.includes(searchLower) ||
+        engFirstName.includes(searchLower) ||
+        engLastName.includes(searchLower) ||
+        username.includes(searchLower)
+      );
+    });
+  }, [filteredStudents, searchTerm]);
+
+  // ✅ Update charts data based on realtime filtered results
+  const realtimeDonutChartData = useMemo(() => {
+    if (!realtimeFilteredStudents || realtimeFilteredStudents.length === 0) {
+      return [
+        {
+          name: "คนที่มีสถานะ Normal",
+          value: 0,
+          color: "bg-green-400"
+        },
+        {
+          name: "คนที่มีสถานะ Risk",
+          value: 0,
+          color: "bg-red-600"
+        }
+      ];
+    }
+    
+    const normalCount = realtimeFilteredStudents.filter(student => student && student.risk_status === 'Normal').length;
+    const riskCount = realtimeFilteredStudents.filter(student => student && student.risk_status === 'Risk').length;
+    const totalCount = realtimeFilteredStudents.length;
+    
+    const normalPercentage = totalCount > 0 ? Math.round((normalCount / totalCount) * 100) : 0;
+    const riskPercentage = totalCount > 0 ? Math.round((riskCount / totalCount) * 100) : 0;
+    
+    return [
+      {
+        name: "คนที่มีสถานะ Normal",
+        value: normalPercentage,
+        color: "bg-green-400"
+      },
+      {
+        name: "คนที่มีสถานะ Risk",
+        value: riskPercentage,
+        color: "bg-red-600"
+      }
+    ];
+  }, [realtimeFilteredStudents]);
+
+  // ✅ Update bar chart data based on realtime filtered results
+  const realtimeBarChartData = useMemo(() => {
+    if (!realtimeFilteredStudents || realtimeFilteredStudents.length === 0) {
+      return [];
+    }
+    
+    const yearData: { [key: string]: { normal: number; risk: number } } = {};
+    
+    const validStudents = realtimeFilteredStudents.filter(student => {
+      if (!student) return false;
+      if (!student.year || typeof student.year !== 'number') return false;
+      return true;
+    });
+    
+    validStudents.forEach(student => {
+      const year = student.year.toString();
+      if (!yearData[year]) {
+        yearData[year] = { normal: 0, risk: 0 };
+      }
+      
+      if (student.risk_status === 'Normal') {
+        yearData[year].normal++;
+      } else if (student.risk_status === 'Risk') {
+        yearData[year].risk++;
+      }
+    });
+    
+    return Object.entries(yearData).map(([year, data]) => ({
+      name: year,
+      "คนที่มีสถานะ Normal": data.normal,
+      "คนที่มีสถานะ Risk": data.risk
+    }));
+  }, [realtimeFilteredStudents]);
 
   // Handle year filter changes
   const handleYearChange = (year: number) => {
@@ -215,6 +341,8 @@ const ListUserTeacher: React.FC = () => {
     const department = searchParams.get("department");
     if (department) {
       console.log("🔍 Department Code from URL:", department);
+      // Reset search term when department changes
+      setSearchTerm("");
       // Fetch students for the department
       fetchStudentsByDepartment(department);
     }
@@ -234,6 +362,8 @@ const ListUserTeacher: React.FC = () => {
     if (filteredStudents.length > 0) {
       console.log("🔍 [COMPONENT] First student data:", filteredStudents[0]);
       console.log("🔍 [COMPONENT] Student keys:", Object.keys(filteredStudents[0]));
+      console.log("🔍 [COMPONENT] Username:", filteredStudents[0].username);
+      console.log("🔍 [COMPONENT] User ID:", filteredStudents[0].user_id);
     }
   }, [filteredStudents, loading, error, selectedYears, selectedStatuses]);
 
@@ -294,13 +424,29 @@ const ListUserTeacher: React.FC = () => {
 
         {/* Search Bar */}
         <div className="flex justify-center w-full mb-4">
-          <Searchbar onSearch={handleSearch} />
+          <Searchbar 
+            onSearch={handleSearch} 
+            value={searchTerm}
+            onChange={setSearchTerm}
+          />
         </div>
 
         {/* Student List Card */}
-        <CustomCard className="p-6 mb-8" width={"100%"} minHeight={"500px"}>
+        <CustomCard className="p-6 mb-8" width={"100%"} minHeight={"700px"}>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">รายชื่อนิสิต</h2>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800">รายชื่อนิสิต</h2>
+              {searchTerm.trim() ? (
+                <p className="text-sm text-blue-600 mt-1">
+                  แสดง {realtimeFilteredStudents.length} จาก {filteredStudents.length} คน
+                  <span className="text-gray-500 ml-2">(ค้นหา: "{searchTerm}")</span>
+                </p>
+              ) : (
+                <p className="text-sm text-gray-600 mt-1">
+                  แสดงทั้งหมด {filteredStudents.length} คน
+                </p>
+              )}
+            </div>
             <div className="flex space-x-6">
               {/* Year Filter */}
               <Box className="flex items-center space-x-2">
@@ -401,19 +547,23 @@ const ListUserTeacher: React.FC = () => {
                 <p className="text-gray-600">{error}</p>
               </div>
             </div>
-          ) : filteredStudents.length === 0 ? (
+          ) : realtimeFilteredStudents.length === 0 ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="text-gray-400 text-6xl mb-4">📋</div>
-                <p className="text-gray-600 text-lg">ไม่พบข้อมูลนิสิต</p>
-                <p className="text-gray-500 text-sm">กรุณาตรวจสอบสาขาที่เลือก</p>
+                <p className="text-gray-600 text-lg">
+                  {searchTerm.trim() ? `ไม่พบข้อมูลนิสิตที่ตรงกับ "${searchTerm}"` : "ไม่พบข้อมูลนิสิต"}
+                </p>
+                <p className="text-gray-500 text-sm">
+                  {searchTerm.trim() ? "ลองค้นหาด้วยคำอื่น" : "กรุณาตรวจสอบสาขาที่เลือก"}
+                </p>
               </div>
             </div>
           ) : (
             <TableRedesign
               columns={columns}
-              rows={filteredStudents}
-              height={400}
+              rows={realtimeFilteredStudents}
+              height={600}
               width="100%"
               getRowId={(row: any) => {
                 // ✅ Handle missing student_id
@@ -431,7 +581,8 @@ const ListUserTeacher: React.FC = () => {
                 // ✅ Final fallback
                 return `student-${Math.random().toString(36).substr(2, 9)}`;
               }}
-              initialPageSize={10}
+              initialPageSize={50}
+              pageSizeOptions={[25, 50, 100, 200]}
             />
           )}
         </CustomCard>
@@ -440,30 +591,61 @@ const ListUserTeacher: React.FC = () => {
         <CustomCard className="p-6" width={"100%"} minHeight={"400px"}>
           <h2 className="text-xl font-semibold text-gray-800 text-center mb-6">
             สรุปข้อมูลของสาขา
+            {searchTerm.trim() ? (
+              <span className="text-sm text-blue-600 ml-2">
+                (ค้นหา: "{searchTerm}")
+              </span>
+            ) : (
+              <span className="text-sm text-gray-600 ml-2">
+                (แสดงทั้งหมด)
+              </span>
+            )}
           </h2>
           
           <div className="grid grid-cols-2 gap-8">
             {/* Donut Chart */}
             <CustomCard className="p-6" width={"100%"} minHeight={"300px"}>
-              <h3 className="text-lg font-semibold text-gray-700 mb-4">สถานะนิสิต</h3>
+              <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                สถานะนิสิต
+                {searchTerm.trim() ? (
+                  <span className="text-sm text-blue-600 ml-2">
+                    (ค้นหา: "{searchTerm}")
+                  </span>
+                ) : (
+                  <span className="text-sm text-gray-600 ml-2">
+                    (แสดงทั้งหมด)
+                  </span>
+                )}
+              </h3>
               <DonutChart
-                data={donutChartData}
+                data={realtimeDonutChartData}
                 height={250}
                 outerRadius={90}
                 innerRadius={50}
                 showLegend={true}
                 legendPosition="right"
                 showTotal={true}
-                centerValue={filteredStudents.length}
-                totalText={`รวมทั้งหมด ${filteredStudents.length} คน`}
+                centerValue={realtimeFilteredStudents.length}
+                totalText={`รวมทั้งหมด ${realtimeFilteredStudents.length} คน`}
               />
             </CustomCard>
 
             {/* Bar Chart */}
             <CustomCard className="p-6" width={"100%"} minHeight={"300px"}>
-              <h3 className="text-lg font-semibold text-gray-700 mb-4">ข้อมูลตามชั้นปี</h3>
+              <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                ข้อมูลตามชั้นปี
+                {searchTerm.trim() ? (
+                  <span className="text-sm text-blue-600 ml-2">
+                    (ค้นหา: "{searchTerm}")
+                  </span>
+                ) : (
+                  <span className="text-sm text-gray-600 ml-2">
+                    (แสดงทั้งหมด)
+                  </span>
+                )}
+              </h3>
               <GroupBarChart
-                data={barChartData}
+                data={realtimeBarChartData}
                 height={250}
                 yAxisLabel="จำนวนคน"
                 xAxisLabel="ชั้นปี"

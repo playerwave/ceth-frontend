@@ -1,4 +1,4 @@
-import { Student } from "../api/user.api";
+import { Student } from "../api/student.api";
 
 export interface UserState {
   students: Student[];

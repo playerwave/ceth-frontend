@@ -1,7 +1,8 @@
 // src/stores/mapper/user.mapper.ts
 
-import { ApiStudent, ApiDepartment, Student } from "../api/user.api";
-import { Department } from "../../types/department.type";
+import { ApiStudent, ApiDepartment } from "@/stores/api/student.api";
+import { Department } from "@/types/department.type";
+import { Student } from "@/types/student.type";
 
 /**
  * แปลง ApiStudent → Student (ใช้ใน React & store)
@@ -10,6 +11,7 @@ export function mapApiToStudent(apiStudent: ApiStudent): Student {
   return {
     student_id: apiStudent.student_id,
     user_id: apiStudent.user_id,
+    username: apiStudent.username,
     first_name: apiStudent.first_name,
     last_name: apiStudent.last_name,
     first_name_tha: apiStudent.first_name_tha,
