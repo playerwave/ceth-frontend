@@ -8,7 +8,7 @@ import {
 } from "@hello-pangea/dnd";
 import { Plus } from "lucide-react";
 import { TextField } from "@mui/material";
-import Section from "../create-assessment/components/Section";
+import Section from "../create-assessment/components/section";
 import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore";
 import Button from "../../../../components/Button";
 import assessmentService from "../../../../service/Teacher/assessment.service";

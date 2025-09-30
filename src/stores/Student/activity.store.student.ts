@@ -1,7 +1,7 @@
 // src/stores/activityStore.ts
 import { create } from "zustand";
 import { ActivityState } from "../state/activity.state";
-import activityService from "../../service/Student/activity.service.student";
+import activityService from "../../service/Student/activity.service";
 // import { Activity } from "../../types/model";
 
 export const useActivityStore = create<ActivityState>((set, get) => ({

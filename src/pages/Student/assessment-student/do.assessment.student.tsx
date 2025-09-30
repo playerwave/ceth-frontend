@@ -4,10 +4,10 @@ import Button from "../../../components/Button";
 import { useAssessmentStore } from "../../../stores/Student/assessment.store.student";
 import { AssessmentResponse } from "../../../types/assessment/assessment.type";
 
-import SatisfactionQuestions from "./components/SatisfactionQuestions";
-import MultipleChoice from "./components/MultipleChoice";
-import ChoiceAnswer from "./components/ChoiceAnswer";
-import OpenEndedQuestion from "./components/OpenEndedQuestion";
+import SatisfactionQuestions from "./components/satisfactionQuestions";
+import MultipleChoice from "./components/multipleChoice";
+import ChoiceAnswer from "./components/choiceAnswer";
+import OpenEndedQuestion from "./components/openEndedQuestion";
 
 function AssessmentStudent() {
   const { activityId } = useParams<{ activityId?: string }>();

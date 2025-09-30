@@ -8,7 +8,7 @@ import DonutChart from "../../../../components/Charts/DonutChart";
 import GroupBarChart from "../../../../components/Charts/GroupBarChart";
 import { GridColDef } from "@mui/x-data-grid";
 import { Chip, Checkbox, FormControlLabel, Box } from "@mui/material";
-import { useUserStore } from "../../../../stores/Teacher/user.store";
+import { useUserStore } from "../../../../stores/Teacher/student.store";
 
 const ListUserTeacher: React.FC = () => {
   const [searchParams] = useSearchParams();

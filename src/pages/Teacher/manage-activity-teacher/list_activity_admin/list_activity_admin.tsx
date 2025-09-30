@@ -7,7 +7,7 @@ import { Activity } from "../../../../types/model";
 import SearchBar from "../../../../components/Searchbar";
 import Loading from "../../../../components/Loading";
 import ActivityTablePage from "./ActivityTablePage";
-import Dialog2 from "../../../../components/Dialog2";
+import Dialog2 from "../../../../components/Dialog/Dialog2";
 import { AlertCircle } from "lucide-react";
 
 // 🔧 Custom CopyPlus icon แทน lucide-react

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Certificate } from "../../types/certificate/certificate.type";
-import certificateService from "../../service/Student/certificate.service.student";
+import certificateService from "../../service/Student/certificate.service";
 
 interface CertificateStore {
   selectedCertificate: Certificate | null;

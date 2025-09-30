@@ -13,9 +13,9 @@ import { useSecureLink } from "../../../../routes/secure/SecureRoute";
 import { Activity } from "../../../../types/model";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
-import roomService from "../../../../service/Teacher/room.service";
+import roomService from "../../../../service/Teacher/room.service.ts";
 import { Trash2 } from "lucide-react"; // ✅ เพิ่ม icon ถังขยะ
-import ConfirmDialog from "../../../../components/ConfirmDialog"; // ✅ เพิ่ม ConfirmDialog
+import ConfirmDialog from "../../../../components/Dialog/ConfirmDialog.tsx"; // ✅ เพิ่ม ConfirmDialog
 
 import {
   handleChange,

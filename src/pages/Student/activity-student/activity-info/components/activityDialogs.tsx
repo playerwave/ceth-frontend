@@ -1,5 +1,5 @@
-import Dialog1 from "../../../../../components/Dialog1";
-import Dialog2 from "../../../../../components/Dialog2";
+import Dialog1 from "../../../../../components/Dialog/Dialog1";
+import Dialog2 from "../../../../../components/Dialog/Dialog2";
 
 interface ActivityDialogsProps {
   activity: {

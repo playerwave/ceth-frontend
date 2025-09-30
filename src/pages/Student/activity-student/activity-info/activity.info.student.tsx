@@ -3,11 +3,11 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
 
 // Import components
-import ActivityHeader from "./components/ActivityHeader";
-import ActivityImage from "./components/ActivityImage";
-import ActivityDetails from "./components/ActivityDetails";
-import FoodSelector from "./components/FoodSelector";
-import ActivityFooter from "./components/ActivityFooter";
+import ActivityHeader from "./components/activityHeader";
+import ActivityImage from "./components/activityImage";
+import ActivityDetails from "./components/activityDetails";
+import FoodSelector from "./components/foodSelector";
+import ActivityFooter from "./components/activityFooter";
 import Loading from "../../../../components/Loading";
 import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 

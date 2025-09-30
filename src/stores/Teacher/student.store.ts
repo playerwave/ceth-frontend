@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Student } from "../api/user.api";
-import userService from "../../service/Teacher/user.service";
+import userService from "../../service/Teacher/student.service";
 
 interface UserStore {
   students: Student[];

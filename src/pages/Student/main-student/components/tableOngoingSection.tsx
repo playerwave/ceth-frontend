@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography, CircularProgress, Box } from "@mui/material";
-import TableListRow from "./TableListRow";
-import { getTableListColumn } from "./TableListColumn";
+import TableListRow from "./tableListRow";
+import { getTableListColumn } from "./tableListColumn";
 import { Activity } from "../../../../types/model";
 
 interface TableOngoingSectionProps {

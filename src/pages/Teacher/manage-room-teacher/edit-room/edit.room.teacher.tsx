@@ -6,7 +6,7 @@ import { useRoomStore } from "../../../../stores/Teacher/room.store";
 import { fetchRoomById } from "../../../../service/Teacher/room.service";
 import { Room } from "../../../../types/model";
 import Button from "../../../../components/Button";
-import Dialog2 from "../../../../components/Dialog2";
+import Dialog2 from "../../../../components/Dialog/Dialog2";
 import { toast } from "sonner";
 import Loading from "../../../../components/Loading";
 

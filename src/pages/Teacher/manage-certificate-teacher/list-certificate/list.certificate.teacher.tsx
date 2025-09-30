@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import Certificate from "./component/certificatetable";
-import Searchbar from "./component/Searchbar";
+import Certificate from "./component/certificateTable";
+import Searchbar from "@src/components/Searchbar";
 
 
 

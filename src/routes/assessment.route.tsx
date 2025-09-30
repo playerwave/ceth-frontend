@@ -2,7 +2,7 @@ import ListAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/li
 import CreateAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/create-assessment/create.assessment.teacher";
 import EditAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/edit-assessment/edit.assessment.teacher";
 
-import AssessmentStudent from "../pages/Student/assessment-student/assessmentStudent";
+import AssessmentStudent from "../pages/Student/assessment-student/do.assessment.student";
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
 import type { Roles } from "../types/model";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Dialog2 from "../../../../components/Dialog2";
+import Dialog2 from "../../../../components/Dialog/Dialog2";
 import { AlertCircle } from "lucide-react";
 
 const previewCertificateTeacher = () => {

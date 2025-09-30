@@ -12,7 +12,7 @@ import {
   FileCheck,
   Clock,
 } from "lucide-react";
-import ActivityDialogs from "./ActivityDialogs";
+import ActivityDialogs from "./activityDialogs";
 
 type Mode = "catalog" | "history";
 

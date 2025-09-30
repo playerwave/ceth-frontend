@@ -8,7 +8,7 @@ import {
 } from "@/types/activity-report.type";
 import SingleAnswerResponseCard from "./assessmentr-response-report/SingleAnswerResponseCard";
 import MultipleAnswerResponseCard from "./assessmentr-response-report/MultipleAnswerResponseCard";
-import assessmentService from "@service/Teacher/assessment.service";
+import assessmentService from "@/service/Teacher/assessment.service";
 
 // ===== Types =====
 type Question = AssessmentQuestionData;
@@ -713,7 +713,7 @@ export default function AssessmentListCard() {
                 <p className="text-red-600 mt-2 text-sm">เกิดข้อผิดพลาด: {fullAssessmentError}</p>
               )}
             </div>
-            <div className="text-sm text-gray-400 mt-4 p-3 bg-gray-100 rounded">
+            {/* <div className="text-sm text-gray-400 mt-4 p-3 bg-gray-100 rounded">
               <p className="font-medium mb-2">Debug Information:</p>
               <div className="grid grid-cols-3 gap-4">
                 <div>
@@ -750,7 +750,7 @@ export default function AssessmentListCard() {
                   <p>Raw full assessment data: {JSON.stringify(fullAssessmentData, null, 2)}</p>
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
       </CustomCard>
@@ -760,7 +760,7 @@ export default function AssessmentListCard() {
   return (
     <div className="space-y-8">
       {/* Debug Information - แสดงข้อมูล debug เพื่อตรวจสอบ */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+      {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
         <h4 className="font-semibold text-blue-800 mb-2">Debug Information:</h4>
         <div className="text-sm text-blue-700">
           <p>Total groups found: {groupedQuestions.length}</p>
@@ -784,7 +784,7 @@ export default function AssessmentListCard() {
             </details>
           )}
         </div>
-      </div>
+      </div> */}
 
       {groupedQuestions.map((group) => (
         <CustomCard key={`group-${group.setNumberId}`} className="w-full p-6">

@@ -1,7 +1,7 @@
-import UserDepartmentTeacher from "../pages/Teacher/manage-user-teacher/user-department/user_department";
-import ListUserTeacher from "../pages/Teacher/manage-user-teacher/list-user-teacher/list.user.teacher";
-import CreateUserTeacher from "../pages/Teacher/manage-user-teacher/create-user-teacher/create.user.teacher";
-import UserInfoTeacher from "../pages/Teacher/manage-user-teacher/user-info-teacher/user.info.teacher"
+import UserDepartmentTeacher from "../pages/Teacher/manage-student-teacher/student-department/student.department";
+import ListUserTeacher from "../pages/Teacher/manage-student-teacher/list-student-teacher/list.student.teacher";
+import CreateUserTeacher from "../pages/Teacher/manage-student-teacher/create-student-teacher/create.student.teacher";
+import UserInfoTeacher from "../pages/Teacher/manage-student-teacher/student-info-teacher/student.info.teacher"
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 

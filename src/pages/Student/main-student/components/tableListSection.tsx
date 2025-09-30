@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Typography, CircularProgress, Box } from "@mui/material";
 // import Loading from "../../../../components/Loading";
 // import CustomCard from "../../../../components/Card";
-import TableListRow from "./TableListRow";
-import { getTableListColumn } from "./TableListColumn";
+import TableListRow from "./tableListRow";
+import { getTableListColumn } from "./tableListColumn";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
 import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 

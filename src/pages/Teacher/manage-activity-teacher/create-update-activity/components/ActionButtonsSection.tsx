@@ -1,6 +1,6 @@
 // components/AdminActivityForm/ActionButtonsSection.tsx
 import Button from "../../../../../components/Button";
-import ConfirmDialog from "../../../../../components/ConfirmDialog";
+import ConfirmDialog from "../../../../../components/Dialog/ConfirmDialog";
 import { useNavigate } from "react-router-dom";
 
 interface Props {

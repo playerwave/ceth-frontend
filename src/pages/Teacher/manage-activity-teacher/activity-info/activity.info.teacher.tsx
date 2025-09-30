@@ -9,12 +9,12 @@ import {
 } from "../../../../routes/secure/SecureRoute";
 
 import Loading from "../../../../components/Loading";
-import ActivityHeader from "./components/ActivityHeader";
-import ActivityImage from "./components/ActivityImage";
-import ActivityDetails from "./components/ActivityDetails";
-import FoodSelector from "./components/FoodSelector";
-import ActivityFooter from "./components/ActivityFooter";
-import ActivityUrl from "./components/ActivityUrl";
+import ActivityHeader from "./components/activityHeader";
+import ActivityImage from "./components/activityImage";
+import ActivityDetails from "./components/activityDetails";
+import FoodSelector from "./components/foodSelector";
+import ActivityFooter from "./components/activityFooter";
+import ActivityUrl from "./components/activityUrl";
 
 export default function ActivityInfoAdmin() {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
 import { useEffect, useState} from "react";
 import Searchbar from "../../../../components/Searchbar";
 import RoomToolbar from "./components/toolbar";
-import RoomTable from "./components/roomtable";
+import RoomTable from "./components/roomTable";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
 import Loading from "../../../../components/Loading";
 

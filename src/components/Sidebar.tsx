@@ -32,7 +32,7 @@ import {userRoutes} from "../routes/user.route"
 import {certificateRoutes} from "../routes/certificate.route"
 
 //import Components
-import Dialog2 from "./Dialog2";
+import Dialog2 from "./Dialog/Dialog2";
 
 
 interface SidebarProps {

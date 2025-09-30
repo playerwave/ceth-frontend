@@ -1,9 +1,9 @@
 import React from "react";
 import { Question } from "../type/type.create";
-import Choice from "../components/question/Choice";
-import CheckboxQuestion from "../components/question/Checkbox";
-import TextQuestion from "../components/question/Text";
-import RatingQuestion from "../components/question/Rating";
+import Choice from "./question/choice";
+import CheckboxQuestion from "./question/checkbox";
+import TextQuestion from "./question/text";
+import RatingQuestion from "./question/rating";
 
 interface QuestionRendererProps {
   sectionId: number;

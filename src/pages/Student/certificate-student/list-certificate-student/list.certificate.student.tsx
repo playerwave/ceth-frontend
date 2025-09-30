@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import SearchBar from "../list-certificate-student/components/SearchBar";
+import Searchbar from "@src/components/Searchbar";
 import Button from "../../../../components/Button";
 import { FolderUp } from "lucide-react";
 import CustomCard from "../../../../components/Card";
@@ -83,7 +83,7 @@ export default function ListCertificateStudent() {
       {/* Search bar */}
       <div className="flex justify-center w-full mb-4">
         {/* ถ้า SearchBar ของคุณมี debounceMs จะพิมพ์ลื่นขึ้น */}
-        <SearchBar onSearch={handleSearch} debounceMs={250} />
+        <Searchbar onSearch={handleSearch} />
       </div>
 
       {/* Action Button */}

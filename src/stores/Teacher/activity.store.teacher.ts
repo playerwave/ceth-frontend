@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Activity } from "../../types/model";
-import activityService from "../../service/Teacher/activity.service.teacher";
+import activityService from "../../service/Teacher/activity.service";
 
 interface ActivityStore {
   activities: Activity[];

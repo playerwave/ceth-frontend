@@ -1,15 +1,15 @@
 import ListActivityTeacher from "../pages/Teacher/manage-activity-teacher/list_activity_admin/list_activity_admin";
 import CreateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create-update-activity/create_activity_admin";
 import UpdateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create-update-activity/update_activity_admin";
-import ActivityInfoAdmin from "../pages/Teacher/manage-activity-teacher/activity-info/activity_info_admin";
+import ActivityInfoAdmin from "../pages/Teacher/manage-activity-teacher/activity-info/activity.info.teacher";
 import QrActivityTeacher from "../pages/Teacher/manage-activity-teacher/activity-qr-code/qr_activity_teacher";
 
 import ListActivityStudent from "../pages/Student/activity-student/list_activity_studen/list_activity_student";
-import ActivityInfoStudent from "../pages/Student/activity-student/activity-info/activity_info_student";
-import ActivityCheckInOutStudent from "../pages/Student/activity-student/activity-checkin-checkout/activity_checkinout_student";
+import ActivityInfoStudent from "../pages/Student/activity-student/activity-info/activity.info.student";
+import ActivityCheckInOutStudent from "../pages/Student/activity-student/activity-checkin-checkout/activity.checkinout.student";
 
 import ActivityListVisitor from "../pages/visitor/activity-list/visiter";
-import ActivityInfoVisitor from "../pages/visitor/activity-info/activity_info_visitor";
+import ActivityInfoVisitor from "../pages/visitor/activity-info/activity.info.visitor";
 
 import type { Roles } from "../types/model";
 import { ProtectionLevel } from "./secure/urlEnCryption";

@@ -3,12 +3,12 @@ import { Box } from "@mui/material";
 
 import { useActivityStore } from "../../../stores/Student/activity.store.student";
 import { useAuthStore } from "../../../stores/Visitor/auth.store";
-import SoftHardSkillCards from "../main-student/components/SoftHardSkillCards";
-import BarChartSection from "../main-student/components/BarChartSection";
-import TableActivitySection from "../main-student/components/TableListSection";
-import TableOngoingSection from "../main-student/components/TableOngoingSection";
-import ActivityTabs from "../main-student/components/ActivityTabs"; // ✅ Tabs
-import TablePendingEvaluation from "./components/TablePendingEvaluation";
+import SoftHardSkillCards from "./components/softHardSkillCards";
+import BarChartSection from "./components/barChartSection";
+import TableActivitySection from "./components/tableListSection";
+import TableOngoingSection from "./components/tableOngoingSection";
+import ActivityTabs from "./components/activityTabs"; // ✅ Tabs
+import TablePendingEvaluation from "./components/tablePendingEvaluation";
 import CustomCard from "../../../components/Card";
 
 const MainStudent = () => {

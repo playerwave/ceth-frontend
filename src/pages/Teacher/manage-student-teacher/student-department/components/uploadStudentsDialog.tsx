@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert } from '@mui/material';
 import Button from '../../../../../components/Button';
-import { useUserStore } from '../../../../../stores/Teacher/user.store';
+import { useUserStore } from '../../../../../stores/Teacher/student.store';
 
 interface UploadStudentsDialogProps {
   open: boolean;

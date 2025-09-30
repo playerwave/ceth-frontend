@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Plus, Trash2, Copy, GripVertical } from "lucide-react";
-import Question from "./Question";
+import Question from "./question";
 import { Section as SectionType } from "../type/type.create";
 import { useAssessmentStoreUi } from "../store/assessmentStore";
 import {

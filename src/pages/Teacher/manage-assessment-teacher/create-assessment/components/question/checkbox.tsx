@@ -1,5 +1,5 @@
 import React from "react";
-import OptionList from "../OptionList";
+import OptionList from "../optionList";
 import { Question } from "../../type/type.create";
 
 interface Props {

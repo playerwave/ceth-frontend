@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Assessment } from "../../types/assessment/assessment.type";
-import assessmentService from "../../service/Student/assessment.service.student";
+import assessmentService from "../../service/Student/assessment.service";
 
 interface AssessmentState {
   assessment: Assessment | null;

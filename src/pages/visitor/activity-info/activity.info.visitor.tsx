@@ -10,7 +10,7 @@ import FoodSelector from "./components/FoodSelector";
 import ActivityFooter from "./components/ActivityFooter"; // เปลี่ยนเป็น ActivityFooter
 import Loading from "../../../components/Loading";
 import ActivityLink from "./components/ActivityUrl";
-import { fetchActivities } from "../../../service/Student/activity.service.student";
+import { fetchActivities } from "../../../service/Student/activity.service";
 
 export default function ActivityInfoVisitor() {
   const { id: paramId } = useParams();

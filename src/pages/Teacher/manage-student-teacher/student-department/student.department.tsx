@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomCard from "../../../../components/Card";
-import DepartmentCard from "./components/DepartmentCard";
+import DepartmentCard from "./components/departmentCard";
 import Button from "../../../../components/Button";
-import UploadStudentsDialog from "./components/UploadStudentsDialog";
-import { useUserStore } from "../../../../stores/Teacher/user.store";
+import UploadStudentsDialog from "./components/uploadStudentsDialog";
+import { useUserStore } from "../../../../stores/Teacher/student.store";
 
 const UserDepartment: React.FC = () => {
   const navigate = useNavigate();

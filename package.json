@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite build --mode preview && vite preview --host",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "npx cypress open"
   },
   "dependencies": {
     "@cloudinary/react": "^1.14.1",
@@ -39,7 +40,7 @@
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
     "crypto-js": "^4.2.0",
-    "cypress": "^15.0.0",
+    "cypress": "^15.3.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",

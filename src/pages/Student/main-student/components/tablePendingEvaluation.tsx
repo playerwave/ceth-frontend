@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Typography } from "@mui/material";
 import Loading from "../../../../components/Loading";
 import { MainActivity } from "../../../../types/Student/type_main_activity_student";
-import TablePendingRow from "./TablePendingRow";
-import { getTablePendingColumn } from "./TablePendingColumn";
+import TablePendingRow from "./tablePendingRow";
+import { getTablePendingColumn } from "./tablePendingColumn";
 
 interface TablePendingEvaluationProps {
   activityLoading: boolean;

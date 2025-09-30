@@ -1,6 +1,6 @@
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Plus } from "lucide-react";
-import Section from "../create-assessment/components/Section";
+import Section from "./components/section";
 import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore";
 import Button from "../../../../components/Button";
 import assessmentService from "../../../../service/Teacher/assessment.service";

@@ -13,8 +13,8 @@ import { SecureRoute } from "./routes/secure/SecureRoute";
 import Login from "./pages/visitor/login/login";
 
 // main pages
-import Main from "./pages/Teacher/dashboard-teacher/main_teacher";
-import MainStudent from "./pages/Student/main-student/main_student";
+import Main from "./pages/Teacher/dashboard-teacher/main.teacher";
+import MainStudent from "./pages/Student/main-student/main.student";
 import TestCardPage from "./pages/Test/test_card";
 import TestQrAuth from "./pages/Test/test_qr_auth";
 
@@ -30,7 +30,7 @@ import {emailRoutes} from "./routes/email.route"
 
 // Visitor pages
 import VisitorActivityList from "./pages/visitor/activity-list/visiter";
-import ActivityCheckInOutStudent from "./pages/Student/activity-student/activity-checkin-checkout/activity_checkinout_student";
+import ActivityCheckInOutStudent from "./pages/Student/activity-student/activity-checkin-checkout/activity.checkinout.student";
 
 // auth store
 import { useAuthStore } from "./stores/Visitor/auth.store";

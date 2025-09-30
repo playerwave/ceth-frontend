@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Trash2, Copy, GripVertical } from "lucide-react";
 import { TextField, Select, MenuItem, FormControl } from "@mui/material";
-import QuestionRenderer from "./QuestionRenderer";
+import QuestionRenderer from "./questionRenderer";
 import { Question as QuestionType } from "../type/type.create";
 import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
 import { useAssessmentStoreUi } from "../store/assessmentStore";

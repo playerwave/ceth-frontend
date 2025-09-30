@@ -8,7 +8,7 @@ import { Food } from "../../../../types/model";
 import { updateFood, deleteFood } from "../../../../service/Teacher/food.service";
 import { useSearchParams } from "react-router-dom";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
-import Dialog2 from "../../../../components/Dialog2";
+import Dialog2 from "../../../../components/Dialog/Dialog2";
 import { toast } from "sonner";
 import Loading from "../../../../components/Loading";
 

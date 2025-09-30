@@ -1,6 +1,6 @@
 import * as React from "react";
 import { DataGrid, GridColDef, GridRowParams } from "@mui/x-data-grid";
-import CertificateActions from "./certificateactions";
+import CertificateActions from "./certificateActions";
 
 interface Activity {
   id: number;

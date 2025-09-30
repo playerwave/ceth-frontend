@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import Button from "../../../../components/Button";
 import { CalendarDays, Clock, Play } from "lucide-react";
-import Dialog2 from "../../../../components/Dialog2";
+import Dialog2 from "../../../../components/Dialog/Dialog2";
 
 interface Props {
   activity: any;
