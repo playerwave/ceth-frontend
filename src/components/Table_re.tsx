@@ -44,6 +44,7 @@ export interface TableRedesignProps {
   onRowDoubleClick?: (row: Activity) => void;
   handleStatusToggle?: (row: Activity) => void;
   initialPageSize?: number;
+  pageSizeOptions?: number[];
   getRowId?: (row: any) => string | number;
 }
 
@@ -56,6 +57,7 @@ export default function TableRedesign({
   onRowDoubleClick,
   // handleStatusToggle,
   initialPageSize = 10,
+  pageSizeOptions = [10, 20, 50],
   getRowId,
 }: TableRedesignProps) {
   // const navigate = useNavigate();
@@ -191,7 +193,7 @@ export default function TableRedesign({
             autoHeight={false}
             pagination
             hideFooterPagination={false}
-            pageSizeOptions={[10, 20, 50]}
+            pageSizeOptions={pageSizeOptions}
             initialState={{
               pagination: { paginationModel: { pageSize: initialPageSize, page: 0 } },
             }}
