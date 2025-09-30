@@ -11,9 +11,10 @@ const CalendarPage = () => {
     const { createSecureLink } = useSecureLink();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchActivities(); // โหลดกิจกรรมทั้งหมด
-    }, []);
+    // ✅ ลบ useEffect ออก เพราะข้อมูลถูก fetch แล้วจาก parent component
+    // useEffect(() => {
+    //     fetchActivities(); // โหลดกิจกรรมทั้งหมด
+    // }, []);
 
     // กรองเฉพาะกิจกรรมที่เป็น Public และมีวันเริ่ม
     // const publicEvents = activities

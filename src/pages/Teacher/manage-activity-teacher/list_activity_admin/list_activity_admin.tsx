@@ -8,7 +8,8 @@ import SearchBar from "../../../../components/Searchbar";
 import Loading from "../../../../components/Loading";
 import ActivityTablePage from "./ActivityTablePage";
 import Dialog2 from "../../../../components/Dialog/Dialog2";
-import { AlertCircle } from "lucide-react";
+import TabBar from "../../../../components/TabBar";
+import { AlertCircle, List, Calendar as CalendarIcon } from "lucide-react";
 
 // 🔧 Custom CopyPlus icon แทน lucide-react
 const CopyPlus = ({ className }: { className?: string }) => (
@@ -33,7 +34,7 @@ const CopyPlus = ({ className }: { className?: string }) => (
 
 import { useSecureLink } from "../../../../routes/secure/SecureRoute";
 import { isActivityValid, validatePrivateToPublic } from "./utils/activity";
-import Calendar from "../calendar-list-activity/calendar";
+import CalendarComponent from "../calendar-list-activity/calendar";
 
 const ListActivityTeacher: React.FC = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const ListActivityTeacher: React.FC = () => {
 
   useEffect(() => {
     fetchActivities();
-  }, [fetchActivities]);
+  }, []); // ✅ เปลี่ยนเป็น dependency array ว่าง
 
   const displayedActivities = searchResults ?? activities;
 
@@ -435,20 +436,22 @@ const ListActivityTeacher: React.FC = () => {
         )} */}
 
         <div className="flex flex-wrap justify-between items-center gap-2 mb-6 w-full">
-          <div className="flex space-x-4">
-            {(["list", "calendar"] as const).map((tab) => (
-              <button
-                key={tab}
-                className={`px-4 py-2 text-lg font-semibold ${activeTab === tab
-                    ? "text-[#1E3A8A] border-b-4 border-[#1E3A8A]"
-                    : "text-gray-500"
-                  }`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab === "list" ? "ลิสต์" : "ปฏิทิน"}
-              </button>
-            ))}
-          </div>
+          <TabBar
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as "list" | "calendar")}
+            tabs={[
+              {
+                id: "list",
+                label: "ลิสต์",
+                icon: <List className="w-4 h-4" />
+              },
+              {
+                id: "calendar", 
+                label: "ปฏิทิน",
+                icon: <CalendarIcon className="w-4 h-4" />
+              }
+            ]}
+          />
 
           <button
             className="bg-[#1E3A8A] text-white px-6 py-2 rounded-[12px] flex items-center gap-2 hover:brightness-90"
@@ -483,7 +486,7 @@ const ListActivityTeacher: React.FC = () => {
           />
         ) : (
           <div className="text-center text-gray-500 p-6">
-            <Calendar />
+            <CalendarComponent />
           </div>
         )}
 
