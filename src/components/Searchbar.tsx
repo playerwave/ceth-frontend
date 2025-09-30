@@ -3,19 +3,29 @@ import { Search } from "lucide-react";
 
 interface SearchBarProps {
   onSearch: (searchTerm: string) => void;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
-const Searchbar: React.FC<SearchBarProps> = ({ onSearch }) => {
+const Searchbar: React.FC<SearchBarProps> = ({ onSearch, value, onChange }) => {
   console.log("🔁 Searchbar mounted");
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [internalSearchTerm, setInternalSearchTerm] = useState("");
+  
+  // ✅ ใช้ external value ถ้ามี หรือใช้ internal state
+  const searchTerm = value !== undefined ? value : internalSearchTerm;
 
 const handleSearch = () => {
   const trimmed = searchTerm.trim();
-  if (trimmed !== "") {
-    onSearch(trimmed);
-    // ❌ อย่าเคลียร์ searchTerm
-    // setSearchTerm(""); ← อย่าใส่
+  onSearch(trimmed); // ✅ ส่งค่าไปเสมอ (ว่างหรือไม่ว่าง)
+};
+
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const newValue = e.target.value;
+  if (onChange) {
+    onChange(newValue); // ✅ ส่งค่าไปยัง parent
+  } else {
+    setInternalSearchTerm(newValue); // ✅ ใช้ internal state ถ้าไม่มี onChange
   }
 };
 
@@ -53,7 +63,7 @@ type="text"
 placeholder="Search ..."
 className="flex-1 bg-transparent outline-none text-gray-600 placeholder-gray-400 px-2 text-sm md:text-base"
  value={searchTerm}
-  onChange={(e) => setSearchTerm(e.target.value)}
+  onChange={handleInputChange}
   onKeyDown={handleKeyDown}
 />
 
