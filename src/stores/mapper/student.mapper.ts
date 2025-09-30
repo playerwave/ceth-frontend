@@ -21,7 +21,8 @@ export function mapApiToStudent(apiStudent: ApiStudent): Student {
     phone: apiStudent.phone,
     department: {
       department_id: apiStudent.department.department_id,
-      department_name: apiStudent.department.department_name,
+      department_name_tha: apiStudent.department.department_name_tha,
+      department_name_eng: apiStudent.department.department_name_eng,
       department_short_name: apiStudent.department.department_short_name,
       created_at: apiStudent.created_at,
       updated_at: apiStudent.updated_at,
@@ -49,7 +50,8 @@ export function mapApiToStudents(apiStudents: ApiStudent[]): Student[] {
 export function mapApiToDepartment(apiDepartment: ApiDepartment): Department {
   return {
     department_id: apiDepartment.department_id,
-    department_name: apiDepartment.department_name,
+    department_name_tha: apiDepartment.department_name_tha,
+    department_name_eng: apiDepartment.department_name_eng,
     department_short_name: apiDepartment.department_short_name,
   };
 }

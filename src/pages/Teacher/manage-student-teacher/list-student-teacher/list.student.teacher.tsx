@@ -20,6 +20,9 @@ const ListUserTeacher: React.FC = () => {
   // Local search state
   const [searchTerm, setSearchTerm] = useState("");
   
+  // Department name state
+  const [departmentName, setDepartmentName] = useState("");
+  
   // User store
   const {
     students,
@@ -345,6 +348,15 @@ const ListUserTeacher: React.FC = () => {
       setSearchTerm("");
       // Fetch students for the department
       fetchStudentsByDepartment(department);
+      
+      // Set department name based on department code
+      const departmentNames: { [key: string]: string } = {
+        "SE": "วิศวกรรมซอฟต์แวร์",
+        "AAI": "ปัญญาประดิษฐ์ประยุกต์",
+        "CS": "วิทยาการคอมพิวเตอร์",
+        "IT": "เทคโนโลยีสารสนเทศ"
+      };
+      setDepartmentName(departmentNames[department] || department);
     }
   }, [searchParams, fetchStudentsByDepartment]);
 
@@ -406,17 +418,16 @@ const ListUserTeacher: React.FC = () => {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <h1 className="text-3xl font-bold text-black text-center mb-8">
-          จัดการนิสิต
-        </h1>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-black mb-2">
+            จัดการนิสิต สาขา {departmentName}
+          </h1>
+        </div>
 
         {/* Action Buttons */}
         <div className="flex justify-end items-center mb-4">
           <div className="flex space-x-3">
-            <Button bgColor="#1E3A8A" textColor="#FFFFFF">
-              Import
-            </Button>
-            <Button bgColor="#1E3A8A" textColor="#FFFFFF">
+            <Button bgColor="green" textColor="#FFFFFF">
               Export
             </Button>
           </div>
@@ -439,7 +450,6 @@ const ListUserTeacher: React.FC = () => {
               {searchTerm.trim() ? (
                 <p className="text-sm text-blue-600 mt-1">
                   แสดง {realtimeFilteredStudents.length} จาก {filteredStudents.length} คน
-                  <span className="text-gray-500 ml-2">(ค้นหา: "{searchTerm}")</span>
                 </p>
               ) : (
                 <p className="text-sm text-gray-600 mt-1">

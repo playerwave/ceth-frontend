@@ -13,7 +13,8 @@ export interface Student {
   phone?: string;
   department: {
     department_id: number;
-    department_name: string;
+    department_name_tha: string;
+    department_name_eng: string;
     department_short_name: string;
     created_at?: string;
     updated_at?: string;
