@@ -59,7 +59,11 @@ const ListActivityTeacher: React.FC = () => {
   } | null>(null);
 
   useEffect(() => {
-    fetchActivities();
+    // ✅ เพิ่มการตรวจสอบ loading state
+    if (!activityLoading) {
+      console.log("🔄 Fetching activities...");
+      fetchActivities();
+    }
   }, []); // ✅ เปลี่ยนเป็น dependency array ว่าง
 
   const displayedActivities = searchResults ?? activities;
@@ -464,17 +468,45 @@ const ListActivityTeacher: React.FC = () => {
         </div>
 
         {activityLoading ? (
-          <div className="fixed inset-0 flex justify-center ml-10 items-center bg-white bg-opacity-50 z-40">
+          <div className="fixed inset-0 flex flex-col justify-center items-center bg-white bg-opacity-50 z-40">
             <Loading />
+            <div className="mt-4 text-gray-600 text-center">
+              <p>กำลังโหลดกิจกรรม...</p>
+              <p className="text-sm text-gray-500 mt-2">
+                อาจใช้เวลานานเนื่องจากข้อมูลจำนวนมาก
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                หากใช้เวลานานเกิน 30 วินาที กรุณารีเฟรชหน้า
+              </p>
+            </div>
           </div>
         ) : activityError ? (
-          <p className="text-center text-red-500 p-4">
-            ❌ เกิดข้อผิดพลาด: {activityError}
-          </p>
+          <div className="text-center p-4">
+            <p className="text-red-500 mb-4">
+              ❌ เกิดข้อผิดพลาด: {activityError}
+            </p>
+            <button 
+              onClick={() => fetchActivities()}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              ลองใหม่
+            </button>
+          </div>
         ) : displayedActivities.length === 0 ? (
-          <p className="text-center text-gray-500 p-4">
-            📭 ไม่พบกิจกรรมที่ตรงกับการค้นหา
-          </p>
+          <div className="text-center p-4">
+            <p className="text-gray-500 mb-4">
+              📭 ไม่พบกิจกรรม
+            </p>
+            <p className="text-sm text-gray-400 mb-4">
+              อาจเป็นเพราะ Backend Server ไม่ทำงาน หรือไม่มีข้อมูลกิจกรรม
+            </p>
+            <button 
+              onClick={() => fetchActivities()}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              ลองโหลดใหม่
+            </button>
+          </div>
         ) : activeTab === "list" ? (
           <ActivityTablePage
             rows1={publicActivities}

@@ -70,44 +70,48 @@ export const useActivityStore = create<ActivityStore>((set) => ({
 
     set({ loading: true, error: null, activityLoading: true, activityError: null });
     
-    let retries = 3;
-    while (retries > 0) {
-      try {
-        const data = await activityService.fetchAllActivities();
-        
-        // ✅ ตรวจสอบข้อมูลที่ได้
-        if (!data || !Array.isArray(data)) {
-          console.warn("⚠️ Invalid data received from service:", data);
-          if (retries > 1) {
-            retries--;
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            continue;
-          }
-          set({ activities: [], loading: false, activityLoading: false });
-          return;
-        }
-
-        set({ activities: data, loading: false, activityLoading: false });
-        console.log(`✅ teacher fetchActivities: Retrieved ${data.length} activities`);
+    try {
+      // ✅ เพิ่ม timeout 30 วินาที
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 30000)
+      );
+      
+      const dataPromise = activityService.fetchAllActivities();
+      const data = await Promise.race([dataPromise, timeoutPromise]) as any;
+      
+      // ✅ ตรวจสอบข้อมูลที่ได้
+      if (!data || !Array.isArray(data)) {
+        console.warn("⚠️ Invalid data received from service:", data);
+        set({ activities: [], loading: false, activityLoading: false });
         return;
-      } catch (err) {
-        retries--;
-        console.error(`❌ fetchActivities error (retries left: ${retries}):`, err);
-        
-        if (retries === 0) {
-          const errorMessage = err instanceof Error ? err.message : "Failed to fetch activities";
-          set({ 
-            error: errorMessage, 
-            activityError: errorMessage,
-            loading: false, 
-            activityLoading: false 
-          });
-          return;
-        }
-        
-        // ✅ รอสักครู่ก่อนลองใหม่
-        await new Promise(resolve => setTimeout(resolve, 1000));
       }
+
+      set({ activities: data, loading: false, activityLoading: false });
+      console.log(`✅ teacher fetchActivities: Retrieved ${data.length} activities`);
+    } catch (err) {
+      console.error(`❌ fetchActivities error:`, err);
+      
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch activities";
+      
+      // ✅ ถ้าเป็น timeout หรือ network error ให้แสดงข้อมูลว่าง
+      if (errorMessage.includes('timeout') || errorMessage.includes('Network Error')) {
+        console.warn("⚠️ Using fallback empty data due to network issues");
+        set({ 
+          activities: [], 
+          loading: false, 
+          activityLoading: false,
+          error: null,
+          activityError: null
+        });
+        return;
+      }
+      
+      set({ 
+        error: errorMessage, 
+        activityError: errorMessage,
+        loading: false, 
+        activityLoading: false 
+      });
     }
   },
   //----------------------------------------------------------------

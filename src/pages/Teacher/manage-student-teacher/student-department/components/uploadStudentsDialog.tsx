@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert } from '@mui/material';
 import Button from '../../../../../components/Button';
 import { useUserStore } from '../../../../../stores/Teacher/student.store';
+import uploadReviewService from '../../../../../service/Teacher/uploadReview.service';
+import UploadReviewDialog from './uploadReviewDialog';
 
 interface UploadStudentsDialogProps {
   open: boolean;
@@ -20,10 +22,38 @@ const UploadStudentsDialog: React.FC<UploadStudentsDialogProps> = ({
   const [toastMessage, setToastMessage] = useState('');
   const [toastSeverity, setToastSeverity] = useState<'success' | 'error'>('success');
   
+  // Review dialog state
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [reviewData, setReviewData] = useState<any>(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  
+  // Upload loading state
+  const [uploadLoading, setUploadLoading] = useState(false);
+  
   const { uploadStudents, loading } = useUserStore();
 
   const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
+    // ตรวจสอบประเภทไฟล์
+    const allowedTypes = [
+      'application/vnd.ms-excel', // .xls
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'text/csv', // .csv
+      'application/csv' // .csv (alternative)
+    ];
+    
+    const allowedExtensions = ['.xls', '.xlsx', '.csv'];
+    const fileExtension = file.name.toLowerCase().split('.').pop();
+    
+    if (allowedTypes.includes(file.type) || allowedExtensions.includes('.' + fileExtension)) {
+      setSelectedFile(file);
+      setToastMessage(`เลือกไฟล์: ${file.name}`);
+      setToastSeverity('success');
+      setToastOpen(true);
+    } else {
+      setToastMessage('รองรับเฉพาะไฟล์ .xls, .xlsx, และ .csv เท่านั้น');
+      setToastSeverity('error');
+      setToastOpen(true);
+    }
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -49,6 +79,29 @@ const UploadStudentsDialog: React.FC<UploadStudentsDialogProps> = ({
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleFileSelect(e.target.files[0]);
+    }
+  };
+
+  const handleReview = async () => {
+    if (!selectedFile) {
+      setToastMessage('กรุณาเลือกไฟล์');
+      setToastSeverity('error');
+      setToastOpen(true);
+      return;
+    }
+
+    try {
+      setReviewLoading(true);
+      const reviewResult = await uploadReviewService.reviewUploadData(selectedFile);
+      setReviewData(reviewResult);
+      setReviewDialogOpen(true);
+    } catch (error) {
+      console.error('Error reviewing upload data:', error);
+      setToastMessage('ไม่สามารถตรวจสอบข้อมูลได้');
+      setToastSeverity('error');
+      setToastOpen(true);
+    } finally {
+      setReviewLoading(false);
     }
   };
 
@@ -78,6 +131,16 @@ const UploadStudentsDialog: React.FC<UploadStudentsDialogProps> = ({
       setToastMessage("เกิดข้อผิดพลาดในการอัปโหลด");
       setToastSeverity('error');
       setToastOpen(true);
+    }
+  };
+
+  const handleReviewConfirm = async () => {
+    setReviewDialogOpen(false);
+    setUploadLoading(true); // เริ่ม upload loading state
+    try {
+      await handleUpload();
+    } finally {
+      setUploadLoading(false); // หยุด upload loading state
     }
   };
 
@@ -133,6 +196,7 @@ const UploadStudentsDialog: React.FC<UploadStudentsDialogProps> = ({
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               onChange={handleFileInput}
               accept=".xlsx,.xls,.csv"
+              title="รองรับไฟล์ Excel (.xlsx, .xls) และ CSV (.csv)"
             />
             
             <label htmlFor="file-upload" className="cursor-pointer">
@@ -189,12 +253,12 @@ const UploadStudentsDialog: React.FC<UploadStudentsDialogProps> = ({
           ยกเลิก
         </Button>
         <Button 
-          onClick={handleUpload}
-          bgColor="#1E3A8A"
+          onClick={handleReview}
+          bgColor="#F59E0B"
           textColor="#FFFFFF"
-          disabled={!selectedFile || loading}
+          disabled={!selectedFile || reviewLoading || uploadLoading}
         >
-          {loading ? "กำลังอัปโหลด..." : "อัปโหลด"}
+          {reviewLoading ? 'กำลังตรวจสอบ...' : uploadLoading ? 'กำลังอัปโหลด...' : 'ตรวจสอบข้อมูล'}
         </Button>
       </DialogActions>
       
@@ -213,6 +277,15 @@ const UploadStudentsDialog: React.FC<UploadStudentsDialogProps> = ({
           {toastMessage}
         </Alert>
       </Snackbar>
+
+      {/* Upload Review Dialog */}
+      <UploadReviewDialog
+        open={reviewDialogOpen}
+        onClose={() => setReviewDialogOpen(false)}
+        onConfirm={handleReviewConfirm}
+        reviewData={reviewData}
+        loading={uploadLoading}
+      />
     </Dialog>
   );
 };
