@@ -7,6 +7,16 @@ import { Student } from "@/types/student.type";
 /**
  * แปลง ApiStudent → Student (ใช้ใน React & store)
  */
+function deriveYearFromUsername(username?: string): number | undefined {
+  if (!username || typeof username !== 'string' || username.length < 2) return undefined;
+  const prefix = username.substring(0, 2).trim();
+  if (prefix === '68') return 1;
+  if (prefix === '67') return 2;
+  if (prefix === '66') return 3;
+  if (prefix === '65') return 4;
+  return undefined;
+}
+
 export function mapApiToStudent(apiStudent: ApiStudent): Student {
   return {
     student_id: apiStudent.student_id,
@@ -27,7 +37,12 @@ export function mapApiToStudent(apiStudent: ApiStudent): Student {
       created_at: apiStudent.created_at,
       updated_at: apiStudent.updated_at,
     },
-    year: apiStudent.year,
+    // แสดงชั้นปีจาก grade_id → year → คำนวณจากรหัสนิสิต (สองหลักแรก)
+    year:
+      Number((apiStudent as any).grade_id) ||
+      Number(apiStudent.year) ||
+      deriveYearFromUsername(apiStudent.username) ||
+      1,
     status: apiStudent.status,
     risk_level: apiStudent.risk_level,
     risk_status: apiStudent.risk_status,

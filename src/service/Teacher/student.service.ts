@@ -6,6 +6,7 @@ import { Student } from "@/types/student.type";
 
 // Base path
 const TEACHER_USER_PATH = "/teacher/user-management";
+const TEACHER_ULTRA_OPTIMIZED_PATH = "/teacher/ultra-optimized";
 
 //--------------------- Fetch Students by Department -------------------------
 export const fetchStudentsByDepartment = async (departmentCode: string): Promise<Student[]> => {
@@ -204,7 +205,7 @@ export const uploadStudents = async (file: File): Promise<{ success: boolean; me
     
     // ✅ Upload file
     const response = await axiosInstance.post(
-      `${TEACHER_USER_PATH}/upload`,
+      `${TEACHER_ULTRA_OPTIMIZED_PATH}/upload-students`,
       formData,
       {
         headers: {
@@ -218,7 +219,7 @@ export const uploadStudents = async (file: File): Promise<{ success: boolean; me
     if (response.data && response.data.success) {
       return { 
         success: true, 
-        message: response.data.message || "อัปโหลดไฟล์สำเร็จ" 
+        message: response.data.message || "อัปโหลดไฟล์สำเร็จ"
       };
     } else {
       return { 
@@ -243,6 +244,86 @@ export const uploadStudents = async (file: File): Promise<{ success: boolean; me
 };
 //----------------------------------------------------------------
 
+//--------------------- Update Grade Year -------------------------
+export const updateGradeYear = async (): Promise<{ success: boolean; message: string; data?: any }> => {
+  try {
+    console.log("🔄 [SERVICE] Updating grade year...");
+    
+    const response = await axiosInstance.post(
+      `${TEACHER_USER_PATH}/update-grade-year`
+    );
+    
+    console.log("🔍 [SERVICE] Update grade year response:", response.data);
+    
+    if (response.data && response.data.success) {
+      return { 
+        success: true, 
+        message: response.data.message || "อัพเดทชั้นปีสำเร็จ",
+        data: response.data.data
+      };
+    } else {
+      return { 
+        success: false, 
+        message: response.data.message || "อัพเดทชั้นปีไม่สำเร็จ" 
+      };
+    }
+  } catch (error) {
+    console.error("❌ [SERVICE] Update grade year error:", error);
+    
+    if (error instanceof Error) {
+      if (error.message.includes('Network Error')) {
+        return { success: false, message: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้" };
+      }
+      if (error.message.includes('timeout')) {
+        return { success: false, message: "การอัพเดทใช้เวลานานเกินไป" };
+      }
+    }
+    
+    return { success: false, message: "เกิดข้อผิดพลาดในการอัพเดทชั้นปี" };
+  }
+};
+//----------------------------------------------------------------
+
+//--------------------- Rollback Grade Year -------------------------
+export const rollbackGradeYear = async (): Promise<{ success: boolean; message: string; data?: any }> => {
+  try {
+    console.log("🔄 [SERVICE] Rolling back grade year...");
+    
+    const response = await axiosInstance.post(
+      `${TEACHER_USER_PATH}/rollback-grade-year`
+    );
+    
+    console.log("🔍 [SERVICE] Rollback grade year response:", response.data);
+    
+    if (response.data && response.data.success) {
+      return { 
+        success: true, 
+        message: response.data.message || "ย้อนกลับชั้นปีสำเร็จ",
+        data: response.data.data
+      };
+    } else {
+      return { 
+        success: false, 
+        message: response.data.message || "ย้อนกลับชั้นปีไม่สำเร็จ" 
+      };
+    }
+  } catch (error) {
+    console.error("❌ [SERVICE] Rollback grade year error:", error);
+    
+    if (error instanceof Error) {
+      if (error.message.includes('Network Error')) {
+        return { success: false, message: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้" };
+      }
+      if (error.message.includes('timeout')) {
+        return { success: false, message: "การย้อนกลับใช้เวลานานเกินไป" };
+      }
+    }
+    
+    return { success: false, message: "เกิดข้อผิดพลาดในการย้อนกลับชั้นปี" };
+  }
+};
+//----------------------------------------------------------------
+
 //--------------------- Export Service -----------------------------
 // เป็นการทำ Object literal เพื่อรวมฟังก์ชันทั้งหมดที่เกี่ยวข้องกับ user management
 const userService = {
@@ -251,6 +332,8 @@ const userService = {
   fetchAllDepartments,
   searchStudents,
   uploadStudents,
+  updateGradeYear,
+  rollbackGradeYear,
 };
 //----------------------------------------------------------------
 

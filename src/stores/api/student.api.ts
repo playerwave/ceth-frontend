@@ -24,7 +24,9 @@ export interface ApiStudent {
     department_name_eng: string;
     department_short_name: string;
   };
-  year: number;
+  // บาง backend อาจส่งทั้ง year และ/หรือ grade_id มา
+  year?: number;
+  grade_id?: number;
   status: "Normal" | "Risk";
   risk_level: number;
   risk_status: "Normal" | "Risk";

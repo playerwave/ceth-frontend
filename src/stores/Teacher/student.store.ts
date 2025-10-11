@@ -22,6 +22,8 @@ interface UserStore {
   filterStudentsByStatus: (statuses: string[]) => void;
   clearFilters: () => void;
   uploadStudents: (file: File) => Promise<{ success: boolean; message: string }>;
+  updateGradeYear: () => Promise<{ success: boolean; message: string; data?: any }>;
+  rollbackGradeYear: () => Promise<{ success: boolean; message: string; data?: any }>;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -67,21 +69,17 @@ export const useUserStore = create<UserStore>((set, get) => ({
         console.log("🔍 [STORE] First 3 students data structure:", data.slice(0, 3));
         console.log("🔍 [STORE] Sample student keys:", data[0] ? Object.keys(data[0]) : 'No data');
         
-        // ✅ Filter out students with invalid data and fix missing data
+        // ✅ Normalize data from backend: derive year from grade_id, fix missing values
         const validStudents = data.filter(student => {
           if (!student) {
             console.warn("⚠️ [STORE] Null student found");
             return false;
           }
           
-          // ✅ Fix missing year - use random year 1-4 if undefined
-          if (!student.year || typeof student.year !== 'number') {
-            console.warn("⚠️ [STORE] Invalid year, setting random:", { 
-              student_id: student.student_id, 
-              original_year: student.year, 
-              yearType: typeof student.year 
-            });
-            student.year = Math.floor(Math.random() * 4) + 1; // Random year 1-4
+          // ✅ ให้ mapper เป็นแหล่งความจริงของ year
+          // หากปีไม่เป็นตัวเลขจริง ๆ ค่อยพยายามอิงจาก grade_id
+          if (typeof (student as any).year !== 'number') {
+            student.year = Number((student as any).grade_id) || 1;
           }
           
           // ✅ Fix missing risk_status - use default value 'Normal' if undefined
@@ -227,13 +225,13 @@ export const useUserStore = create<UserStore>((set, get) => ({
       firstStudent: sourceData[0]
     });
     
-    // ✅ Filter out students with invalid data and fix missing data
+    // ✅ Normalize: ใช้ year จาก mapper; ถ้าไม่ใช่ตัวเลขค่อยอิงจาก grade_id และตั้งค่า risk_status หากว่าง
     const validStudents = sourceData.filter(student => {
       if (!student) return false;
       
-      // ✅ Fix missing year - use random year 1-4 if undefined
-      if (!student.year || typeof student.year !== 'number') {
-        student.year = Math.floor(Math.random() * 4) + 1; // Random year 1-4
+      // ✅ อย่าทับ year ที่ mapper คำนวณมาแล้ว
+      if (typeof (student as any).year !== 'number') {
+        student.year = Number((student as any).grade_id) || 1;
       }
       
       // ✅ Fix missing risk_status - use default value 'Normal' if undefined
@@ -277,13 +275,13 @@ export const useUserStore = create<UserStore>((set, get) => ({
     const { students, searchResults, selectedYears } = get();
     const sourceData = searchResults || students;
     
-    // ✅ Filter out students with invalid data and fix missing data
+    // ✅ Normalize: ใช้ year จาก mapper; ถ้าไม่ใช่ตัวเลขค่อยอิงจาก grade_id และตั้งค่า risk_status หากว่าง
     const validStudents = sourceData.filter(student => {
       if (!student) return false;
       
-      // ✅ Fix missing year - use random year 1-4 if undefined
-      if (!student.year || typeof student.year !== 'number') {
-        student.year = Math.floor(Math.random() * 4) + 1; // Random year 1-4
+      // ✅ อย่าทับ year ที่ mapper คำนวณมาแล้ว
+      if (typeof (student as any).year !== 'number') {
+        student.year = Number((student as any).grade_id) || 1;
       }
       
       // ✅ Fix missing risk_status - use default value 'Normal' if undefined
@@ -336,6 +334,80 @@ export const useUserStore = create<UserStore>((set, get) => ({
       const errorMessage = error instanceof Error ? error.message : "ไม่สามารถอัปโหลดไฟล์ได้";
       set({ loading: false, error: errorMessage });
       return { success: false, message: errorMessage };
+    }
+  },
+  //----------------------------------------------------------------
+
+  //--------------------- Update Grade Year -------------------------
+  updateGradeYear: async () => {
+    console.log("🔄 [STORE] Updating grade year...");
+    set({ loading: true, error: null });
+    
+    try {
+      const result = await userService.updateGradeYear();
+      
+      if (result.success) {
+        console.log("✅ [STORE] Grade year update successful:", result.message);
+        console.log("📊 [STORE] Update data:", result.data);
+        set({ loading: false });
+        return { 
+          success: true, 
+          message: result.message,
+          data: result.data
+        };
+      } else {
+        console.error("❌ [STORE] Grade year update failed:", result.message);
+        set({ loading: false, error: result.message });
+        return { 
+          success: false, 
+          message: result.message 
+        };
+      }
+    } catch (error) {
+      console.error("❌ [STORE] Grade year update error:", error);
+      const errorMessage = error instanceof Error ? error.message : "ไม่สามารถอัพเดทชั้นปีได้";
+      set({ loading: false, error: errorMessage });
+      return { 
+        success: false, 
+        message: errorMessage 
+      };
+    }
+  },
+  //----------------------------------------------------------------
+
+  //--------------------- Rollback Grade Year -------------------------
+  rollbackGradeYear: async () => {
+    console.log("🔄 [STORE] Rolling back grade year...");
+    set({ loading: true, error: null });
+    
+    try {
+      const result = await userService.rollbackGradeYear();
+      
+      if (result.success) {
+        console.log("✅ [STORE] Grade year rollback successful:", result.message);
+        console.log("📊 [STORE] Rollback data:", result.data);
+        set({ loading: false });
+        return { 
+          success: true, 
+          message: result.message,
+          data: result.data
+        };
+      } else {
+        console.error("❌ [STORE] Grade year rollback failed:", result.message);
+        set({ loading: false, error: result.message });
+        return { 
+          success: false, 
+          message: result.message 
+        };
+      }
+    } catch (error) {
+      console.error("❌ [STORE] Grade year rollback error:", error);
+      const errorMessage = error instanceof Error ? error.message : "ไม่สามารถย้อนกลับชั้นปีได้";
+      set({ loading: false, error: errorMessage });
+      return { 
+        success: false, 
+        message: errorMessage 
+      };
     }
   },
   //----------------------------------------------------------------

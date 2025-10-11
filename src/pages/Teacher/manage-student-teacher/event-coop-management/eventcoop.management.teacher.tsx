@@ -5,8 +5,10 @@ import TableRedesign from "../../../../components/Table_re";
 import Button from "../../../../components/Button";
 import { GridColDef } from "@mui/x-data-grid";
 import { useEventCoopStore } from "../../../../stores/Teacher/eventCoop.store";
+import { useUserStore } from "../../../../stores/Teacher/student.store";
 import { EventCoop } from "../../../../types/eventcoop.type";
 import EditEventCoopDialog from "./components/editEventCoopDialog";
+import { toast } from "sonner";
 
 interface EventCoopManagementProps {
   departmentId?: number;
@@ -24,6 +26,8 @@ const EventCoopManagement: React.FC<EventCoopManagementProps> = ({
     fetchEventCoops, 
     getEventCoopsByDepartment 
   } = useEventCoopStore();
+  
+  const { updateGradeYear, rollbackGradeYear } = useUserStore();
   
   // Dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -46,10 +50,102 @@ const EventCoopManagement: React.FC<EventCoopManagementProps> = ({
     loadEventCoops();
   }, [departmentId, departmentName, getEventCoopsByDepartment, fetchEventCoops]);
 
+  // ฟังก์ชันสำหรับย้อนกลับชั้นปี
+  const handleRollbackGrade = async () => {
+    console.log("🔄 Starting grade year rollback...");
+    
+    try {
+      // แสดง loading toast
+      toast.loading("กำลังย้อนกลับชั้นปี...", { id: "rollback-grade" });
+      
+      const result = await rollbackGradeYear();
+      
+      if (result.success) {
+        toast.success(result.message, { id: "rollback-grade" });
+        console.log("✅ Grade year rollback successful:", result.data);
+        
+        // แสดงข้อมูลสรุป
+        if (result.data) {
+          const { gradeRollback, studentUpdate, summary } = result.data;
+          console.log("📊 Rollback Summary:", {
+            gradesRolledBack: summary.gradesRolledBack,
+            studentsUpdated: summary.studentsUpdated,
+            totalProcessed: summary.totalProcessed
+          });
+          
+          // แสดง toast แสดงข้อมูลสรุป
+          toast.success(
+            `ย้อนกลับเสร็จสิ้น: ย้อนกลับชั้นปี ${summary.gradesRolledBack} ระดับ, นิสิต ${summary.studentsUpdated}/${summary.totalProcessed} คน`,
+            { duration: 5000 }
+          );
+        }
+
+        // 🔄 Refresh Event Coop data หลังจากย้อนกลับชั้นปี
+        console.log("🔄 Refreshing Event Coop data after rollback...");
+        try {
+          await getEventCoopsByDepartment(departmentId);
+          console.log("✅ Event Coop data refreshed successfully");
+        } catch (refreshError) {
+          console.error("❌ Error refreshing Event Coop data:", refreshError);
+          // ไม่ต้องแสดง error toast เพราะการ refresh เป็น optional
+        }
+      } else {
+        toast.error(result.message, { id: "rollback-grade" });
+        console.error("❌ Grade year rollback failed:", result.message);
+      }
+    } catch (error) {
+      console.error("❌ Grade year rollback error:", error);
+      toast.error("เกิดข้อผิดพลาดในการย้อนกลับชั้นปี", { id: "rollback-grade" });
+    }
+  };
+
   // ฟังก์ชันสำหรับอัพเดทชั้นปี
-  const handleUpdateGrade = () => {
-    console.log("อัพเดทชั้นปี");
-    // TODO: เพิ่ม logic สำหรับอัพเดทชั้นปี
+  const handleUpdateGrade = async () => {
+    console.log("🔄 Starting grade year update...");
+    
+    try {
+      // แสดง loading toast
+      toast.loading("กำลังอัพเดทชั้นปี...", { id: "update-grade" });
+      
+      const result = await updateGradeYear();
+      
+      if (result.success) {
+        toast.success(result.message, { id: "update-grade" });
+        console.log("✅ Grade year update successful:", result.data);
+        
+        // แสดงข้อมูลสรุป
+        if (result.data) {
+          const { gradeUpdate, studentUpdate, summary } = result.data;
+          console.log("📊 Update Summary:", {
+            gradesUpdated: summary.gradesUpdated,
+            studentsUpdated: summary.studentsUpdated,
+            totalProcessed: summary.totalProcessed
+          });
+          
+          // แสดง toast แสดงข้อมูลสรุป
+          toast.success(
+            `อัพเดทเสร็จสิ้น: อัพเดทชั้นปี ${summary.gradesUpdated} ระดับ, นิสิต ${summary.studentsUpdated}/${summary.totalProcessed} คน`,
+            { duration: 5000 }
+          );
+        }
+
+        // 🔄 Refresh Event Coop data หลังจากอัพเดทชั้นปี
+        console.log("🔄 Refreshing Event Coop data after update...");
+        try {
+          await getEventCoopsByDepartment(departmentId);
+          console.log("✅ Event Coop data refreshed successfully");
+        } catch (refreshError) {
+          console.error("❌ Error refreshing Event Coop data:", refreshError);
+          // ไม่ต้องแสดง error toast เพราะการ refresh เป็น optional
+        }
+      } else {
+        toast.error(result.message, { id: "update-grade" });
+        console.error("❌ Grade year update failed:", result.message);
+      }
+    } catch (error) {
+      console.error("❌ Grade year update error:", error);
+      toast.error("เกิดข้อผิดพลาดในการอัพเดทชั้นปี", { id: "update-grade" });
+    }
   };
 
 
@@ -208,15 +304,26 @@ const EventCoopManagement: React.FC<EventCoopManagementProps> = ({
           <h2 className="text-2xl font-semibold text-gray-800">
             กำหนดการณ์ไปสหกิจ สาขา {departmentName}
           </h2>
-          <Button
-            onClick={handleUpdateGrade}
-            bgColor="#1E3A8A"
-            textColor="#FFFFFF"
-            width="auto"
-            className="px-4 py-2"
-          >
-            อัพเดทชั้นปี
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={handleRollbackGrade}
+              bgColor="#DC2626"
+              textColor="#FFFFFF"
+              width="auto"
+              className="px-4 py-2"
+            >
+              ย้อนกลับชั้นปี
+            </Button>
+            <Button
+              onClick={handleUpdateGrade}
+              bgColor="#1E3A8A"
+              textColor="#FFFFFF"
+              width="auto"
+              className="px-4 py-2"
+            >
+              อัพเดทชั้นปี
+            </Button>
+          </div>
         </div>
         
         {loading ? (
