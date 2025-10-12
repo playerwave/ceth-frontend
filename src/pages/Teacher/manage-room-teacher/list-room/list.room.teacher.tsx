@@ -21,7 +21,7 @@ const ListRoomAdmin = () => {
 
   useEffect(() => {
   console.log("🔄 Searchbar state updated:", searchTerm);
-}, [searchTerm]);
+  }, [searchTerm]);
 
 
   useEffect(() => {
@@ -63,22 +63,24 @@ const ListRoomAdmin = () => {
     new Set(rooms.map((r) => parseInt(r.floor)))
   ).sort((a, b) => a - b);
 
-  // const filteredRooms = rooms.filter((room) => {
-  //   const floorNum = parseInt(room.floor);
-  //   const matchesFloor = floorFilter === "all" || floorNum === floorFilter;
-  //   const matchesSearch = room.room_name
-  //     .toLowerCase()
-  //     .includes(searchTerm.toLowerCase());
-  //   return matchesFloor && matchesSearch;
-  // });
+  // ✅ Filter ห้องตามชั้นและคำค้นหา
+  const filteredRooms = rooms.filter((room) => {
+    const floorNum = parseInt(room.floor);
+    const matchesFloor = floorFilter === "all" || floorNum === floorFilter;
+    const matchesSearch = room.room_name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    return matchesFloor && matchesSearch;
+  });
 
-  // const mappedRooms = filteredRooms.map((room) => {
-  //   const building = buildings.find(b => b.building_id === room.building_id);
-  //   return {
-  //     ...room,
-  //     building_name: building?.building_name ?? "ไม่พบชื่ออาคาร"
-  //   };
-  // });
+  // ✅ Map ข้อมูล building เข้ากับห้อง
+  const mappedRooms = filteredRooms.map((room) => {
+    const building = buildings.find(b => b.building_id === room.building_id);
+    return {
+      ...room,
+      building_name: building?.building_name ?? "ไม่พบชื่ออาคาร"
+    };
+  });
 
   // ✅ Loading component
   if (loading) {
@@ -127,18 +129,10 @@ const ListRoomAdmin = () => {
       <div className="bg-white p-6 shadow-2xl rounded-lg my-10 overflow-x-auto">
         <div className="flex justify-between items-center mb-4">
         <h2 className="text-left font-semibold text-black">
-  ห้องที่มีอยู่ในระบบ ({rooms.length} ห้อง)
+  ห้องที่มีอยู่ในระบบ ({mappedRooms.length} ห้อง)
 </h2>
         </div>
-        <RoomTable
-  data={rooms.map((room) => {
-    const building = buildings.find(b => b.building_id === room.building_id);
-    return {
-      ...room,
-      building_name: building?.building_name ?? "ไม่พบชื่ออาคาร"
-    };
-  })}
-/>
+        <RoomTable data={mappedRooms} />
       </div>
     </div>
   );
