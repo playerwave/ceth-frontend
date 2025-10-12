@@ -72,17 +72,29 @@ export const fetchAllStudents = async (): Promise<Student[]> => {
   try {
     console.log("📥 Fetching all students...");
     
-    const response = await axiosInstance.get<ApiStudent[]>(
+    const response = await axiosInstance.get<any>(
       `${TEACHER_USER_PATH}/students`
     );
     
-    // ✅ ตรวจสอบ response data
-    if (!response.data || !Array.isArray(response.data)) {
-      console.warn("⚠️ Invalid response data from API:", response.data);
+    console.log("🔍 Raw API response:", response.data);
+    
+    // ✅ Handle response structure from backend
+    let studentsData: ApiStudent[] = [];
+    
+    if (response.data && response.data.success && Array.isArray(response.data.data)) {
+      // Backend returns { success: true, data: [...], count: 1476 }
+      studentsData = response.data.data;
+      console.log(`📊 Backend returned ${studentsData.length} students`);
+    } else if (Array.isArray(response.data)) {
+      // Direct array response
+      studentsData = response.data;
+      console.log(`📊 Direct array response with ${studentsData.length} students`);
+    } else {
+      console.warn("⚠️ Invalid response structure from API:", response.data);
       return [];
     }
     
-    const students = mapApiToStudents(response.data);
+    const students = mapApiToStudents(studentsData);
     console.log(`✅ fetchAllStudents: Retrieved ${students.length} students`);
     return students;
   } catch (error) {

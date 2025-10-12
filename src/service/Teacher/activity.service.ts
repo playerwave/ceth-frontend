@@ -182,6 +182,66 @@ export const fetchEndActivities = async (): Promise<Activity[]> => {
 };
 //----------------------------------------------------------------
 
+//--------------------- Get Active Activity Years ------------------
+export const getActiveActivityYears = async (): Promise<number[]> => {
+  try {
+    console.log("📅 Fetching active activity years...");
+    const response = await axiosInstance.get<{ success: boolean; data: number[]; count: number }>(
+      `${TEACHER_ACTIVITY_PATH}/active-years`
+    );
+    console.log(`✅ Retrieved ${response.data.count} years:`, response.data.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("❌ getActiveActivityYears error:", error);
+    throw error;
+  }
+};
+//------------------------------------------------------------------
+
+//--------------------- Get Activity Summary -----------------------
+export interface ActivitySummaryItem {
+  activityId: number;
+  activityName: string;
+  startDate: string;
+  eventFormat: string;
+  registered: number;
+  attendedFull: number;
+  attendedPartial: number;
+}
+
+export const getActivitySummary = async (params: {
+  year: number;
+  month?: number;
+  quarter?: number | "all";
+}): Promise<ActivitySummaryItem[]> => {
+  try {
+    console.log("📊 Fetching activity summary with params:", params);
+    
+    const queryParams = new URLSearchParams({
+      year: params.year.toString()
+    });
+    
+    if (params.month !== undefined) {
+      queryParams.append('month', params.month.toString());
+    }
+    
+    if (params.quarter !== undefined) {
+      queryParams.append('quarter', params.quarter.toString());
+    }
+    
+    const response = await axiosInstance.get<{ success: boolean; data: ActivitySummaryItem[]; count: number }>(
+      `${TEACHER_ACTIVITY_PATH}/summary?${queryParams.toString()}`
+    );
+    
+    console.log(`✅ Retrieved ${response.data.count} activities for summary`);
+    return response.data.data;
+  } catch (error) {
+    console.error("❌ getActivitySummary error:", error);
+    throw error;
+  }
+};
+//------------------------------------------------------------------
+
 
 //--------------------- Export Service -----------------------------
 // เป็นนการทำ Object literal เพื่อรวมฟังก์ชันทั้งหมดที่เกี่ยวข้องกกับ activity
@@ -198,6 +258,8 @@ const activityService = {
   removeFoodFromActivity,
   deleteActivity, // ✅ เพิ่มฟังก์ชันลบกิจกรรม
   fetchEndActivities,
+  getActiveActivityYears, // ✅ ดึงปีที่มีกิจกรรม
+  getActivitySummary, // ✅ ดึงสรุปกิจกรรม
 };
 //------------------------------------------------------------------
 
