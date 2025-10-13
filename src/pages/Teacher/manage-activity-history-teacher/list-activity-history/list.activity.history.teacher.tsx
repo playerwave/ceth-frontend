@@ -4,6 +4,7 @@ import ActivityHistoryTable from "./activity.history.table";
 import Searchbar from "../../../../components/Searchbar";
 import ActivityFilterBar from "./components/activity.history.filter.bar";
 import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher"; // <-- เพิ่ม
+import Loading from "../../../../components/Loading";
 
 
 const ListActivityHistoryTeacher = () => {
@@ -150,10 +151,11 @@ const ListActivityHistoryTeacher = () => {
           isDialogOpen={confirmOpen}
         />
 
-        {loading && <p className="mt-4">⏳ กำลังโหลด...</p>}
-        {error && <p className="mt-4 text-red-600">❌ {error}</p>}
-
-        {!loading && !error && (
+        {loading ? (
+          <Loading />
+        ) : error ? (
+          <p className="mt-4 text-red-600">❌ {error}</p>
+        ) : (
           <div className="w-full">
             <ActivityHistoryTable rows1={filteredActivities}  />
           </div>

@@ -1,4 +1,4 @@
-import ListActivityTeacher from "../pages/Teacher/manage-activity-teacher/list_activity_admin/list_activity_admin";
+import ListActivityTeacher from "../pages/Teacher/manage-activity-teacher/list-activity/list.activity.teacher";
 import CreateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create-update-activity/create_activity_admin";
 import UpdateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create-update-activity/update_activity_admin";
 import ActivityInfoAdmin from "../pages/Teacher/manage-activity-teacher/activity-info/activity.info.teacher";

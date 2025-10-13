@@ -468,7 +468,7 @@ const ListActivityTeacher: React.FC = () => {
         </div>
 
         {activityLoading ? (
-          <div className="fixed inset-0 flex flex-col justify-center items-center bg-white bg-opacity-50 z-40">
+          <div className="flex flex-col justify-center items-center py-20">
             <Loading />
             <div className="mt-4 text-gray-600 text-center">
               <p>กำลังโหลดกิจกรรม...</p>

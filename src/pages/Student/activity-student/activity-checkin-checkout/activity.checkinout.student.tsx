@@ -4,6 +4,7 @@ import Card from "../../../../components/Card";
 import Button from "../../../../components/Button";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
 import confetti from "canvas-confetti";
+import Loading from "../../../../components/Loading";
 
 interface CheckInOutFormData {
   username: string;
@@ -148,18 +149,7 @@ export default function ActivityCheckInOutStudent() {
                      formData.password.trim();
 
   if (activityLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-md mx-auto px-4">
-          <Card>
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">กำลังโหลดข้อมูลกิจกรรม...</p>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!activity) {

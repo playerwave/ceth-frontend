@@ -13,6 +13,7 @@ import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore
 import Button from "../../../../components/Button";
 import assessmentService from "../../../../service/Teacher/assessment.service";
 import { useSetNumberStore } from "../../../../stores/Teacher/setNumberStore";
+import Loading from "../../../../components/Loading";
 
 const EditAssessmentTeacher = () => {
   const { id } = useParams<{ id: string }>();
@@ -147,6 +148,8 @@ const EditAssessmentTeacher = () => {
       setLoading(false);
     }
   };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="max-w-6xl mx-auto bg-gray-200 rounded-xl px-4 py-8">

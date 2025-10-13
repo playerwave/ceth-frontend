@@ -8,6 +8,7 @@ import SatisfactionQuestions from "./components/satisfactionQuestions";
 import MultipleChoice from "./components/multipleChoice";
 import ChoiceAnswer from "./components/choiceAnswer";
 import OpenEndedQuestion from "./components/openEndedQuestion";
+import Loading from "../../../components/Loading";
 
 function AssessmentStudent() {
   const { activityId } = useParams<{ activityId?: string }>();
@@ -155,11 +156,7 @@ function AssessmentStudent() {
   console.log("🔍 [AssessmentStudent] Current answers:", answers);
 
   if (loading) {
-    return (
-      <div className="ml-25 mr-5 flex justify-center items-center h-64">
-        <div className="text-lg">กำลังโหลดข้อมูล...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (error) {
