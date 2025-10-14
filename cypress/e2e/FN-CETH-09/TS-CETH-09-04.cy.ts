@@ -18,7 +18,7 @@ describe('FN-CETH-09 จัดการห้อง', () => {
     cy.get('[data-cy="toggle-sidebar"]')
       .should('exist')
       .click({ force: true });
-
+cy.wait(3000);
     cy.get('[data-cy="add-room-button"]').should('be.visible').click();
 
 

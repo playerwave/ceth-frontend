@@ -42,7 +42,7 @@ describe('FN-CETH-09 จัดการห้อง', () => {
 
     // ตรวจสอบว่ามี Dialog แสดงขึ้น
     cy.get('[data-cy="delete-dialog"]', { timeout: 5000 }).should('exist');
-
+cy.wait(3000);
     cy.get('[data-cy="confirm-dialog-button"]').click({ force: true });
   });
 });

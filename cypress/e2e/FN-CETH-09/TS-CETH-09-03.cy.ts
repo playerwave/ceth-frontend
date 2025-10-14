@@ -18,7 +18,7 @@ describe('FN-CETH-09 จัดการห้อง', () => {
     cy.get('[data-cy="toggle-sidebar"]')
       .should('exist')
       .click({ force: true });
-
+cy.wait(3000);
     cy.get('.MuiDataGrid-row', { timeout: 10000 })
       .should('have.length.greaterThan', 0) // ต้องมี row อย่างน้อย 1 แถว
       .first()
