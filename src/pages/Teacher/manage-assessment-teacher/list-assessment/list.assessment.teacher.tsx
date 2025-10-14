@@ -5,6 +5,7 @@ import { useAssessmentStore } from "../../../../stores/Teacher/assessment.store"
 import { CopyPlus } from "lucide-react";
 import AssessmentTablePage from "./list.assessment.tablepage"
 import { useState, useEffect } from "react"; // ✅ เพิ่ม useEffect
+import Loading from "../../../../components/Loading";
 
 const ListAssessmentTeacher = () => {
   const navigate = useNavigate();
@@ -65,23 +66,15 @@ const ListAssessmentTeacher = () => {
 
       <div>
         {/* ✅ แสดง loading state */}
-        {assessmentLoading && (
-          <div className="flex justify-center items-center py-8">
-            <div className="text-blue-600">กำลังโหลดข้อมูล...</div>
-          </div>
-        )}
-        
-        {/* ✅ แสดง error state */}
-        {assessmentError && (
+        {assessmentLoading ? (
+          <Loading />
+        ) : assessmentError ? (
           <div className="flex justify-center items-center py-8">
             <div className="text-red-600 bg-red-100 px-4 py-2 rounded">
               {assessmentError}
             </div>
           </div>
-        )}
-        
-        {/* ✅ ส่ง dataToDisplay (ผลการค้นหาหรือข้อมูลทั้งหมด) ไปให้ AssessmentTablePage */}
-        {!assessmentLoading && !assessmentError && (
+        ) : (
           <AssessmentTablePage rows={dataToDisplay} />
         )}
       </div>

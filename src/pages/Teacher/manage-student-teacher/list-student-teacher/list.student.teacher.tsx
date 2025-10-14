@@ -542,59 +542,30 @@ const ListUserTeacher: React.FC = () => {
           </div>
 
           {/* Student Table */}
-          {loading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p className="text-gray-600">กำลังโหลดข้อมูลนิสิต...</p>
-              </div>
-            </div>
-          ) : error ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <div className="text-red-500 text-6xl mb-4">⚠️</div>
-                <p className="text-red-600 text-lg font-semibold mb-2">เกิดข้อผิดพลาด</p>
-                <p className="text-gray-600">{error}</p>
-              </div>
-            </div>
-          ) : realtimeFilteredStudents.length === 0 ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="text-center">
-                <div className="text-gray-400 text-6xl mb-4">📋</div>
-                <p className="text-gray-600 text-lg">
-                  {searchTerm.trim() ? `ไม่พบข้อมูลนิสิตที่ตรงกับ "${searchTerm}"` : "ไม่พบข้อมูลนิสิต"}
-                </p>
-                <p className="text-gray-500 text-sm">
-                  {searchTerm.trim() ? "ลองค้นหาด้วยคำอื่น" : "กรุณาตรวจสอบสาขาที่เลือก"}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <TableRedesign
-              columns={columns}
-              rows={realtimeFilteredStudents}
-              height={600}
-              width="100%"
-              getRowId={(row: any) => {
-                // ✅ Handle missing student_id
-                if (row.student_id) {
-                  return row.student_id;
-                }
-                // ✅ Fallback to email
-                if (row.email) {
-                  return row.email;
-                }
-                // ✅ Fallback to department + email
-                if (row.department?.department_short_name && row.email) {
-                  return `${row.department.department_short_name}-${row.email}`;
-                }
-                // ✅ Final fallback
-                return `student-${Math.random().toString(36).substr(2, 9)}`;
-              }}
-              initialPageSize={50}
-              pageSizeOptions={[25, 50, 100, 200]}
-            />
-          )}
+          <TableRedesign
+            columns={columns}
+            rows={realtimeFilteredStudents}
+            height={600}
+            width="100%"
+            getRowId={(row: any) => {
+              // ✅ Handle missing student_id
+              if (row.student_id) {
+                return row.student_id;
+              }
+              // ✅ Fallback to email
+              if (row.email) {
+                return row.email;
+              }
+              // ✅ Fallback to department + email
+              if (row.department?.department_short_name && row.email) {
+                return `${row.department.department_short_name}-${row.email}`;
+              }
+              // ✅ Final fallback
+              return `student-${Math.random().toString(36).substr(2, 9)}`;
+            }}
+            initialPageSize={50}
+            pageSizeOptions={[25, 50, 100, 200]}
+          />
         </CustomCard>
 
         {/* Charts Section Card */}

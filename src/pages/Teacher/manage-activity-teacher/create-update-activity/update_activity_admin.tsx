@@ -263,12 +263,19 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       }
 
       // ✅ อัปเดตห้องที่เลือก
-      if (activity.room_id) {
+      if (activity.room_id && rooms.length > 0) {
         const selectedRoom = rooms.find(room => room.room_id === activity.room_id);
+        console.log("🏢 Selected Room:", selectedRoom);
+        console.log("🪑 Seat Number:", selectedRoom?.seat_number);
+        
         if (selectedRoom) {
           setSelectedFloor(selectedRoom.floor);
           setSelectedRoom(selectedRoom.room_name);
-          setSeatCapacity(selectedRoom.seat_number?.toString() || "");
+          const capacity = selectedRoom.seat_number?.toString() || "0";
+          setSeatCapacity(capacity);
+          console.log("✅ Set seatCapacity to:", capacity);
+        } else {
+          console.warn("⚠️ Room not found in rooms list for room_id:", activity.room_id);
         }
       }
     }

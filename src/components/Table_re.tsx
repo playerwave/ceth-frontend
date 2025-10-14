@@ -29,6 +29,61 @@ const MapPin = ({ size, color }: { size: number; color: string }) => (
   </svg>
 );
 
+// 🔄 Custom Loader Component
+const Loader = () => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "80px",
+        height: "80px",
+        position: "relative",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
+        }}
+      >
+        {[...Array(8)].map((_, index) => (
+          <Box
+            key={index}
+            sx={{
+              display: "inline-block",
+              width: "10px",
+              height: "10px",
+              margin: "2px",
+              backgroundColor: "#1E3A8A",
+              boxShadow: "0 0 20px rgba(30, 58, 138, 0.5)",
+              animation: `loader 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite`,
+              animationDelay: `${(index + 1) * 0.1}s`,
+              "@keyframes loader": {
+                "0%": {
+                  transform: "scale(1)",
+                  boxShadow: "0 0 20px rgba(30, 58, 138, 0.5)",
+                },
+                "20%": {
+                  transform: "scale(1, 2.5)",
+                  boxShadow: "0 0 50px rgba(30, 58, 138, 0.7)",
+                },
+                "40%": {
+                  transform: "scale(1)",
+                  boxShadow: "0 0 20px rgba(30, 58, 138, 0.5)",
+                },
+              },
+            }}
+          />
+        ))}
+      </Box>
+    </Box>
+  );
+};
+
 // import Button from "./Button"; // ปรับเส้นทางให้ตรงกับที่เก็บ Button
 
 import { Activity } from "../types/model"; // ปรับเส้นทางให้ตรงกับที่เก็บ Activity
@@ -46,6 +101,8 @@ export interface TableRedesignProps {
   initialPageSize?: number;
   pageSizeOptions?: number[];
   getRowId?: (row: any) => string | number;
+  loading?: boolean;
+  error?: string | null;
 }
 
 export default function TableRedesign({
@@ -59,6 +116,8 @@ export default function TableRedesign({
   initialPageSize = 10,
   pageSizeOptions = [10, 20, 50],
   getRowId,
+  loading = false,
+  error = null,
 }: TableRedesignProps) {
   // const navigate = useNavigate();
   const [locationFilter, setLocationFilter] = useState<string>("");
@@ -180,10 +239,53 @@ export default function TableRedesign({
           boxShadow: 2,
           textAlign: "center",
           maxWidth: "100vw",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <Box sx={{ width: "100%", minWidth: "100%", height: "100%" }}>
-          <DataGrid
+        {loading ? (
+          // ✅ Loading State UI
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100%",
+              gap: 2,
+            }}
+          >
+            <Loader />
+            <Typography variant="body1" sx={{ color: "#1E3A8A", fontWeight: 500 }}>
+              กำลังโหลดข้อมูล...
+            </Typography>
+          </Box>
+        ) : error ? (
+          // ✅ Error State UI
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100%",
+              gap: 2,
+            }}
+          >
+            <Typography variant="h4" sx={{ color: "#DC2626" }}>
+              ⚠️
+            </Typography>
+            <Typography variant="h6" sx={{ color: "#DC2626", fontWeight: 600 }}>
+              เกิดข้อผิดพลาด
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#6B7280" }}>
+              {error}
+            </Typography>
+          </Box>
+        ) : (
+          <Box sx={{ width: "100%", minWidth: "100%", height: "100%" }}>
+            <DataGrid
             columns={columnsWithDropdown}
             rows={filteredRows}
             getRowId={getRowId || ((row) => row.activity_id)}
@@ -196,6 +298,22 @@ export default function TableRedesign({
             pageSizeOptions={pageSizeOptions}
             initialState={{
               pagination: { paginationModel: { pageSize: initialPageSize, page: 0 } },
+            }}
+            slots={{
+              noRowsOverlay: () => (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100%",
+                  }}
+                >
+                  <Typography variant="h6" sx={{ color: "#9CA3AF", fontWeight: 500 }}>
+                    ไม่มีข้อมูล
+                  </Typography>
+                </Box>
+              ),
             }}
             sx={{
               height: "100%",
@@ -293,6 +411,7 @@ export default function TableRedesign({
             }}
           />
         </Box>
+        )}
       </Box>
     </Box>
   );

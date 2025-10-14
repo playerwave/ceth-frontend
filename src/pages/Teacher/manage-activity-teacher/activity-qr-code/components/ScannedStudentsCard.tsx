@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Card from "../../../../../components/Card";
 import Table_re from "../../../../../components/Table_re";
 import axiosInstance from "../../../../../libs/axios";
+import Loading from "../../../../../components/Loading";
 
 interface ScannedStudent {
   id: string;
@@ -177,17 +178,14 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
     },
   ];
 
+  if (loading) return <Loading />;
+
   return (
     <Card className="w-full h-full flex flex-col">
       <div className="flex justify-between items-center mb-4 flex-shrink-0">
         <h2 className="text-xl font-semibold text-gray-800">
           รายชื่อนิสิตที่ลงทะเบียน
         </h2>
-        {loading && (
-          <div className="text-sm text-blue-600">
-            กำลังโหลดข้อมูล...
-          </div>
-        )}
       </div>
       
       {/* สถิติการเข้าร่วม */}
@@ -212,25 +210,15 @@ export default function ScannedStudentsCard({ scannedStudents, activityId }: Sca
       
       {/* ตรวจสอบข้อมูลก่อนแสดง Table */}
       <div className="flex-1 flex flex-col">
-        {!Array.isArray(allScannedStudents) || allScannedStudents.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 flex-1 flex items-center justify-center">
-            {loading ? (
-              <p>กำลังโหลดข้อมูล...</p>
-            ) : (
-              <p>ยังไม่มีนิสิตลงทะเบียนกิจกรรมนี้</p>
-            )}
-          </div>
-        ) : (
-          <div className="flex-1">
-            <Table_re
-              columns={columns}
-              rows={allScannedStudents}
-              height={600}
-              initialPageSize={50}
-              getRowId={(row) => row.id}
-            />
-          </div>
-        )}
+        <div className="flex-1">
+          <Table_re
+            columns={columns}
+            rows={allScannedStudents}
+            height={600}
+            initialPageSize={50}
+            getRowId={(row) => row.id}
+          />
+        </div>
       </div>
     </Card>
   );

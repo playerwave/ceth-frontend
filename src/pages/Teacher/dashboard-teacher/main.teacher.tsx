@@ -3,6 +3,7 @@ import SummaryActivityCard from "./components/summaryActivityCard";
 import RiskStatusCard from "./components/riskStatusCard";
 import { fetchAllStudents } from "../../../service/Teacher/student.service";
 import { Student } from "../../../types/student.type";
+import Loading from "../../../components/Loading";
 
 type DepartmentKey = "AAI" | "SE" | "CS" | "IT";
 
@@ -81,9 +82,7 @@ const TeacherDashboardMain: React.FC = () => {
         {/* การ์ดข้างล่าง (เตี้ยกว่า) */}
         <div className="min-h-[360px] mb-30">
           {loading ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">กำลังโหลดข้อมูล...</p>
-            </div>
+            <Loading />
           ) : (
             <RiskStatusCard dataByGrade={riskData || undefined} />
           )}

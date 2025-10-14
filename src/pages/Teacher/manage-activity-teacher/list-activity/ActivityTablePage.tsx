@@ -143,7 +143,7 @@ const ActivityTablePage = ({
           display: "flex",
           justifyContent: "center"
         }}>
-          <CustomCard height={500} width="1465px" className="mb-10">
+          <CustomCard height={550} width="1465px" className="mb-10">
             <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
             <TableRedesign
               columns={activityColumns}
@@ -170,7 +170,7 @@ const ActivityTablePage = ({
           display: "flex",
           justifyContent: "center"
         }}>
-          <CustomCard height={500} width="1465px" className="mb-10">
+          <CustomCard height={550} width="1465px" className="mb-10">
             <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจที่ร่าง</h2>
             <TableRedesign
               columns={activityColumns}
@@ -197,7 +197,7 @@ const ActivityTablePage = ({
           display: "flex",
           justifyContent: "center"
         }}>
-          <CustomCard height={500} width="1465px" className="mb-10">
+          <CustomCard height={550} width="1465px" className="mb-10">
             <h2 className="text-2xl font-semibold mb-4">
               กิจกรรมที่กำลังดำเนินการหรือจบกิจกรรมแล้ว
             </h2>
@@ -225,7 +225,7 @@ const ActivityTablePage = ({
           display: "flex",
           justifyContent: "center"
         }}>
-          <CustomCard height={500} width="1465px">
+          <CustomCard height={550} width="1465px">
             <h2 className="text-2xl font-semibold mb-4">
               กิจกรรมสหกิจที่ให้นิสิตทำแบบประเมิน
             </h2>

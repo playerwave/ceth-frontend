@@ -4,7 +4,6 @@ import { Check, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UploadCertificate from "./components/uploadCertificate";
 import OcrResult from "./components/ocrResult";
-import { callBuuOcr } from "./utils/ocrHelper";
 import Button from "../../../../components/Button";
 import { useCertificateStore } from "../../../../stores/Student/certificate.store.student";
 

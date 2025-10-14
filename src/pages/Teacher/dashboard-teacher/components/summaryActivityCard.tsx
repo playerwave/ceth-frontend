@@ -14,6 +14,7 @@ import {
 import { FormControl, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import { getActiveActivityYears, getActivitySummary, ActivitySummaryItem } from "@/service/Teacher/activity.service";
 import { useSecureLink } from "@/routes/secure/SecureRoute";
+import Loading from "@/components/Loading";
 
 type EventFormat = "Online" | "Onsite" | "Course" | string;
 
@@ -198,6 +199,8 @@ const SummaryActivityCard: React.FC<SummaryActivityCardProps> = () => {
   const yearOptions = React.useMemo(() => {
     return availableYears.length > 0 ? availableYears : [currentYear];
   }, [availableYears, currentYear]);
+
+  if (loading) return <Loading />;
 
   return (
     <CustomCard className="w-full max-w-full overflow-x-hidden">

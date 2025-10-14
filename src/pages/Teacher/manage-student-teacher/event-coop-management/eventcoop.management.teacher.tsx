@@ -9,6 +9,7 @@ import { useUserStore } from "../../../../stores/Teacher/student.store";
 import { EventCoop } from "../../../../types/eventcoop.type";
 import EditEventCoopDialog from "./components/editEventCoopDialog";
 import { toast } from "sonner";
+import Loading from "../../../../components/Loading";
 
 interface EventCoopManagementProps {
   departmentId?: number;
@@ -297,6 +298,8 @@ const EventCoopManagement: React.FC<EventCoopManagementProps> = ({
     }
   ];
 
+  if (loading) return <Loading />;
+
   return (
     <div className="w-full">
       <CustomCard height={700} width="100%" className="mb-6">
@@ -326,57 +329,43 @@ const EventCoopManagement: React.FC<EventCoopManagementProps> = ({
           </div>
         </div>
         
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="text-lg text-gray-600">กำลังโหลดข้อมูล...</div>
-          </div>
-        ) : error ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="text-lg text-red-600">เกิดข้อผิดพลาด: {error}</div>
-          </div>
-        ) : tableData.length === 0 ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="text-lg text-gray-600">ไม่มีข้อมูล Event Coop</div>
-          </div>
-        ) : (
-          <TableRedesign
-            columns={columns}
-            rows={tableData}
-            height={500}
-            width="100%"
-            borderRadius={14}
-            initialPageSize={10}
-            pageSizeOptions={[5, 10, 20]}
-            getRowId={(row) => row.id}
-            onRowDoubleClick={(row: any) => {
-              console.log("🔍 Double-click detected with row:", row);
-              
-              // ตรวจสอบข้อมูลพื้นฐาน
-              if (!row || !row.id) {
-                console.warn("⚠️ Invalid row structure");
-                return;
-              }
-              
-              // ตรวจสอบว่า eventCoops array มีข้อมูล
-              if (!Array.isArray(eventCoops) || eventCoops.length === 0) {
-                console.warn("⚠️ No eventCoops data available");
-                return;
-              }
-              
-              console.log("🔍 Looking for EventCoop with ID:", row.id);
-              console.log("🔍 Available EventCoops:", eventCoops.map(ec => ec.eventcoop_id));
-              
-              // หา Event Coop ที่ตรงกับ row ที่ double-click (เปรียบเทียบแบบ string)
-              const eventCoop = eventCoops.find(ec => String(ec.eventcoop_id) === String(row.id));
-              if (eventCoop) {
-                console.log("📝 Found EventCoop:", eventCoop);
-                handleEditEventCoop(eventCoop);
-              } else {
-                console.warn("⚠️ EventCoop not found for ID:", row.id);
-              }
-            }}
-          />
-        )}
+        <TableRedesign
+          columns={columns}
+          rows={tableData}
+          height={500}
+          width="100%"
+          borderRadius={14}
+          initialPageSize={10}
+          pageSizeOptions={[5, 10, 20]}
+          getRowId={(row) => row.id}
+          onRowDoubleClick={(row: any) => {
+            console.log("🔍 Double-click detected with row:", row);
+            
+            // ตรวจสอบข้อมูลพื้นฐาน
+            if (!row || !row.id) {
+              console.warn("⚠️ Invalid row structure");
+              return;
+            }
+            
+            // ตรวจสอบว่า eventCoops array มีข้อมูล
+            if (!Array.isArray(eventCoops) || eventCoops.length === 0) {
+              console.warn("⚠️ No eventCoops data available");
+              return;
+            }
+            
+            console.log("🔍 Looking for EventCoop with ID:", row.id);
+            console.log("🔍 Available EventCoops:", eventCoops.map(ec => ec.eventcoop_id));
+            
+            // หา Event Coop ที่ตรงกับ row ที่ double-click (เปรียบเทียบแบบ string)
+            const eventCoop = eventCoops.find(ec => String(ec.eventcoop_id) === String(row.id));
+            if (eventCoop) {
+              console.log("📝 Found EventCoop:", eventCoop);
+              handleEditEventCoop(eventCoop);
+            } else {
+              console.warn("⚠️ EventCoop not found for ID:", row.id);
+            }
+          }}
+        />
       </CustomCard>
 
       {/* Edit Event Coop Dialog */}

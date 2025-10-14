@@ -59,37 +59,33 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
 
   return (
     <>
-      {rows1.length > 0 && (
-        <div style={{ padding: 16 }}>
-          <CustomCard height={800} width="1313px">
-            <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
-            <TableRedesign
-              columns={activityColumnsWithoutStatus} // ✅ ถูกต้อง
-              rows={filterByType(rows1)}
-              height={720}
-              width="100%"
-              borderRadius={14}
-              onRowDoubleClick={handleDoubleClickActivity}
-            />
-          </CustomCard>
-        </div>
-      )}
+      <div style={{ padding: 16 }}>
+        <CustomCard height={800} width="1313px">
+          <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
+          <TableRedesign
+            columns={activityColumnsWithoutStatus} // ✅ ถูกต้อง
+            rows={filterByType(rows1)}
+            height={720}
+            width="100%"
+            borderRadius={14}
+            onRowDoubleClick={handleDoubleClickActivity}
+          />
+        </CustomCard>
+      </div>
 
-      {rows2.length > 0 && (
-        <div style={{ padding: 16 }}>
-          <CustomCard height={800} width="100%">
-            <h2 className="text-2xl font-semibold mb-4">กิจกรรมที่แนะนำ</h2>
-            <TableRedesign
-              columns={activityColumnsWithRecommend} // ✅ ใช้อันนี้แทน
-              rows={filterByType(rows2)}
-              height={720}
-              width="100%"
-              borderRadius={14}
-              onRowDoubleClick={handleDoubleClickActivity}
-            />
-          </CustomCard>
-        </div>
-      )}
+      <div style={{ padding: 16 }}>
+        <CustomCard height={800} width="100%">
+          <h2 className="text-2xl font-semibold mb-4">กิจกรรมที่แนะนำ</h2>
+          <TableRedesign
+            columns={activityColumnsWithRecommend} // ✅ ใช้อันนี้แทน
+            rows={filterByType(rows2)}
+            height={720}
+            width="100%"
+            borderRadius={14}
+            onRowDoubleClick={handleDoubleClickActivity}
+          />
+        </CustomCard>
+      </div>
     </>
   );
 };
