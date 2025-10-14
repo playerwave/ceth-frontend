@@ -590,12 +590,25 @@ export const validateField = (
 
   // ✅ Seat Validation
   if (fieldName === 'seat') {
-    if (context.isOnsite && typeof formData.seat === "number" && 
-        (formData.seat < 0 || formData.seat > Number(formData.seatCapacity || 0))) {
+    const maxCapacity = Number(formData.seatCapacity || 0);
+    
+    // ✅ ถ้าเป็น Onsite และมีการกำหนด seatCapacity
+    if (context.isOnsite && maxCapacity > 0 && typeof formData.seat === "number") {
+      if (formData.seat < 0 || formData.seat > maxCapacity) {
+        return {
+          hasError: true,
+          errorMessage: `จำนวนที่นั่งต้องอยู่ระหว่าง 0 ถึง ${maxCapacity}`,
+          helperText: `จำนวนที่นั่งต้องอยู่ระหว่าง 0 ถึง ${maxCapacity}`
+        };
+      }
+    }
+    
+    // ✅ ถ้าเป็น Onsite แต่ยังไม่ได้เลือกห้อง (seatCapacity = 0)
+    if (context.isOnsite && maxCapacity === 0 && context.isPublic && typeof formData.seat === "number" && formData.seat < 0) {
       return {
         hasError: true,
-        errorMessage: `จำนวนที่นั่งต้องไม่เกิน ${formData.seatCapacity || 0}`,
-        helperText: `จำนวนที่นั่งต้องไม่เกิน ${formData.seatCapacity || 0}`
+        errorMessage: "จำนวนที่นั่งต้องมากกว่าหรือเท่ากับ 0",
+        helperText: "จำนวนที่นั่งต้องมากกว่าหรือเท่ากับ 0"
       };
     }
   }
