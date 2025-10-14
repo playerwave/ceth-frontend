@@ -60,7 +60,7 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
   return (
     <>
       <div style={{ padding: 16 }}>
-        <CustomCard height={800} width="1313px">
+        <CustomCard height={850} width="1313px">
           <h2 className="text-2xl font-semibold mb-4">กิจกรรมสหกิจ</h2>
           <TableRedesign
             columns={activityColumnsWithoutStatus} // ✅ ถูกต้อง
@@ -73,7 +73,7 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
         </CustomCard>
       </div>
 
-      <div style={{ padding: 16 }}>
+      {/* <div style={{ padding: 16 }}>
         <CustomCard height={800} width="100%">
           <h2 className="text-2xl font-semibold mb-4">กิจกรรมที่แนะนำ</h2>
           <TableRedesign
@@ -85,7 +85,7 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
             onRowDoubleClick={handleDoubleClickActivity}
           />
         </CustomCard>
-      </div>
+      </div> */}
     </>
   );
 };

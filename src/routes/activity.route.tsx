@@ -4,7 +4,7 @@ import UpdateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create
 import ActivityInfoAdmin from "../pages/Teacher/manage-activity-teacher/activity-info/activity.info.teacher";
 import QrActivityTeacher from "../pages/Teacher/manage-activity-teacher/activity-qr-code/qr_activity_teacher";
 
-import ListActivityStudent from "../pages/Student/activity-student/list_activity_studen/list_activity_student";
+import ListActivityStudent from "../pages/Student/activity-student/list-activity-student/list.activity.student";
 import ActivityInfoStudent from "../pages/Student/activity-student/activity-info/activity.info.student";
 import ActivityCheckInOutStudent from "../pages/Student/activity-student/activity-checkin-checkout/activity.checkinout.student";
 
