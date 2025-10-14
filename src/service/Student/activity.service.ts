@@ -6,15 +6,18 @@ const STUDENT_ACTIVITY_PATH = "/student/activity";
 
 //--------------------- Fetch Activities for a Student -------------------------
 export const fetchActivities = async (studentId: number): Promise<Activity[]> => {
-  console.log("🌐 [SERVICE] fetchActivities called with studentId:", studentId);
-  console.log("🌐 [SERVICE] Making request to:", `${STUDENT_ACTIVITY_PATH}/get-student-activities/${studentId}`);
+  console.log("🚀🚀🚀 [SERVICE] fetchActivities called with studentId:", studentId);
+  console.log("🚀🚀🚀 [SERVICE] STUDENT_ACTIVITY_PATH:", STUDENT_ACTIVITY_PATH);
+  console.log("🚀🚀🚀 [SERVICE] Full URL:", `${STUDENT_ACTIVITY_PATH}/get-student-activities/${studentId}`);
   
   try {
+    console.log("🚀🚀🚀 [SERVICE] SENDING REQUEST NOW to /api/student/activity/get-student-activities/" + studentId);
     const response = await axiosInstance.get<Activity[]>(
       `${STUDENT_ACTIVITY_PATH}/get-student-activities/${studentId}`
     );
     
-    console.log("✅ [SERVICE] Response received:", response.data);
+    console.log("✅✅✅ [SERVICE] Response received:", response.data);
+    console.log("✅✅✅ [SERVICE] Response status:", response.status);
     
     // ตรวจสอบว่า response.data เป็น array ที่ถูกต้อง
     if (response.data && Array.isArray(response.data)) {

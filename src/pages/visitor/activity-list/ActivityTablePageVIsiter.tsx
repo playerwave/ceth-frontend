@@ -1,6 +1,7 @@
 // src/pages/ActivityTablePageVisitor.tsx
 
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import TableRedesign from "../../../components/Table_re";
 import CustomCard from "../../../components/Card";
 import { Activity } from "../../../types/model";
@@ -12,6 +13,7 @@ type Props = {
 };
 
 const ActivityTablePageVisitor = ({ rows1 }: Props) => {
+  const navigate = useNavigate();
   // ✅ State สำหรับประเภทที่เลือก
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
@@ -27,6 +29,24 @@ const ActivityTablePageVisitor = ({ rows1 }: Props) => {
     if (selectedTypes.length === 0) return rows1;
     return rows1.filter((row) => selectedTypes.includes(row.type));
   }, [rows1, selectedTypes]);
+
+  // ✅ ฟังก์ชัน handle double-click เพื่อไปหน้า activity info
+  const handleRowDoubleClick = (activity: Activity) => {
+    console.log("🖱️ Double-clicked activity:", activity);
+    console.log("🖱️ Navigating to:", `/activity-info-visitor/${activity.activity_id}`);
+    
+    try {
+      navigate(`/activity-info-visitor/${activity.activity_id}`, {
+        state: { 
+          activity,
+          id: activity.activity_id 
+        }
+      });
+      console.log("✅ Navigation successful");
+    } catch (error) {
+      console.error("❌ Navigation error:", error);
+    }
+  };
 
   // ✅ สร้าง columns พร้อม options
   const activityColumns: GridColDef<Activity>[] = useMemo(
@@ -50,7 +70,8 @@ const ActivityTablePageVisitor = ({ rows1 }: Props) => {
           height={1170}
           width="100%"
           borderRadius={14}
-          // getRowId={(row) => row.activity_id}
+          getRowId={(row) => row.activity_id}
+          onRowDoubleClick={handleRowDoubleClick}
         />
       </CustomCard>
     </div>

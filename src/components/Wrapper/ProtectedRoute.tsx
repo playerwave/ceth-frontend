@@ -15,22 +15,27 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
     authError
   });
 
-  const publicPaths = ["/activity-list-visitor", "/activity-info-visitor"];
+  const publicPaths = ["/visitor", "/activity-info-visitor"];
+  
+  // ✅ ตรวจสอบว่าเป็น public path หรือไม่ (รวม path ที่ขึ้นต้นด้วย)
+  const isPublicPath = publicPaths.some(publicPath => path.startsWith(publicPath));
+  
+  console.log("🔍 [ProtectedRoute] Path check:", {
+    path,
+    isPublicPath,
+    publicPaths
+  });
 
   useEffect(() => {
     // ✅ ตรวจสอบ token ใน localStorage ก่อน
     const token = localStorage.getItem('auth-token');
     
     // ✅ เรียก fetchMe เฉพาะเมื่อยังไม่มี user และไม่ใช่ public path และมี token
-    if (!user && !publicPaths.includes(path) && token) {
+    if (!user && !isPublicPath && token) {
       console.log("🔁 [ProtectedRoute] Fetching user from /me");
       fetchMe();
-    } else if (!user && !publicPaths.includes(path) && !token) {
-      console.log("❌ [ProtectedRoute] No token found - redirecting to login");
-      // ไม่มี token และไม่ใช่ public path → redirect ไป login
-      window.location.href = '/login';
     }
-  }, [fetchMe, user, path, publicPaths]);
+  }, [fetchMe, user, path, isPublicPath]);
 
   // ⏳ กำลังโหลด
   if (authLoading) {
@@ -39,12 +44,18 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
   }
 
   // ✅ เปิดให้หน้า public เข้าได้เสมอ แม้ไม่มี user
-  if (publicPaths.includes(path)) {
+  if (isPublicPath) {
     console.log("✅ [ProtectedRoute] Public path - allowing access");
     return children;
   }
+  
+  // ✅ ตรวจสอบเฉพาะ path ที่ขึ้นต้นด้วย /activity-info-visitor
+  if (path.startsWith("/activity-info-visitor")) {
+    console.log("✅ [ProtectedRoute] Activity info visitor path - allowing access");
+    return children;
+  }
 
-  // ⛔ ถ้าไม่ auth และไม่ใช่ public page → redirect ตาม role
+  // ⛔ ถ้าไม่ auth และไม่ใช่ public page → redirect ไป visitor page
   if (!isAuthenticated || !user) {
     console.log("❌ [ProtectedRoute] Not authenticated, redirecting to visitor page");
     
@@ -53,8 +64,8 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
       console.log("❌ Auth error:", authError);
     }
     
-    // 🔄 Redirect ไป dashboard ที่จะ redirect ตาม role อีกที
-    return <Navigate to="/activity-list-visitor" replace />;
+    // 🔄 Redirect ไป visitor page (ไม่ไป login)
+    return <Navigate to="/visitor" replace />;
   }
 
   // 🔍 Debug: ตรวจสอบ role และ path

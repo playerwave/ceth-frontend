@@ -49,10 +49,12 @@ export const fetchMe = async (): Promise<AuthResponse["user"]> => {
     }
     
     // ✅ Axios interceptor จะจัดการ Authorization header อัตโนมัติ
-    console.log("📡 [fetchMe] Making request to /auth/me...");
+    console.log("🚀🚀🚀 [fetchMe] Making request to /auth/me...");
     const response = await axiosInstance.get<AuthResponse["user"]>("/auth/me");
     
-    console.log("✅ [fetchMe] Response received:", response.data);
+    console.log("✅✅✅ [fetchMe] Response received:", response.data);
+    console.log("✅✅✅ [fetchMe] Response.data.student:", response.data?.student);
+    console.log("✅✅✅ [fetchMe] Response.data.teacher:", response.data?.teacher);
     
     if (!response.data) {
       throw new Error("No response data received");

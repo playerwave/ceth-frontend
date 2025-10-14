@@ -17,10 +17,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   // โหลดกิจกรรมทั้งหมดของนิสิต
   fetchStudentActivities: async (studentId: number) => {
-    console.log(
-      "🔄 [STORE] fetchStudentActivities called with studentId:",
-      studentId
-    );
+    console.log("🚀🚀🚀 [STORE] fetchStudentActivities called with studentId:", studentId);
 
     // ตรวจสอบว่ากำลังโหลดอยู่หรือไม่ เพื่อป้องกันการเรียกซ้ำ
     const currentState = get();
@@ -29,10 +26,13 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       return;
     }
 
+    console.log("🚀🚀🚀 [STORE] Setting loading state and calling service...");
     set({ activityLoading: true, activityError: null });
     try {
+      console.log("🚀🚀🚀 [STORE] CALLING activityService.fetchActivities NOW!");
       const activities = await activityService.fetchActivities(studentId);
-      console.log("✅ [STORE] Activities received:", activities);
+      console.log("✅✅✅ [STORE] Activities received:", activities);
+      console.log("✅✅✅ [STORE] Activities count:", activities?.length);
 
       // ตรวจสอบว่า activities ไม่เป็น null หรือ undefined
       if (activities && Array.isArray(activities)) {

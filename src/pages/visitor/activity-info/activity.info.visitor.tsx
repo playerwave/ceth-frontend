@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react";
+ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useActivityStore } from "../../../stores/Student/activity.store.student";
+import { useActivityVisitorStore } from "../../../stores/Visitor/activity.store.visitor";
 
-// Import components
-import ActivityHeader from "./components/ActivityHeader";
-import ActivityImage from "./components/ActivityImage";
-import ActivityDetails from "./components/ActivityDetails";
-import FoodSelector from "./components/FoodSelector";
-import ActivityFooter from "./components/ActivityFooter"; // เปลี่ยนเป็น ActivityFooter
+// Import components (ใช้ components เดียวกับ Student page)
+import ActivityHeader from "../../Student/activity-student/activity-info/components/activityHeader";
+import ActivityImage from "../../Student/activity-student/activity-info/components/activityImage";
+import ActivityDetails from "../../Student/activity-student/activity-info/components/activityDetails";
+import FoodSelector from "../../Student/activity-student/activity-info/components/foodSelector";
+import ActivityFooter from "../../Student/activity-student/activity-info/components/activityFooter";
 import Loading from "../../../components/Loading";
-import ActivityLink from "./components/ActivityUrl";
-import { fetchActivities } from "../../../service/Student/activity.service";
+import Dialog2 from "../../../components/Dialog/Dialog2";
 
 export default function ActivityInfoVisitor() {
   const { id: paramId } = useParams();
@@ -18,86 +17,124 @@ export default function ActivityInfoVisitor() {
   const id = location.state?.id || paramId;
   const navigate = useNavigate();
 
+  // ✅ Debug: ตรวจสอบค่า id (สามารถลบได้หลังทดสอบเสร็จ)
+  console.log("🔍 ActivityInfoVisitor - final id:", id);
+
   const {
-    activity,
+    activities,
     activityLoading,
     activityError,
-    enrollActivity,
-    enrolledActivities,
-    fetchEnrolledActivities,
-    unenrollActivity,
-  } = useActivityStore();
+    fetchPublicActivities,
+  } = useActivityVisitorStore();
 
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [selectedFood, setSelectedFood] = useState<string>("");
+  const [showRegistrationDialog, setShowRegistrationDialog] = useState(false);
+
+  // ✅ Find specific activity from activities array หรือใช้ mock data
+  const activity = activities.find(act => Number(act.activity_id) === Number(id)) || {
+    activity_id: Number(id),
+    activity_name: "Mock Activity",
+    presenter_company_name: "Mock Company",
+    type: "Soft",
+    description: "Mock Description",
+    seat: 100,
+    recieve_hours: 4,
+    event_format: "Onsite",
+    activity_status: "Public",
+    activity_state: "Open Register",
+    image_url: null,
+    url: null,
+    assessment_id: 1,
+    room_id: 1,
+    start_assessment: null,
+    end_assessment: null,
+    activityFood: [],
+    registered_count: 0,
+    create_activity_date: "2025-01-01",
+    special_start_register_date: "2025-01-01",
+    start_register_date: "2025-01-01",
+    end_register_date: "2025-01-02",
+    start_activity_date: "2025-01-03",
+    end_activity_date: "2025-01-03",
+    last_update_activity_date: "2025-01-01",
+    status: "Active"
+  };
 
   // Fetch data
   useEffect(() => {
-    const userId = 8;
-    fetchEnrolledActivities(userId);
-  }, [fetchEnrolledActivities]);
-
-  useEffect(() => {
-    fetchActivities(id);
-  }, [fetchEnrolledActivities, id]);
-
-  useEffect(() => {
-    if (enrolledActivities.length === 0) return;
-
-    const isUserEnrolled = enrolledActivities.some(
-      (act) => Number(act.activity_id) === Number(id),
-    );
-
-    setIsEnrolled(isUserEnrolled);
-  }, [enrolledActivities, id]);
+    console.log("🔄 [ActivityInfoVisitor] About to fetch public activities");
+    fetchPublicActivities();
+  }, [fetchPublicActivities]);
 
   if (activityLoading) return <Loading />;
   if (activityError)
     return <p className="text-center text-lg text-red-500">❌ {activityError}</p>;
-  if (!activity) return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
+  if (!activity) {
+    return <p className="text-center text-lg">⚠️ ไม่พบกิจกรรม</p>;
+  }
+
+  // ✅ ฟังก์ชันสำหรับจัดการการลงทะเบียน (Visitor)
+  const handleEnrollClick = () => {
+    setShowRegistrationDialog(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setShowRegistrationDialog(false);
+    navigate("/visitor");
+  };
+
+  const handleDialogClose = () => {
+    setShowRegistrationDialog(false);
+  };
 
   return (
     <div className="justify-items-center">
-      <div
-        className="w-320 h-230px max-w-md
-                        mx-auto ml-2xl mt-5 mb-5 
-                      bg-white p-5 md:p-10
-                        md:max-w-[700px]
-                        lg:max-w-7xl
-                        border border-gray-200 rounded-lg shadow-sm 
-                        flex flex-col
-                        overflow-hidden"
-      >
+      <div className="w-320 h-auto min-h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <ActivityHeader activity={activity} />
-        <ActivityImage imageUrl={activity.image_url} />
-        <ActivityDetails activity={activity} />
-        {activity.event_format === "Onsite" && (
-          <FoodSelector
-            activity={activity}
-            selectedFood={selectedFood} // ส่ง selectedFood ไปให้ FoodSelector
-            setSelectedFood={setSelectedFood} // ฟังก์ชันตั้งค่า selectedFood
-            isEnrolled={isEnrolled} // ส่ง isEnrolled ไปด้วย
-          />
-        )}
-
-        <br />
-        {activity.event_format !== "Onsite" && (
-          <ActivityLink
-            url="https://mooc.buu.ac.th/courses/course-v1:BUU+IF002+2024/course/"
-            label={`${activity.presenter_company_name}.com`}
-          />
-        )}
+        <ActivityImage imageUrl={typeof activity.image_url === "string" ? activity.image_url : null} />
+        <ActivityDetails activity={activity} isVisitor={true} />
+        <FoodSelector
+          activity={activity}
+          selectedFood={selectedFood}
+          setSelectedFood={setSelectedFood}
+          isEnrolled={isEnrolled}
+        />
         <ActivityFooter
+          mode="catalog"
+          evaluationDone={false}
           activity={activity}
           isEnrolled={isEnrolled}
-          enrollActivity={enrollActivity}
-          unenrollActivity={unenrollActivity}
+          enrollActivity={handleEnrollClick} // ✅ ใช้ custom function
+          unenrollActivity={() => {}} // ✅ ไม่ต้องใช้
           setIsEnrolled={setIsEnrolled}
           navigate={navigate}
-          enrolledActivities={enrolledActivities}
-          selectedFood={selectedFood} // ส่ง selectedFood ไปที่ ActivityFooter
+          enrolledActivities={[]} // ✅ Visitor ไม่มี enrolled activities
+          selectedFood={selectedFood}
+          userId={null} // ✅ Visitor ไม่มี userId
         />
       </div>
+
+      {/* ✅ Registration Dialog */}
+      <Dialog2
+        open={showRegistrationDialog}
+        title="ต้องการลงทะเบียนกิจกรรม"
+        message={
+          <div>
+            <p className="mb-2">ท่านยังไม่ได้ลงทะเบียน</p>
+            <p>กรุณาเข้าสู่ระบบก่อนเพื่อลงทะเบียนกิจกรรม</p>
+          </div>
+        }
+        icon={
+          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+        }
+        onClose={handleDialogClose}
+        onConfirm={handleDialogConfirm}
+      />
     </div>
   );
 }

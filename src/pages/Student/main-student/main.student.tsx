@@ -10,6 +10,9 @@ import TableOngoingSection from "./components/tableOngoingSection";
 import ActivityTabs from "./components/activityTabs"; // ✅ Tabs
 import TablePendingEvaluation from "./components/tablePendingEvaluation";
 import CustomCard from "../../../components/Card";
+import type { Activity } from "../../../types/model";
+
+type StudentEnrolledActivity = Activity & { has_submitted_assessment?: boolean };
 
 const MainStudent = () => {
   // const [searchId, setSearchId] = useState("");
@@ -106,7 +109,7 @@ const MainStudent = () => {
       activity_id: act.activity_id,
       activity_name: act.activity_name,
       activity_state: act.activity_state,
-      has_submitted_assessment: act.has_submitted_assessment,
+      has_submitted_assessment: (act as StudentEnrolledActivity).has_submitted_assessment,
       shouldShow,
       allowedStates
     });

@@ -60,14 +60,16 @@ export function mapApiToAuthUser(api: AuthResponse): AuthUser {
 
 export function mapUserToAuthUser(user: AuthResponse["user"]): AuthUser {
   // 🔍 Debug: ตรวจสอบข้อมูล user
-  console.log("🔍 [Auth Mapper] User for mapping:", {
+  console.log("🚀🚀🚀 [Auth Mapper] User for mapping:", {
     users_id: user.users_id,
     username: user.username,
     roles_id: user.roles_id,
     roles: user.roles,
+    student: user.student,
+    teacher: user.teacher,
   });
 
-  return {
+  const mapped = {
     userId: user.users_id,
     username: user.username,
     role: user.roles?.roles_name || "Student", // ✅ ใช้ roles_name จาก roles object
@@ -76,4 +78,8 @@ export function mapUserToAuthUser(user: AuthResponse["user"]): AuthUser {
     student: user.student,
     teacher: user.teacher,
   };
+
+  console.log("✅✅✅ [Auth Mapper] Mapped result:", mapped);
+  
+  return mapped;
 }

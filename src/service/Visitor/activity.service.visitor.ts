@@ -9,10 +9,17 @@ const API_URL_FOR_VISITOR = "/visitor"; // ✅ ใช้ relative path เพร
 
 const fetchPublicActivities = async (): Promise<Activity[]> => {
   // คืนค่าเป็น Activity[]
+  console.log("🚀🚀🚀 [Service] fetchPublicActivities called 🚀🚀🚀");
+  console.log("🚀🚀🚀 [Service] API_URL_FOR_VISITOR:", API_URL_FOR_VISITOR);
+  console.log("🚀🚀🚀 [Service] Full URL:", `${API_URL_FOR_VISITOR}/get-visitor-activities`);
   try {
+    console.log("🚀🚀🚀 [Service] SENDING REQUEST NOW to /api/visitor/get-visitor-activities 🚀🚀🚀");
     const response = await axiosInstance.get<any[]>(
       `${API_URL_FOR_VISITOR}/get-visitor-activities`
     );
+    console.log("✅✅✅ [Service] API RESPONSE RECEIVED:", response);
+    console.log("✅✅✅ [Service] Response data:", response.data);
+    console.log("✅✅✅ [Service] Response status:", response.status);
 
     // ✅ ตรวจสอบ response data
     if (!response.data) {
@@ -68,7 +75,8 @@ const fetchPublicActivities = async (): Promise<Activity[]> => {
     console.log("Converted Activities for Table:", activities);
     return activities;
   } catch (error) {
-    console.error("Error fetching and parsing public activities:", error);
+    console.error("❌❌❌ [Service] ERROR fetching activities:", error);
+    console.error("❌❌❌ [Service] Error details:", error);
     
     // ✅ ตรวจสอบ error type
     if (error instanceof Error) {

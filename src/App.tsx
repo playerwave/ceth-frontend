@@ -30,6 +30,7 @@ import {emailRoutes} from "./routes/email.route"
 
 // Visitor pages
 import VisitorActivityList from "./pages/visitor/activity-list/visiter";
+import ActivityInfoVisitor from "./pages/visitor/activity-info/activity.info.visitor";
 import ActivityCheckInOutStudent from "./pages/Student/activity-student/activity-checkin-checkout/activity.checkinout.student";
 
 // auth store
@@ -160,16 +161,14 @@ function App() {
         <Route
           path="/"
           element={
-            <ProtectedRoute>
-              <Navigate 
-                to={
-                  role === "Student" ? "/main-student" : 
-                  role === "Teacher" || role === "Admin" ? "/" : 
-                  "/visitor"
-                } 
-                replace 
-              />
-            </ProtectedRoute>
+            <Navigate 
+              to={
+                role === "Student" ? "/main-student" : 
+                role === "Teacher" || role === "Admin" ? "/" : 
+                "/visitor"
+              } 
+              replace 
+            />
           }
         />
 
@@ -189,9 +188,23 @@ function App() {
         <Route
           path="/visitor"
           element={
-            <Navbar>
-              <VisitorActivityList />
-            </Navbar>
+            <ProtectedRoute>
+              <Navbar>
+                <VisitorActivityList />
+              </Navbar>
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* 👥 Visitor Activity Info route */}
+        <Route
+          path="/activity-info-visitor/:id"
+          element={
+            <ProtectedRoute>
+              <Navbar>
+                <ActivityInfoVisitor />
+              </Navbar>
+            </ProtectedRoute>
           }
         />
 

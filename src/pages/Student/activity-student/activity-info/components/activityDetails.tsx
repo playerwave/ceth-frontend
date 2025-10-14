@@ -24,6 +24,7 @@ interface Props {
     description?: string;
     recieve_hours?: number;
   };
+  isVisitor?: boolean; // ✅ เพิ่ม prop สำหรับ visitor mode
 }
 
 type LocationType = "Onsite" | "Course" | "Online";
@@ -51,19 +52,19 @@ function formatRoomDisplay(room?: { room_name?: string; floor?: string }) {
   return `ชั้น ${room.floor ?? "-"} ห้อง ${room.room_name}`;
 }
 
-export default function ActivityDetails({ activity }: Props) {
-  // ดึงข้อมูล rooms กับ fetchRooms จาก store
+export default function ActivityDetails({ activity, isVisitor = false }: Props) {
+  // ✅ ดึงข้อมูล rooms กับ fetchRooms จาก store (เฉพาะ non-visitor)
   const { rooms, fetchRooms } = useRoomStore();
 
-  // โหลดข้อมูล rooms ถ้ายังไม่มี
+  // ✅ โหลดข้อมูล rooms ถ้ายังไม่มี (เฉพาะ non-visitor)
   useEffect(() => {
-    if (rooms.length === 0) {
+    if (!isVisitor && rooms.length === 0) {
       fetchRooms();
     }
-  }, [rooms.length, fetchRooms]);
+  }, [isVisitor, rooms.length, fetchRooms]);
 
-  // หา room ที่ตรงกับ activity.room_id
-  const room = rooms.find((r) => r.room_id === activity.room_id);
+  // ✅ หา room ที่ตรงกับ activity.room_id (เฉพาะ non-visitor)
+  const room = !isVisitor ? rooms.find((r) => r.room_id === activity.room_id) : null;
 
   const formatDate = (dateInput?: string | Date | null) => {
     if (!dateInput) return "ไม่ระบุ";

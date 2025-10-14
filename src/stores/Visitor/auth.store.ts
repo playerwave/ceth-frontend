@@ -62,11 +62,12 @@ export const useAuthStore = create<AuthState>()(
           
           // ✅ ตรวจสอบประเภทของ error
           if (error instanceof Error && error.message === "No token found in localStorage") {
-            // Token ไม่มีใน localStorage → redirect ไป login
-            set({ user: null, isAuthenticated: false, authError: "กรุณาเข้าสู่ระบบใหม่" });
-            window.location.href = '/login';
+            // Token ไม่มีใน localStorage → ไม่ redirect ไป login
+            console.log("🔍 [Auth Store] No token found - not redirecting to login");
+            set({ user: null, isAuthenticated: false, authError: null });
           } else {
             // Error อื่นๆ → แสดง error message
+            console.log("🔍 [Auth Store] Other error:", error);
             set({ authError: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้" });
           }
         } finally {

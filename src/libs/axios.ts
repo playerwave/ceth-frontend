@@ -96,19 +96,29 @@ axiosInstance.interceptors.response.use(
   (error) => {
     console.error("❌ [Axios] Response error for:", error.config?.url, error.response?.status);
     
-    // ✅ ตรวจสอบว่าเป็น QR code request หรือไม่
+    // ✅ ตรวจสอบว่าเป็น QR code request หรือ visitor request หรือไม่
     const isQRCodeRequest = error.config?.url?.includes('/teacher/qr-code');
+    const isVisitorRequest = error.config?.url?.includes('/visitor/');
     
-    // ถ้า token หมดอายุหรือไม่ถูกต้อง และไม่ใช่ QR code request
-    if (error.response?.status === 401 && !isQRCodeRequest) {
+    // ถ้า token หมดอายุหรือไม่ถูกต้อง และไม่ใช่ QR code request และไม่ใช่ visitor request
+    if (error.response?.status === 401 && !isQRCodeRequest && !isVisitorRequest) {
       console.log("🚫 [Axios] Unauthorized - redirecting to login");
       // ลบ token และ redirect ไป login
       localStorage.removeItem('auth-token');
       window.location.href = '/login';
-    } else if (error.response?.status === 401 && isQRCodeRequest) {
-      console.log("🚫 [Axios] QR Code request unauthorized - letting component handle it");
-      // ไม่ redirect สำหรับ QR code requests - ให้ component จัดการเอง
+    } else if (error.response?.status === 401 && (isQRCodeRequest || isVisitorRequest)) {
+      console.log("🚫 [Axios] QR Code or Visitor request unauthorized - letting component handle it");
+      // ไม่ redirect สำหรับ QR code requests หรือ visitor requests - ให้ component จัดการเอง
     }
+    
+    // ✅ ปิดการ redirect ชั่วคราวเพื่อ debug
+    console.log("🔍 [Axios] Error details:", {
+      url: error.config?.url,
+      status: error.response?.status,
+      isQRCodeRequest,
+      isVisitorRequest,
+      message: error.message
+    });
     
     return Promise.reject(error);
   }

@@ -17,12 +17,15 @@ export const useActivityVisitorStore = create<ActivityVisitorState>((set) => ({
   activityError: null,
 
   fetchPublicActivities: async () => {
+    console.log("🔄 [Store] fetchPublicActivities called");
     set({ activityLoading: true, activityError: null });
     try {
+      console.log("🔄 [Store] Calling activityService.fetchPublicActivities...");
       const activities = await activityService.fetchPublicActivities(); // activityService ต้องคืนค่าเป็น Activity[]
+      console.log("✅ [Store] Received activities:", activities);
       set({ activities, activityLoading: false });
     } catch (error: any) {
-      console.error("❌ Error fetching public activities:", error);
+      console.error("❌ [Store] Error fetching public activities:", error);
       set({
         activityError: error.message || "ไม่สามารถโหลดกิจกรรมสาธารณะได้",
         activityLoading: false,

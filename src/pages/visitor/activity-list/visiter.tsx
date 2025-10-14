@@ -14,6 +14,8 @@ const VisitorActivityList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
+    console.log("🔄 [Component] useEffect triggered - calling fetchPublicActivities");
+    console.log("🔄 [Component] fetchPublicActivities function:", fetchPublicActivities);
     fetchPublicActivities();
   }, [fetchPublicActivities]);
 

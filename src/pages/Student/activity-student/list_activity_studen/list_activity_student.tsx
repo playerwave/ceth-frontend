@@ -16,6 +16,7 @@ const ListActivityStudent: React.FC = () => {
   const navigate = useNavigate();
   const { user, fetchMe } = useAuthStore();
   const lastStudentIdRef = useRef<number | null>(null);
+  const triedFetchMeRef = useRef(false);
   
   // ใช้ students_id จาก auth store หรือ fallback เป็น 3
   // const studentId = useMemo(() => {
@@ -37,33 +38,30 @@ const ListActivityStudent: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   // const [openDialog, setOpenDialog] = useState(false);
 
-  // Fetch user data on mount only if user is not authenticated
+  // ดึงข้อมูลผู้ใช้ถ้ายังไม่มี student ใน store (กันเรียกซ้ำด้วย ref)
   useEffect(() => {
-    console.log("🔍 [DEBUG] Initial useEffect - user:", user);
-    if (!user || user.role === "Visitor") {
-      console.log("🔍 [DEBUG] Fetching user data...");
+    if (triedFetchMeRef.current) return;
+    if (!user || !user.student) {
+      triedFetchMeRef.current = true;
       fetchMe();
     }
-  }, [fetchMe, user]); // เพิ่ม dependencies
+  }, [user?.student]);
 
   useEffect(() => {
     const id = user?.student?.students_id;
     const isValidId = typeof id === "number" && id > 0;
   
-    console.log("🔍 [DEBUG] useEffect triggered:", { 
-      id, 
-      isValidId, 
-      lastStudentIdRef: lastStudentIdRef.current,
-      user: user?.student 
+    console.log("🔍 [ListActivity] useEffect triggered:", {
+      id,
+      isValidId,
+      lastStudentId: lastStudentIdRef.current,
+      user: user?.student
     });
   
     if (isValidId && id !== lastStudentIdRef.current) {
       lastStudentIdRef.current = id;
-      console.log("📞 [DEBUG] Calling fetchStudentActivities with id:", id);
+      console.log("🔄 [ListActivity] Fetching activities for student_id:", id);
       fetchStudentActivities(id);
-    } else if (!isValidId) {
-      // ✅ ไม่ใช้ fallback ID - รอให้มี user data ก่อน
-      console.log("🔍 [DEBUG] No valid student ID - waiting for user data");
     }
   }, [user?.student?.students_id, fetchStudentActivities]);
 
@@ -71,25 +69,17 @@ const ListActivityStudent: React.FC = () => {
 
   // กรองกิจกรรมตาม searchTerm เท่านั้น
   const publicActivities = useMemo(() => {
-    console.log("🔍 [DEBUG] publicActivities useMemo - allPublicActivities:", allPublicActivities);
-    console.log("🔍 [DEBUG] publicActivities useMemo - searchTerm:", searchTerm);
-    
-    // ตรวจสอบว่า allPublicActivities เป็น array ที่ถูกต้อง
     if (!allPublicActivities || !Array.isArray(allPublicActivities)) {
-      console.warn("⚠️ [DEBUG] allPublicActivities is not a valid array:", allPublicActivities);
       return [];
     }
     
-    let filtered = allPublicActivities;
-
     if (searchTerm.trim()) {
-      filtered = filtered.filter((a) =>
+      return allPublicActivities.filter((a) =>
         a.activity_name.toLowerCase().includes(searchTerm.toLowerCase().trim())
       );
     }
-
-    console.log("🔍 [DEBUG] publicActivities useMemo - filtered result:", filtered);
-    return filtered; // ✅ ลบ .filter((a) => a.activity_status === "Public") ออก
+    
+    return allPublicActivities;
   }, [allPublicActivities, searchTerm]);
 
   const recommendedActivities = useMemo(() => {
