@@ -3,9 +3,11 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { useActivityStore } from "../../../../../stores/Student/activity.store.student";
+import { useNavigate } from "react-router-dom";
 
 const StudentActivityCalendar = () => {
   const { activities } = useActivityStore();
+  const navigate = useNavigate();
 
   const publicEvents = useMemo(() => {
     return (activities || [])
@@ -49,6 +51,11 @@ const StudentActivityCalendar = () => {
         editable={false}
         events={publicEvents}
         height="100%"
+        eventClick={(info) => {
+          const id = info.event.id;
+          if (!id) return;
+          navigate(`/activity-info-student/${id}`, { state: { id: Number(id) } });
+        }}
       />
     </div>
   );
