@@ -7,6 +7,7 @@ import Loading from "../../../../components/Loading";
 import SearchBar from "../../../../components/Searchbar";
 import { AlarmClockPlus } from "lucide-react";
 import ActivityTablePageStudent from "./ActivityTablePageStuden"; // ตรวจสอบชื่อไฟล์ให้ตรง ActivityTablePageStudent.tsx
+import StudentActivityCalendar from "./components/activityCarlendar";
 // import CalculateDialog from "./components/CalculateDialog";
 // import { useAuth } from "../../../../hooks/useAuth";
 import { isRecommended } from "./utils.ts/activity";
@@ -179,6 +180,10 @@ const ListActivityStudent: React.FC = () => {
         <ActivityTablePageStudent rows1={publicActivities || []} rows2={[]} />
       ) : activeTab === "recommend" ? (
         <ActivityTablePageStudent rows1={[]} rows2={recommendedActivities || []} />
+      ) : activeTab === "calendar" ? (
+        <div className="flex justify-center">
+          <StudentActivityCalendar />
+        </div>
       ) : (
         <div className="text-center text-gray-500 p-6">
           <h2 className="text-xl font-semibold">
