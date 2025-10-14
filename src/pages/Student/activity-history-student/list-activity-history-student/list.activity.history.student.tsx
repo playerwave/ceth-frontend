@@ -46,12 +46,6 @@ const ListActivityHistoryStudent = () => {
           ยังไม่พบรหัสนักศึกษาในระบบเข้าสู่ระบบ/รีเฟรชหน้าเพื่อดึงข้อมูลผู้ใช้
         </div>
       )}
-
-      <div className="ml-50">
-      <Button className="bg-gradient-to-r from-red-500 via-blue-500 to-green-500" onClick={handleClick}>
-        ปาเร่แบบประเมิน
-      </Button>
-    </div>
     </div>
   );
 };

@@ -16,6 +16,7 @@ export default function ActivityInfoStudent() {
   const location = useLocation();
   const id = location.state?.id || paramId;
   const navigate = useNavigate();
+  const isHistoryRoute = location.pathname.startsWith("/activity-history-info-student");
 
   console.log("🔍 [DEBUG] ActivityInfoStudent - paramId:", paramId);
   console.log("🔍 [DEBUG] ActivityInfoStudent - location.state:", location.state);
@@ -97,19 +98,30 @@ export default function ActivityInfoStudent() {
           setSelectedFood={setSelectedFood}
           isEnrolled={isEnrolled}
         />
-        <ActivityFooter
-          mode="catalog"
-          evaluationDone={false}
-          activity={activity}
-          isEnrolled={isEnrolled}
-          enrollActivity={enrollActivity}
-          unenrollActivity={unenrollActivity}
-          setIsEnrolled={setIsEnrolled}
-          navigate={navigate}
-          enrolledActivities={enrolledActivities}
-          selectedFood={selectedFood}
-          userId={studentId || null}
-        />
+        {isHistoryRoute ? (
+          <div className="flex justify-end mt-6">
+            <button
+              className="px-6 py-2 rounded-[12px] bg-[#1E3A8A] text-white hover:brightness-95"
+              onClick={() => navigate(-1)}
+            >
+              กลับ
+            </button>
+          </div>
+        ) : (
+          <ActivityFooter
+            mode="catalog"
+            evaluationDone={false}
+            activity={activity}
+            isEnrolled={isEnrolled}
+            enrollActivity={enrollActivity}
+            unenrollActivity={unenrollActivity}
+            setIsEnrolled={setIsEnrolled}
+            navigate={navigate}
+            enrolledActivities={enrolledActivities}
+            selectedFood={selectedFood}
+            userId={studentId || null}
+          />
+        )}
       </div>
     </div>
   );
