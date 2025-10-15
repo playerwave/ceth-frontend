@@ -1,4 +1,3 @@
-import CustomCard from "@components/Card";
 import { AssessmentQuestionData } from "@/types/activity-report.type";
 
 // ===== Types =====
@@ -6,11 +5,15 @@ type SingleChoiceQuestion = AssessmentQuestionData;
 
 interface SingleAnswerResponseCardProps {
   questions: SingleChoiceQuestion[];
+  startIndex?: number;
 }
 
 // ===== Helpers =====
-const pct = (count: number, total: number): string =>
-  total > 0 ? `${((count / total) * 100).toFixed(1)}%` : "0.0%";
+const pct = (count: number, total: number): string => {
+  const result = total > 0 ? `${((count / total) * 100).toFixed(1)}%` : "0.0%";
+  console.log(`📊 [pct] count: ${count}, total: ${total}, result: ${result}`);
+  return result;
+};
 
 const barClass = (percentage: number): string => {
   if (percentage >= 80) return "bg-green-400";
@@ -20,13 +23,18 @@ const barClass = (percentage: number): string => {
   return "bg-red-400";
 };
 
-export default function SingleChoiceResponseCard({ questions }: SingleAnswerResponseCardProps) {
+export default function SingleChoiceResponseCard({ questions, startIndex = 0 }: SingleAnswerResponseCardProps) {
+  console.log("🔍 [SingleAnswerResponseCard] startIndex:", startIndex, "questions:", questions.length);
+  console.log("🔍 [SingleAnswerResponseCard] Questions data:", questions.map(q => ({
+    questionId: q.questionId,
+    questionText: q.questionText,
+    totalRespondents: q.totalRespondents,
+    choices: q.choices?.map(c => ({ choiceText: c.choiceText, count: c.count, percentage: c.percentage }))
+  })));
 
   return (
-    <CustomCard
-      className="w-full max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-full p-4 sm:p-6 relative mx-0 self-start h-full"
-    >
-      <h3 className="font-bold text-lg mb-6">คำถามแบบเลือกคำตอบเดียว (Single choice)</h3>
+    <div className="w-full">
+      {/* ไม่แสดงหัวข้อเพราะจะแสดงซ้ำกับหัวข้อหลัก */}
 
       {questions.length === 0 ? (
         <div className="flex items-center justify-center h-64">
@@ -43,7 +51,7 @@ export default function SingleChoiceResponseCard({ questions }: SingleAnswerResp
               {/* Question */}
               <div className="mb-4">
                 <h4 className="font-semibold text-base text-gray-800 leading-relaxed">
-                  {idx + 1}. {q.questionText}
+                  {startIndex + idx + 1}. {q.questionText}
                 </h4>
                 <p className="text-sm text-gray-500 mt-1">จากผู้ตอบ {q.totalRespondents} คน</p>
               </div>
@@ -51,7 +59,10 @@ export default function SingleChoiceResponseCard({ questions }: SingleAnswerResp
               {/* Choices + stats */}
               <div className="space-y-3">
                 {q.choices?.map((c) => {
-                  const percentageNumber = (q.totalRespondents || 0) > 0 ? ((c.count || 0) / (q.totalRespondents || 0)) * 100 : 0;
+                  // ใช้ percentage จาก backend หรือคำนวณใหม่
+                  const percentageFromBackend = c.percentage ? parseFloat(c.percentage.replace('%', '')) : 0;
+                  const percentageNumber = percentageFromBackend || ((q.totalRespondents || 0) > 0 ? ((c.count || 0) / (q.totalRespondents || 0)) * 100 : 0);
+                  console.log(`📊 [SingleAnswerResponseCard] Choice: ${c.choiceText}, count: ${c.count}, totalRespondents: ${q.totalRespondents}, percentageFromBackend: ${percentageFromBackend}, percentageNumber: ${percentageNumber}`);
                   return (
                     <div
                       key={c.choiceId}
@@ -73,7 +84,7 @@ export default function SingleChoiceResponseCard({ questions }: SingleAnswerResp
                             <div className="text-gray-500 text-xs">คน</div>
                           </div>
                           <div className="text-center">
-                            <div className="font-semibold text-green-600">{pct(c.count || 0, q.totalRespondents || 0)}</div>
+                            <div className="font-semibold text-green-600">{c.percentage || pct(c.count || 0, q.totalRespondents || 0)}</div>
                             <div className="text-gray-500 text-xs">เปอร์เซ็นต์</div>
                           </div>
                         </div>
@@ -163,6 +174,6 @@ export default function SingleChoiceResponseCard({ questions }: SingleAnswerResp
           </div>
         </div>
       )}
-    </CustomCard>
+    </div>
   );
 }

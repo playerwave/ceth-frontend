@@ -1,17 +1,18 @@
 import axiosInstance from "../../libs/axios";
 import { ApiAssessment } from "../../stores/api/assessment.api";
 
-// 🔄 ดึงรายการแบบประเมินทั้งหมด
-export const getAllAssessments = async (): Promise<ApiAssessment[]> => {
-  console.log("🌐 [AssessmentService] Calling getAllAssessments API...");
+// 🔄 ดึงรายการแบบประเมิน (รองรับ type = latest | all | published)
+export const getAllAssessments = async (
+  type: "latest" | "all" | "published" = "latest",
+  page = 1,
+  limit = 100
+): Promise<ApiAssessment[]> => {
+  console.log("🌐 [AssessmentService] Calling getAllAssessments API...", { type, page, limit });
   try {
-    // เพิ่ม query parameters เพื่อให้ backend รู้ว่าต้องการข้อมูลแบบไหน
-    // เปลี่ยนจาก 'latest' เป็น 'all' เพื่อดูข้อมูลทั้งหมด
-    const response = await axiosInstance.get<{data: ApiAssessment[]}>(
-      "/teacher/assessment/get-assessments?type=all&page=1&limit=100"
+    const response = await axiosInstance.get<{ data: ApiAssessment[] }>(
+      `/teacher/assessment/get-assessments?type=${type}&page=${page}&limit=${limit}`
     );
     console.log("✅ [AssessmentService] API response:", response.data);
-    // ✅ Backend คืน { data: [...] } ดังนั้นต้องดึง response.data.data
     return response.data.data || [];
   } catch (error) {
     console.error("❌ [AssessmentService] getAllAssessments error:", error);
@@ -87,6 +88,49 @@ export const getAssessmentFullById = async (id: number): Promise<any> => {
   return response.data;
 };
 
+// =============== Versioning endpoints ===============
+export const getVersionHistory = async (assessmentId: number): Promise<any[]> => {
+  const res = await axiosInstance.get<{ versions: any[] }>(
+    `/teacher/assessment/${assessmentId}/versions`
+  );
+  return (res.data as any).versions ?? (res.data as any) ?? [];
+};
+
+export const getAllVersionAssessment = async (assessmentId: number): Promise<any[]> => {
+  const res = await axiosInstance.get<{ versions: any[] }>(
+    `/teacher/assessment/${assessmentId}/versions/all`
+  );
+  return (res.data as any).versions ?? (res.data as any) ?? [];
+};
+
+export const getLatestPublishedVersion = async (assessmentId: number): Promise<any | null> => {
+  const res = await axiosInstance.get<{ version: any }>(
+    `/teacher/assessment/${assessmentId}/versions/latest`
+  );
+  return (res.data as any).version ?? (res.data as any) ?? null;
+};
+
+export const getVersionWithFullData = async (versionId: number): Promise<any | null> => {
+  const res = await axiosInstance.get<{ data: any }>(
+    `/teacher/assessment/versions/${versionId}`
+  );
+  return (res.data as any).data ?? (res.data as any) ?? null;
+};
+
+export const createVersion = async (assessmentId: number): Promise<any> => {
+  const res = await axiosInstance.post(
+    `/teacher/assessment/${assessmentId}/versions`
+  );
+  return res.data;
+};
+
+export const publishVersion = async (assessmentId: number, versionId: number): Promise<any> => {
+  const res = await axiosInstance.post(
+    `/teacher/assessment/${assessmentId}/versions/${versionId}/publish`
+  );
+  return res.data;
+};
+
 
 // ✅ Export แบบ object สำหรับใช้ใน store
 const assessmentService = {
@@ -98,6 +142,13 @@ const assessmentService = {
   searchAssessments,
   createAssessmentFull,
   getAssessmentFullById,
+  // versioning
+  getVersionHistory,
+  getAllVersionAssessment,
+  getLatestPublishedVersion,
+  getVersionWithFullData,
+  createVersion,
+  publishVersion,
   // ✅
 };
 

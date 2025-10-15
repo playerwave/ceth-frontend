@@ -6,11 +6,12 @@ import { mapApiToAuthUser, mapUserToAuthUser } from "../mapper/auth.mapper";
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       authLoading: false,
       authError: null,
+      _isFetching: false, // เพิ่ม flag เพื่อป้องกันการเรียก fetchMe ซ้ำ
 
       login: async ({ username, password }) => {
         set({ authLoading: true, authError: null });
@@ -52,13 +53,24 @@ export const useAuthStore = create<AuthState>()(
       // },
 
       fetchMe: async () => {
-        set({ authLoading: true, authError: null });
+        const state = get();
+        
+        // ป้องกันการเรียก fetchMe ซ้ำ
+        if (state._isFetching || state.authLoading) {
+          console.log("⏳ [Auth Store] Already fetching, skipping...");
+          return;
+        }
+        
+        console.log("🔄 [Auth Store] Starting fetchMe...");
+        set({ authLoading: true, authError: null, _isFetching: true });
+        
         try {
           const user = await authService.fetchMe();
           const authUser = mapUserToAuthUser(user);
           set({ user: authUser, isAuthenticated: true, authError: null });
+          console.log("✅ [Auth Store] fetchMe completed successfully");
         } catch (error) {
-          console.error("FetchMe error:", error);
+          console.error("❌ [Auth Store] FetchMe error:", error);
           
           // ✅ ตรวจสอบประเภทของ error
           if (error instanceof Error && error.message === "No token found in localStorage") {
@@ -71,7 +83,7 @@ export const useAuthStore = create<AuthState>()(
             set({ authError: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้" });
           }
         } finally {
-          set({ authLoading: false });
+          set({ authLoading: false, _isFetching: false });
         }
       },
     }),

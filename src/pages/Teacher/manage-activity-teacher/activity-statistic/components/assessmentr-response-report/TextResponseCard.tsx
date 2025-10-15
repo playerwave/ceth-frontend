@@ -1,6 +1,34 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import AssessmentTopicCard from "./FixSingleAnswerResponse";
+import { AssessmentQuestionData } from "@/types/activity-report.type";
+
+// ===== Types =====
+type Question = AssessmentQuestionData;
+
+// ===== Text Answer Renderer =====
+const TextAnswerRenderer = ({ questions, startIndex = 0 }: { questions: Question[]; startIndex?: number }) => (
+  <div className="space-y-6">
+    {questions.map((question, index) => (
+      <div key={question.questionId} className="border-b border-gray-200 pb-6 last:border-b-0">
+        <div className="mb-4">
+          <h4 className="font-semibold text-base text-gray-800 leading-relaxed">
+            {startIndex + index + 1}. {question.questionText}
+          </h4>
+        </div>
+
+        <div className="space-y-2">
+          {question.answers?.map((answer: any, answerIdx: number) => (
+            <div key={answerIdx} className="bg-gray-50 rounded-lg p-3">
+              <p className="text-gray-800">{answer}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 // import CustomCard from "@components/Card"; // ไม่ได้ใช้แล้วเพราะซ่อนตารางข้อเสนอแนะ
 import { useActivityReportStore } from "@stores/Teacher/activity-report.store";
 import { Loader2 } from "lucide-react";
@@ -74,29 +102,44 @@ export default function AssessmentDataContainer() {
 
   // แปลงข้อมูลจาก API เป็นรูปแบบที่ component ต้องการ
   const transformAssessmentData = (topic: any) => {
-    const questions = topic.questions.map((question: any) => {
-      // แปลง choiceStats เป็นรูปแบบตาราง
-      const choiceStats = question.choiceStats || [];
-      const most = choiceStats.find((stat: any) => stat.choiceText === 'มากที่สุด')?.count || 0;
-      const much = choiceStats.find((stat: any) => stat.choiceText === 'มาก')?.count || 0;
-      const medium = choiceStats.find((stat: any) => stat.choiceText === 'ปานกลาง')?.count || 0;
-      const less = choiceStats.find((stat: any) => stat.choiceText === 'น้อย')?.count || 0;
-      const least = choiceStats.find((stat: any) => stat.choiceText === 'น้อยที่สุด')?.count || 0;
+    // แยกคำถามตามประเภท
+    const fixSingleQuestions: any[] = [];
+    const textQuestions: Question[] = [];
 
-      return {
-        question: question.questionText,
-        most,
-        much,
-        medium,
-        less,
-        least,
-        average: question.average || 0,
-      };
+    topic.questions.forEach((question: any, index: number) => {
+      if (question.questionType === "Text answer") {
+        textQuestions.push({
+          questionId: question.questionId,
+          questionText: question.questionText,
+          questionType: question.questionType,
+          questionNumber: question.questionNumber,
+          answers: question.answers || []
+        });
+      } else {
+        // แปลง choiceStats เป็นรูปแบบตารางสำหรับ Fix Single answer
+        const choiceStats = question.choiceStats || [];
+        const most = choiceStats.find((stat: any) => stat.choiceText === 'มากที่สุด')?.count || 0;
+        const much = choiceStats.find((stat: any) => stat.choiceText === 'มาก')?.count || 0;
+        const medium = choiceStats.find((stat: any) => stat.choiceText === 'ปานกลาง')?.count || 0;
+        const less = choiceStats.find((stat: any) => stat.choiceText === 'น้อย')?.count || 0;
+        const least = choiceStats.find((stat: any) => stat.choiceText === 'น้อยที่สุด')?.count || 0;
+
+        fixSingleQuestions.push({
+          question: question.questionText,
+          most,
+          much,
+          medium,
+          less,
+          least,
+          average: question.average || 0,
+        });
+      }
     });
 
     return {
       title: `หัวข้อ: ${topic.topicName}`,
-      questions,
+      fixSingleQuestions,
+      textQuestions,
       pieData: topic.pieData,
       totalRespondents: topic.totalRespondents,
     };
@@ -109,13 +152,30 @@ export default function AssessmentDataContainer() {
         assessmentData.map((topic) => {
           const transformedData = transformAssessmentData(topic);
           return (
-            <AssessmentTopicCard
-              key={topic.topicId}
-              topicTitle={transformedData.title}
-              questions={transformedData.questions}
-              pieData={transformedData.pieData}
-              totalRespondents={transformedData.totalRespondents}
-            />
+            <div key={topic.topicId} className="space-y-6">
+              {/* แสดง Fix Single Answer Questions */}
+              {transformedData.fixSingleQuestions.length > 0 && (
+                <AssessmentTopicCard
+                  topicTitle={transformedData.title}
+                  questions={transformedData.fixSingleQuestions}
+                  pieData={transformedData.pieData}
+                  totalRespondents={transformedData.totalRespondents}
+                />
+              )}
+              
+              {/* แสดง Text Answer Questions */}
+              {transformedData.textQuestions.length > 0 && (
+                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-300">
+                  <h3 className="font-bold text-xl text-blue-800 mb-6">
+                    {transformedData.title} - ข้อเสนอแนะ
+                  </h3>
+                  <TextAnswerRenderer 
+                    questions={transformedData.textQuestions} 
+                    startIndex={transformedData.fixSingleQuestions.length}
+                  />
+                </div>
+              )}
+            </div>
           );
         })
       ) : (

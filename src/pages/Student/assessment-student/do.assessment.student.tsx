@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Button from "../../../components/Button";
 import { useAssessmentStore } from "../../../stores/Student/assessment.store.student";
@@ -20,7 +20,7 @@ function AssessmentStudent() {
     error, 
     submitting, 
     submitError,
-    fetchAssessmentByActivityId, 
+    fetchAssessmentByActivityId,
     submitAssessment,
     clearError,
     clearSubmitError 
@@ -63,7 +63,7 @@ function AssessmentStudent() {
   useEffect(() => {
     if (assessment) {
       // ตรวจสอบว่าเป็น fallback data หรือไม่ (ดูจาก description ที่มีคำว่า "Mock Data")
-      const isFallbackData = assessment.assessment_description?.includes("Mock Data") || false;
+      const isFallbackData = (assessment as any).assessment_description?.includes("Mock Data") || false;
       setUsingFallbackData(isFallbackData);
       
       console.log("✅ [AssessmentStudent] Assessment loaded:", assessment);
@@ -73,6 +73,56 @@ function AssessmentStudent() {
       // ตั้งค่า activity จาก assessment data
       setActivity({ activity_name: (assessment as any).activity_name });
     }
+  }, [assessment]);
+
+  // Normalize sections/questions for mixed schemas (base vs version tables)
+  const normalizedSections = useMemo(() => {
+    const rawSections: any[] = (assessment as any)?.sections || [];
+    if (!Array.isArray(rawSections)) return [] as any[];
+
+    const normalizeQuestionType = (t: string) => {
+      if (!t) return t;
+      if (t === "multi_choice" || t === "Multiple answer") return "multiple_choice";
+      if (t === "text" || t === "Text answer") return "open_ended";
+      if (t === "Fix Single answer" || t === "Single answer") return "single_choice";
+      if (t === "rating") return "satisfaction"; // เปลี่ยนจาก rating เป็น satisfaction
+      return t; // already one of satisfaction | multiple_choice | single_choice | open_ended
+    };
+
+    const sections = rawSections.map((s: any, idx: number) => {
+      const section_name = s.section_name ?? s.name ?? `หัวข้อ ${idx + 1}`;
+      const section_order = s.section_order ?? s.order_index ?? idx + 1;
+      const section_id = s.section_id ?? s.set_number_version_id ?? s.set_number_id ?? idx + 1;
+
+      const questions = (s.questions || [])
+        .map((q: any, qIdx: number) => {
+          const question_type = normalizeQuestionType(q.question_type ?? q.type);
+          const question_id = q.question_id ?? q.question_version_id ?? qIdx + 1;
+          const question_order = q.question_order ?? q.question_number ?? q.order_index ?? qIdx + 1;
+          
+          // แก้ไขการดึง options ให้ครอบคลุมทุกกรณี
+          let options: string[] = [];
+          
+          if (Array.isArray(q.options) && q.options.length > 0) {
+            options = q.options;
+          } else if (Array.isArray(q.choices) && q.choices.length > 0) {
+            options = (q.choices as any[])
+              .map((c: any) => c?.choice_text ?? c?.text ?? c?.label ?? c)
+              .filter((x: any) => typeof x === "string" && x.length > 0);
+          } else if (question_type === "multiple_choice" || question_type === "single_choice") {
+            // เพิ่มตัวเลือกเริ่มต้นถ้าไม่มี options
+            options = ["ตัวเลือก 1", "ตัวเลือก 2", "ตัวเลือก 3", "ตัวเลือก 4"];
+            console.warn(`⚠️ [AssessmentStudent] No options found for ${question_type} question: ${q.question_text}`);
+          }
+          
+          return { ...q, question_type, question_id, question_order, options };
+        })
+        .sort((a: any, b: any) => (a.question_order ?? 0) - (b.question_order ?? 0)); // เรียงลำดับคำถาม
+
+      return { ...s, section_name, section_order, section_id, questions };
+    });
+
+    return sections.sort((a: any, b: any) => (a.section_order ?? 0) - (b.section_order ?? 0));
   }, [assessment]);
 
   // Handler functions
@@ -132,6 +182,10 @@ function AssessmentStudent() {
       
       alert("ส่งคำตอบเรียบร้อยแล้ว!");
       
+      // ส่ง custom event เพื่อแจ้งให้หน้าหลักอัพเดทข้อมูล
+      console.log("🔄 [AssessmentStudent] Dispatching assessmentSubmitted event");
+      window.dispatchEvent(new CustomEvent('assessmentSubmitted'));
+      
       // Redirect กลับไปหน้า main-student
       navigate("/main-student");
     } catch (error) {
@@ -141,19 +195,60 @@ function AssessmentStudent() {
   };
 
   // กรองคำถามตามประเภท (ป้องกัน undefined error)
-  const questions = assessment?.questions || [];
-  const satisfactionQuestions = questions.filter((q) => q.question_type === "satisfaction");
-  const multipleChoiceQuestions = questions.filter((q) => q.question_type === "multiple_choice");
-  const singleChoiceQuestions = questions.filter((q) => q.question_type === "single_choice");
-  const openEndedQuestions = questions.filter((q) => q.question_type === "open_ended");
+  const questions = (assessment as any)?.questions || [];
+  const satisfactionQuestions = questions.filter((q: any) => q.question_type === "satisfaction");
+  const multipleChoiceQuestions = questions.filter((q: any) => q.question_type === "multiple_choice");
+  const singleChoiceQuestions = questions.filter((q: any) => q.question_type === "single_choice");
+  const openEndedQuestions = questions.filter((q: any) => q.question_type === "open_ended");
 
   // Debug logs
   console.log("🔍 [AssessmentStudent] Assessment data:", assessment);
+  console.log("🔍 [AssessmentStudent] Normalized sections:", normalizedSections);
   console.log("🔍 [AssessmentStudent] Satisfaction questions:", satisfactionQuestions);
   console.log("🔍 [AssessmentStudent] Multiple choice questions:", multipleChoiceQuestions);
   console.log("🔍 [AssessmentStudent] Single choice questions:", singleChoiceQuestions);
   console.log("🔍 [AssessmentStudent] Open ended questions:", openEndedQuestions);
   console.log("🔍 [AssessmentStudent] Current answers:", answers);
+  
+  // Debug options specifically
+  if ((assessment as any)?.sections) {
+    (assessment as any).sections.forEach((section: any, idx: number) => {
+      console.log(`🔍 [AssessmentStudent] Section ${idx}:`, section.name);
+      if (section.questions) {
+        section.questions.forEach((q: any, qIdx: number) => {
+          console.log(`🔍 [AssessmentStudent] Question ${qIdx}:`, {
+            question_text: q.question_text,
+            question_type: q.question_type,
+            options: q.options,
+            choices: q.choices,
+            raw_question: q
+          });
+        });
+      }
+    });
+  }
+  
+  // Debug normalized sections
+  if (normalizedSections && normalizedSections.length > 0) {
+    normalizedSections.forEach((section: any, idx: number) => {
+      console.log(`🔍 [AssessmentStudent] Normalized Section ${idx}:`, {
+        section_name: section.section_name,
+        section_order: section.section_order,
+        questions_count: section.questions?.length || 0
+      });
+      if (section.questions) {
+        section.questions.forEach((q: any, qIdx: number) => {
+          console.log(`🔍 [AssessmentStudent] Normalized Question ${qIdx}:`, {
+            question_text: q.question_text,
+            question_type: q.question_type,
+            question_order: q.question_order,
+            options: q.options,
+            options_length: q.options?.length || 0
+          });
+        });
+      }
+    });
+  }
 
   if (loading) {
     return <Loading />;
@@ -188,8 +283,8 @@ function AssessmentStudent() {
             <h1 className="text-3xl font-bold text-center mb-2">
               แบบประเมินกิจกรรม {activity?.activity_name || "กิจกรรม"}
             </h1>
-        {assessment.assessment_description && (
-          <p className="text-center text-gray-600">{assessment.assessment_description}</p>
+        {(assessment as any).assessment_description && (
+          <p className="text-center text-gray-600">{(assessment as any).assessment_description}</p>
         )}
         <p className="text-center text-sm text-gray-500 mt-2">
           Activity ID: {activityId || "ไม่ระบุ"}
@@ -247,119 +342,136 @@ function AssessmentStudent() {
       </div>
 
       {/* แสดงตาม sections ถ้ามี หรือแสดงแบบเดิมถ้าไม่มี sections */}
-      {assessment.sections && assessment.sections.length > 0 ? (
-        // แสดงตาม sections
-        assessment.sections
-          .sort((a: any, b: any) => a.section_order - b.section_order)
+      {normalizedSections && normalizedSections.length > 0 ? (
+        // แสดงตาม sections แบบเดียวกับหน้า teacher edit
+        normalizedSections
           .map((section: any) => {
-            // กรองคำถามใน section ตามประเภท
-            const sectionSatisfactionQuestions = section.questions.filter((q: any) => q.question_type === "satisfaction");
-            const sectionMultipleChoiceQuestions = section.questions.filter((q: any) => q.question_type === "multiple_choice");
-            const sectionSingleChoiceQuestions = section.questions.filter((q: any) => q.question_type === "single_choice");
-            const sectionOpenEndedQuestions = section.questions.filter((q: any) => q.question_type === "open_ended");
-
             return (
-              <div key={section.section_id} className="mb-8">
+              <div key={section.section_id} className="bg-white p-10 rounded-xl shadow-lg hover:shadow-2xl transition-shadow mb-8">
+                {/* Section Header - แสดงชื่อ section */}
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+                      {section.section_name}
+                    </h2>
+                  </div>
+                </div>
 
-                {sectionSatisfactionQuestions.length > 0 && (
-                  <>
-                    <SatisfactionQuestions
-                      questions={sectionSatisfactionQuestions}
-                      answers={answers.satisfaction}
-                      onChange={handleSatisfactionChange}
-                    />
-                    <br />
-                  </>
-                )}
-
-                {sectionMultipleChoiceQuestions.length > 0 && (
-                  <>
-                    <MultipleChoice
-                      title={`คำถามแบบหลายตัวเลือก - ${section.section_name}`}
-                      questions={sectionMultipleChoiceQuestions}
-                      answers={answers.multiple_choice}
-                      onToggle={handleMultipleChoiceChange}
-                    />
-                    <br />
-                  </>
-                )}
-
-                {sectionSingleChoiceQuestions.length > 0 && (
-                  <>
-                    <ChoiceAnswer
-                      title={`คำถามแบบตัวเลือกเดียว - ${section.section_name}`}
-                      questions={sectionSingleChoiceQuestions}
-                      answers={answers.single_choice}
-                      onChange={handleSingleChoiceChange}
-                    />
-                    <br />
-                  </>
-                )}
-
-                {sectionOpenEndedQuestions.length > 0 && (
-                  <>
-                    <OpenEndedQuestion
-                      title={`คำถามปลายเปิด - ${section.section_name}`}
-                      questions={sectionOpenEndedQuestions}
-                      answers={answers.open_ended}
-                      onChange={handleOpenEndedChange}
-                    />
-                    <br />
-                  </>
-                )}
+                {/* Questions - แสดงคำถามตามลำดับที่เรียงไว้แล้ว */}
+                <div className="space-y-6">
+                  {section.questions.map((question: any, qIdx: number) => {
+                    switch (question.question_type) {
+                      case "satisfaction":
+                        return (
+                          <div key={`question-${question.question_id}-${qIdx}`} className="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
+                            <SatisfactionQuestions
+                              questions={[question]}
+                              answers={answers.satisfaction}
+                              onChange={handleSatisfactionChange}
+                            />
+                          </div>
+                        );
+                      
+                      case "multiple_choice":
+                        return (
+                          <div key={`question-${question.question_id}-${qIdx}`} className="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
+                            <MultipleChoice
+                              title=""
+                              questions={[question]}
+                              answers={answers.multiple_choice}
+                              onToggle={handleMultipleChoiceChange}
+                            />
+                          </div>
+                        );
+                      
+                      case "single_choice":
+                        return (
+                          <div key={`question-${question.question_id}-${qIdx}`} className="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
+                            <ChoiceAnswer
+                              title=""
+                              questions={[question]}
+                              answers={answers.single_choice}
+                              onChange={handleSingleChoiceChange}
+                            />
+                          </div>
+                        );
+                      
+                      case "open_ended":
+                        return (
+                          <div key={`question-${question.question_id}-${qIdx}`} className="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
+                            <OpenEndedQuestion
+                              title=""
+                              questions={[question]}
+                              answers={answers.open_ended}
+                              onChange={handleOpenEndedChange}
+                            />
+                          </div>
+                        );
+                      
+                      default:
+                        return null;
+                    }
+                  })}
+                </div>
               </div>
             );
           })
       ) : (
-        // แสดงแบบเดิม (fallback)
-        <>
-          {satisfactionQuestions.length > 0 && (
-            <>
-              <SatisfactionQuestions
-                questions={satisfactionQuestions}
-                answers={answers.satisfaction}
-                onChange={handleSatisfactionChange}
-              />
-              <br />
-            </>
-          )}
+        // แสดงแบบเดิม (fallback) - กรณีไม่มี sections
+        <div className="bg-white p-10 rounded-xl shadow-lg hover:shadow-2xl transition-shadow mb-8">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+                คำถามทั้งหมด
+              </h2>
+            </div>
+          </div>
 
-          {multipleChoiceQuestions.length > 0 && (
-            <>
-              <MultipleChoice
-                title="คำถามแบบหลายตัวเลือก"
-                questions={multipleChoiceQuestions}
-                answers={answers.multiple_choice}
-                onToggle={handleMultipleChoiceChange}
-              />
-              <br />
-            </>
-          )}
+          <div className="space-y-6">
+            {satisfactionQuestions.length > 0 && (
+              <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
+                <SatisfactionQuestions
+                  questions={satisfactionQuestions}
+                  answers={answers.satisfaction}
+                  onChange={handleSatisfactionChange}
+                />
+              </div>
+            )}
 
-          {singleChoiceQuestions.length > 0 && (
-            <>
-              <ChoiceAnswer
-                title="คำถามแบบตัวเลือกเดียว"
-                questions={singleChoiceQuestions}
-                answers={answers.single_choice}
-                onChange={handleSingleChoiceChange}
-              />
-              <br />
-            </>
-          )}
+            {multipleChoiceQuestions.length > 0 && (
+              <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
+                <MultipleChoice
+                  title=""
+                  questions={multipleChoiceQuestions}
+                  answers={answers.multiple_choice}
+                  onToggle={handleMultipleChoiceChange}
+                />
+              </div>
+            )}
 
-          {openEndedQuestions.length > 0 && (
-            <>
-              <OpenEndedQuestion
-                title="คำถามปลายเปิด"
-                questions={openEndedQuestions}
-                answers={answers.open_ended}
-                onChange={handleOpenEndedChange}
-              />
-              <br />
-            </>
-          )}
-        </>
+            {singleChoiceQuestions.length > 0 && (
+              <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
+                <ChoiceAnswer
+                  title=""
+                  questions={singleChoiceQuestions}
+                  answers={answers.single_choice}
+                  onChange={handleSingleChoiceChange}
+                />
+              </div>
+            )}
+
+            {openEndedQuestions.length > 0 && (
+              <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
+                <OpenEndedQuestion
+                  title=""
+                  questions={openEndedQuestions}
+                  answers={answers.open_ended}
+                  onChange={handleOpenEndedChange}
+                />
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       <div className="flex justify-center">

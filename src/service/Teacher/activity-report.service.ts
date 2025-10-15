@@ -202,6 +202,25 @@ class ActivityReportService {
       throw new Error(`Failed to get student assessment status: ${errorMessage}`);
     }
   }
+
+  /**
+   * Debug endpoint สำหรับตรวจสอบข้อมูลคำตอบ
+   */
+  async debugAnswers(activityId: string | number): Promise<any> {
+    try {
+      console.log("🔍 [ActivityReportService] Debugging answers for activity:", activityId);
+      
+      const response = await axiosInstance.get(`/teacher/activity-report/${activityId}/debug-answers`);
+      
+      console.log("✅ [ActivityReportService] Debug answers received:", response.data.data);
+      
+      return response.data.data;
+    } catch (error) {
+      console.error("❌ [ActivityReportService] Error debugging answers:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      throw new Error(`Failed to debug answers: ${errorMessage}`);
+    }
+  }
 }
 
 export default new ActivityReportService();

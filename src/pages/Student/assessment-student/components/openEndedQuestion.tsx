@@ -1,4 +1,4 @@
-import CustomCard from "../../../../components/Card";
+import { TextField } from "@mui/material";
 
 interface AssessmentQuestion {
   question_id: number;
@@ -27,39 +27,57 @@ export default function OpenEndedQuestion({
     "w-full max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[100%] p-4 sm:p-6 relative mx-0 self-start";
 
   return (
-    <CustomCard className={`${base} ${className ?? ""}`}>
-      <h2 className="font-bold text-2xl pr-12 leading-snug">{title}</h2>
-      <br />
-      <div className="w-full overflow-x-auto">
-        <table className="w-full text-[16px] table-fixed min-w-[600px] border-collapse">
-          <thead>
-            <tr className="text-left text-[#A0AEC0]">
-              <th className="p-2 w-[50%]">คำถาม</th>
-              <th className="p-2 text-center w-[50%]">คำตอบ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {questions.map((question) => (
-              <tr key={question.question_id}>
-                <td className="p-2 w-[50%] align-top">
-                  {question.question_text}
-                </td>
-                <td className="p-2 w-[50%]">
-                  <textarea
-                    className={`w-full border-b border-gray-300 focus:outline-none focus:border-[#1E3A8A] ${
-                      answers[question.question_id] ? "text-black" : "text-gray-400"
-                    } placeholder-gray-400 resize-none pb-1`}
-                    rows={3}
-                    placeholder="พิมพ์คำตอบของคุณที่นี่..."
-                    value={answers[question.question_id] || ""}
-                    onChange={(e) => onChange(question.question_id, e.target.value)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className={className ?? ""}>
+      {title && <h2 className="font-bold text-2xl pr-12 leading-snug mb-4">{title}</h2>}
+      
+      <div className="space-y-6">
+        {questions.map((question) => (
+          <div key={question.question_id} className="space-y-3">
+            {/* คำถาม */}
+            <div className="text-gray-700 text-lg font-medium">
+              {question.question_text}
+            </div>
+            
+            {/* TextField - อยู่ใต้คำถามและชิดซ้าย */}
+            <div className="ml-0">
+              <TextField
+                id={`open-ended-${question.question_id}`}
+                label="คำตอบ"
+                variant="standard"
+                multiline
+                rows={2}
+                placeholder="พิมพ์คำตอบของคุณที่นี่..."
+                value={answers[question.question_id] || ""}
+                onChange={(e) => onChange(question.question_id, e.target.value)}
+                fullWidth
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    color: '#6B7280', // text-gray-500
+                    '&.Mui-focused': {
+                      color: '#1E3A8A', // text-blue-800
+                    },
+                  },
+                  '& .MuiInput-underline:before': {
+                    borderBottomColor: '#D1D5DB', // border-gray-300
+                  },
+                  '& .MuiInput-underline:after': {
+                    borderBottomColor: '#1E3A8A', // border-blue-800
+                  },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+                    borderBottomColor: '#9CA3AF', // border-gray-400
+                  },
+                  '& .MuiInputBase-input': {
+                    lineHeight: '1', // ลด line height
+                  },
+                  '& .MuiInputBase-root': {
+                    paddingBottom: '2px', // ลด padding ของ container
+                  },
+                }}
+              />
+            </div>
+          </div>
+        ))}
       </div>
-    </CustomCard>
+    </div>
   );
 }

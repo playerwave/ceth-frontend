@@ -1,13 +1,23 @@
 // ✅ SoftHardSkillCards.tsx
+import { useState, useEffect } from "react";
 import CustomCard from "../../../../components/Card";
 import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 
 const SoftHardSkillCards = () => {
   const { user } = useAuthStore();
+  const [softHours, setSoftHours] = useState(0);
+  const [hardHours, setHardHours] = useState(0);
   
-  // ดึงข้อมูล soft_hours และ hard_hours จาก user.student
-  const softHours = user?.student?.soft_hours || 0;
-  const hardHours = user?.student?.hard_hours || 0;
+  // อัพเดทชั่วโมงเมื่อ user.student เปลี่ยนแปลง
+  useEffect(() => {
+    console.log("🔍 [SoftHardSkillCards] User data changed, updating hours:", {
+      students_id: user?.student?.students_id,
+      soft_hours: user?.student?.soft_hours,
+      hard_hours: user?.student?.hard_hours
+    });
+    setSoftHours(user?.student?.soft_hours || 0);
+    setHardHours(user?.student?.hard_hours || 0);
+  }, [user?.student]); // ใช้ user?.student แทนเพื่อให้ react เมื่อ student object เปลี่ยนแปลง
 
   return (
     <div className="max-w-6xl mx-auto px-1 w-full">

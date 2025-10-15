@@ -39,14 +39,14 @@ const ListActivityStudent: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   // const [openDialog, setOpenDialog] = useState(false);
 
-  // ดึงข้อมูลผู้ใช้ถ้ายังไม่มี student ใน store (กันเรียกซ้ำด้วย ref)
-  useEffect(() => {
-    if (triedFetchMeRef.current) return;
-    if (!user || !user.student) {
-      triedFetchMeRef.current = true;
-      fetchMe();
-    }
-  }, [user?.student]);
+  // ลบการเรียก fetchMe ออก เพราะ main.student.tsx เรียกแล้ว
+  // useEffect(() => {
+  //   if (triedFetchMeRef.current) return;
+  //   if (!user || !user.student) {
+  //     triedFetchMeRef.current = true;
+  //     fetchMe();
+  //   }
+  // }, [user?.student]);
 
   useEffect(() => {
     const id = user?.student?.students_id;

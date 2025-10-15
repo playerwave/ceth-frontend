@@ -13,26 +13,23 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   assessmentLoading: false,
   assessmentError: null,
   searchResults: null,
+  // versioning state
+  versions: [],
+  selectedVersion: null,
+  versionLoading: false,
+  versionError: null,
 
-  fetchAssessments: async () => {
-    console.log("🔄 [AssessmentStore] Starting fetchAssessments...");
+  fetchAssessments: async (type: "latest" | "published" | "all" = "latest") => {
     set({ assessmentLoading: true, assessmentError: null });
     try {
-      console.log("🌐 [AssessmentStore] Calling getAllAssessments API...");
-      const apiAssessments = await assessmentService.getAllAssessments();
-      console.log("✅ [AssessmentStore] API response received:", apiAssessments);
-      
+      const apiAssessments = await assessmentService.getAllAssessments(type, 1, 100);
       const mapped = mapApiToAssessments(apiAssessments);
-      console.log("🔄 [AssessmentStore] Mapped assessments:", mapped);
-      
       set({ assessments: mapped });
-      console.log("✅ [AssessmentStore] Assessments set in store successfully");
     } catch (err) {
       console.error("❌ [AssessmentStore] fetchAssessments error:", err);
       set({ assessmentError: "ไม่สามารถโหลดข้อมูลแบบประเมินได้" });
     } finally {
       set({ assessmentLoading: false });
-      console.log("🏁 [AssessmentStore] fetchAssessments completed");
     }
   },
 
@@ -148,4 +145,98 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       set({ assessmentLoading: false });
     }
   },
+
+  // =============== Versioning actions ===============
+  fetchVersionHistory: async (assessmentId: number) => {
+    set({ versionLoading: true, versionError: null });
+    try {
+      const versions = await assessmentService.getVersionHistory(assessmentId);
+      set({ versions });
+    } catch (e) {
+      console.error("❌ [AssessmentStore] fetchVersionHistory error:", e);
+      set({ versionError: "โหลดประวัติเวอร์ชันไม่สำเร็จ" });
+    } finally {
+      set({ versionLoading: false });
+    }
+  },
+
+  fetchAllVersionAssessment: async (assessmentId: number) => {
+    set({ versionLoading: true, versionError: null });
+    try {
+      const versions = await assessmentService.getAllVersionAssessment(assessmentId);
+      set({ versions });
+    } catch (e) {
+      console.error("❌ [AssessmentStore] fetchAllVersionAssessment error:", e);
+      set({ versionError: "โหลดเวอร์ชันทั้งหมดไม่สำเร็จ" });
+    } finally {
+      set({ versionLoading: false });
+    }
+  },
+
+  fetchLatestPublishedVersion: async (assessmentId: number) => {
+    set({ versionLoading: true, versionError: null });
+    try {
+      const version = await assessmentService.getLatestPublishedVersion(assessmentId);
+      set({ selectedVersion: version });
+      return version;
+    } catch (e) {
+      console.error("❌ [AssessmentStore] fetchLatestPublishedVersion error:", e);
+      set({ versionError: "โหลดเวอร์ชันล่าสุดไม่สำเร็จ" });
+      return null;
+    } finally {
+      set({ versionLoading: false });
+    }
+  },
+
+  fetchVersionWithFullData: async (versionId: number) => {
+    set({ versionLoading: true, versionError: null });
+    try {
+      const version = await assessmentService.getVersionWithFullData(versionId);
+      set({ selectedVersion: version });
+      return version;
+    } catch (e) {
+      console.error("❌ [AssessmentStore] fetchVersionWithFullData error:", e);
+      set({ versionError: "โหลดข้อมูลเวอร์ชันไม่สำเร็จ" });
+      return null;
+    } finally {
+      set({ versionLoading: false });
+    }
+  },
+
+  createVersion: async (assessmentId: number) => {
+    try {
+      await assessmentService.createVersion(assessmentId);
+      await get().fetchVersionHistory(assessmentId);
+    } catch (e) {
+      console.error("❌ [AssessmentStore] createVersion error:", e);
+      set({ versionError: "สร้างเวอร์ชันไม่สำเร็จ" });
+    }
+  },
+
+  publishAssessment: async (assessmentId: number) => {
+    try {
+      const latest = await assessmentService.getLatestPublishedVersion(assessmentId);
+      const latestVersionId = latest?.assessment_version_id ?? null;
+      if (!latestVersionId) {
+        // ถ้ายังไม่มีเวอร์ชันที่ publish เลย ให้สร้างเวอร์ชันใหม่แล้ว publish
+        const created = await assessmentService.createVersion(assessmentId);
+        const newVersionId = created?.version?.assessment_version_id || created?.assessment_version_id;
+        if (newVersionId) {
+          await assessmentService.publishVersion(assessmentId, newVersionId);
+        }
+      } else {
+        // ถ้ามีเวอร์ชันล่าสุดแล้ว ให้ publish เวอร์ชันใหม่ถ้าจำเป็น (ที่นี่ตัวอย่าง: publish เวอร์ชันใหม่โดยสร้างก่อน)
+        const created = await assessmentService.createVersion(assessmentId);
+        const newVersionId = created?.version?.assessment_version_id || created?.assessment_version_id;
+        await assessmentService.publishVersion(assessmentId, newVersionId ?? latestVersionId);
+      }
+      await get().fetchVersionHistory(assessmentId);
+      await get().fetchAssessments();
+    } catch (e) {
+      console.error("❌ [AssessmentStore] publishAssessment error:", e);
+      set({ versionError: "เผยแพร่เวอร์ชันไม่สำเร็จ" });
+    }
+  },
+
+  setSelectedVersion: (version: any) => set({ selectedVersion: version }),
 }));

@@ -44,11 +44,45 @@ const MainStudent = () => {
   //   return user?.student?.students_id;
   // }, [user?.student?.students_id]);
 
-  // Fetch user data on mount only if user is not authenticated
+  // Fetch user data on mount เพื่อให้ได้ข้อมูลล่าสุดเสมอ (เฉพาะครั้งแรก)
   useEffect(() => {
-    if (!user || user.role === "Visitor") {
-      fetchMe();
+    console.log("🔄 [MainStudent] Fetching user data on mount...");
+    if (user && user.role !== "Visitor") {
+      console.log("✅ [MainStudent] User already exists, skipping initial fetch");
+      return;
     }
+    fetchMe();
+  }, []); // เรียก fetchMe เฉพาะเมื่อไม่มี user หรือเป็น Visitor
+
+  // เพิ่มการฟัง events สำหรับอัพเดทข้อมูลหลังจากส่งแบบประเมิน
+  useEffect(() => {
+    let refreshTimeout: number | null = null;
+    
+    const handleAssessmentSubmitted = () => {
+      console.log("🔄 [MainStudent] Assessment submitted event received, refreshing user data...");
+      
+      // Clear existing timeout
+      if (refreshTimeout) {
+        clearTimeout(refreshTimeout);
+      }
+      
+      // ใช้ setTimeout เพื่อป้องกัน infinite loop และ debounce
+      refreshTimeout = setTimeout(() => {
+        console.log("🔄 [MainStudent] Executing delayed fetchMe...");
+        fetchMe();
+        refreshTimeout = null;
+      }, 2000); // เพิ่มเวลาเป็น 2 วินาที
+    };
+
+    // ฟัง custom event ที่ส่งมาจากหน้า assessment
+    window.addEventListener('assessmentSubmitted', handleAssessmentSubmitted);
+
+    return () => {
+      window.removeEventListener('assessmentSubmitted', handleAssessmentSubmitted);
+      if (refreshTimeout) {
+        clearTimeout(refreshTimeout);
+      }
+    };
   }, []); // ลบ fetchMe ออกจาก dependency array
 
   useEffect(() => {

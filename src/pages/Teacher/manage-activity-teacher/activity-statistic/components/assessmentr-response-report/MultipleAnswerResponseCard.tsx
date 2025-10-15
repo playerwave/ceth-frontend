@@ -6,6 +6,7 @@ type MultipleAnswerQuestion = AssessmentQuestionData;
 
 interface MultipleAnswerResponseCardProps {
   questions: MultipleAnswerQuestion[];
+  startIndex?: number;
 }
 
 // ===== Mock Data (ถูกปิดใช้งาน) =====
@@ -284,8 +285,13 @@ const mockMultipleAnswerData = [
 ];
 */
 
-export default function MultipleAnswerResponseCard({ questions }: MultipleAnswerResponseCardProps) {
-
+export default function MultipleAnswerResponseCard({ questions, startIndex = 0 }: MultipleAnswerResponseCardProps) {
+  console.log("🔍 [MultipleAnswerResponseCard] Questions data:", questions.map(q => ({
+    questionId: q.questionId,
+    questionText: q.questionText,
+    totalRespondents: q.totalRespondents,
+    choices: q.choices?.map(c => ({ choiceText: c.choiceText, count: c.count, percentage: c.percentage }))
+  })));
 
   return (
     <CustomCard
@@ -300,7 +306,7 @@ export default function MultipleAnswerResponseCard({ questions }: MultipleAnswer
                 self-start
                 h-full"
     >
-      <h3 className="font-bold text-lg mb-6">คำถามแบบเลือกตอบหลายข้อ</h3>
+      {/* ไม่แสดงหัวข้อเพราะจะแสดงซ้ำกับหัวข้อหลัก */}
 
       {questions.length > 0 ? (
         <div className="space-y-8">
@@ -309,7 +315,7 @@ export default function MultipleAnswerResponseCard({ questions }: MultipleAnswer
               {/* คำถาม */}
               <div className="mb-4">
                 <h4 className="font-semibold text-base text-gray-800 leading-relaxed">
-                  {index + 1}. {question.questionText}
+                  {startIndex + index + 1}. {question.questionText}
                 </h4>
                 <p className="text-sm text-gray-500 mt-1">
                   จากผู้ตอบ {question.totalRespondents} คน
@@ -344,7 +350,12 @@ export default function MultipleAnswerResponseCard({ questions }: MultipleAnswer
                   </div>
                   
                   <div className="text-center">
-                    <div className="font-semibold text-green-600">{choice.percentage || "0.0%"}</div>
+                    <div className="font-semibold text-green-600">
+                      {(question.totalRespondents || 0) > 0 
+                        ? `${((choice.count || 0) / (question.totalRespondents || 1) * 100).toFixed(1)}%`
+                        : "0.0%"
+                      }
+                    </div>
                     <div className="text-gray-500 text-xs">เปอร์เซ็นต์</div>
                   </div>
                 </div>
@@ -355,17 +366,22 @@ export default function MultipleAnswerResponseCard({ questions }: MultipleAnswer
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
                     className={`h-2 rounded-full transition-all duration-300 ${
-                      parseFloat(choice.percentage || "0") >= 80 
-                        ? 'bg-green-400'
-                        : parseFloat(choice.percentage || "0") >= 60
-                        ? 'bg-blue-600'
-                        : parseFloat(choice.percentage || "0") >= 40
-                        ? 'bg-yellow-400'
-                        : parseFloat(choice.percentage || "0") >= 20
-                        ? 'bg-orange-400'
-                        : 'bg-red-400'
+                      (() => {
+                        const percentageValue = (question.totalRespondents || 0) > 0 
+                          ? ((choice.count || 0) / (question.totalRespondents || 1) * 100)
+                          : 0;
+                        if (percentageValue >= 80) return 'bg-green-400';
+                        if (percentageValue >= 60) return 'bg-blue-600';
+                        if (percentageValue >= 40) return 'bg-yellow-400';
+                        if (percentageValue >= 20) return 'bg-orange-400';
+                        return 'bg-red-400';
+                      })()
                     }`}
-                    style={{ width: choice.percentage || "0%" }}
+                    style={{ 
+                      width: (question.totalRespondents || 0) > 0 
+                        ? `${((choice.count || 0) / (question.totalRespondents || 1) * 100)}%`
+                        : "0%"
+                    }}
                   ></div>
                 </div>
               </div>

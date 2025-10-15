@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Activity } from "../../types/model";
 import activityService from "../../service/Teacher/activity.service";
+import { useAuthStore } from "../Visitor/auth.store";
 
 interface ActivityStore {
   activities: Activity[];
@@ -68,6 +69,18 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   fetchActivities: async () => {
     console.log("📥 Fetching all activities for teacher...");
 
+    // ✅ ตรวจสอบ user authentication ก่อน
+    const authState = useAuthStore.getState();
+    console.log("🔍 [ActivityStore] Auth state:", {
+      isAuthenticated: authState.isAuthenticated,
+      user: authState.user ? {
+        userId: authState.user.userId,
+        username: authState.user.username,
+        role: authState.user.role,
+        role_id: authState.user.role_id
+      } : null
+    });
+
     set({ loading: true, error: null, activityLoading: true, activityError: null });
     
     try {
@@ -86,8 +99,16 @@ export const useActivityStore = create<ActivityStore>((set) => ({
         return;
       }
 
-      set({ activities: data, loading: false, activityLoading: false });
       console.log(`✅ teacher fetchActivities: Retrieved ${data.length} activities`);
+      console.log("🔍 [ActivityStore] Activities data:", data.map((a: any) => ({
+        id: a.activity_id,
+        name: a.activity_name,
+        status: a.activity_status,
+        state: a.activity_state,
+        type: a.type
+      })));
+
+      set({ activities: data, loading: false, activityLoading: false });
     } catch (err) {
       console.error(`❌ fetchActivities error:`, err);
       

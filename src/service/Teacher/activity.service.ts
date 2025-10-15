@@ -8,9 +8,20 @@ const TEACHER_ACTIVITY_PATH = "/teacher/activity";
 //--------------------- Fetch Activities -------------------------
 export const fetchAllActivities = async (): Promise<Activity[]> => {
   try {
+    console.log("🔍 [ActivityService] Starting fetchAllActivities");
+    console.log("🔍 [ActivityService] Request URL:", `${TEACHER_ACTIVITY_PATH}/get-activities`);
+    
     const response = await axiosInstance.get<Activity[]>(
       `${TEACHER_ACTIVITY_PATH}/get-activities`
     );
+    
+    console.log("🔍 [ActivityService] Response received:", {
+      status: response.status,
+      statusText: response.statusText,
+      dataType: typeof response.data,
+      isArray: Array.isArray(response.data),
+      dataLength: Array.isArray(response.data) ? response.data.length : 'N/A'
+    });
     
     // ✅ ตรวจสอบ response data
     if (!response.data || !Array.isArray(response.data)) {
@@ -19,12 +30,25 @@ export const fetchAllActivities = async (): Promise<Activity[]> => {
     }
     
     console.log(`✅ fetchAllActivities: Retrieved ${response.data.length} activities`);
+    console.log("🔍 [ActivityService] First few activities:", response.data.slice(0, 3).map(a => ({
+      id: a.activity_id,
+      name: a.activity_name,
+      status: a.activity_status,
+      state: a.activity_state
+    })));
+    
     return response.data;
   } catch (error) {
     console.error("❌ fetchAllActivities error:", error);
     
     // ✅ ตรวจสอบ error type และ return appropriate response
     if (error instanceof Error) {
+      console.log("🔍 [ActivityService] Error details:", {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      });
+      
       if (error.message.includes('Network Error') || error.message.includes('timeout')) {
         console.warn("⚠️ Network error, returning empty array");
         return [];

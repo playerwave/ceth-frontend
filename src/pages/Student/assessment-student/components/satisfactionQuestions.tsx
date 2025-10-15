@@ -1,4 +1,3 @@
-import CustomCard from "../../../../components/Card";
 
 interface AssessmentQuestion {
   question_id: number;
@@ -36,7 +35,7 @@ export default function SatisfactionQuestions({
   console.log("🔍 [SatisfactionQuestions] Questions length:", questions.length);
 
   return (
-    <CustomCard className={`${base} ${className ?? ""}`}>
+    <div className={className ?? ""}>
       <h2 className="font-bold text-2xl pr-12 leading-snug">{title}</h2>
       <br />
       <div className="w-full overflow-x-auto">
@@ -79,6 +78,6 @@ export default function SatisfactionQuestions({
           </tbody>
         </table>
       </div>
-    </CustomCard>
+    </div>
   );
 }

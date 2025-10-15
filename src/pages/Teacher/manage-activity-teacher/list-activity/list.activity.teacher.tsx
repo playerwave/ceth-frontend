@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
+import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Activity } from "../../../../types/model";
@@ -59,10 +60,19 @@ const ListActivityTeacher: React.FC = () => {
   } | null>(null);
 
   useEffect(() => {
-    // ✅ เพิ่มการตรวจสอบ loading state
+    // ✅ เพิ่มการตรวจสอบ loading state และ debug logs
+    console.log("🔍 [ListActivityTeacher] useEffect triggered:", {
+      activityLoading,
+      activitiesCount: activities.length,
+      user: useAuthStore.getState().user,
+      isAuthenticated: useAuthStore.getState().isAuthenticated
+    });
+    
     if (!activityLoading) {
-      console.log("🔄 Fetching activities...");
+      console.log("🔄 [ListActivityTeacher] Fetching activities...");
       fetchActivities();
+    } else {
+      console.log("⏳ [ListActivityTeacher] Already loading, skipping fetch");
     }
   }, []); // ✅ เปลี่ยนเป็น dependency array ว่าง
 

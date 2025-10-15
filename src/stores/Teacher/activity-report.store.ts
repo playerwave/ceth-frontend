@@ -44,6 +44,7 @@ interface ActivityReportState {
   clearAssessmentError: () => void;
   clearSatisfactionSurveyError: () => void;
   clearStudentAssessmentStatusError: () => void;
+  debugAnswers: (activityId: string | number) => Promise<any>;
   reset: () => void;
 }
 
@@ -141,6 +142,28 @@ export const useActivityReportStore = create<ActivityReportState>((set) => ({
   clearAssessmentError: () => set({ assessmentError: null }),
   clearSatisfactionSurveyError: () => set({ satisfactionSurveyError: null }),
   clearStudentAssessmentStatusError: () => set({ studentAssessmentStatusError: null }),
+  
+  // Debug method
+  debugAnswers: async (activityId: string | number) => {
+    try {
+      console.log("🔍 [ActivityReportStore] Debugging answers for activity:", activityId);
+      const result = await activityReportService.debugAnswers(activityId);
+      console.log("✅ [ActivityReportStore] Debug answers result:", result);
+      
+      // แสดงข้อมูลแบบเต็ม
+      if (result.fixSingleAnswers) {
+        console.log("🔍 [ActivityReportStore] Fix Single Answers Details:", JSON.stringify(result.fixSingleAnswers, null, 2));
+      }
+      if (result.fixSingleQuestions) {
+        console.log("🔍 [ActivityReportStore] Fix Single Questions Details:", JSON.stringify(result.fixSingleQuestions, null, 2));
+      }
+      
+      return result;
+    } catch (error) {
+      console.error("❌ [ActivityReportStore] Debug answers error:", error);
+      throw error;
+    }
+  },
   
   reset: () => set({
     enrollmentData: null,

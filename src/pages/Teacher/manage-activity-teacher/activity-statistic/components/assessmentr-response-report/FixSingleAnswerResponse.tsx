@@ -18,15 +18,28 @@ interface AssessmentTopicCardProps {
   questions: AssessmentQuestion[];
   pieData: PieChartData[];
   totalRespondents: number;
+  startIndex?: number;
 }
 
 export default function AssessmentTopicCard({ 
   topicTitle, 
   questions, 
   pieData, 
-  totalRespondents 
+  totalRespondents,
+  startIndex = 0
 }: AssessmentTopicCardProps) {
   const [showChart, setShowChart] = useState(false);
+  
+  // Debug logs
+  console.log("🔍 [FixSingleAnswerResponse] Component props:", {
+    topicTitle,
+    questionsCount: questions.length,
+    questions: questions,
+    pieDataCount: pieData.length,
+    pieData: pieData,
+    totalRespondents,
+    startIndex
+  });
   return (
     <CustomCard
       className="w-full
@@ -94,6 +107,7 @@ export default function AssessmentTopicCard({
                 {questions.map((item, i) => (
                   <tr key={i} className="hover:bg-gray-50">
                     <td className="p-2 w-[300px] break-words leading-relaxed">
+                      <span className="font-semibold">{startIndex + i + 1}. </span>
                       {item.question.length > 75 ? (
                         <span className="whitespace-pre-line">
                           {item.question.replace(/(.{75}[^\s]*)\s/g, '$1\n')}

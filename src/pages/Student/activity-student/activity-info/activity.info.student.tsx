@@ -16,7 +16,6 @@ export default function ActivityInfoStudent() {
   const location = useLocation();
   const id = location.state?.id || paramId;
   const navigate = useNavigate();
-  const isHistoryRoute = location.pathname.startsWith("/activity-history-info-student");
 
   console.log("🔍 [DEBUG] ActivityInfoStudent - paramId:", paramId);
   console.log("🔍 [DEBUG] ActivityInfoStudent - location.state:", location.state);
@@ -45,11 +44,12 @@ export default function ActivityInfoStudent() {
   const [selectedFood, setSelectedFood] = useState<string>("");
 
   // Fetch user data on mount only if user is not authenticated
-  useEffect(() => {
-    if (!user || user.role === "Visitor") {
-      fetchMe();
-    }
-  }, []); // ลบ fetchMe ออกจาก dependency array
+  // ลบการเรียก fetchMe ออก เพราะ main.student.tsx เรียกแล้ว
+  // useEffect(() => {
+  //   if (!user || user.role === "Visitor") {
+  //     fetchMe();
+  //   }
+  // }, []);
 
   useEffect(() => {
     const studentIdValue = user?.student?.students_id;
@@ -98,30 +98,19 @@ export default function ActivityInfoStudent() {
           setSelectedFood={setSelectedFood}
           isEnrolled={isEnrolled}
         />
-        {isHistoryRoute ? (
-          <div className="flex justify-end mt-6">
-            <button
-              className="px-6 py-2 rounded-[12px] bg-[#1E3A8A] text-white hover:brightness-95"
-              onClick={() => navigate(-1)}
-            >
-              กลับ
-            </button>
-          </div>
-        ) : (
-          <ActivityFooter
-            mode="catalog"
-            evaluationDone={false}
-            activity={activity}
-            isEnrolled={isEnrolled}
-            enrollActivity={enrollActivity}
-            unenrollActivity={unenrollActivity}
-            setIsEnrolled={setIsEnrolled}
-            navigate={navigate}
-            enrolledActivities={enrolledActivities}
-            selectedFood={selectedFood}
-            userId={studentId || null}
-          />
-        )}
+        <ActivityFooter
+          mode="catalog"
+          evaluationDone={false}
+          activity={activity}
+          isEnrolled={isEnrolled}
+          enrollActivity={enrollActivity}
+          unenrollActivity={unenrollActivity}
+          setIsEnrolled={setIsEnrolled}
+          navigate={navigate}
+          enrolledActivities={enrolledActivities}
+          selectedFood={selectedFood}
+          userId={studentId || null}
+        />
       </div>
     </div>
   );
