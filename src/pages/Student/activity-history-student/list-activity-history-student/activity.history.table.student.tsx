@@ -54,9 +54,12 @@ const ActivityHistoryTableStudent = ({
   const goDetail = (row: Activity) => {
     if (!row?.activity_id) return;
     navigate(`/activity-history-info-student/${row.activity_id}`, {
-  state: { mode: "history", id: row.activity_id },
-});
-
+      state: { 
+        mode: "history", 
+        id: row.activity_id,
+        activity: row // ✅ ส่งข้อมูลกิจกรรมทั้งหมด
+      },
+    });
   };
 
   return (

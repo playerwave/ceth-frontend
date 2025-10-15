@@ -369,4 +369,24 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       throw error;
     }
   },
+
+  // ✅ เมธอดใหม่: เช็คสถานะการทำแบบประเมิน
+  checkAssessmentStatus: async (activityId: number, studentId: number) => {
+    console.log("🔍 [STORE] checkAssessmentStatus called with:", { activityId, studentId });
+    set({ activityLoading: true, activityError: null });
+    try {
+      console.log("🔄 [STORE] Calling activityService.checkAssessmentStatus...");
+      const result = await activityService.checkAssessmentStatus(activityId, studentId);
+      console.log("✅ [STORE] Assessment status result:", result);
+      set({ activityLoading: false });
+      return result;
+    } catch (error: any) {
+      console.error("❌ [STORE] Error in checkAssessmentStatus:", error);
+      set({
+        activityError: error.message || "ไม่สามารถเช็คสถานะแบบประเมินได้",
+        activityLoading: false,
+      });
+      throw error;
+    }
+  },
 }));

@@ -68,14 +68,20 @@ export default function ActivityDetails({ activity, isVisitor = false }: Props) 
 
   const formatDate = (dateInput?: string | Date | null) => {
     if (!dateInput) return "ไม่ระบุ";
-    const date = new Date(dateInput);
-    const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
-    const month =
-      date.getMonth() + 1 < 10
-        ? `0${date.getMonth() + 1}`
-        : date.getMonth() + 1;
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    try {
+      const date = new Date(dateInput);
+      if (isNaN(date.getTime())) return "ไม่ระบุ";
+      const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+      const month =
+        date.getMonth() + 1 < 10
+          ? `0${date.getMonth() + 1}`
+          : date.getMonth() + 1;
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch (error) {
+      console.error("Error formatting date:", error, "Input:", dateInput);
+      return "ไม่ระบุ";
+    }
   };
   return (
     <>
@@ -139,7 +145,7 @@ export default function ActivityDetails({ activity, isVisitor = false }: Props) 
           {/* สถานที่ */}
           <MapPin className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
           {activity.event_format === "Onsite"
-            ? formatRoomDisplay(room)
+            ? (activity.room_id ? formatRoomDisplay(room) : "ไม่ระบุห้อง")
             : "ไม่มีห้องสำหรับกิจกรรมนี้"}
         </div>
       </div>

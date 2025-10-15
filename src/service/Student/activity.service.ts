@@ -208,6 +208,31 @@ export const checkInOutActivity = async (
   }
 };
 
+//--------------------- Check Assessment Status -------------------------
+export const checkAssessmentStatus = async (
+  activityId: number,
+  studentId: number
+): Promise<{ hasSubmitted: boolean; assessmentName?: string; submittedDate?: Date }> => {
+  console.log("🌐 [SERVICE] checkAssessmentStatus called with:", { activityId, studentId });
+  console.log("🌐 [SERVICE] Making request to:", `${STUDENT_ACTIVITY_PATH}/assessment-status/${activityId}/${studentId}`);
+  
+  try {
+    const response = await axiosInstance.get(
+      `${STUDENT_ACTIVITY_PATH}/assessment-status/${activityId}/${studentId}`
+    );
+    
+    console.log("✅ [SERVICE] Assessment status response:", response.data);
+    console.log("✅ [SERVICE] Response status:", response.status);
+    return response.data.data;
+  } catch (error: any) {
+    console.error("❌ [SERVICE] Error in checkAssessmentStatus:", error);
+    console.error("❌ [SERVICE] Error response:", error.response);
+    console.error("❌ [SERVICE] Error status:", error.response?.status);
+    console.error("❌ [SERVICE] Error data:", error.response?.data);
+    throw error;
+  }
+};
+
 //--------------------- Export Service -----------------------------------------
 const activityService = {
   fetchActivities,
@@ -220,6 +245,7 @@ const activityService = {
   fetchOngoingActivities,
   fetchEndActivities,
   checkInOutActivity,
+  checkAssessmentStatus,
 };
 //------------------------------------------------------------------------------
 

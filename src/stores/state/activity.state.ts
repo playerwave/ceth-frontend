@@ -53,4 +53,8 @@ export interface ActivityState {
     username: string,
     password: string
   ) => Promise<{ success: boolean; message: string; studentId?: number; studentInfo?: any }>;
+  checkAssessmentStatus: (
+    activityId: number,
+    studentId: number
+  ) => Promise<{ hasSubmitted: boolean; assessmentName?: string; submittedDate?: Date }>;
 }

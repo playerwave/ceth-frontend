@@ -171,8 +171,8 @@ const MainStudent = () => {
   //   activity_state: act.activity_state, // ✅ เพิ่ม activity_state เพื่อให้ TablePendingEvaluation ใช้งานได้
   // }));
 
-  // ✅ สร้าง mainActivities สำหรับ pending evaluation ที่รวมกิจกรรมทั้งหมดที่มี "Start Assessment"
-  const allActivitiesForPending = enrolledActivities.map((act) => ({
+  // ✅ สร้าง mainActivities สำหรับ pending evaluation จาก ongoingActivities (ที่เราแก้ไขแล้ว)
+  const allActivitiesForPending = ongoingActivities.map((act) => ({
     ac_id: act.activity_id,
     ac_name: act.activity_name || "",
     ac_company_lecturer: act.presenter_company_name || "",
@@ -190,14 +190,15 @@ const MainStudent = () => {
     ac_start_assessment: act.start_assessment ? new Date(act.start_assessment) : null,
     ac_end_assessment: act.end_assessment ? new Date(act.end_assessment) : null,
     activity_state: act.activity_state, // ✅ สำคัญมาก!
+    has_submitted_assessment: false, // ✅ เนื่องจากเป็น ongoingActivities ที่ join_status = 'Pending'
   }));
 
   // ✅ Debug: Log ข้อมูลที่ส่งไปยัง TablePendingEvaluation
   console.log("🔍 [Debug] allActivitiesForPending:", allActivitiesForPending);
   console.log("🔍 [Debug] Activities with Start Assessment:", allActivitiesForPending.filter(a => a.activity_state === "Start Assessment"));
 
-  // ✅ กรองกิจกรรมสำหรับตาราง "กิจกรรมที่ยังไม่ได้ทำแบบประเมิน" - แสดงเฉพาะกิจกรรมที่มี activity_state เป็น "Start Assessment"
-  const transformedActivities = enrolledActivities
+  // ✅ กรองกิจกรรมสำหรับตาราง "กิจกรรมที่ยังไม่ได้ทำแบบประเมิน" - ใช้ ongoingActivities แทน enrolledActivities
+  const transformedActivities = ongoingActivities
     .filter((act) => {
       console.log("🔍 [Debug] Activity filtering for assessment:", {
         activity_id: act.activity_id,
