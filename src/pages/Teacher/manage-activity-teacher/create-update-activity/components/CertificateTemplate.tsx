@@ -37,33 +37,6 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   // ✅ Debug: ตรวจสอบว่า component ถูก render หรือไม่
   console.log("🔍 [CertificateTemplate] Component rendered for event_format:", formData.event_format);
 
-  // ✅ อัปโหลดไป Cloudinary แบบเดียวกับรูปกิจกรรม
-  const uploadImageToCloudinary = async (file: File): Promise<string> => {
-    if (!file || !file.type.startsWith("image/")) {
-      throw new Error("Invalid file type. Please upload an image.");
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "ceth-project");
-
-    const response = await fetch(
-      "https://api.cloudinary.com/v1_1/dn5vhwoue/image/upload",
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Cloudinary upload failed: ${errorText}`);
-    }
-
-    const data = await response.json();
-    console.log("📸 [CertificateTemplate] Upload to Cloudinary success:", data.secure_url);
-    return data.secure_url;
-  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (disabled) return;
@@ -89,29 +62,41 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
       setUploadedFile(file);
       setHasNewImage(true);
 
-      toast.info("🔄 กำลังอัปโหลดไปยัง Cloudinary...");
+      toast.info("🔄 กำลังส่งไฟล์ไป Backend เพื่อทำ OCR...");
 
       try {
-        // ✅ Step 2: อัปโหลดไปยัง Cloudinary ทันที (เหมือนรูปกิจกรรม)
-        const cloudinaryUrl = await uploadImageToCloudinary(file);
+        // ✅ Step 2: ส่งไฟล์ไป Backend เพื่อทำ OCR และอัปโหลดไป Cloudinary
+        const uploadFormData = new FormData();
+        uploadFormData.append('certificate_file', file); // ✅ เปลี่ยนเป็น certificate_file ให้ตรงกับ backend
+        uploadFormData.append('description', formData.upload_certificate_description || '');
 
-        console.log("📁 [CertificateTemplate] File uploaded:", {
-          filename: file.name,
-          cloudinaryUrl
+        const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5090';
+        const activityId = formData.activity_id || 'new'; // ใช้ 'new' สำหรับ create mode
+        const response = await fetch(`${baseURL}/api/teacher/certificate/activity/${activityId}/template`, {
+          method: 'POST',
+          body: uploadFormData
         });
 
-        // ✅ Step 3: เก็บ URL ใน formData (ไม่เก็บ File object)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("📁 [CertificateTemplate] Backend processing result:", result);
+
+        // ✅ Step 3: เก็บข้อมูลที่ได้จาก Backend
         setFormData((prev: any) => ({
           ...prev,
-          certificate_template_url: cloudinaryUrl, // ✅ เก็บ URL จาก Cloudinary
-          certificateFile: null, // ✅ ไม่ต้องเก็บ File object แล้ว
-          upload_certificate_description: prev.upload_certificate_description || ""
+          certificate_template_url: result.data?.certificate_template_url || result.data?.template_url,
+          certificate_ocr_data: result.data?.certificate_ocr_data || result.data?.ocr_data,
+          certificate_image_analysis: result.data?.certificate_image_analysis || result.data?.image_analysis,
+          upload_certificate_description: result.data?.upload_certificate_description || prev.upload_certificate_description || ""
         }));
 
-        toast.success("📸 อัปโหลดตัวอย่างใบรับรองสำเร็จ!");
+        toast.success("📸 อัปโหลดและวิเคราะห์ตัวอย่างใบรับรองสำเร็จ!");
       } catch (error) {
-        console.error("❌ [CertificateTemplate] Upload failed:", error);
-        toast.error("อัปโหลดรูปภาพไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+        console.error("❌ [CertificateTemplate] Backend processing failed:", error);
+        toast.error("อัปโหลดและวิเคราะห์รูปภาพไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
         setHasNewImage(false);
         setPreviewImage(null);
         setUploadedFile(null);
@@ -124,7 +109,9 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
       setFormData((prev: any) => ({
         ...prev,
         certificateFile: null,
-        certificate_template_url: null
+        certificate_template_url: null,
+        certificate_ocr_data: null,
+        certificate_image_analysis: null
       }));
     }
   };
