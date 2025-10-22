@@ -44,7 +44,7 @@ import CertificateTemplate from "./components/CertificateTemplate";
 export interface CreateActivityForm extends Partial<Activity> {
   selectedFoods: number[];
   certificate_template_url?: string | null;
-  upload_certificate_description?: string;
+  upload_certificate_description?: string | null;
   certificate_ocr_data?: any;
   certificate_image_analysis?: any;
 }
@@ -206,8 +206,8 @@ const CreateActivityAdmin: React.FC = () => {
     if (selectedRoomObj?.room_id && formData.start_activity_date && formData.end_activity_date) {
       checkRoomConflicts(
         selectedRoomObj.room_id,
-        formData.start_activity_date,
-        formData.end_activity_date
+        String(formData.start_activity_date),
+        String(formData.end_activity_date)
       );
     }
   };
@@ -260,8 +260,8 @@ const CreateActivityAdmin: React.FC = () => {
       try {
         const conflicts = await roomService.getRoomConflicts(
           formData.room_id,
-          formData.start_activity_date,
-          formData.end_activity_date
+          String(formData.start_activity_date),
+          String(formData.end_activity_date)
         );
 
         if (conflicts.length > 0) {
@@ -613,8 +613,8 @@ const CreateActivityAdmin: React.FC = () => {
           updatedFormData.end_activity_date) {
           checkRoomConflicts(
             updatedFormData.room_id,
-            updatedFormData.start_activity_date,
-            updatedFormData.end_activity_date
+            String(updatedFormData.start_activity_date),
+            String(updatedFormData.end_activity_date)
           );
         } else if (updatedFormData.event_format !== "Onsite") {
           // ล้าง conflicts เมื่อไม่ใช่ Onsite
