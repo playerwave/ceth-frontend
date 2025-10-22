@@ -9,7 +9,7 @@ import { Box } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material"; // ✅ นำเข้า SelectChangeEvent
 import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
 import { useSecureLink } from "../../../../routes/secure/SecureRoute";
-import { Activity } from "../../../../types/model";
+import { Activity } from "../../../../types/activity.types";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
 import roomService from "../../../../service/Teacher/room.service";
@@ -40,8 +40,13 @@ import ActionButtonsSection from "./components/ActionButtonsSection";
 import DescriptionSection from "./components/DescriptionSection";
 import StatusAndSeatSection from "./components/StatusAndSeatSection";
 import ActivityLink from "./components/ActivityLink"; // ✅ นำเข้า ActivityLink
+import CertificateTemplate from "./components/CertificateTemplate";
 export interface CreateActivityForm extends Partial<Activity> {
   selectedFoods: number[];
+  certificate_template_url?: string | null;
+  upload_certificate_description?: string;
+  certificate_ocr_data?: any;
+  certificate_image_analysis?: any;
 }
 
 const CreateActivityAdmin: React.FC = () => {
@@ -76,6 +81,11 @@ const CreateActivityAdmin: React.FC = () => {
     status: "Active",
     url: "",
     selectedFoods: savedFoods,
+    // ✅ เพิ่ม certificate fields สำหรับ Course
+    certificate_template_url: null,
+    upload_certificate_description: "",
+    certificate_ocr_data: null,
+    certificate_image_analysis: null,
   });
 
   const location = useLocation();
@@ -296,7 +306,7 @@ const CreateActivityAdmin: React.FC = () => {
       }
     }
 
-    if (formData.activity_status === "Public" && !formData.start_register_date) {
+    if (formData.activity_status === "Public" && formData.event_format !== "Course" && !formData.start_register_date) {
       toast.error("กรุณาเลือกวันเวลาเริ่มลงทะเบียน");
       return;
     }
@@ -355,6 +365,13 @@ const CreateActivityAdmin: React.FC = () => {
     }
 
     console.log("🚀 Data ที่ส่งไป store:", formData);
+    console.log("🔍 Certificate fields in create_activity_admin:", {
+      event_format: formData.event_format,
+      certificate_template_url: formData.certificate_template_url,
+      certificate_ocr_data: formData.certificate_ocr_data,
+      certificate_image_analysis: formData.certificate_image_analysis,
+      upload_certificate_description: formData.upload_certificate_description
+    });
 
     try {
       // ✅ สร้างข้อมูลใหม่ที่มี recieve_hours ที่คำนวณแล้ว
@@ -369,10 +386,34 @@ const CreateActivityAdmin: React.FC = () => {
             formData.selectedFoods.filter(foodId => foodId > 0) : []) : [],
         // ✅ ลบ selectedFoods ออกจาก request เมื่อไม่ใช่ Onsite
         selectedFoods: formData.event_format === "Onsite" ? formData.selectedFoods : [],
+        // ✅ Course ไม่ต้องมี registration dates และ assessment
+        ...(formData.event_format === "Course" ? {
+          special_start_register_date: null,
+          start_register_date: null,
+          end_register_date: null,
+          assessment_id: null,
+          start_assessment: null,
+          end_assessment: null,
+        } : {}),
+        // ✅ เพิ่ม certificate fields สำหรับ Course
+        ...(formData.event_format === "Course" && formData.certificate_template_url ? {
+          certificate_template_url: formData.certificate_template_url,
+          certificate_ocr_data: formData.certificate_ocr_data,
+          certificate_image_analysis: formData.certificate_image_analysis
+        } : {})
       };
+
+      console.log("🔍 Certificate fields in createData:", {
+        certificate_template_url: createData.certificate_template_url,
+        certificate_ocr_data: createData.certificate_ocr_data,
+        certificate_image_analysis: createData.certificate_image_analysis,
+        upload_certificate_description: createData.upload_certificate_description
+      });
 
       const result = await createActivity(createData);
       console.log("✅ Activity created successfully:", result);
+
+      // ✅ Certificate template URL ถูกส่งไปพร้อมกับ Activity แล้ว (ไม่ต้องเรียก API แยก)
 
       // ✅ ส่งคืน activity_id เพื่อใช้ในการ navigate
       return result;
@@ -707,18 +748,20 @@ const CreateActivityAdmin: React.FC = () => {
                   updateFoodOption={updateFoodOption}
                 /> */}
 
-                <div className="mt-6 max-w-xl w-full">
-                  <label className="block font-semibold">อาหาร *</label>
-                  <FoodMultiSelect
-                    foods={foods}
-                    selectedFoodIds={formData.selectedFoods}
-                    setSelectedFoodIds={(newIds) => {
-                      localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
-                      setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
-                    }}
-                    disabled={formData.event_format !== "Onsite"}
-                  />
-                </div>
+                {formData.event_format === "Onsite" && (
+                  <div className="mt-6 max-w-xl w-full">
+                    <label className="block font-semibold">อาหาร *</label>
+                    <FoodMultiSelect
+                      foods={foods}
+                      selectedFoodIds={formData.selectedFoods}
+                      setSelectedFoodIds={(newIds) => {
+                        localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
+                        setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
+                      }}
+                      disabled={false}
+                    />
+                  </div>
+                )}
 
 
 
@@ -733,6 +776,11 @@ const CreateActivityAdmin: React.FC = () => {
                 <ImageUploadSection
                   previewImage={previewImage}
                   handleFileChange={handleFileChange}
+                />
+
+                <CertificateTemplate
+                  formData={formData}
+                  setFormData={setFormData}
                 />
 
                 <ActionButtonsSection

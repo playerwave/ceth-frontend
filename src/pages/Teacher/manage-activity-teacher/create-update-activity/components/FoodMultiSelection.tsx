@@ -1,5 +1,5 @@
 import { Autocomplete, TextField, Chip } from "@mui/material";
-import { Food } from "../../../../../types/model";
+import { Food } from "../../../../../types/food.type";
 
 interface Props {
   foods: Food[];

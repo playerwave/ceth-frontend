@@ -6,8 +6,8 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { CreateActivityForm } from "../create_activity_admin";
-import { Assessment } from "../../../../../types/model";
+import { CreateActivityForm } from "../create.activity.teacher";
+import { Assessment } from "../../../../../types/assessment/assessment.type";
 import { validateField, ValidationMode } from "../utils/form_utils";
 import { convertBackendTimeToLocal } from "../utils/timeUtils";
 
@@ -48,6 +48,11 @@ const AssessmentSection: React.FC<Props> = ({
 
   const endAct = formData.end_activity_date ? convertBackendTimeToLocal(formData.end_activity_date) : null;
   const startAsm = formData.start_assessment ? convertBackendTimeToLocal(formData.start_assessment) : null;
+
+  // ✅ ถ้าเป็น Course ให้ไม่แสดง assessment fields
+  if (formData.event_format === "Course") {
+    return null;
+  }
 
   return (
     <div className="flex space-x-6 items-center mt-6">

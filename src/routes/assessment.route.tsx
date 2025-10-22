@@ -5,7 +5,7 @@ import EditAssessmentTeacher from "../pages/Teacher/manage-assessment-teacher/ed
 import AssessmentStudent from "../pages/Student/assessment-student/do.assessment.student";
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
-import type { Roles } from "../types/model";
+import type { Roles } from "../types/roles.type";
 type RoleName = Roles["role_name"];
 
 export const assessmentRoutes = [

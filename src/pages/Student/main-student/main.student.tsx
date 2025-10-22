@@ -10,7 +10,7 @@ import TableOngoingSection from "./components/tableOngoingSection";
 import ActivityTabs from "./components/activityTabs"; // ✅ Tabs
 import TablePendingEvaluation from "./components/tablePendingEvaluation";
 import CustomCard from "../../../components/Card";
-import type { Activity } from "../../../types/model";
+import type { Activity } from "../../../types/activity.types";
 
 type StudentEnrolledActivity = Activity & { has_submitted_assessment?: boolean };
 

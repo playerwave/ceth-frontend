@@ -1,4 +1,4 @@
-import { Assessment } from "../../types/model";
+import { Assessment } from "../../types/assessment/assessment.type";
 
 export interface AssessmentState {
   assessments: Assessment[];

@@ -1,5 +1,5 @@
 // src/types/api/activity.api.ts
-import { ActivityFood } from "../../types/model";
+import { ActivityFood } from "../../types/activity-food.type";
 /**
  * ปรับ interface ให้ตรงกับ shape ของ model.Activity
  */
@@ -37,4 +37,5 @@ export interface ApiActivity {
   start_assessment: string | null;
   end_assessment: string | null;
   activityFood: ActivityFood[];
+  upload_certificate_description?: string | null;
 }

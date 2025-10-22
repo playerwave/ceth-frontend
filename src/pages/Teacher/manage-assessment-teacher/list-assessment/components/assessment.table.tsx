@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom"; // ✅ เพิ่ม import
 import { useState } from "react";
 import { useAssessmentStore } from "../../../../../stores/Teacher/assessment.store";
 
-import { Assessment } from "../../../../../types/model";
+import { Assessment } from "../../../../../types/assessment/assessment.type";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 

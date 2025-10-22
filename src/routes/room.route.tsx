@@ -4,7 +4,7 @@ import EditRoomAdmin from "../pages/Teacher/manage-room-teacher/edit-room/edit.r
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
-import type { Roles } from "../types/model";
+import type { Roles } from "../types/roles.type";
 type RoleName = Roles["role_name"];
 
 export const roomRoutes = [

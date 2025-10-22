@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Activity } from "../../../../types/model";
+import { Activity } from "../../../../types/activity.types";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
 import ActivityHeader from "../../manage-activity-teacher/activity-info/components/activityHeader";
 import ActivityImage from "../../manage-activity-teacher/activity-info/components/activityImage";

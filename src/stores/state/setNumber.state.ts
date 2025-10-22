@@ -1,4 +1,4 @@
-import { SetNumber } from "../../types/model";
+import { SetNumber } from "../../types/assessment/setnumber.type";
 
 export interface SetNumberState {
   setNumbers: SetNumber[];

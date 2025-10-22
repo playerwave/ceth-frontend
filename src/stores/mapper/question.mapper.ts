@@ -1,5 +1,5 @@
 // import { ApiQuestion } from "../api/question.api";
-// import { Question } from "../../types/model";
+// import { QuestionVersion } from "../../types/assessment/assessment-versions/question-version.type";
 
 // // แปลง backend enum → frontend type
 // const mapBackendToFrontend = (backendType: string): "choice" | "checkbox" | "text" | "rating" => {
@@ -35,7 +35,7 @@
 //   setNumberId: number
 // ): Question[] => apis.map((q) => mapApiToQuestion(q, setNumberId));
 import { ApiQuestion } from "../api/question.api";
-import { Question } from "../../types/model";
+import { QuestionVersion } from "../../types/assessment/assessment-versions/question-version.type";
 
 // ฟังก์ชันแมปคำถาม 1 ข้อ - เพิ่มการตรวจสอบ
 export const mapApiToQuestion = (

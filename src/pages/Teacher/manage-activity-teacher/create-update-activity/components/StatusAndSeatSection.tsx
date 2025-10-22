@@ -2,7 +2,7 @@
 import { MenuItem, Select, TextField } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
-import { CreateActivityForm } from "../create_activity_admin";
+import { CreateActivityForm } from "../create.activity.teacher";
 import { validateField, ValidationMode } from "../utils/form_utils";
 
 interface Props {

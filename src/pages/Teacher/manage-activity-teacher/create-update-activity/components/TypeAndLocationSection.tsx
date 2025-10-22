@@ -1,7 +1,7 @@
 // components/AdminActivityForm/TypeAndLocationSection.tsx
 import { MenuItem, Select } from "@mui/material";
 import { SelectChangeEvent } from "@mui/material";
-import { CreateActivityForm } from "../create_activity_admin";
+import { CreateActivityForm } from "../create.activity.teacher";
 
 interface Props {
   formData: CreateActivityForm;

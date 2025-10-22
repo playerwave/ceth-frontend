@@ -5,7 +5,7 @@ import TableRedesign from "../../../../components/Table_re";
 import CustomCard from "../../../../components/Card";
 import { GridColDef } from "@mui/x-data-grid";
 import { getActivityColumns } from "../../../../components/activity_column";
-import { Activity } from "../../../../types/model";
+import { Activity } from "../../../../types/activity.types";
 import "./components/table.history.css"
 import { useNavigate } from "react-router-dom";
 

@@ -143,9 +143,6 @@ export default function ActivityHistoryInfoStudent() {
             borderColor: assessmentStatus.hasSubmitted ? "#10b981" : "#f59e0b"
           }}>
             <div className="flex items-center gap-3">
-              <span className="text-2xl">
-                {assessmentStatus.hasSubmitted ? "✅" : "⏳"}
-              </span>
               <div>
                 <h3 className={`text-lg font-semibold ${assessmentStatus.hasSubmitted ? "text-green-800" : "text-yellow-800"}`}>
                   {assessmentStatus.hasSubmitted ? "ทำแบบประเมินแล้ว" : "ยังไม่ได้ทำแบบประเมิน"}
@@ -157,7 +154,14 @@ export default function ActivityHistoryInfoStudent() {
                 )}
                 {assessmentStatus.submittedDate && (
                   <p className="text-sm text-gray-600">
-                    วันที่ส่ง: {new Date(assessmentStatus.submittedDate).toLocaleDateString('th-TH')}
+                    วันที่ส่ง: {new Date(assessmentStatus.submittedDate).toLocaleString('th-TH', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    })}
                   </p>
                 )}
               </div>

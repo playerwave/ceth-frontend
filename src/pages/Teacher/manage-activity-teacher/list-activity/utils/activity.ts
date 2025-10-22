@@ -1,6 +1,6 @@
 // utils/activity.ts
 
-import { Activity } from "../../../../../types/model";
+import { Activity } from "../../../../../types/activity.types";
 
 // เปรียบเทียบคำค้นหา (ป้องกันค้นหาซ้ำคำเดิม)
 export const isSameSearchTerm = (

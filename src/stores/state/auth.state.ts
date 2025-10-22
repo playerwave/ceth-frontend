@@ -1,4 +1,4 @@
-import { AuthUser } from "../../types/model";
+import { AuthUser } from "../../types/auth-user.type";
 
 export interface LoginPayload {
   username: string;

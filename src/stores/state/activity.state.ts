@@ -1,4 +1,4 @@
-// import { Activity } from "../../types/model";
+// import { Activity } from "../../types/activity.types";
 
 // export interface ActivityState {
 //   activities: Activity[];
@@ -18,7 +18,7 @@
 //   ) => Promise<Activity | null>;
 // }
 
-import { Activity } from "../../types/model";
+import { Activity } from "../../types/activity.types";
 
 export interface ActivityState {
   activities: Activity[];

@@ -16,9 +16,49 @@ export const getCertificateById = async (id: number): Promise<Certificate> => {
 };
 //------------------------------------------------------------------
 
-//--------------------- Upload Certificate (OCR) ----------------------------
-export const uploadCertificate = async (file: File): Promise<any> => {
-  console.log("📤 Uploading certificate file:", file.name);
+//--------------------- Get Certificates By Student ID -------------------------
+export const getCertificatesByStudentId = async (): Promise<Certificate[]> => {
+  const response = await axiosInstance.get<any[]>(
+    `${STUDENT_CERTIFICATE_PATH}/get-certificates`
+  );
+  console.log("🔍 Certificates data service:", response.data);
+  return response.data.map(mapApiToCertificate);
+};
+//------------------------------------------------------------------
+
+//--------------------- Upload Certificate (Full Upload with OCR) ----------------------------
+export const uploadCertificateWithOCR = async (data: {
+  file: File;
+  activity_id: number;
+  hours?: number;
+  date?: string;
+}): Promise<Certificate> => {
+  console.log("📤 Uploading certificate with OCR:", data);
+  
+  const formData = new FormData();
+  formData.append("certificate", data.file);
+  formData.append("activity_id", String(data.activity_id));
+  if (data.hours) formData.append("hours", String(data.hours));
+  if (data.date) formData.append("date", data.date);
+
+  const response = await axiosInstance.post(
+    `${STUDENT_CERTIFICATE_PATH}/upload`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
+  
+  console.log("📥 Upload certificate response:", response.data);
+  return mapApiToCertificate(response.data.data);
+};
+//------------------------------------------------------------------
+
+//--------------------- OCR Only (สำหรับดึงข้อมูลอย่างเดียว) ----------------------------
+export const uploadCertificateForOCR = async (file: File): Promise<any> => {
+  console.log("📤 Uploading certificate for OCR only:", file.name);
   
   const formData = new FormData();
   formData.append("file", file);
@@ -33,7 +73,7 @@ export const uploadCertificate = async (file: File): Promise<any> => {
     }
   );
   
-  console.log("📥 Upload certificate response:", response.data);
+  console.log("📥 OCR response:", response.data);
   return response.data;
 };
 //------------------------------------------------------------------
@@ -41,7 +81,11 @@ export const uploadCertificate = async (file: File): Promise<any> => {
 //--------------------- Export Service -----------------------------
 const certificateService = {
   getCertificateById,
-  uploadCertificate,
+  getCertificatesByStudentId,
+  uploadCertificateWithOCR,
+  uploadCertificateForOCR,
+  // Deprecated: use uploadCertificateForOCR instead
+  uploadCertificate: uploadCertificateForOCR,
 };
 //------------------------------------------------------------------
 

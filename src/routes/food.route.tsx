@@ -4,7 +4,7 @@ import EditFoodAdmin from "../pages/Teacher/mange-food-teacher/edit-food/edit.fo
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
-import type { Roles } from "../types/model";
+import type { Roles } from "../types/roles.type";
 type RoleName = Roles["role_name"];
 
 export const foodRoutes = [

@@ -6,8 +6,8 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { CreateActivityForm } from "../../create_activity_admin";
-import { Assessment } from "../../../../../../types/model";
+import { CreateActivityForm } from "../../create.activity.teacher";
+import { Assessment } from "../../../../../../types/assessment/assessment.type";
 import { validateField, ValidationMode } from "../../utils/form_utils";
 import { convertBackendTimeToLocal } from "../../utils/timeUtils";
 
@@ -43,6 +43,11 @@ const AssessmentSectionUpdate: React.FC<Props> = ({
   validationMode = 'update' as ValidationMode, // ✅ เปลี่ยนเป็น update mode และใช้ type assertion
   originalActivityStatus
 }) => {
+  // ✅ Course ไม่ต้องแสดง assessment fields
+  if (formData.event_format === "Course") {
+    return null;
+  }
+
   // ✅ ใช้ validateField function ใหม่สำหรับ update mode
   const startAssessmentValidation = validateField('start_assessment', formData, validationMode as ValidationMode, originalActivityStatus);
   const endAssessmentValidation = validateField('end_assessment', formData, validationMode as ValidationMode, originalActivityStatus);

@@ -1,4 +1,4 @@
-import { Assessment } from "../../../../../types/model";
+import { Assessment } from "../../../../../types/assessment/assessment.type";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisV } from "@fortawesome/free-solid-svg-icons";
 import IconButton from "@mui/material/IconButton";

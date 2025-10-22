@@ -6,7 +6,7 @@ import ManageStudentTeacher from "../pages/Teacher/manage-student-teacher/manage
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
-import type { Roles } from "../types/model";
+import type { Roles } from "../types/roles.type";
 type RoleName = Roles["role_name"];
 
 export const userRoutes = [

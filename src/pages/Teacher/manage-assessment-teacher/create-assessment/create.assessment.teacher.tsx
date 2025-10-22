@@ -4,7 +4,7 @@ import Section from "./components/section";
 import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore";
 import Button from "../../../../components/Button";
 import assessmentService from "../../../../service/Teacher/assessment.service";
-import { QuestionType as BackendQuestionType } from "../../../../types/model";  // ✅ enum จาก backend
+import { QuestionType as BackendQuestionType } from "../../../../types/assessment/question.type";
 import { useEffect } from "react";
 
 // แปลง type จาก frontend → backend

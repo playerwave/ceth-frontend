@@ -1,5 +1,5 @@
 import { ApiSetNumber } from "../api/setNumber.api";
-import { SetNumber } from "../../types/model";
+import { SetNumber } from "../../types/assessment/setnumber.type";
 
 export function mapApiToSetNumber(api: ApiSetNumber): SetNumber {
   return {

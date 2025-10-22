@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import questionService from "../../service/Teacher/question.service";
-import { Question } from "../../types/model";
+import { QuestionVersion } from "../../types/assessment/assessment-versions/question-version.type";
 import { mapApiToQuestion, mapApiToQuestions } from "../mapper/question.mapper";
 
 // ✅ Debounce utility function

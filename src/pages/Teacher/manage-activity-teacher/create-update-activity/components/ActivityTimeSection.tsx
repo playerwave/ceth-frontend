@@ -4,7 +4,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
-import { CreateActivityForm } from "../create_activity_admin";
+import { CreateActivityForm } from "../create.activity.teacher";
 import { convertBackendTimeToLocal } from "../utils/timeUtils";
 
 interface Props {
@@ -31,16 +31,19 @@ const ActivityTimeSection: React.FC<Props> = ({
   const isPublic = formData.activity_status === "Public";
 const isOnsiteOrOnline =
   formData.event_format === "Onsite" || formData.event_format === "Online";
+const isCourse = formData.event_format === "Course";
 
 const endReg = formData.end_register_date ? convertBackendTimeToLocal(formData.end_register_date) : null;
 const startAct = formData.start_activity_date ? convertBackendTimeToLocal(formData.start_activity_date) : null;
 const endAct = formData.end_activity_date ? convertBackendTimeToLocal(formData.end_activity_date) : null;
 
-// กฎใหม่: เริ่มกิจกรรมต้องเป็น "วันถัดไป" หลังวันปิดลงทะเบียน
+// กฎใหม่: เริ่มกิจกรรมต้องเป็น "วันถัดไป" หลังวันปิดลงทะเบียน (เฉพาะ Onsite/Online)
 const mustBeNextDay = !!(isPublic && isOnsiteOrOnline && endReg);
 const startMinDate = mustBeNextDay
   ? endReg!.startOf("day").add(1, "day") // วันถัดไป 00:00
-  : (endReg || dayjs().add(1, "day"));
+  : isCourse 
+    ? dayjs().add(1, "day") // Course: เริ่มได้ตั้งแต่วันพรุ่งนี้
+    : (endReg || dayjs().add(1, "day"));
 
 // const startSameDayAsEndReg = !!(mustBeNextDay && startAct && endReg && startAct.startOf("day").isSame(endReg.startOf("day")));
 const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAct.startOf("day").isAfter(endReg.startOf("day"))); // ครอบคลุมทั้งก่อน/วันเดียวกัน
@@ -64,7 +67,7 @@ const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAc
   onChange={(newValue) =>
     handleDateTimeChange("start_activity_date", newValue)
   }
-  disabled={disabled || !formData.end_register_date || !isStartActivityDateEditable}
+  disabled={disabled || (!isCourse && !formData.end_register_date) || !isStartActivityDateEditable}
   slotProps={{
     textField: {
       sx: { height: "56px" },
@@ -111,9 +114,11 @@ const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAc
               minDate={
                 formData.start_activity_date
                   ? convertBackendTimeToLocal(formData.start_activity_date)?.add(1, "hour")
-                  : formData.end_register_date
-                  ? convertBackendTimeToLocal(formData.end_register_date)?.add(1, "hour")
-                  : dayjs().add(1, "day")
+                  : isCourse
+                    ? dayjs().add(1, "day") // Course: เริ่มได้ตั้งแต่วันพรุ่งนี้
+                    : formData.end_register_date
+                    ? convertBackendTimeToLocal(formData.end_register_date)?.add(1, "hour")
+                    : dayjs().add(1, "day")
               }
               value={
                 formData.end_activity_date
@@ -123,7 +128,7 @@ const startBeforeOrOnEndReg = !!(mustBeNextDay && startAct && endReg && !startAc
               onChange={(newValue) =>
                 handleDateTimeChange("end_activity_date", newValue)
               }
-              disabled={disabled || !formData.start_activity_date || !isEndActivityDateEditable}
+              disabled={disabled || (!isCourse && !formData.start_activity_date) || !isEndActivityDateEditable}
               slotProps={{
                 textField: {
                   sx: { height: "56px" },

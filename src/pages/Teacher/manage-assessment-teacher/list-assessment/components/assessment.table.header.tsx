@@ -1,4 +1,4 @@
-import { Assessment } from "../../../../../types/model";
+import { Assessment } from "../../../../../types/assessment/assessment.type";
 import { cellClass, headerRowClass } from "./assessment.table.style";
 
 interface TableHeaderProps {

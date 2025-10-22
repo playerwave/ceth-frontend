@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRoomStore } from "../../../../stores/Teacher/room.store";
 import { fetchRoomById } from "../../../../service/Teacher/room.service";
-import { Room } from "../../../../types/model";
+import { Room } from "../../../../types/room.type";
 import Button from "../../../../components/Button";
 import Dialog2 from "../../../../components/Dialog/Dialog2";
 import { toast } from "sonner";

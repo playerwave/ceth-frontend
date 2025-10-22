@@ -1,5 +1,7 @@
 import { create } from "zustand";
-import { Building, Faculty, Room } from "../../types/model";
+import { Building } from "../../types/building.type";
+import { Faculty } from "../../types/faculty.type";
+import { Room } from "../../types/room.type";
 import roomService from "../../service/Teacher/room.service";
 
 interface RoomStore {

@@ -39,7 +39,7 @@
 
 import { Select, MenuItem } from "@mui/material";
 import { Frown } from "lucide-react";
-import { Food } from "../../../../../types/model"; // ปรับ path ให้ตรง
+import { Food } from "../../../../../types/food.type";
 
 interface Props {
   foodList?: Food[];

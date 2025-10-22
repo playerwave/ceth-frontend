@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import TableRedesign from "../../../../components/Table_re";
 import CustomCard from "../../../../components/Card";
 import { getActivityColumns } from "../../../../components/activity_column";
-import {Activity} from "../../../../types/model"
+import {Activity} from "../../../../types/activity.types"
 import { useNavigate } from "react-router-dom";
 
 type Props = {

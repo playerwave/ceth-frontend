@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Question } from "../type/type.create";
 import { useChoiceStore } from "../../../../../stores/Teacher/choiceStore";
 import { useAssessmentStoreUi } from "../store/assessmentStore";
-import { Choice } from "../../../../../types/model";
+import { Choice } from "../../../../../types/assessment/choice.type";
 
 interface OptionListProps {
   sectionId: number;

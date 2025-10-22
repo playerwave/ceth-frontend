@@ -12,7 +12,7 @@ import {
 import setNumberService from "../../../../../service/Teacher/setNumber.service";
 import { useParams } from "react-router-dom";
 import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
-import { QuestionType } from "../../../../../types/model";
+import { QuestionType } from "../../../../../types/assessment/question.type";
 import { useSetNumberStore } from "../../../../../stores/Teacher/setNumberStore";
 import { updateQuestion } from "../../../../../service/Teacher/question.service";
 

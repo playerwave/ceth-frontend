@@ -1,12 +1,12 @@
-import { Question } from "../../types/model";
+import { QuestionVersion } from "../../types/assessment/assessment-versions/question-version.type";
 
 export interface QuestionState {
-  questions: Question[];
+  questions: QuestionVersion[];
   questionLoading: boolean;
   questionError: string | null;
 
   fetchQuestionsBySetNumber: (setNumberId: number) => Promise<void>;
-  createQuestion: (data: Omit<Question, "question_id">) => Promise<Question | null>;
-  updateQuestion: (data: Question) => Promise<Question | null>;
-  deleteQuestion: (id: number) => Promise<Question | null>;
+  createQuestion: (data: Omit<QuestionVersion, "question_id">) => Promise<QuestionVersion | null>;
+  updateQuestion: (data: QuestionVersion) => Promise<QuestionVersion | null>;
+  deleteQuestion: (id: number) => Promise<QuestionVersion | null>;
 }

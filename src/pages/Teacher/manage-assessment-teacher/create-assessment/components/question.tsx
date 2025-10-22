@@ -5,7 +5,7 @@ import QuestionRenderer from "./questionRenderer";
 import { Question as QuestionType } from "../type/type.create";
 import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
 import { useAssessmentStoreUi } from "../store/assessmentStore";
-import { QuestionType as BackendQuestionType } from "../../../../../types/model";
+import { QuestionType as BackendQuestionType } from "../../../../../types/assessment/question.type";
 import { createQuestionWithChoices } from "../../../../../service/Teacher/question.service";
 import { useChoiceStore } from "../../../../../stores/Teacher/choiceStore";
 

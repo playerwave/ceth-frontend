@@ -291,6 +291,15 @@ export const validateField = (
 
   // ✅ Special Start Register Date Validation
   if (fieldName === 'special_start_register_date') {
+    // ✅ Course ไม่ต้องมี registration dates
+    if (context.isCourse) {
+      return {
+        hasError: false,
+        errorMessage: "",
+        helperText: ""
+      };
+    }
+    
     if (!formData.special_start_register_date) {
       return {
         hasError: true,
@@ -321,6 +330,15 @@ export const validateField = (
 
   // ✅ Start Register Date Validation
   if (fieldName === 'start_register_date') {
+    // ✅ Course ไม่ต้องมี registration dates
+    if (context.isCourse) {
+      return {
+        hasError: false,
+        errorMessage: "",
+        helperText: ""
+      };
+    }
+    
     if (!formData.start_register_date) {
       return {
         hasError: true,
@@ -360,6 +378,15 @@ export const validateField = (
 
   // ✅ End Register Date Validation
   if (fieldName === 'end_register_date') {
+    // ✅ Course ไม่ต้องมี registration dates
+    if (context.isCourse) {
+      return {
+        hasError: false,
+        errorMessage: "",
+        helperText: ""
+      };
+    }
+    
     if (!formData.end_register_date) {
       return {
         hasError: true,
@@ -615,7 +642,8 @@ export const validateField = (
 
   // ✅ Assessment ID Validation
   if (fieldName === 'assessment_id') {
-    if (context.isOnsiteOrOnline && !formData.assessment_id) {
+    // ✅ Course ไม่ต้องมี assessment, เฉพาะ Onsite และ Online เท่านั้น
+    if ((context.isOnsite || context.isOnline) && !formData.assessment_id) {
       return {
         hasError: true,
         errorMessage: "กรุณาเลือกแบบประเมิน",
@@ -640,11 +668,19 @@ export const validateForm = (formData: any, setErrors: any, isEditMode: boolean 
   // ตรวจสอบทุก field
   const fieldsToValidate = [
     'activity_name', 'presenter_company_name', 'type', 'description',
-    'special_start_register_date', 'start_register_date', 'end_register_date',
     'start_activity_date', 'end_activity_date', 'recieve_hours',
-    'start_assessment', 'end_assessment', 'room_id', 'selectedFoods',
-    'url', 'seat', 'assessment_id'
+    'url', 'seat'
   ];
+
+  // ✅ เพิ่ม fields ตาม event_format
+  if (formData.event_format === "Onsite") {
+    fieldsToValidate.push('special_start_register_date', 'start_register_date', 'end_register_date', 'room_id', 'selectedFoods');
+    fieldsToValidate.push('start_assessment', 'end_assessment', 'assessment_id');
+  } else if (formData.event_format === "Online") {
+    fieldsToValidate.push('special_start_register_date', 'start_register_date', 'end_register_date');
+    fieldsToValidate.push('start_assessment', 'end_assessment', 'assessment_id');
+  }
+  // ✅ Course ไม่ต้องเพิ่ม fields เพิ่มเติม
 
   fieldsToValidate.forEach(fieldName => {
     const result = validateField(fieldName, formData, mode);

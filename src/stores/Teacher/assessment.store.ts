@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { AssessmentState } from "../state/assessment.state";
-import { Assessment } from "../../types/model";
+import { Assessment } from "../../types/assessment/assessment.type";
 import assessmentService from "../../service/Teacher/assessment.service";
 import {
   mapApiToAssessments,

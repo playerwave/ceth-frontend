@@ -1,6 +1,6 @@
 // stores/Activity/activity.service.ts
 import axiosInstance from "../../libs/axios";
-import { Activity } from "../../types/model";
+import { Activity } from "../../types/activity.types";
 
 //base path
 const TEACHER_ACTIVITY_PATH = "/teacher/activity";
@@ -67,6 +67,12 @@ export const getActivityById = async (id: number): Promise<Activity> => {
     `${TEACHER_ACTIVITY_PATH}/get-activity/${id}`
   );
   console.log("🔍 Activity data service:", response.data);
+  console.log("🔍 Certificate fields from API:", {
+    certificate_template_url: response.data.certificate_template_url,
+    upload_certificate_description: response.data.upload_certificate_description,
+    certificate_ocr_data: response.data.certificate_ocr_data,
+    certificate_image_analysis: response.data.certificate_image_analysis
+  });
   return response.data;
 };
 //------------------------------------------------------------------
@@ -76,13 +82,24 @@ export const createActivity = async (
   payload: Partial<Activity>
 ): Promise<number> => {
   console.log("📤 Creating activity with payload:", payload);
+  console.log("🔍 Certificate fields in frontend service:", {
+    certificate_template_url: payload.certificate_template_url,
+    certificate_ocr_data: payload.certificate_ocr_data,
+    certificate_image_analysis: payload.certificate_image_analysis,
+    upload_certificate_description: payload.upload_certificate_description
+  });
 
-  const response = await axiosInstance.post(
-    `${TEACHER_ACTIVITY_PATH}/create-activity`,
-    payload
-  );
-  console.log("📥 Create activity response:", response.data);
-  return response.data.activity_id; // ✅ ส่งคืน activity_id จาก response
+  try {
+    const response = await axiosInstance.post(
+      `${TEACHER_ACTIVITY_PATH}/create-activity`,
+      payload
+    );
+    console.log("📥 Create activity response:", response.data);
+    return response.data.activity_id; // ✅ ส่งคืน activity_id จาก response
+  } catch (error) {
+    console.error("❌ Error in createActivity service:", error);
+    throw error;
+  }
 };
 //------------------------------------------------------------------
 
@@ -191,7 +208,13 @@ export const removeFoodFromActivity = async (activity_food_id: number) => {
 export const deleteActivity = async (id: number): Promise<void> => {
   console.log("🗑️ Deleting activity with ID:", id);
   const response = await axiosInstance.delete(
-    `${TEACHER_ACTIVITY_PATH}/delete-activity/${id}`
+    `${TEACHER_ACTIVITY_PATH}/delete-activity/${id}`,
+    {
+      // ✅ ไม่ส่ง body และไม่ส่ง Content-Type header
+      headers: {
+        // ลบ Content-Type header เพื่อไม่ให้ body-parser พยายาม parse JSON
+      }
+    }
   );
   console.log("✅ Delete activity response:", response.data);
 };

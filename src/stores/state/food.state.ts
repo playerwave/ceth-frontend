@@ -1,4 +1,4 @@
-import { Food } from "../../types/model";
+import { Food } from "../../types/food.type";
 
 export interface FoodState {
   foods: Food[];

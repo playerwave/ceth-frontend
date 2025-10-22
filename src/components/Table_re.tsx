@@ -86,7 +86,7 @@ const Loader = () => {
 
 // import Button from "./Button"; // ปรับเส้นทางให้ตรงกับที่เก็บ Button
 
-import { Activity } from "../types/model"; // ปรับเส้นทางให้ตรงกับที่เก็บ Activity
+import { Activity } from "../types/activity.types";
 // import { useAuthStore } from "../stores/Visitor/auth.store";
 
 export interface TableRedesignProps {

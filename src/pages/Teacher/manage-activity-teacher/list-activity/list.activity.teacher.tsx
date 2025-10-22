@@ -3,7 +3,7 @@ import { useActivityStore } from "../../../../stores/Teacher/activity.store.teac
 import { useAuthStore } from "../../../../stores/Visitor/auth.store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Activity } from "../../../../types/model";
+import { Activity } from "../../../../types/activity.types";
 
 import SearchBar from "../../../../components/Searchbar";
 import Loading from "../../../../components/Loading";

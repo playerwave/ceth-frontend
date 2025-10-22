@@ -3,7 +3,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
-import { CreateActivityForm } from "../../create_activity_admin";
+import { CreateActivityForm } from "../../create.activity.teacher";
 import { convertBackendTimeToLocal } from "../../utils/timeUtils";
 
 // ————— Constants & small utils —————
@@ -109,6 +109,12 @@ const RegisterPeriodSectionUpdate: React.FC<Props> = ({
   const isPublic = formData.activity_status === "Public";
   const isOnsiteOrOnline =
     formData.event_format === "Onsite" || formData.event_format === "Online";
+  const isCourse = formData.event_format === "Course";
+
+  // ✅ Course ไม่ต้องแสดง registration fields
+  if (isCourse) {
+    return null;
+  }
 
   // 👉 ใช้ค่าที่แปลงเป็น local แล้วเสมอ
   const start = d(formData.start_register_date);

@@ -3,7 +3,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { CreateActivityForm } from "../create_activity_admin";
+import { CreateActivityForm } from "../create.activity.teacher";
 import { useFoodStore } from "../../../../../stores/Teacher/food.store.teacher";
 import React, { useEffect, useRef } from "react";
 import FoodDropdownInput from "./FoodDropdownInput"; // ✅ ย้าย Autocomplete ไป component ย่อย

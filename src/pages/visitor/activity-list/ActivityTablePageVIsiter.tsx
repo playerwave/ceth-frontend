@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TableRedesign from "../../../components/Table_re";
 import CustomCard from "../../../components/Card";
-import { Activity } from "../../../types/model";
+import { Activity } from "../../../types/activity.types";
 import { GridColDef } from "@mui/x-data-grid";
 import { getActivityColumns } from "../../../components/activity_column";
 

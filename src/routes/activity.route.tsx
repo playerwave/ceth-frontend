@@ -1,6 +1,6 @@
 import ListActivityTeacher from "../pages/Teacher/manage-activity-teacher/list-activity/list.activity.teacher";
-import CreateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create-update-activity/create_activity_admin";
-import UpdateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create-update-activity/update_activity_admin";
+import CreateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create-update-activity/create.activity.teacher";
+import UpdateActivityAdmin from "../pages/Teacher/manage-activity-teacher/create-update-activity/update.activity.teacher";
 import ActivityInfoAdmin from "../pages/Teacher/manage-activity-teacher/activity-info/activity.info.teacher";
 import QrActivityTeacher from "../pages/Teacher/manage-activity-teacher/activity-qr-code/qr_activity_teacher";
 
@@ -11,7 +11,7 @@ import ActivityCheckInOutStudent from "../pages/Student/activity-student/activit
 import ActivityListVisitor from "../pages/visitor/activity-list/visiter";
 import ActivityInfoVisitor from "../pages/visitor/activity-info/activity.info.visitor";
 
-import type { Roles } from "../types/model";
+import type { Roles } from "../types/roles.type";
 import { ProtectionLevel } from "./secure/urlEnCryption";
 import StatisticActivityTeacher from "../pages/Teacher/manage-activity-teacher/activity-statistic/statistic_activity_teacher";
 

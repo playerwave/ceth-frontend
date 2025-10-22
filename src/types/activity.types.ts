@@ -1,3 +1,5 @@
+import { CertificateBase } from "./certificate/certificate-base.type";
+
 export interface Activity {
   activity_id: number;
   activity_name?: string | null;
@@ -7,12 +9,12 @@ export interface Activity {
   seat?: number;
   recieve_hours?: number;
   event_format?: "Online" | "Onsite" | "Course";
-  create_activity_date?: Date;
-  special_start_register_date?: Date | null;
-  start_register_date?: Date | null;
-  end_register_date?: Date | null;
-  start_activity_date?: Date;
-  end_activity_date?: Date;
+  create_activity_date?: Date | string;
+  special_start_register_date?: Date | string | null;
+  start_register_date?: Date | string | null;
+  end_register_date?: Date | string | null;
+  start_activity_date?: Date | string;
+  end_activity_date?: Date | string;
   image_url?: string;
   activity_status?: "Private" | "Public";
   activity_state?: 
@@ -25,12 +27,20 @@ export interface Activity {
     | "Start Assessment"
     | "End Assessment";
   status?: "Active" | "Inactive";
-  last_update_activity_date?: Date;
+  last_update_activity_date?: Date | string;
   url?: string | null;
   room_id?: number | null;
   assessment_id?: number | null;
   assessment_version_id?: number | null;
-  start_assessment?: Date | null;
-  end_assessment?: Date | null;
+  start_assessment?: Date | string | null;
+  end_assessment?: Date | string | null;
   registered_count?: number | null;
+  upload_certificate_description?: string | null;
+  // ✅ Certificate Base fields (One-to-One with CertificateBase)
+  certificate_base_id?: number | null;
+  certificateBase?: CertificateBase | null;
+  // Backward compatibility
+  certificate_template_url?: string | null;
+  certificate_ocr_data?: any;
+  certificate_image_analysis?: any;
 }

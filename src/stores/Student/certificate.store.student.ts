@@ -4,16 +4,19 @@ import certificateService from "../../service/Student/certificate.service";
 
 interface CertificateStore {
   selectedCertificate: Certificate | null;
+  certificates: Certificate[];
   certificateLoading: boolean;
   certificateError: string | null;
   
   fetchCertificateById: (id: number) => Promise<Certificate | null>;
+  fetchCertificatesByStudentId: () => Promise<Certificate[]>;
   uploadCertificate: (file: File) => Promise<any>;
   clearSelectedCertificate: () => void;
 }
 
 export const useCertificateStore = create<CertificateStore>((set, get) => ({
   selectedCertificate: null,
+  certificates: [],
   certificateLoading: false,
   certificateError: null,
 
@@ -30,6 +33,25 @@ export const useCertificateStore = create<CertificateStore>((set, get) => ({
       console.error("❌ Error fetching certificate:", error);
       set({ certificateError: "ไม่สามารถโหลดข้อมูลเกียรติบัตรนี้ได้" });
       return null;
+    } finally {
+      set({ certificateLoading: false });
+    }
+  },
+  //----------------------------------------------------------------
+
+  //--------------------- Fetch Certificates By Student ID -------------------------
+  fetchCertificatesByStudentId: async () => {
+    console.log("📥 Fetching certificates for student");
+
+    set({ certificateLoading: true, certificateError: null });
+    try {
+      const certificates = await certificateService.getCertificatesByStudentId();
+      set({ certificates });
+      return certificates;
+    } catch (error) {
+      console.error("❌ Error fetching certificates:", error);
+      set({ certificateError: "ไม่สามารถโหลดข้อมูลเกียรติบัตรได้" });
+      return [];
     } finally {
       set({ certificateLoading: false });
     }

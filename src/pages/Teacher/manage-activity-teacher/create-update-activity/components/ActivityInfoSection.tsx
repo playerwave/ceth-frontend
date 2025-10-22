@@ -1,6 +1,6 @@
 // components/AdminActivityForm/ActivityInfoSection.tsx
 import { TextField, SelectChangeEvent } from "@mui/material";
-import { CreateActivityForm } from "../create_activity_admin";
+import { CreateActivityForm } from "../create.activity.teacher";
 import { validateField, ValidationMode } from "../utils/form_utils";
 
 interface Props {

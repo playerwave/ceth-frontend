@@ -7,7 +7,7 @@ import {
   Button,
 } from "@mui/material";
 
-import { Activity } from "../../../../../types/model";
+import { Activity } from "../../../../../types/activity.types";
 
 interface Props {
   open: boolean;

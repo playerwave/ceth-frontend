@@ -1,4 +1,4 @@
-import { Activity } from "../../../../../types/model";
+import { Activity } from "../../../../../types/activity.types";
 
 export const filterAvailablePublicActivities = (activities: unknown[]) => {
   return activities.filter(

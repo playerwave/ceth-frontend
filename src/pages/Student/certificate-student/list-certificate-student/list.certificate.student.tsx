@@ -3,33 +3,22 @@ import Searchbar from "@src/components/Searchbar";
 import Button from "../../../../components/Button";
 import { FolderUp } from "lucide-react";
 import CustomCard from "../../../../components/Card";
-import { DataGrid, GridColDef, GridPaginationModel } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
+import TableRedesign from "../../../../components/Table_re";
+import { useCertificateStore } from "../../../../stores/Student/certificate.store.student";
+import { Certificate } from "../../../../types/certificate/certificate.type";
 
 type Row = { id: number; name: string; sentAt: string; status: string };
 
 export default function ListCertificateStudent() {
-  // ข้อมูลตามภาพ
-  const rows: Row[] = [
-    {
-      id: 1,
-      name: "Click next",
-      sentAt: "14 May 2025, 01:45 PM",
-      status: "รอตรวจสอบ",
-    },
-    {
-      id: 2,
-      name: "Ai Thai",
-      sentAt: "14 May 2025, 01:45 PM",
-      status: "รอตรวจสอบ",
-    },
-    {
-      id: 3,
-      name: "Ai Buu",
-      sentAt: "14 May 2025, 01:45 PM",
-      status: "รอตรวจสอบ",
-    },
-  ];
+  // ใช้ store สำหรับจัดการข้อมูล
+  const { 
+    certificates, 
+    certificateLoading, 
+    certificateError, 
+    fetchCertificatesByStudentId 
+  } = useCertificateStore();
 
   // คอลัมน์
   const columns: GridColDef<Row>[] = [
@@ -55,6 +44,25 @@ export default function ListCertificateStudent() {
   const [searchTerm, setSearchTerm] = useState("");
   const handleSearch = (term: string) => setSearchTerm(term);
 
+  // แปลงข้อมูลจาก Certificate เป็น Row format
+  const rows: Row[] = useMemo(() => {
+    return certificates.map((cert: Certificate) => ({
+      id: cert.certificate_id,
+      name: cert.activity?.activity_name || "ไม่ระบุกิจกรรม",
+      sentAt: cert.date ? new Date(cert.date).toLocaleString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }) : "ไม่ระบุวันที่",
+      status: cert.status === "Pending" ? "รอตรวจสอบ" : 
+              cert.status === "Pass" ? "ผ่าน" : 
+              cert.status === "Fail" ? "ไม่ผ่าน" : "ไม่ระบุ"
+    }));
+  }, [certificates]);
+
   const filteredRows = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return rows;
@@ -63,16 +71,12 @@ export default function ListCertificateStudent() {
         String(v).toLowerCase().includes(q)
       )
     );
-  }, [searchTerm, rows]); // ⬅ เพิ่ม rows ใน dependency ให้ถูกต้อง
+  }, [searchTerm, rows]);
 
-  // รีเซ็ต pagination เมื่อมีการค้นหาใหม่
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 5,
-  });
+  // Fetch ข้อมูลเมื่อ component mount
   useEffect(() => {
-    setPaginationModel((m) => ({ ...m, page: 0 }));
-  }, [searchTerm]);
+    fetchCertificatesByStudentId();
+  }, [fetchCertificatesByStudentId]);
 
   const navigate = useNavigate();
 
@@ -102,54 +106,18 @@ export default function ListCertificateStudent() {
           Certificate ของฉัน
         </h2>
 
-        <div style={{ height: 420, width: "100%" }}>
-          <DataGrid
-            rows={filteredRows}
+        <div className="px-6 pb-6">
+          <TableRedesign
+            height={420}
+            width="100%"
             columns={columns}
+            rows={filteredRows}
+            title=""
             getRowId={(row) => row.id}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
+            loading={certificateLoading}
+            error={certificateError}
+            initialPageSize={5}
             pageSizeOptions={[5, 10]}
-            disableRowSelectionOnClick
-            slots={{
-              noRowsOverlay: () => (
-                <div style={{ padding: 24, color: "#6B7280" }}>ไม่พบข้อมูล</div>
-              ),
-            }}
-            sx={{
-              // หัวตาราง
-              "& .MuiDataGrid-columnHeaders, & .MuiDataGrid-columnHeader": {
-                backgroundColor: "#1E3A8A",
-                color: "#FFFFFF",
-                fontWeight: "bold",
-                fontSize: "16px",
-              },
-              // ไอคอนเรียงลำดับ
-              "& .MuiDataGrid-sortIcon, & .MuiSvgIcon-root": {
-                color: "#FFFFFF",
-              },
-
-              // เส้นคั่นแถว
-              "& .MuiDataGrid-row, & .MuiDataGrid-cell": {
-                borderColor: "#E5E7EB",
-              },
-
-              // Pagination สีดำ
-              "& .MuiTablePagination-root, & .MuiTablePagination-toolbar": {
-                color: "#000000 !important",
-              },
-              "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
-                {
-                  color: "#000000 !important",
-                },
-              "& .MuiSelect-select, & .MuiSvgIcon-root.MuiSelect-icon": {
-                color: "#000000 !important",
-              },
-              "& .MuiTablePagination-actions button, & .MuiTablePagination-actions button svg":
-                {
-                  color: "#000000 !important",
-                },
-            }}
           />
         </div>
       </CustomCard>

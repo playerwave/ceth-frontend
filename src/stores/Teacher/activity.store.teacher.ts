@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Activity } from "../../types/model";
+import { Activity } from "../../types/activity.types";
 import activityService from "../../service/Teacher/activity.service";
 import { useAuthStore } from "../Visitor/auth.store";
 

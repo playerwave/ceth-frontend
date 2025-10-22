@@ -1,5 +1,5 @@
 import axiosInstance from "../../libs/axios";
-import { Activity } from "../../types/model";
+import { Activity } from "../../types/activity.types";
 
 // base path
 const STUDENT_ACTIVITY_PATH = "/student/activity";

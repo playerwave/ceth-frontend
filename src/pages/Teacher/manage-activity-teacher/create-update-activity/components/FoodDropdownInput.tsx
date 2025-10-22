@@ -1,7 +1,7 @@
 import { Box, IconButton } from "@mui/material";
 import useAutocomplete from "@mui/material/useAutocomplete";
 import CheckIcon from "@mui/icons-material/Check";
-import { Food } from "../../../../../types/model";
+import { Food } from "../../../../../types/food.type";
 import { Root, InputWrapper, Listbox, Label } from "./StyledAutocomplete"; // นำเข้าจากไฟล์ style เดิม
 import { Delete } from "@mui/icons-material";
 

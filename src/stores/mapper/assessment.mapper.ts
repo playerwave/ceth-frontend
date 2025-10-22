@@ -1,5 +1,5 @@
 // import { ApiAssessment } from "../api/assessment.api";
-// import { Assessment } from "../../types/model";
+// import { Assessment } from "../../types/assessment/assessment.type";
 
 // export function mapApiToAssessment(api: ApiAssessment): Assessment {
 //   return {
@@ -20,7 +20,7 @@
 
 
 import { ApiAssessment } from "../api/assessment.api";
-import { Assessment } from "../../types/model";
+import { Assessment } from "../../types/assessment/assessment.type";
 
 export function mapApiToAssessment(api: ApiAssessment): Assessment {
   return {

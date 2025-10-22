@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Activity } from "../../../../types/model";
+import { Activity } from "../../../../types/activity.types";
 import ActivityHistoryTable from "./activity.history.table";
 import Searchbar from "../../../../components/Searchbar";
 import ActivityFilterBar from "./components/activity.history.filter.bar";

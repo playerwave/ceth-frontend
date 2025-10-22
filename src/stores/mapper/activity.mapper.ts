@@ -1,7 +1,7 @@
 // src/mapper/activityMapper.ts
 
 import { ApiActivity } from "../api/activity.api";
-import { Activity } from "../../types/model";
+import { Activity } from "../../types/activity.types";
 
 /**
  * แปลง ApiActivity → Activity (ใช้ใน React & store)
@@ -35,6 +35,7 @@ export function mapApiToActivity(a: ApiActivity): Activity {
     // foods: a.foods ?? [],
     activityFood: a.activityFood ?? [],
     registered_count: 0, // Default value since ApiActivity doesn't have this field
+    upload_certificate_description: a.upload_certificate_description ?? null,
   };
 }
 

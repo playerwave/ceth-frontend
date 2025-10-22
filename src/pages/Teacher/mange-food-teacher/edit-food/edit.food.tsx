@@ -4,7 +4,7 @@ import Button from "../../../../components/Button";
 import { Trash2, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { Food } from "../../../../types/model";
+import { Food } from "../../../../types/food.type";
 import { updateFood, deleteFood } from "../../../../service/Teacher/food.service";
 import { useSearchParams } from "react-router-dom";
 import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";

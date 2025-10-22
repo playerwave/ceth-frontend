@@ -1,6 +1,8 @@
 // stores/Room/room.service.ts
 import axiosInstance from "../../libs/axios";
-import { Building, Faculty, Room } from "../../types/model";
+import { Building } from "../../types/building.type";
+import { Faculty } from "../../types/faculty.type";
+import { Room } from "../../types/room.type";
 
 // base path
 const TEACHER_ROOM_PATH = "/teacher/room";

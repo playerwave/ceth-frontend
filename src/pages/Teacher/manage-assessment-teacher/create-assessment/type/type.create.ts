@@ -1,4 +1,4 @@
-import { Choice } from "../../../../../types/model"; // 👈 import Choice มาด้วย
+import { Choice } from "../../../../../types/assessment/choice.type";
 
 export interface Question {
   id: number;

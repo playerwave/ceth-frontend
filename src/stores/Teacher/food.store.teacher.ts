@@ -1,6 +1,6 @@
 // src/store/food.store.ts
 import { create } from "zustand";
-import { Food } from "../../types/model";
+import { Food } from "../../types/food.type";
 import foodService from "../../service/Teacher/food.service";
 import { mapApiToFoods, mapApiToFood } from "../mapper/food.mapper";
 import { FoodState } from "../state/food.state";

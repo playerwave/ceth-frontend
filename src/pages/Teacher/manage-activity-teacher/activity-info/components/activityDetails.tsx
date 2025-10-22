@@ -1,5 +1,5 @@
 // import { Hourglass, MapPin, School, HouseWifi, Album } from "lucide-react";
-// import type { Activity } from "../../../../../types/model";
+// import type { Activity } from "../../../../../types/activity.types";
 
 // interface Props {
 //   activity: Activity;
@@ -147,7 +147,7 @@
 
 import { useEffect } from "react";
 import { Hourglass, MapPin, School, HouseWifi, Album } from "lucide-react";
-import type { Activity } from "../../../../../types/model";
+import type { Activity } from "../../../../../types/activity.types";
 import { useRoomStore } from "../../../../../stores/Teacher/room.store";
 
 interface Props {

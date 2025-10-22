@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 // import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
-import { Activity } from "../types/model"; // ตรวจสอบเส้นทางให้ถูกต้อง
+import { Activity } from "../types/activity.types";
 
 // 👉 type ที่สามารถใช้ปรับรูปแบบคอลัมน์ได้
 type ColumnOptions = {

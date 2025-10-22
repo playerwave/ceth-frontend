@@ -1,6 +1,6 @@
 import { MenuItem, Select, SelectChangeEvent, FormHelperText } from "@mui/material";
-import { CreateActivityForm } from "../create_activity_admin";
-import { Room } from "../../../../../types/model";
+import { CreateActivityForm } from "../create.activity.teacher";
+import { Room } from "../../../../../types/room.type";
 import { validateField, ValidationMode } from "../utils/form_utils";
 
 interface Props {
@@ -57,6 +57,55 @@ const RoomSelectionSection: React.FC<Props> = ({
 
   // ✅ ตรวจสอบว่าห้องที่เลือกมี conflict หรือไม่
   const selectedRoomConflict = formData.room_id ? getRoomConflict(formData.room_id) : null;
+
+  // ✅ ถ้าไม่ใช่ Onsite ให้ไม่แสดง room selection fields
+  if (formData.event_format !== "Onsite") {
+    return (
+      <div className="flex flex-col space-y-4 mt-5">
+        {/* ประเภทกิจกรรม - แสดงเสมอ */}
+        <div className="w-140">
+          <label className="block font-semibold">ประเภท *</label>
+          <Select
+            labelId="type-label"
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            disabled={disabled}
+            className="rounded w-full"
+            displayEmpty
+            error={typeValidation.hasError}
+            renderValue={(selected) => {
+              if (!selected) {
+                return <span className="text-black">เลือกประเภทกิจกรรม</span>;
+              }
+              return selected;
+            }}
+            sx={{
+              height: "56px",
+              "& .MuiSelect-select": {
+                padding: "8px",
+              },
+            }}
+          >
+            <MenuItem disabled value="">
+              เลือกประเภทกิจกรรม
+            </MenuItem>
+            <MenuItem value="Soft">
+              ชั่วโมงเตรียมความพร้อม (Soft Skill)
+            </MenuItem>
+            <MenuItem value="Hard">
+              ชั่วโมงทักษะทางวิชาการ (Hard Skill)
+            </MenuItem>
+          </Select>
+          {typeValidation.hasError && (
+            <FormHelperText error sx={{ mt: 1 }}>
+              {typeValidation.helperText}
+            </FormHelperText>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col space-y-4 mt-5">

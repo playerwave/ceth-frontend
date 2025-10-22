@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import TableRedesign from "../../../../components/Table_re";
 import CustomCard from "../../../../components/Card";
 import { getActivityColumns } from "../../../../components/activity_column";
-import { Activity } from "../../../../types/model";
+import { Activity } from "../../../../types/activity.types";
 
 import Dialog2 from "../../../../components/Dialog/Dialog2";
 // import { ProtectionLevel } from "../../../../routes/secure/urlEnCryption";

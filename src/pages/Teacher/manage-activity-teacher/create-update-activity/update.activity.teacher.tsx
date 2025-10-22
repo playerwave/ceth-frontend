@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useAssessmentStore } from "../../../../stores/Teacher/assessment.store";
-import Loading from "../../../../components/Loading";
+import { useAssessmentStore } from "../../../../stores/Teacher/assessment.store.ts";
+import Loading from "../../../../components/Loading.tsx";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Dayjs } from "dayjs";
@@ -8,46 +8,48 @@ import dayjs from "dayjs";
 import { Box } from "@mui/material";
 // import { Delete, Add } from "@mui/icons-material";
 import { SelectChangeEvent } from "@mui/material"; // ✅ นำเข้า SelectChangeEvent
-import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
-import { useSecureLink } from "../../../../routes/secure/SecureRoute";
-import { Activity } from "../../../../types/model";
-import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
-import { useRoomStore } from "../../../../stores/Teacher/room.store";
+import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher.ts";
+import { useSecureLink } from "../../../../routes/secure/SecureRoute.tsx";
+import { Activity } from "../../../../types/activity.types.ts";
+import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher.ts";
+import { useRoomStore } from "../../../../stores/Teacher/room.store.ts";
 import roomService from "../../../../service/Teacher/room.service.ts";
 import { Trash2 } from "lucide-react"; // ✅ เพิ่ม icon ถังขยะ
 import ConfirmDialog from "../../../../components/Dialog/ConfirmDialog.tsx"; // ✅ เพิ่ม ConfirmDialog
-
 import {
   handleChange,
   validateForm,
   ValidationMode,
   // convertToDate,
-} from "./utils/form_utils"; // หรือเปลี่ยน path ให้ตรงกับตำแหน่งจริง
-import { handleDateTimeChange as handleDateTimeChangeBase } from "./utils/form_utils";
-import ActivityInfoSection from "./components/ActivityInfoSection";
+} from "./utils/form_utils.tsx"; // หรือเปลี่ยน path ให้ตรงกับตำแหน่งจริง
+import { handleDateTimeChange as handleDateTimeChangeBase } from "./utils/form_utils.tsx";
+import ActivityInfoSection from "./components/ActivityInfoSection.tsx";
 //
 // ✅ Import component สำหรับ update mode
 import RegisterPeriodSectionUpdate from "./components/timestamp-update/RegisterPeriodSection.update.tsx";
 import ActivityTimeSectionUpdate from "./components/timestamp-update/ActivityTimeSection.update.tsx";
 import AssessmentSectionUpdate from "./components/timestamp-update/AssessmentSection.update.tsx";
-import TypeAndLocationSection from "./components/TypeAndLocationSection";
-import RoomSelectionSection from "./components/RoomSelectionSection";
+import TypeAndLocationSection from "./components/TypeAndLocationSection.tsx";
+import RoomSelectionSection from "./components/RoomSelectionSection.tsx";
 
-import FoodMultiSelect from "./components/FoodMultiSelection"; // ✅ ใช้ FoodMultiSelect แทน FoodMenuSection
+import FoodMultiSelect from "./components/FoodMultiSelection.tsx"; // ✅ ใช้ FoodMultiSelect แทน FoodMenuSection
 // import AssessmentSection from "./components/AssessmentSection";
-import ImageUploadSection from "./components/ImageUploadSection";
-import ActionButtonsSection from "./components/ActionButtonsSection";
-import DescriptionSection from "./components/DescriptionSection";
-import StatusAndSeatSection from "./components/StatusAndSeatSection";
-import ActivityLink from "./components/ActivityLink"; // ✅ นำเข้า ActivityLink
+import ImageUploadSection from "./components/ImageUploadSection.tsx";
+import ActionButtonsSection from "./components/ActionButtonsSection.tsx";
+import DescriptionSection from "./components/DescriptionSection.tsx";
+import StatusAndSeatSection from "./components/StatusAndSeatSection.tsx";
+import ActivityLink from "./components/ActivityLink.tsx"; // ✅ นำเข้า ActivityLink
+import CertificateTemplate from "./components/CertificateTemplate.tsx";
 import {
   useSecureParams,
   extractSecureParam,
-} from "../../../../routes/secure/SecureRoute";
+} from "../../../../routes/secure/SecureRoute.tsx";
 
 
 export interface CreateActivityForm extends Partial<Activity> {
   selectedFoods: number[];
+  certificate_template_url?: string | null;
+  certificateBase?: any;
 }
 
 const CreateActivityAdmin: React.FC = () => {
@@ -95,6 +97,7 @@ const CreateActivityAdmin: React.FC = () => {
   const params = useSecureParams();
 const secureParams = useSecureParams();
 const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
+
   // 🔐 ดึง ID จาก URL ที่เข้ารหัส
   const finalActivityId = extractSecureParam(params, 'id', 0);
 
@@ -197,12 +200,36 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     }
   }, [finalActivityId, fetchActivity]);
 
-  // ✅ อัปเดต form เมื่อได้ข้อมูล activity
+      // ✅ อัปเดต form เมื่อได้ข้อมูล activity
   useEffect(() => {
     if (activity) {
       console.log("📝 Populating form with activity data:", activity);
       console.log("🍽️ Activity foods:", (activity as { foods?: unknown; activityFood?: unknown }).foods);
       console.log("🍽️ Activity activityFood:", (activity as { foods?: unknown; activityFood?: unknown }).activityFood);
+      console.log("🔍 Certificate fields from activity:", {
+        certificate_base_id: activity.certificateBase?.certificate_base_id,
+        certificateBase: activity.certificateBase,
+        // Backward compatibility
+        certificate_template_url: activity.certificate_template_url,
+        upload_certificate_description: activity.upload_certificate_description,
+        certificate_ocr_data: activity.certificate_ocr_data,
+        certificate_image_analysis: activity.certificate_image_analysis
+      });
+
+      // Log certificate base data if exists
+      if (activity.certificateBase) {
+        console.log("📄 [UpdateActivity] Certificate base found:", {
+          certificate_base_id: activity.certificateBase.certificate_base_id,
+          certificate_name: activity.certificateBase.certificate_name,
+          template_image_url: activity.certificateBase.template_image_url,
+          description: activity.certificateBase.description,
+          has_ocr_data: !!activity.certificateBase.ocr_data,
+          has_image_analysis: !!activity.certificateBase.image_analysis
+        });
+      } else {
+        console.log("⚠️ [UpdateActivity] No certificate base found for activity:", activity.activity_id);
+        console.log("💡 [UpdateActivity] This is normal for activities without certificate data. You can add certificate data by uploading a template image and description.");
+      }
 
       // 🔍 ตรวจสอบข้อมูล validation จาก URL
       const urlValidationError = extractSecureParam(params, 'validationError', '');
@@ -254,6 +281,14 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         status: activity.status || "Active",
         url: activity.url || "",
         selectedFoods: (activity as { foods?: Array<{ food_id: number }> }).foods?.map((food) => food.food_id) || savedFoods,
+        // ✅ เพิ่ม certificate fields สำหรับ Course
+        certificate_base_id: activity.certificateBase?.certificate_base_id || null,
+        certificateBase: activity.certificateBase || null,
+        // Backward compatibility
+        certificate_template_url: activity.certificateBase?.template_image_url || activity.certificate_template_url || null,
+        certificate_ocr_data: activity.certificateBase?.ocr_data || activity.certificate_ocr_data || null,
+        certificate_image_analysis: activity.certificateBase?.image_analysis || activity.certificate_image_analysis || null,
+        upload_certificate_description: activity.certificateBase?.description || activity.upload_certificate_description || "",
       });
 
       // ✅ อัปเดต preview image เมื่อมีรูปภาพ
@@ -269,8 +304,8 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         console.log("🪑 Seat Number:", selectedRoom?.seat_number);
         
         if (selectedRoom) {
-          setSelectedFloor(selectedRoom.floor);
-          setSelectedRoom(selectedRoom.room_name);
+          setSelectedFloor(selectedRoom.floor || "");
+          setSelectedRoom(selectedRoom.room_name || "");
           const capacity = selectedRoom.seat_number?.toString() || "0";
           setSeatCapacity(capacity);
           console.log("✅ Set seatCapacity to:", capacity);
@@ -393,8 +428,8 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     if (selectedRoomObj?.room_id && formData.start_activity_date && formData.end_activity_date) {
       checkRoomConflicts(
         selectedRoomObj.room_id,
-        formData.start_activity_date,
-        formData.end_activity_date,
+        String(formData.start_activity_date),
+        String(formData.end_activity_date),
         finalActivityId // ✅ ส่ง activity_id เพื่อ exclude กิจกรรมปัจจุบัน
       );
     }
@@ -452,8 +487,8 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       try {
         const conflicts = await roomService.getRoomConflicts(
           formData.room_id,
-          formData.start_activity_date,
-          formData.end_activity_date,
+          String(formData.start_activity_date),
+          String(formData.end_activity_date),
           finalActivityId // ✅ ส่ง activity_id เพื่อ exclude กิจกรรมปัจจุบัน
         );
 
@@ -499,8 +534,8 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       }
     }
 
-    // ✅ ตรวจสอบเฉพาะเมื่อ activity_status เป็น "Public"
-    if (formData.activity_status === "Public" && !formData.start_register_date) {
+    // ✅ ตรวจสอบเฉพาะเมื่อ activity_status เป็น "Public" และไม่ใช่ Course
+    if (formData.activity_status === "Public" && formData.event_format !== "Course" && !formData.start_register_date) {
       toast.error("กรุณาเลือกวันเวลาเริ่มลงทะเบียน");
       return;
     }
@@ -510,7 +545,13 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     //   startRegister = new Date(); // ไม่ต้องใช้ dayjs ก็ได้
     // }
 
-    console.log("🚀 Data ที่ส่งไป store:", formData);
+        console.log("🚀 Data ที่ส่งไป store:", formData);
+        console.log("🔍 Certificate fields ที่ส่งไป:", {
+          certificate_template_url: formData.certificate_template_url,
+          upload_certificate_description: formData.upload_certificate_description,
+          certificate_ocr_data: formData.certificate_ocr_data,
+          certificate_image_analysis: formData.certificate_image_analysis
+        });
 
     try {
       if (finalActivityId) {
@@ -532,10 +573,33 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
           foodIds: formData.event_format === "Onsite" ?
             (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ?
               formData.selectedFoods.filter(foodId => foodId > 0) : []) : [],
+          // ✅ Course ไม่ต้องมี registration dates และ assessment
+          ...(formData.event_format === "Course" ? {
+            special_start_register_date: null,
+            start_register_date: null,
+            end_register_date: null,
+            assessment_id: null,
+            start_assessment: null,
+            end_assessment: null,
+          } : {}),
+          // ✅ ส่ง certificate fields สำหรับ Course activities
+          ...(formData.event_format === "Course" ? {
+            certificate_template_url: formData.certificate_template_url,
+            certificate_ocr_data: formData.certificate_ocr_data,
+            certificate_image_analysis: formData.certificate_image_analysis,
+            upload_certificate_description: formData.upload_certificate_description,
+          } : {}),
         };
 
         // ✅ Clean up undefined values และ circular references
         const cleanUpdateData: any = { ...updateData };
+        
+        console.log("🔍 updateData certificate fields:", {
+          certificate_template_url: updateData.certificate_template_url,
+          upload_certificate_description: updateData.upload_certificate_description,
+          certificate_ocr_data: updateData.certificate_ocr_data,
+          certificate_image_analysis: updateData.certificate_image_analysis
+        });
         
         // ✅ ลบ undefined values และ functions
         Object.keys(cleanUpdateData).forEach(key => {
@@ -636,6 +700,9 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         console.log("🔍 cleanUpdateData keys:", Object.keys(cleanUpdateData));
         const result = await updateActivity(cleanUpdateData as Activity);
         console.log("✅ Activity updated successfully:", result);
+        
+        // ✅ Certificate template URL ถูกส่งไปพร้อมกับ Activity แล้ว (ไม่ต้องเรียก API แยก)
+        
         toast.success("อัปเดตกิจกรรมสำเร็จ!");
         return finalActivityId; // ✅ ส่งคืน activity_id
       } else {
@@ -816,8 +883,8 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
           updatedFormData.end_activity_date) {
           checkRoomConflicts(
             updatedFormData.room_id,
-            updatedFormData.start_activity_date,
-            updatedFormData.end_activity_date,
+            String(updatedFormData.start_activity_date),
+            String(updatedFormData.end_activity_date),
             finalActivityId
           );
         } else if (updatedFormData.event_format !== "Onsite") {
@@ -1077,7 +1144,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   />
 
                   <RegisterPeriodSectionUpdate
-                    formData={formData}
+                    formData={formData as any}
                     handleDateTimeChange={handleDateTimeChange}
                     disabled={false} // ✅ ใช้ props เฉพาะเจาะจงแทน
                     isEditMode={!!finalActivityId} // ✅ ส่ง true ถ้าเป็นการแก้ไข (มี finalActivityId)
@@ -1187,19 +1254,21 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   originalActivityStatus={activity?.activity_status}
                 />
 
-                <div className="mt-6 max-w-xl w-full">
-                  <label className="block font-semibold">อาหาร *</label>
-                  <FoodMultiSelect
-                    foods={foods}
-                    selectedFoodIds={formData.selectedFoods}
-                    setSelectedFoodIds={(newIds) => {
-                      console.log("🍽️ Food selection changed:", { old: formData.selectedFoods, new: newIds });
-                      localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
-                      setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
-                    }}
-                    disabled={formData.event_format !== "Onsite"}
-                  />
-                </div>
+                {formData.event_format === "Onsite" && (
+                  <div className="mt-6 max-w-xl w-full">
+                    <label className="block font-semibold">อาหาร *</label>
+                    <FoodMultiSelect
+                      foods={foods}
+                      selectedFoodIds={formData.selectedFoods}
+                      setSelectedFoodIds={(newIds) => {
+                        console.log("🍽️ Food selection changed:", { old: formData.selectedFoods, new: newIds });
+                        localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
+                        setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
+                      }}
+                      disabled={false}
+                    />
+                  </div>
+                )}
                 <AssessmentSectionUpdate
                   formData={formData}
                   assessments={assessments}
@@ -1219,6 +1288,12 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                   handleFileChange={handleFileChange}
                   disabled={!isFieldEditable('image_url')} // ✅ ส่งเงื่อนไขที่ถูกต้อง
                   hasExistingImage={!!activity?.image_url} // ✅ ส่งข้อมูลว่ามีรูปภาพอยู่แล้วหรือไม่
+                />
+
+                <CertificateTemplate
+                  formData={formData}
+                  setFormData={setFormData}
+                  disabled={!isFieldEditable('upload_certificate_description')}
                 />
 
                 <ActionButtonsSection

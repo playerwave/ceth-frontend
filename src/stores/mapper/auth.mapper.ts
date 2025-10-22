@@ -1,7 +1,7 @@
 // src/mapper/auth.mapper.ts
 
 import { AuthResponse } from "../api/auth.api";
-import { AuthUser } from "../../types/model";
+import { AuthUser } from "../../types/auth-user.type";
 
 // export function mapApiToAuthUser(api: AuthResponse): AuthUser {
 //   return {

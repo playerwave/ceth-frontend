@@ -1,7 +1,7 @@
 // src/stores/Visitor/activity.store.visitor.ts
 
 import { create } from "zustand";
-import { Activity } from "../../types/model"; // ต้องเป็น Activity
+import { Activity } from "../../types/activity.types";
 import { activityService } from "../../service/Visitor/activity.service.visitor";
 
 interface ActivityVisitorState {
