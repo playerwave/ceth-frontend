@@ -267,17 +267,25 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         activity_status: initialActivityStatus, // ใช้ค่าที่ตรวจสอบจาก URL
         activity_state: activity.activity_state || "Not Start",
         create_activity_date: activity.create_activity_date || "",
-        last_update_activity_date: activity.last_update_activity_date || "",
-        start_register_date: activity?.start_register_date ? convertUTCToLocal(activity.start_register_date) : "",
-        special_start_register_date: activity?.special_start_register_date ? convertUTCToLocal(activity.special_start_register_date) : "",
-        end_register_date: activity?.end_register_date ? convertUTCToLocal(activity.end_register_date) : "",
-        start_activity_date: activity?.start_activity_date ? convertUTCToLocal(activity.start_activity_date) : "",
-        end_activity_date: activity?.end_activity_date ? convertUTCToLocal(activity.end_activity_date) : "",
+        last_update_activity_date: typeof activity?.last_update_activity_date === "string" ? convertUTCToLocal(activity.last_update_activity_date) : "",
+        start_register_date: typeof activity?.start_register_date === "string" ? convertUTCToLocal(activity.start_register_date) : "",
+        special_start_register_date: typeof activity?.special_start_register_date === "string" ? convertUTCToLocal(activity.special_start_register_date) : "",
+        end_register_date: typeof activity?.end_register_date === "string" ? convertUTCToLocal(activity.end_register_date) : "",
+        start_activity_date: typeof activity?.start_activity_date === "string" ? convertUTCToLocal(activity.start_activity_date) : "",
+        end_activity_date: typeof activity?.end_activity_date === "string" ? convertUTCToLocal(activity.end_activity_date) : "",
         image_url: activity.image_url || "",
         assessment_id: activity.event_format === "Course" ? undefined : activity.assessment_id, // ✅ ล้างค่าแบบประเมินถ้าเป็น Course
         room_id: activity.room_id,
-        start_assessment: activity.event_format === "Course" ? "" : (activity?.start_assessment ? convertUTCToLocal(activity.start_assessment) : ""), // ✅ ล้างค่าวันเริ่มประเมินถ้าเป็น Course
-        end_assessment: activity.event_format === "Course" ? "" : (activity?.end_assessment ? convertUTCToLocal(activity.end_assessment) : ""), // ✅ ล้างค่าวันสิ้นสุดประเมินถ้าเป็น Course
+        start_assessment: activity.event_format === "Course"
+          ? ""
+          : (typeof activity?.start_assessment === "string"
+            ? convertUTCToLocal(activity.start_assessment)
+            : ""),
+        end_assessment: activity.event_format === "Course"
+          ? ""
+          : (typeof activity?.end_assessment === "string"
+            ? convertUTCToLocal(activity.end_assessment)
+            : ""),
         status: activity.status || "Active",
         url: activity.url || "",
         selectedFoods: (activity as { foods?: Array<{ food_id: number }> }).foods?.map((food) => food.food_id) || savedFoods,
