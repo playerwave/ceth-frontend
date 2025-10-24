@@ -43,4 +43,16 @@ export interface Activity {
   certificate_template_url?: string | null;
   certificate_ocr_data?: any;
   certificate_image_analysis?: any;
+  // ✅ Certificate-specific fields (for merged certificate activities)
+  certificate_id?: number;
+  verification_status?: string;
+  confidence_score?: number;
+  submitted_date?: Date | string;
+  ocr_extracted_data?: {
+    studentName?: string;
+    courseName?: string;
+    completionDate?: string;
+    certificateId?: string;
+    issuerName?: string;
+  };
 }

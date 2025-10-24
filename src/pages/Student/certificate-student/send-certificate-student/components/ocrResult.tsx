@@ -8,6 +8,7 @@ interface OcrResultProps {
     date?: string;
     score?: string;
     score_float?: number;
+    certificateType?: 'THAI_MOOC' | 'BUU_MOOC' | 'UNKNOWN'; // ✅ เพิ่ม certificate type
     [key: string]: unknown;
   } | null;
 }
@@ -39,24 +40,40 @@ export default function OcrResult({ result }: OcrResultProps) {
           <p className="font-bold w-36 lg:w-40 shrink-0">Certificate ID:</p>
           <p className="flex-1">{result?.certificateId || "-"}</p>
         </div>
+        <div className="flex flex-col md:flex-row mb-2">
+          <p className="font-bold w-36 lg:w-40 shrink-0">ประเภท:</p>
+          <p className="flex-1">
+            {result?.certificateType === 'THAI_MOOC' ? 'Thai MOOC' :
+             result?.certificateType === 'BUU_MOOC' ? 'BUU MOOC' :
+             'ไม่ทราบประเภท'}
+          </p>
+        </div>
 
         {!result && <p className="text-gray-500">ยังไม่มีผลลัพธ์ OCR</p>}
 
         {result && (() => {
-          const isComplete =
-            result.fullName !== "-" &&
-            result.courseName !== "-" &&
-            result.teacher !== "-" &&
-            result.date !== "-" &&
-            result.certificateId !== "-";
-
-          // ✅ ตรวจสอบข้อมูลที่ขาดหายไป
+          const certificateType = result.certificateType || 'UNKNOWN';
+          console.log("🔍 OcrResult - Certificate Type:", certificateType);
+          
+          // ✅ ตรวจสอบข้อมูลที่ขาดหายไป - ปรับตาม certificate type
           const missingFields = [];
           if (result.fullName === "-") missingFields.push("ชื่อ-นามสกุล");
           if (result.courseName === "-") missingFields.push("ชื่อหลักสูตร");
           if (result.teacher === "-") missingFields.push("ชื่ออาจารย์");
           if (result.date === "-") missingFields.push("วันที่");
-          if (result.certificateId === "-") missingFields.push("Certificate ID");
+          
+          // ✅ Certificate ID - ตรวจสอบตาม certificate type
+          if (certificateType === 'BUU_MOOC' && result.certificateId === "-") {
+            missingFields.push("Certificate ID");
+          }
+          // ✅ Thai MOOC ไม่บังคับ Certificate ID
+          
+          const isComplete =
+            result.fullName !== "-" &&
+            result.courseName !== "-" &&
+            result.teacher !== "-" &&
+            result.date !== "-" &&
+            (certificateType !== 'BUU_MOOC' || result.certificateId !== "-"); // ✅ BUU MOOC ต้องมี Certificate ID
 
           return (
             <div className="mt-3">

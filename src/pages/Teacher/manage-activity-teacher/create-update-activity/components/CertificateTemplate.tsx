@@ -72,7 +72,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 
         const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5090';
         const activityId = formData.activity_id || 'new'; // ใช้ 'new' สำหรับ create mode
-        const response = await fetch(`${baseURL}/api/teacher/certificate/activity/${activityId}/template`, {
+        const response = await fetch(`${baseURL}/api/teacher/certificate-template/activity/${activityId}/template`, {
           method: 'POST',
           body: uploadFormData
         });

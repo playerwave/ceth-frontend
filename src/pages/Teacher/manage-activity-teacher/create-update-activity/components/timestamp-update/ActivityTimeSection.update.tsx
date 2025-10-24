@@ -66,7 +66,7 @@ const ActivityTimeSectionUpdate: React.FC<Props> = ({
                   onChange={(newValue) =>
                     handleDateTimeChange("start_activity_date", newValue)
                   }
-                  disabled={disabled || !formData.end_register_date || !isStartActivityDateEditable}
+                  disabled={disabled || (formData.event_format !== "Course" && !formData.end_register_date) || !isStartActivityDateEditable}
                   slotProps={{
                     textField: {
                       sx: { height: "56px" },

@@ -1,5 +1,6 @@
 import axiosInstance from "../../libs/axios";
 import { Activity } from "../../types/activity.types";
+import { AvailableCourseActivity } from "@stores/api/activity.api";
 
 // base path
 const STUDENT_ACTIVITY_PATH = "/student/activity";
@@ -233,6 +234,33 @@ export const checkAssessmentStatus = async (
   }
 };
 
+//--------------------- Fetch Available Course Activities -------------------------
+export const fetchAvailableCourseActivities = async (): Promise<AvailableCourseActivity[]> => {
+  console.log("🌐 [SERVICE] fetchAvailableCourseActivities called");
+  console.log("🌐 [SERVICE] Making request to:", `${STUDENT_ACTIVITY_PATH}/available-course-activities`);
+  
+  try {
+    const response = await axiosInstance.get<AvailableCourseActivity[]>(
+      `${STUDENT_ACTIVITY_PATH}/available-course-activities`
+    );
+    
+    console.log("✅ [SERVICE] Available course activities response received:", response.data);
+    
+    // ตรวจสอบว่า response.data เป็น array ที่ถูกต้อง
+    if (response.data && Array.isArray(response.data)) {
+      console.log("✅ [SERVICE] Valid available course activities data, count:", response.data.length);
+      return response.data;
+    } else {
+      console.warn("⚠️ [SERVICE] Invalid available course activities response data:", response.data);
+      return [];
+    }
+  } catch (error: any) {
+    console.error("❌ [SERVICE] Error in fetchAvailableCourseActivities:", error);
+    throw error;
+  }
+};
+//------------------------------------------------------------------------------
+
 //--------------------- Export Service -----------------------------------------
 const activityService = {
   fetchActivities,
@@ -246,6 +274,7 @@ const activityService = {
   fetchEndActivities,
   checkInOutActivity,
   checkAssessmentStatus,
+  fetchAvailableCourseActivities,
 };
 //------------------------------------------------------------------------------
 

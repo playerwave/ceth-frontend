@@ -1,32 +1,41 @@
 // src/pages/ListActivityHistoryStudent.tsx
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
 import Searchbar from "../../../../components/Searchbar";
 import ActivityHistoryTableStudent from "./activity.history.table.student";
 import { useActivityStore } from "../../../../stores/Student/activity.store.student";
 import { useAuthStore } from "../../../../stores/Visitor/auth.store";
-import Button from "../../../../components/Button";
+// import Button from "../../../../components/Button";
 
 const ListActivityHistoryStudent = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const searchEndActivities = useActivityStore((s) => s.searchEndActivities);
+  const fetchEndedActivities = useActivityStore((s) => s.fetchEndedActivities);
   const { user } = useAuthStore();
 
-  // ✅ ใช้ studentId จาก auth store เท่านั้น (ไม่ fetchMe อัตโนมัติ)
+  // ✅ ใช้ users_id จาก auth store แทน students_id
   const studentId = useMemo(() => {
-    const id = user?.student?.students_id;
+    const id = user?.student?.users_id; // ✅ เปลี่ยนจาก students_id เป็น users_id
     return typeof id === "number" && id > 0 ? id : null;
-  }, [user?.student?.students_id]);
+  }, [user?.student?.users_id]);
 
   function handleSearch(term: string) {
     if (!studentId) return; // ไม่มี id ก็ไม่ค้นหา
     searchEndActivities(term, studentId);
   }
 
-  const handleClick = () => {
-    navigate("/assessment-student");
-  };
+  // ✅ เพิ่ม: Refresh activity history เมื่อ component mount
+  useEffect(() => {
+    if (studentId) {
+      console.log("🔄 [ListActivityHistory] Refreshing activity history for student:", studentId);
+      fetchEndedActivities(studentId);
+    }
+  }, [studentId, fetchEndedActivities]);
+
+  // const handleClick = () => {
+  //   navigate("/assessment-student");
+  // };
 
   return (
     <div className="max-w-screen-xl w-full mx-auto px-6 mt-10">

@@ -39,3 +39,22 @@ export interface ApiActivity {
   activityFood: ActivityFood[];
   upload_certificate_description?: string | null;
 }
+
+// ✅ Interface สำหรับกิจกรรม Course ที่พร้อมส่ง Certificate
+export interface AvailableCourseActivity {
+  activity_id: number;
+  activity_name: string;
+  presenter_company_name: string;
+  description: string;
+  type: "Soft" | "Hard";
+  recieve_hours: number;
+  event_format: "Course";
+  activity_status: "Public";
+  activity_state: "Start Activity";
+  start_activity_date: string;
+  end_activity_date: string;
+  image_url: string;
+  url: string | null;
+  create_activity_date: string;
+  last_update_activity_date: string;
+}

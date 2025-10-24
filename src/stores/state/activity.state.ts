@@ -19,6 +19,7 @@
 // }
 
 import { Activity } from "../../types/activity.types";
+import { AvailableCourseActivity } from "../api/activity.api";
 
 export interface ActivityState {
   activities: Activity[];
@@ -30,6 +31,7 @@ export interface ActivityState {
   enrolledActivities: Activity[];
   ongoingActivities: Activity[];
   endedActivities: Activity[];
+  availableCourseActivities: AvailableCourseActivity[];
 
   // เพิ่มฟังก์ชันที่จำเป็น
   fetchEndedActivities: (studentId: number) => Promise<void>; 
@@ -57,4 +59,7 @@ export interface ActivityState {
     activityId: number,
     studentId: number
   ) => Promise<{ hasSubmitted: boolean; assessmentName?: string; submittedDate?: Date }>;
+  
+  // ✅ ฟังก์ชันสำหรับดึงกิจกรรม Course ที่พร้อมส่ง Certificate
+  fetchAvailableCourseActivities: () => Promise<void>;
 }

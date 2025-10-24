@@ -2,6 +2,7 @@
 import axiosInstance from "../../libs/axios";
 import { Certificate } from "../../types/certificate/certificate.type";
 import { mapApiToCertificate } from "../../stores/mapper/certificate.mapper";
+import { CertificateVerificationResult } from "../../stores/Student/certificate.store.student";
 
 // Base path
 const STUDENT_CERTIFICATE_PATH = "/student/certificate";
@@ -78,14 +79,41 @@ export const uploadCertificateForOCR = async (file: File): Promise<any> => {
 };
 //------------------------------------------------------------------
 
+//--------------------- Upload Certificate with Activity ID -------------------------
+export const uploadCertificate = async (file: File, activityId: number): Promise<CertificateVerificationResult> => {
+  console.log("📤 [Certificate Service] Uploading certificate with activity ID:", activityId);
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('activityId', activityId.toString());
+  
+  try {
+    const response = await axiosInstance.post<CertificateVerificationResult>(
+      `${STUDENT_CERTIFICATE_PATH}/upload-with-verification`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    
+    console.log("✅ [Certificate Service] Upload with verification successful:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ [Certificate Service] Error uploading certificate:", error);
+    throw error;
+  }
+};
+//------------------------------------------------------------------
+
 //--------------------- Export Service -----------------------------
 const certificateService = {
   getCertificateById,
   getCertificatesByStudentId,
   uploadCertificateWithOCR,
   uploadCertificateForOCR,
-  // Deprecated: use uploadCertificateForOCR instead
-  uploadCertificate: uploadCertificateForOCR,
+  uploadCertificate,
 };
 //------------------------------------------------------------------
 

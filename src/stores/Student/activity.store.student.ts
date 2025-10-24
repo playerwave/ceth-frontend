@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { ActivityState } from "../state/activity.state";
 import activityService from "../../service/Student/activity.service";
+// import { AvailableCourseActivity } from "../api/activity.api";
 // import { Activity } from "../../types/model";
 
 export const useActivityStore = create<ActivityState>((set, get) => ({
@@ -14,6 +15,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   ongoingActivities: [],
   recommendedIds: [],
   endedActivities: [],
+  availableCourseActivities: [],
 
   // โหลดกิจกรรมทั้งหมดของนิสิต
   fetchStudentActivities: async (studentId: number) => {
@@ -295,10 +297,11 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       return;
     }
 
-    set({ activityLoading: true, activityError: null });
+    // ✅ เพิ่ม: Clear previous data ก่อน
+    set({ endedActivities: [], activityLoading: true, activityError: null });
 
     try {
-      // ถ้า service ฝั่งหลังบ้านคืน “กิจกรรมที่สิ้นสุดแล้ว” อยู่แล้ว
+      // ถ้า service ฝั่งหลังบ้านคืน "กิจกรรมที่สิ้นสุดแล้ว" อยู่แล้ว
       const ended = await activityService.fetchEndActivities(studentId);
 
       console.log("📥 [STORE] Ended activities received:", ended);
@@ -387,6 +390,39 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         activityLoading: false,
       });
       throw error;
+    }
+  },
+
+  // ✅ เมธอดใหม่: ดึงกิจกรรม Course ที่พร้อมส่ง Certificate
+  fetchAvailableCourseActivities: async () => {
+    console.log("🔄 [STORE] fetchAvailableCourseActivities called");
+    
+    const { activityLoading } = get();
+    if (activityLoading) {
+      console.log("⚠️ [STORE] Already loading, skip");
+      return;
+    }
+
+    set({ activityLoading: true, activityError: null });
+
+    try {
+      const activities = await activityService.fetchAvailableCourseActivities();
+      
+      console.log("✅ [STORE] Available course activities received:", activities);
+      
+      if (Array.isArray(activities)) {
+        set({ availableCourseActivities: activities, activityLoading: false });
+        console.log("✅ [STORE] Available course activities set successfully, count:", activities.length);
+      } else {
+        console.warn("⚠️ [STORE] Invalid available course activities data:", activities);
+        set({ availableCourseActivities: [], activityLoading: false });
+      }
+    } catch (error) {
+      console.error("❌ [STORE] Error in fetchAvailableCourseActivities:", error);
+      set({
+        activityError: "ไม่สามารถโหลดกิจกรรม Course ที่พร้อมส่ง Certificate ได้",
+        activityLoading: false,
+      });
     }
   },
 }));

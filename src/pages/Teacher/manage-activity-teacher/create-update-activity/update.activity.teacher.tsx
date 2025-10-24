@@ -149,12 +149,12 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       return editableFields.includes(fieldName);
     }
 
-    // ✅ Start Activity, End Activity, Start Assessment, End Assessment: แก้ได้แค่ end_assessment
+    // ✅ Start Activity, End Activity, Start Assessment, End Assessment: แก้ได้แค่ end_assessment และ start_activity_date
     if (activityState === "Start Activity" || 
         activityState === "End Activity" || 
         activityState === "Start Assessment" || 
         activityState === "End Assessment") {
-      return fieldName === 'end_assessment';
+      return fieldName === 'end_assessment' || fieldName === 'start_activity_date';
     }
 
     // ✅ Close Register: แก้ได้แค่วันที่ + รูปภาพ + activity_status + ห้อง (ถ้าเป็น Onsite)

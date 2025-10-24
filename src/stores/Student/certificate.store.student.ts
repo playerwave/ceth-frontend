@@ -2,6 +2,30 @@ import { create } from "zustand";
 import { Certificate } from "../../types/certificate/certificate.type";
 import certificateService from "../../service/Student/certificate.service";
 
+// ✅ Interface สำหรับผลการตรวจสอบ Certificate
+export interface CertificateVerificationResult {
+  success: boolean;
+  confidenceScore: number;
+  isAuthentic: boolean;
+  matchedFeatures: string[];
+  failedFeatures: string[];
+  recommendations: string[];
+  ocrData: {
+    fullName: string;
+    courseName: string;
+    teacher: string;
+    certificateId: string;
+    date: string;
+    rawText: string;
+  };
+  verificationDetails: {
+    courseNameMatch: number;
+    instructorMatch: number;
+    visualMatch: number;
+    formatMatch: number;
+  };
+}
+
 interface CertificateStore {
   selectedCertificate: Certificate | null;
   certificates: Certificate[];
@@ -10,7 +34,7 @@ interface CertificateStore {
   
   fetchCertificateById: (id: number) => Promise<Certificate | null>;
   fetchCertificatesByStudentId: () => Promise<Certificate[]>;
-  uploadCertificate: (file: File) => Promise<any>;
+  uploadCertificate: (file: File, activityId: number) => Promise<CertificateVerificationResult>;
   clearSelectedCertificate: () => void;
 }
 
@@ -63,11 +87,11 @@ export const useCertificateStore = create<CertificateStore>((set, get) => ({
   //----------------------------------------------------------------
 
   //--------------------- Upload Certificate (OCR) -------------------------
-  uploadCertificate: async (file: File) => {
-    console.log("📤 Uploading certificate file:", file.name);
+  uploadCertificate: async (file: File, activityId: number) => {
+    console.log("📤 Uploading certificate file:", file.name, "for activity:", activityId);
     set({ certificateLoading: true, certificateError: null });
     try {
-      const result = await certificateService.uploadCertificate(file);
+      const result = await certificateService.uploadCertificate(file, activityId);
       console.log("✅ Upload successful:", result);
       return result;
     } catch (err) {

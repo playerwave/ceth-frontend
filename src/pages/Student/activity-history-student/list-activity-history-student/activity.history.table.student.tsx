@@ -25,7 +25,10 @@ const ActivityHistoryTableStudent = ({
   const fetchEndedActivities = useActivityStore((s) => s.fetchEndedActivities);
 
   useEffect(() => {
-    if (Number.isFinite(studentId as number)) fetchEndedActivities(studentId);
+    if (Number.isFinite(studentId as number)) {
+      console.log("🔄 [ActivityHistoryTable] Fetching ended activities for student:", studentId);
+      fetchEndedActivities(studentId);
+    }
   }, [studentId, fetchEndedActivities]);
 
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -38,14 +41,14 @@ const ActivityHistoryTableStudent = ({
 
   const filteredRows = useMemo(() => {
     if (selectedTypes.length === 0) return baseRows;
-    return baseRows.filter((row) => selectedTypes.includes(row.type));
+    return baseRows.filter((row) => selectedTypes.includes(row.type || ''));
   }, [baseRows, selectedTypes]);
 
   const activityColumns: GridColDef<Activity>[] = useMemo(
     () =>
       getActivityColumns({
         enableTypeFilter: true,
-        selectedTypes,
+        selectedTypes: selectedTypes || [],
         handleTypeChange,
       }),
     [selectedTypes]
