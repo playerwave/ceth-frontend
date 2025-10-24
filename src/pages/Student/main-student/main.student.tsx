@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { Box } from "@mui/material";
 
-import { useActivityStore } from "../../../stores/Student/activity.store.student";
-import { useAuthStore } from "../../../stores/Visitor/auth.store";
+import { useActivityStore } from "@/stores/Student/activity.store.student";
+import { useAuthStore } from "@/stores/Visitor/auth.store";
 import SoftHardSkillCards from "./components/softHardSkillCards";
 import BarChartSection from "./components/barChartSection";
 import TableActivitySection from "./components/tableListSection";
 import TableOngoingSection from "./components/tableOngoingSection";
 import ActivityTabs from "./components/activityTabs"; // ✅ Tabs
 import TablePendingEvaluation from "./components/tablePendingEvaluation";
-import CustomCard from "../../../components/Card";
-import type { Activity } from "../../../types/activity.types";
+import CustomCard from "@/components/Card";
+import type { Activity } from "@/types/activity.types";
 
 type StudentEnrolledActivity = Activity & { has_submitted_assessment?: boolean };
 

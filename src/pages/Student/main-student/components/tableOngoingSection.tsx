@@ -2,7 +2,7 @@ import React from "react";
 import { Typography, CircularProgress, Box } from "@mui/material";
 import TableListRow from "./tableListRow";
 import { getTableListColumn } from "./tableListColumn";
-import { Activity } from "../../../../types/activity.types";
+import { Activity } from "@/types/activity.types";
 
 interface TableOngoingSectionProps {
   ongoingActivities: Activity[];

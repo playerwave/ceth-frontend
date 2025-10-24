@@ -1,7 +1,7 @@
 // ✅ SoftHardSkillCards.tsx
 import { useState, useEffect } from "react";
-import CustomCard from "../../../../components/Card";
-import { useAuthStore } from "../../../../stores/Visitor/auth.store";
+import CustomCard from "@/components/Card";
+import { useAuthStore } from "@/stores/Visitor/auth.store";
 
 const SoftHardSkillCards = () => {
   const { user } = useAuthStore();

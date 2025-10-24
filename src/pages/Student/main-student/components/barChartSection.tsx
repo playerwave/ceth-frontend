@@ -1,5 +1,3 @@
-// components/Student/Main/BarChartSection.tsx
-// import { Card } from "@mui/material";
 import {
   BarChart,
   Bar,
@@ -10,7 +8,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import CustomCard from "../../../../components/Card";
+import CustomCard from "@/components/Card";
 
 const BarChartSection = () => {
   // 🔧 หากคุณมี data จริงให้รับผ่าน props แล้วแทนที่ dummyData ด้านล่าง

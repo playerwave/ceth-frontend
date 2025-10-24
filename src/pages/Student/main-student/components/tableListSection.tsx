@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { Typography, CircularProgress, Box } from "@mui/material";
-// import Loading from "../../../../components/Loading";
-// import CustomCard from "../../../../components/Card";
 import TableListRow from "./tableListRow";
 import { getTableListColumn } from "./tableListColumn";
-import { useActivityStore } from "../../../../stores/Student/activity.store.student";
-import { useAuthStore } from "../../../../stores/Visitor/auth.store";
+import { useActivityStore } from "@/stores/Student/activity.store.student";
+import { useAuthStore } from "@/stores/Visitor/auth.store";
 
 interface TableListSectionProps {
   filteredActivities?: any[]; // ✅ เพิ่ม prop สำหรับข้อมูลที่กรองแล้ว
@@ -119,12 +117,6 @@ export default function TableListSection({ filteredActivities }: TableListSectio
         <div className="text-center text-gray-500 p-4">
           <p>📭 ไม่พบกิจกรรมที่ลงทะเบียน</p>
           <p className="text-sm mt-2">Student ID: {studentId}</p>
-          <button 
-            onClick={() => studentId && fetchEnrolledActivities(studentId)}
-            className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            โหลดใหม่
-          </button>
         </div>
       ) : (
         <TableListRow

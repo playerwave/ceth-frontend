@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Typography } from "@mui/material";
-import Loading from "../../../../components/Loading";
-// import { Activity } from "../../../../types/model"; // ✅ ไม่ใช้แล้ว
+import Loading from "@/components/Loading";
 import TablePendingRow from "./tablePendingRow";
 import { getTablePendingColumn } from "./tablePendingColumn";
 
