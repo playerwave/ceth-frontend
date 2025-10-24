@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import TabBar from "../../../components/TabBar";
+import TabBar from "@/components/TabBar";
 import { List, Calendar } from "lucide-react";
 import ListStudentTeacher from "./list-student-teacher/list.student.teacher";
 import EventCoopManagement from "./event-coop-management/eventcoop.management.teacher";

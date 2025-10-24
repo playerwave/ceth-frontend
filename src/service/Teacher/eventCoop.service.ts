@@ -1,6 +1,6 @@
 // stores/EventCoop/eventCoop.service.ts
-import axiosInstance from "../../libs/axios";
-import { EventCoop } from "../../types/eventcoop.type";
+import axiosInstance from "@/libs/axios";
+import { EventCoop } from "@/types/eventcoop.type";
 
 //base path
 const TEACHER_EVENT_COOP_PATH = "/teacher/event-coop";

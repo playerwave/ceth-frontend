@@ -1,7 +1,7 @@
-import Button from "../../../../../components/Button";
+import Button from "@/components/Button";
 import { useNavigate } from "react-router-dom";
-import { RouteHelpers } from "../../../../../routes/secure/urlEnCryption";
-import { ProtectionLevel } from "../../../../../routes/secure/urlEnCryption";
+import { RouteHelpers } from "@/routes/secure/urlEnCryption";
+import { ProtectionLevel } from "@/routes/secure/urlEnCryption";
 import {
   CalendarDays,
   Play,

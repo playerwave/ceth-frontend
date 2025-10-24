@@ -1,5 +1,5 @@
-import axiosInstance from "../../libs/axios";
-import { ApiQuestion } from "../../stores/api/question.api";
+import axiosInstance from "@/libs/axios";
+import { ApiQuestion } from "@/stores/api/question.api";
 
 // ✅ ดึงคำถามทั้งหมด
 export const getAllQuestions = async (): Promise<ApiQuestion[]> => {

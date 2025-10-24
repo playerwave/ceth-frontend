@@ -1,5 +1,5 @@
-import axiosInstance from "../../libs/axios";
-import { ApiSetNumber } from "../../stores/api/setNumber.api";
+import axiosInstance from "@/libs/axios";
+import { ApiSetNumber } from "@/stores/api/setNumber.api";
 
 // ✅ ดึง SetNumber ทั้งหมด
 export const getAllSetNumbers = async (): Promise<ApiSetNumber[]> => {

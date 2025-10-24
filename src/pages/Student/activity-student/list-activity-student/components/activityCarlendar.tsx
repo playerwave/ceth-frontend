@@ -29,7 +29,7 @@ const StudentActivityCalendar = () => {
         const textColor = isHard ? "#FBBF24" : "#5E35B1";
         return {
           id: String(a.activity_id),
-          title: a.activity_name,
+          title: a.activity_name || "",
           date: baseDate,
           backgroundColor: bgColor,
           textColor,

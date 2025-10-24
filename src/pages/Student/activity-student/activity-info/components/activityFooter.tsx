@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import Button from "../../../../../components/Button";
+import Button from "@/components/Button";
 import {
   Play,
   StepForward,
@@ -13,6 +13,8 @@ import {
   Clock,
 } from "lucide-react";
 import ActivityDialogs from "./activityDialogs";
+import { Activity } from "@/types/activity.types";
+import { NavigateFunction } from "react-router-dom";
 
 type Mode = "catalog" | "history";
 
@@ -20,18 +22,13 @@ interface Props {
   mode: Mode;
   evaluationDone: boolean;
 
-  activity: any;
+  activity: Activity;
   isEnrolled: boolean;
   enrollActivity: (userId: number, activityId: number, food?: string[]) => Promise<void> | void;
   unenrollActivity: (userId: number, activityId: number) => Promise<void> | void;
   setIsEnrolled: React.Dispatch<React.SetStateAction<boolean>>;
-  navigate: any;
-  enrolledActivities: Array<{
-    activity_id: number;
-    event_format: string;
-    start_activity_date: string;
-    end_activity_date: string;
-  }>;
+  navigate: NavigateFunction;
+  enrolledActivities: Activity[];
   selectedFood: string;
   userId: number | null;
 }
@@ -56,7 +53,7 @@ export default function ActivityFooter({
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
 
   const handleEnroll = async () => {
-    if (!CAN_ENROLL_STATES.includes(activity.activity_state)) {
+    if (!CAN_ENROLL_STATES.includes(activity.activity_state || "")) {
       toast.error("กิจกรรมนี้ไม่อยู่ในช่วงเปิดลงทะเบียน");
       return;
     }
@@ -75,12 +72,12 @@ export default function ActivityFooter({
     }
 
     // ตรวจเวลาซ้อน
-    const hasTimeConflict = Array.isArray(enrolledActivities) && enrolledActivities.some((act) => {
+    const hasTimeConflict = Array.isArray(enrolledActivities) && enrolledActivities.some((act: Activity) => {
       if (activity.event_format === "Course" || act.event_format === "Course") return false;
-      const existingStart = new Date(act.start_activity_date).getTime();
-      const existingEnd = new Date(act.end_activity_date).getTime();
-      const newStart = new Date(activity.start_activity_date).getTime();
-      const newEnd = new Date(activity.end_activity_date).getTime();
+      const existingStart = new Date(act.start_activity_date || "").getTime();
+      const existingEnd = new Date(act.end_activity_date || "").getTime();
+      const newStart = new Date(activity.start_activity_date || "").getTime();
+      const newEnd = new Date(activity.end_activity_date || "").getTime();
       return (
         (newStart >= existingStart && newStart < existingEnd) ||
         (newEnd > existingStart && newEnd <= existingEnd) ||
@@ -172,7 +169,7 @@ export default function ActivityFooter({
           </div>
 
           <div className="flex items-center gap-1 ml-3 font-[Sarabun] font-semibold">
-            {getStateIcon(activity.activity_state)} {activity.activity_state}
+            {getStateIcon(activity.activity_state || "")} {activity.activity_state}
           </div>
         </div>
 
@@ -208,14 +205,14 @@ export default function ActivityFooter({
                     <Button bgColor="red" onClick={() => setIsUnEnrollModalOpen(true)}>
                       ยกเลิกลงทะเบียน
                     </Button>
-                  ) : CAN_ENROLL_STATES.includes(activity.activity_state) ? (
+                  ) : CAN_ENROLL_STATES.includes(activity.activity_state || "") ? (
                     <Button onClick={() => {
                       const hasTimeConflict = Array.isArray(enrolledActivities) && enrolledActivities.some((act) => {
                         if (activity.event_format === "Course" || act.event_format === "Course") return false;
-                        const existingStart = new Date(act.start_activity_date).getTime();
-                        const existingEnd = new Date(act.end_activity_date).getTime();
-                        const newStart = new Date(activity.start_activity_date).getTime();
-                        const newEnd = new Date(activity.end_activity_date).getTime();
+                        const existingStart = new Date(act.start_activity_date || "").getTime();
+                        const existingEnd = new Date(act.end_activity_date || "").getTime();
+                        const newStart = new Date(activity.start_activity_date || "").getTime();
+                        const newEnd = new Date(activity.end_activity_date || "").getTime();
                         return (
                           (newStart >= existingStart && newStart < existingEnd) ||
                           (newEnd > existingStart && newEnd <= existingEnd) ||

@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TableRedesign from "../../../components/Table_re";
-import CustomCard from "../../../components/Card";
-import { Activity } from "../../../types/activity.types";
+import TableRedesign from "@/components/Table_re";
+import CustomCard from "@/components/Card";
+import { Activity } from "@/types/activity.types";
 import { GridColDef } from "@mui/x-data-grid";
-import { getActivityColumns } from "../../../components/activity_column";
+import { getActivityColumns } from "@/components/activity_column";
 
 type Props = {
   rows1: Activity[];
@@ -27,7 +27,7 @@ const ActivityTablePageVisitor = ({ rows1 }: Props) => {
   // ✅ กรอง rows ตามประเภทที่เลือก
   const filteredRows = useMemo(() => {
     if (selectedTypes.length === 0) return rows1;
-    return rows1.filter((row) => selectedTypes.includes(row.type));
+    return rows1.filter((row) => selectedTypes.includes(row.type || ""));
   }, [rows1, selectedTypes]);
 
   // ✅ ฟังก์ชัน handle double-click เพื่อไปหน้า activity info

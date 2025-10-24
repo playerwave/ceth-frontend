@@ -1,28 +1,19 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import { useActivityStore } from "../../../../stores/Student/activity.store.student";
-import { useAuthStore } from "../../../../stores/Visitor/auth.store";
+import { useActivityStore } from "@/stores/Student/activity.store.student";
+import { useAuthStore } from "@/stores/Visitor/auth.store";
 import { useNavigate } from "react-router-dom";
 
-import Loading from "../../../../components/Loading";
-import SearchBar from "../../../../components/Searchbar";
+import Loading from "@/components/Loading";
+import SearchBar from "@/components/Searchbar";
 import { AlarmClockPlus } from "lucide-react";
 import ActivityTablePageStudent from "./ActivityTablePageStuden"; // ตรวจสอบชื่อไฟล์ให้ตรง ActivityTablePageStudent.tsx
 import StudentActivityCalendar from "./components/activityCarlendar";
-// import CalculateDialog from "./components/CalculateDialog";
-// import { useAuth } from "../../../../hooks/useAuth";
 import { isRecommended } from "./utils.ts/activity";
-// import { Activity } from "../../../../types/model";
 
 const ListActivityStudent: React.FC = () => {
   const navigate = useNavigate();
-  const { user, fetchMe } = useAuthStore();
+  const { user } = useAuthStore();
   const lastStudentIdRef = useRef<number | null>(null);
-  const triedFetchMeRef = useRef(false);
-  
-  // ใช้ students_id จาก auth store หรือ fallback เป็น 3
-  // const studentId = useMemo(() => {
-  //   return user?.student?.students_id || 3;
-  // }, [user?.student?.students_id]);
 
   const {
     activities: allPublicActivities,
@@ -49,22 +40,23 @@ const ListActivityStudent: React.FC = () => {
   // }, [user?.student]);
 
   useEffect(() => {
-    const id = user?.student?.students_id;
+    const id = user?.student?.students_id; // ✅ เปลี่ยนกลับเป็น students_id
     const isValidId = typeof id === "number" && id > 0;
   
     console.log("🔍 [ListActivity] useEffect triggered:", {
       id,
       isValidId,
       lastStudentId: lastStudentIdRef.current,
-      user: user?.student
+      user: user?.student,
+      fullUser: user
     });
   
     if (isValidId && id !== lastStudentIdRef.current) {
       lastStudentIdRef.current = id;
-      console.log("🔄 [ListActivity] Fetching activities for student_id:", id);
+      console.log("🔄 [ListActivity] Fetching activities for students_id:", id);
       fetchStudentActivities(id);
     }
-  }, [user?.student?.students_id, fetchStudentActivities]);
+  }, [user?.student?.students_id, fetchStudentActivities]); // ✅ เปลี่ยนกลับเป็น students_id
 
 
 
@@ -76,7 +68,7 @@ const ListActivityStudent: React.FC = () => {
     
     if (searchTerm.trim()) {
       return allPublicActivities.filter((a) =>
-        a.activity_name.toLowerCase().includes(searchTerm.toLowerCase().trim())
+        a.activity_name?.toLowerCase().includes(searchTerm.toLowerCase().trim())
       );
     }
     

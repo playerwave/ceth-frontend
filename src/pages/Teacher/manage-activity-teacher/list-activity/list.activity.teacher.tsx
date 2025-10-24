@@ -96,7 +96,7 @@ const ListActivityTeacher: React.FC = () => {
     
     // ต้องมี activity_state เป็น Not Start, Special Open Register, Open Register, Close Register
     const allowedStates = ["Not Start", "Special Open Register", "Open Register", "Close Register"];
-    const hasAllowedState = allowedStates.includes(a.activity_state);
+    const hasAllowedState = allowedStates.includes(a.activity_state || "");
 
     // Debug log
     if (import.meta.env.DEV) {
@@ -122,7 +122,7 @@ const ListActivityTeacher: React.FC = () => {
     
     // ต้องมี activity_state เป็น Start Activity, End Activity
     const allowedStates = ["Start Activity", "End Activity"];
-    const hasAllowedState = allowedStates.includes(a.activity_state);
+    const hasAllowedState = allowedStates.includes(a.activity_state || "");
 
     // Debug log
     if (import.meta.env.DEV) {
@@ -199,7 +199,7 @@ const ListActivityTeacher: React.FC = () => {
       
       // ✅ ตรวจสอบ activity_state ที่อนุญาตให้เปลี่ยนได้เลย
       const allowedStatesForDirectToggle = ["Special Open Register", "Open Register", "Close Register"];
-      const canToggleDirectly = allowedStatesForDirectToggle.includes(activity.activity_state);
+      const canToggleDirectly = allowedStatesForDirectToggle.includes(activity.activity_state || "");
       
       if (canToggleDirectly) {
         // ✅ เปลี่ยนได้เลยโดยไม่ต้องตรวจสอบ validation

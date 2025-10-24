@@ -6,7 +6,7 @@ import AssessmentStudent from "../pages/Student/assessment-student/do.assessment
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
 import type { Roles } from "../types/roles.type";
-type RoleName = Roles["role_name"];
+type RoleName = Roles["roles_name"];
 
 export const assessmentRoutes = [
   {

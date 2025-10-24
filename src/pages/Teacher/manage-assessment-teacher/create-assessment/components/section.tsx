@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { Plus, Trash2, Copy, GripVertical } from "lucide-react";
-import Question from "./question";
 import { Section as SectionType } from "../type/type.create";
 import { useAssessmentStoreUi } from "../store/assessmentStore";
 import {
@@ -9,14 +8,13 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
-import setNumberService from "../../../../../service/Teacher/setNumber.service";
+import setNumberService from "@/service/Teacher/setNumber.service";
 import { useParams } from "react-router-dom";
-import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
-import { QuestionType } from "../../../../../types/assessment/question.type";
-import { useSetNumberStore } from "../../../../../stores/Teacher/setNumberStore";
-import { updateQuestion } from "../../../../../service/Teacher/question.service";
+import { useQuestionStore } from "@/stores/Teacher/questionStore";
+import Question from "./question";
+import { useSetNumberStore } from "@/stores/Teacher/setNumberStore";
 
-interface SectionProps {
+interface SectionProps { 
   section: SectionType;
   index: number;
   mode: "create" | "edit";
@@ -121,7 +119,7 @@ const Section: React.FC<SectionProps> = ({
           question_text: "คำถามใหม่",
           question_number: questions.filter((q) => q.set_number_id === section.id).length + 1,
           set_number_id: section.id,
-          question_type: QuestionType.SINGLE,
+          question_type: "Single answer",
         });
         if (!newQ) {
           await fetchQuestionsBySetNumber(section.id);

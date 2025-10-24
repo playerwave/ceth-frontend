@@ -27,11 +27,11 @@ export default function CalculateDialog({
 }: Props) {
   const totalHard = selectedActivities
     .filter((a) => a.type === "Hard")
-    .reduce((sum, a) => sum + a.recieve_hours, 0);
+    .reduce((sum, a) => sum + (a.recieve_hours || 0), 0);
 
   const totalSoft = selectedActivities
     .filter((a) => a.type === "Soft")
-    .reduce((sum, a) => sum + a.recieve_hours, 0);
+    .reduce((sum, a) => sum + (a.recieve_hours || 0), 0);
 
   return (
     <Dialog

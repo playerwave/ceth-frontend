@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import qrCodeService from "../../service/Teacher/qr-code.service";
+import qrCodeService from "@/service/Teacher/qr-code.service";
 
 interface QRCodeState {
   qrCodeUrl: string | null;

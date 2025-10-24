@@ -27,8 +27,6 @@ export default function SatisfactionQuestions({
   onChange,
   className,
 }: SatisfactionQuestionsProps) {
-  const base =
-    "w-full max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[100%] p-4 sm:p-6 relative mx-0 self-start";
 
   // Debug logs
   console.log("🔍 [SatisfactionQuestions] Props:", { title, questions, options, answers });

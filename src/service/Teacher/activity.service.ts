@@ -1,6 +1,6 @@
 // stores/Activity/activity.service.ts
-import axiosInstance from "../../libs/axios";
-import { Activity } from "../../types/activity.types";
+import axiosInstance from "@/libs/axios";
+import { Activity } from "@/types/activity.types";
 
 //base path
 const TEACHER_ACTIVITY_PATH = "/teacher/activity";

@@ -1,4 +1,4 @@
-import axiosInstance from "../../libs/axios";
+import axiosInstance from "@/libs/axios";
 
 // Types สำหรับข้อมูลที่ได้รับจาก API
 export interface DepartmentData {

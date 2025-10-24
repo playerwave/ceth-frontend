@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { AssessmentState } from "../state/assessment.state";
-import { Assessment } from "../../types/assessment/assessment.type";
-import assessmentService from "../../service/Teacher/assessment.service";
+import { Assessment } from "@/types/assessment/assessment.type";
+import assessmentService from "@/service/Teacher/assessment.service";
 import {
   mapApiToAssessments,
   mapApiToAssessment,
@@ -69,8 +69,8 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       description,
       assessment_status,
       status,
-      create_date: create_date ?? new Date().toISOString(),
-      last_update: last_update ?? new Date().toISOString(),
+      create_date: create_date instanceof Date ? create_date.toISOString() : create_date ?? new Date().toISOString(),
+      last_update: last_update instanceof Date ? last_update.toISOString() : last_update ?? new Date().toISOString(),
     });
 
     await get().fetchAssessments();
@@ -206,7 +206,10 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   createVersion: async (assessmentId: number) => {
     try {
       await assessmentService.createVersion(assessmentId);
-      await get().fetchVersionHistory(assessmentId);
+      const state = get();
+      if (state.fetchVersionHistory) {
+        await state.fetchVersionHistory(assessmentId);
+      }
     } catch (e) {
       console.error("❌ [AssessmentStore] createVersion error:", e);
       set({ versionError: "สร้างเวอร์ชันไม่สำเร็จ" });
@@ -230,8 +233,13 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
         const newVersionId = created?.version?.assessment_version_id || created?.assessment_version_id;
         await assessmentService.publishVersion(assessmentId, newVersionId ?? latestVersionId);
       }
-      await get().fetchVersionHistory(assessmentId);
-      await get().fetchAssessments();
+      const state = get();
+      if (state.fetchVersionHistory) {
+        await state.fetchVersionHistory(assessmentId);
+      }
+      if (state.fetchAssessments) {
+        await state.fetchAssessments();
+      }
     } catch (e) {
       console.error("❌ [AssessmentStore] publishAssessment error:", e);
       set({ versionError: "เผยแพร่เวอร์ชันไม่สำเร็จ" });

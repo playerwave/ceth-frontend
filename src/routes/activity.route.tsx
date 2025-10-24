@@ -15,7 +15,7 @@ import type { Roles } from "../types/roles.type";
 import { ProtectionLevel } from "./secure/urlEnCryption";
 import StatisticActivityTeacher from "../pages/Teacher/manage-activity-teacher/activity-statistic/statistic_activity_teacher";
 
-type RoleName = Roles["role_name"];
+type RoleName = Roles["roles_name"];
 
 export const activityRoutes = [
   {

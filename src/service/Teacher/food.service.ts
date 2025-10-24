@@ -1,6 +1,7 @@
 // src/service/Teacher/food.service.teacher.ts
-import axiosInstance from "../../libs/axios";
-import { ApiFood } from "../../stores/api/food.api";
+import { Food } from "@/types/food.type";
+import axiosInstance from "@/libs/axios";
+import { ApiFood } from "@/stores/api/food.api";
 
 // 🔄 ดึงรายการอาหารทั้งหมด
 export const getAllFoods = async (): Promise<ApiFood[]> => {
@@ -28,12 +29,7 @@ export const createFood = async (payload: {
 };
 
 // ✏️ แก้ไขอาหาร (ไม่ใช้ DTO)
-export const updateFood = async (payload: {
-  food_id: number;
-  food_name: string;
-  status: "Active" | "Inactive";
-  faculty_id: number;
-}): Promise<void> => {
+export const updateFood = async (payload: Food): Promise<void> => {
   await axiosInstance.put(
     `/teacher/food/update-food/${payload.food_id}`,
     payload

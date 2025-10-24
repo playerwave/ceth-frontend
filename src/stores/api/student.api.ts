@@ -1,7 +1,3 @@
-// src/stores/api/student.api.ts
-
-import { Student } from "../../types/student.type";
-
 // Re-export Student interface from student.type.ts
 
 /**

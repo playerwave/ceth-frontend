@@ -1,5 +1,6 @@
-import axiosInstance from "../../libs/axios";
-import { ApiAssessment } from "../../stores/api/assessment.api";
+import axiosInstance from "@/libs/axios";
+import { ApiAssessment } from "@/stores/api/assessment.api";
+import { Assessment } from "@/types/assessment/assessment.type";
 
 // 🔄 ดึงรายการแบบประเมิน (รองรับ type = latest | all | published)
 export const getAllAssessments = async (
@@ -50,14 +51,7 @@ export const createAssessment = async (payload: {
   return response.data; // ✅ จะได้ assessment_id กลับมา
 };
 // ✏️ แก้ไขแบบประเมิน
-export const updateAssessment = async (payload: {
-  assessment_id: number;
-  assessment_name: string;
-  description: string;
-  assessment_status: "Not finished" | "Finished" | "Unsuccessful";
-  status: "Active" | "Inactive";
-  last_update: string;
-}): Promise<ApiAssessment> => {
+export const updateAssessment = async (payload: Assessment): Promise<ApiAssessment> => {
   const response = await axiosInstance.put<ApiAssessment>(
     `/teacher/assessment/update-assessment/${payload.assessment_id}`,
     payload

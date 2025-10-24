@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
-import TableRedesign from "../../../../components/Table_re";
-import CustomCard from "../../../../components/Card";
-import { getActivityColumns } from "../../../../components/activity_column";
-import {Activity} from "../../../../types/activity.types"
+import TableRedesign from "@/components/Table_re";
+import CustomCard from "@/components/Card";
+import { getActivityColumns } from "@/components/activity_column";
+import {Activity} from "@/types/activity.types"
 import { useNavigate } from "react-router-dom";
 
 type Props = {
@@ -41,18 +41,6 @@ const ActivityTablePageStuden = ({ rows1, rows2 }: Props) => {
         enableTypeFilter: true,
         handleTypeChange,
         selectedTypes,
-      }),
-    [selectedTypes],
-  );
-
-  const activityColumnsWithRecommend = useMemo(
-    () =>
-      getActivityColumns({
-        includeStatus: false,
-        enableTypeFilter: true,
-        handleTypeChange,
-        selectedTypes,
-        includeRecommend: false,
       }),
     [selectedTypes],
   );

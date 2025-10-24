@@ -1,9 +1,9 @@
 // src/pages/VisitorActivityList.tsx (ปรับปรุง)
 
 import { useEffect, useState } from "react";
-import { useActivityVisitorStore } from "../../../stores/Visitor/activity.store.visitor";
-import Loading from "../../../components/Loading";
-import SearchBar from "../../../components/Searchbar";
+import { useActivityVisitorStore } from "@/stores/Visitor/activity.store.visitor";
+import Loading from "@/components/Loading";
+import SearchBar from "@/components/Searchbar";
 import ActivityTablePage from "./ActivityTablePageVIsiter";
 
 const VisitorActivityList: React.FC = () => {

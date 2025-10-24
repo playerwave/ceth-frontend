@@ -1,15 +1,15 @@
 
 import { useState, useEffect } from "react";
-import CustomCard from "../../../../components/Card";
-import TableRedesign from "../../../../components/Table_re";
-import Button from "../../../../components/Button";
+import CustomCard from "@/components/Card";
+import TableRedesign from "@/components/Table_re";
+import Button from "@/components/Button";
 import { GridColDef } from "@mui/x-data-grid";
-import { useEventCoopStore } from "../../../../stores/Teacher/eventCoop.store";
-import { useUserStore } from "../../../../stores/Teacher/student.store";
-import { EventCoop } from "../../../../types/eventcoop.type";
+import { useEventCoopStore } from "@/stores/Teacher/eventCoop.store";
+import { useUserStore } from "@/stores/Teacher/student.store";
+import { EventCoop } from "@/types/eventcoop.type";
 import EditEventCoopDialog from "./components/editEventCoopDialog";
 import { toast } from "sonner";
-import Loading from "../../../../components/Loading";
+import Loading from "@/components/Loading";
 
 interface EventCoopManagementProps {
   departmentId?: number;
@@ -67,7 +67,7 @@ const EventCoopManagement: React.FC<EventCoopManagementProps> = ({
         
         // แสดงข้อมูลสรุป
         if (result.data) {
-          const { gradeRollback, studentUpdate, summary } = result.data;
+          const { summary } = result.data;
           console.log("📊 Rollback Summary:", {
             gradesRolledBack: summary.gradesRolledBack,
             studentsUpdated: summary.studentsUpdated,
@@ -116,7 +116,7 @@ const EventCoopManagement: React.FC<EventCoopManagementProps> = ({
         
         // แสดงข้อมูลสรุป
         if (result.data) {
-          const { gradeUpdate, studentUpdate, summary } = result.data;
+          const { summary } = result.data;
           console.log("📊 Update Summary:", {
             gradesUpdated: summary.gradesUpdated,
             studentsUpdated: summary.studentsUpdated,

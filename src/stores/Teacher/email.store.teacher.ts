@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { EmailService, EmailTemplateData, EmailPreviewResponse, TemplatesResponse } from "../../service/Teacher/email.service";
+import { EmailService, EmailTemplateData, EmailPreviewResponse, TemplatesResponse } from "@/service/Teacher/email.service";
 
 interface EmailState {
   // State

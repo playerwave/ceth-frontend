@@ -1,4 +1,4 @@
-import axiosInstance from "../../libs/axios";
+import axiosInstance from "@/libs/axios";
 
 const TEACHER_USER_MANAGEMENT_PATH = "/teacher/user-management";
 

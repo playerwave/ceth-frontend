@@ -2,13 +2,13 @@ import { Box, MenuItem, TextField } from "@mui/material";
 import { Trash2, AlertCircle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useRoomStore } from "../../../../stores/Teacher/room.store";
-import { fetchRoomById } from "../../../../service/Teacher/room.service";
-import { Room } from "../../../../types/room.type";
-import Button from "../../../../components/Button";
-import Dialog2 from "../../../../components/Dialog/Dialog2";
+import { useRoomStore } from "@/stores/Teacher/room.store";
+import { fetchRoomById } from "@/service/Teacher/room.service";
+import { Room } from "@/types/room.type";
+import Button from "@/components/Button";
+import Dialog2 from "@/components/Dialog/Dialog2";
 import { toast } from "sonner";
-import Loading from "../../../../components/Loading";
+import Loading from "@/components/Loading";
 
 const EditRoomAdmin = () => {
 
@@ -38,23 +38,15 @@ const EditRoomAdmin = () => {
       if (result) {
         setRoomData(result);
 
-        setRoomName(result.room_name);
-        setFloor(result.floor);
-        setSeatCount(result.seat_number.toString());
-        setFacultyId(result.faculty_id);
-        setBuildingId(result.building_id);
-      } else {
-        alert("❌ ไม่พบห้องนี้");
-        navigate("/list-room-teacher");
+        setRoomName(result.room_name?? "");
+        setFloor(result.floor?? "");
+        setSeatCount(result.seat_number?.toString()?? "");
+        setFacultyId(result.faculty_id?? 1);
+        setBuildingId(result.building_id?? 1);
       }
     };
     loadRoom();
-  }, [roomId]);
-
-  useEffect(() => {
-    fetchFaculties();
-    fetchBuildings();
-  }, []);
+  }, [roomId, fetchFaculties, fetchBuildings]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {

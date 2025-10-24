@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import questionService from "../../service/Teacher/question.service";
-import { QuestionVersion } from "../../types/assessment/assessment-versions/question-version.type";
+import questionService from "@/service/Teacher/question.service";
 import { mapApiToQuestion, mapApiToQuestions } from "../mapper/question.mapper";
+import {Question} from "@/types/assessment/question.type";
 
 // ✅ Debounce utility function
 const debounce = (func: Function, wait: number) => {
-  let timeout: NodeJS.Timeout;
+  let timeout: number;
   return function executedFunction(...args: any[]) {
     const later = () => {
       clearTimeout(timeout);
@@ -23,7 +23,7 @@ interface QuestionState {
 
   fetchQuestions: () => Promise<void>;
   fetchQuestionsBySetNumber: (setNumberId: number) => Promise<void>;
-  createQuestion: (data: Omit<Question, "question_id">) => Promise<Question | null>;
+  createQuestion: (data: { question_text: string; question_number: number; set_number_id: number; question_type: string }) => Promise<Question | null>;
   updateQuestion: (data: Question) => Promise<void>;
   deleteQuestion: (id: number) => Promise<void>;
   updateQuestionsOrder: (setNumberId: number, newOrder: Question[]) => void;
@@ -61,7 +61,7 @@ export const useQuestionStore = create<QuestionState>((set, get) => ({
       const apiData = await questionService.getQuestionsBySetNumber(setNumberId);
 
       // 🔄 รวมกับ questions ที่มีอยู่ เพื่อไม่ให้หายของ set อื่น
-      const other = get().questions.filter((q) => q.set_number_id !== setNumberId);
+      const other = get().questions.filter((q) => (q as any).set_number_id !== setNumberId);
 
       const mapped = mapApiToQuestions(apiData, setNumberId);
 
@@ -161,7 +161,12 @@ export const useQuestionStore = create<QuestionState>((set, get) => ({
   createQuestion: async (data) => {
     try {
       console.log("📝 Creating question with data:", data);
-      const apiData = await questionService.createQuestion(data);
+      const apiData = await questionService.createQuestion({
+        question_text: data.question_text || "",
+        question_number: data.question_number || 1,
+        set_number_id: data.set_number_id || 0,
+        question_type: data.question_type || ""
+      });
 
       console.log("📨 API Response:", apiData);
 
@@ -201,7 +206,13 @@ export const useQuestionStore = create<QuestionState>((set, get) => ({
   // ✅ อัปเดตคำถาม
   updateQuestion: async (data) => {
     try {
-      await questionService.updateQuestion(data);
+      await questionService.updateQuestion({
+        question_id: data.question_id,
+        question_text: data.question_text,
+        question_number: data.question_number,
+        set_number_id: data.set_number_id,
+        question_type: data.question_type || ""
+      });
       set({
         questions: get().questions.map((q) =>
           q.question_id === data.question_id ? data : q

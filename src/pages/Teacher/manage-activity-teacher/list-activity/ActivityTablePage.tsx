@@ -68,7 +68,7 @@ const ActivityTablePage = ({
 
   const filterByType = (rows: Activity[]) => {
     if (selectedTypes.length === 0) return rows;
-    return rows.filter((row) => selectedTypes.includes(row.type));
+    return rows.filter((row) => selectedTypes.includes(row.type || ""));
   };
 
   const handleConfirmStatusChange = useCallback((row: Activity) => {

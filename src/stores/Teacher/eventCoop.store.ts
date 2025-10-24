@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { EventCoop } from "../../types/eventcoop.type";
-import eventCoopService from "../../service/Teacher/eventCoop.service";
+import { EventCoop } from "@/types/eventcoop.type";
+import eventCoopService from "@/service/Teacher/eventCoop.service";
 
 interface EventCoopStore {
   eventCoops: EventCoop[];

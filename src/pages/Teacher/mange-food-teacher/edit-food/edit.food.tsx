@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { Box, TextField } from "@mui/material";
-import Button from "../../../../components/Button";
+import Button from "@/components/Button";
 import { Trash2, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { Food } from "../../../../types/food.type";
-import { updateFood, deleteFood } from "../../../../service/Teacher/food.service";
+import { Food } from "@/types/food.type";
+import { updateFood, deleteFood } from "@/service/Teacher/food.service";
 import { useSearchParams } from "react-router-dom";
-import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
-import Dialog2 from "../../../../components/Dialog/Dialog2";
+import { useFoodStore } from "@/stores/Teacher/food.store.teacher";
+import Dialog2 from "@/components/Dialog/Dialog2";
 import { toast } from "sonner";
-import Loading from "../../../../components/Loading";
+import Loading from "@/components/Loading";
 
 const EditFoodAdmin = () => {
   const [open, setOpen] = useState(false);
@@ -30,7 +30,7 @@ const EditFoodAdmin = () => {
       const result = await fetchFoodById(id);
       if (result) {
         setFoodData(result);
-        setFoodName(result.food_name);
+        setFoodName(result.food_name || "");
       } else {
         alert("❌ ไม่พบเมนูอาหารที่ต้องการแก้ไข");
         // navigate("/list-food-teacher");

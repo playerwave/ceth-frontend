@@ -1,5 +1,5 @@
-import axiosInstance from "../../libs/axios";
-import { Activity } from "../../types/activity.types";
+import axiosInstance from "@/libs/axios";
+import { Activity } from "@/types/activity.types";
 import { AvailableCourseActivity } from "@stores/api/activity.api";
 
 // base path

@@ -1,5 +1,5 @@
 // src/types/api/activity.api.ts
-import { ActivityFood } from "../../types/activity-food.type";
+import { ActivityFood } from "@/types/activity-food.type";
 /**
  * ปรับ interface ให้ตรงกับ shape ของ model.Activity
  */

@@ -1,14 +1,14 @@
 import { useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
-import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
+import { useActivityStore } from "@/stores/Teacher/activity.store.teacher";
+import { useFoodStore } from "@/stores/Teacher/food.store.teacher";
 import {
   useSecureParams,
   extractSecureParam,
   useSecureLink,
-} from "../../../../routes/secure/SecureRoute";
+} from "@/routes/secure/SecureRoute";
 
-import Loading from "../../../../components/Loading";
+import Loading from "@/components/Loading";
 import ActivityHeader from "./components/activityHeader";
 import ActivityImage from "./components/activityImage";
 import ActivityDetails from "./components/activityDetails";
@@ -82,7 +82,7 @@ export default function ActivityInfoAdmin() {
   const relatedFoods =
     Array.isArray(activity.activityFood) && activity.activityFood.length > 0
       ? foods.filter((food) =>
-          activity.activityFood.some((af) => af.food_id === food.food_id)
+          activity.activityFood?.some((af) => af.food_id === food.food_id)
         )
       : Array.isArray((activity as any).foods) &&
           (activity as any).foods.length > 0
@@ -97,9 +97,9 @@ export default function ActivityInfoAdmin() {
     <div className="justify-items-center">
       <div className="w-320 h-auto min-h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <ActivityHeader
-          name={activity.activity_name}
-          seat={activity.seat}
-          registeredCount={activity.registered_count}
+          name={activity.activity_name || ""}
+          seat={activity.seat || 0}
+          registeredCount={activity.registered_count || 0}
           onClickRegistered={() =>
             navigate(`/enrolled_list_admin/${activity.activity_id}`)
           }
@@ -137,7 +137,7 @@ export default function ActivityInfoAdmin() {
           <ActivityFooter
             startTime={activity.start_activity_date}
             endTime={activity.end_activity_date}
-            state={activity.activity_state}
+            state={activity.activity_state || ""}
             eventFormat={activity.event_format}
             activityId={activity.activity_id}
             onBack={() =>

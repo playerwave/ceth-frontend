@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 
 import FoodTable from "./components/foodtable";
 import AddFoodButton from "./components/addfoodbutton";
-import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
-import Loading from "../../../../components/Loading";
-import Searchbar from "../../../../components/Searchbar";
+import { useFoodStore } from "@/stores/Teacher/food.store.teacher";
+import Loading from "@/components/Loading";
+import Searchbar from "@/components/Searchbar";
 
 const ListFoodAdmin = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,7 +30,7 @@ const ListFoodAdmin = () => {
   }, [refreshData]);
 
   const filteredFoods = foods.filter((f) =>
-    f.food_name.toLowerCase().includes(searchTerm.toLowerCase())
+    f.food_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // ✅ Loading component

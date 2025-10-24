@@ -15,9 +15,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/th';
-import { EventCoop } from '../../../../../types/eventcoop.type';
-import { useEventCoopStore } from '../../../../../stores/Teacher/eventCoop.store';
-import Button from '../../../../../components/Button';
+import { EventCoop } from '@/types/eventcoop.type';
+import { useEventCoopStore } from '@/stores/Teacher/eventCoop.store';
+import Button from '@/components/Button';
 
 interface EditEventCoopDialogProps {
   open: boolean;

@@ -2,8 +2,8 @@ import { User } from "lucide-react";
 
 interface Props {
   name: string;
-  registeredCount: number;
-  seat: number;
+  registeredCount?: number;
+  seat?: number;
   onClickRegistered: () => void;
 }
 

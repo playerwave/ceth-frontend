@@ -1,11 +1,9 @@
-import Dialog1 from "../../../../../components/Dialog/Dialog1";
-import Dialog2 from "../../../../../components/Dialog/Dialog2";
+import Dialog1 from "@/components/Dialog/Dialog1";
+import Dialog2 from "@/components/Dialog/Dialog2";
+import { Activity } from "@/types/activity.types";
 
 interface ActivityDialogsProps {
-  activity: {
-    presenter_company_name: string;
-    end_register_date: string;
-  };
+  activity: Partial<Activity>
   isEnrolled: boolean;
   isErrorDialogOpen: boolean;
   isEnrollModalOpen: boolean;
@@ -57,7 +55,7 @@ export default function ActivityDialogs({
                   day: "2-digit",
                   month: "2-digit",
                   year: "numeric",
-                }).format(new Date(activity.end_register_date))}
+                }).format(new Date(activity.end_register_date || ""))}
               </span>
             </p>
           }
@@ -80,7 +78,7 @@ export default function ActivityDialogs({
                   day: "2-digit",
                   month: "2-digit",
                   year: "numeric",
-                }).format(new Date(activity.end_register_date))}
+                }).format(new Date(activity.end_register_date || ""))}
               </span>
             </p>
           }

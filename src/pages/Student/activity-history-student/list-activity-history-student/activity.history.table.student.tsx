@@ -1,12 +1,12 @@
 // src/pages/Student/activity-student/activity-history.table.student.tsx
 import { useEffect, useMemo, useState } from "react";
-import TableRedesign from "../../../../components/Table_re";
-import CustomCard from "../../../../components/Card";
+import TableRedesign from "@/components/Table_re";
+import CustomCard from "@/components/Card";
 import { GridColDef } from "@mui/x-data-grid";
-import { getActivityColumns } from "../../../../components/activity_column";
-import { Activity } from "../../../../types/activity.types";
+import { getActivityColumns } from "@/components/activity_column";
+import { Activity } from "@/types/activity.types";
 import { useNavigate } from "react-router-dom";
-import { useActivityStore } from "../../../../stores/Student/activity.store.student";
+import { useActivityStore } from "@/stores/Student/activity.store.student";
 
 type Props = {
   studentId: number;

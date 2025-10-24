@@ -22,7 +22,7 @@ const FoodMultiSelect: React.FC<Props> = ({
     <Autocomplete
       multiple
       options={foods}
-      getOptionLabel={(option) => option.food_name}
+      getOptionLabel={(option) => option.food_name || ""}
       value={selectedFoods}
       onChange={(_, newValues) => {
         setSelectedFoodIds(newValues.map((f) => f.food_id));

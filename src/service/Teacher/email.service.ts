@@ -1,4 +1,4 @@
-import axiosInstance from "../../libs/axios";
+import axiosInstance from "@/libs/axios";
 
 const API_BASE_URL = ""; // ✅ ใช้ empty string เพราะ axiosInstance มี baseURL แล้ว
 

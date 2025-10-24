@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { SetNumberState } from "../state/setNumber.state";
-import setNumberService from "../../service/Teacher/setNumber.service";
+import setNumberService from "@/service/Teacher/setNumber.service";
 import { mapApiToSetNumbers, mapApiToSetNumber } from "../mapper/setNumber.mapper";
 
 export const useSetNumberStore = create<SetNumberState>((set) => ({
@@ -47,7 +47,10 @@ export const useSetNumberStore = create<SetNumberState>((set) => ({
   // ✅ สร้างหัวข้อใหม่
   createSetNumber: async (data) => {
     try {
-      const apiData = await setNumberService.createSetNumber(data);
+      const apiData = await setNumberService.createSetNumber({
+        ...data,
+        name: data.name || ""
+      });
       const newSection = mapApiToSetNumber(apiData);
       set((state) => ({
         setNumbers: [...state.setNumbers, newSection],
@@ -95,7 +98,10 @@ export const useSetNumberStore = create<SetNumberState>((set) => ({
   // ✅ อัปเดตหัวข้อ
   updateSetNumber: async (data) => {
     try {
-      const apiData = await setNumberService.updateSetNumber(data);
+      const apiData = await setNumberService.updateSetNumber({
+        ...data,
+        name: data.name || ""
+      });
       const updated = mapApiToSetNumber(apiData);
       set((state) => ({
         setNumbers: state.setNumbers.map((s) =>

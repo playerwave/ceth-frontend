@@ -2,19 +2,19 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { Plus } from "lucide-react";
 import Section from "./components/section";
 import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore";
-import Button from "../../../../components/Button";
-import assessmentService from "../../../../service/Teacher/assessment.service";
-import { QuestionType as BackendQuestionType } from "../../../../types/assessment/question.type";
+import Button from "@/components/Button";
+import assessmentService from "@/service/Teacher/assessment.service";
+import { Question } from "@/types/assessment/question.type";
 import { useEffect } from "react";
 
 // แปลง type จาก frontend → backend
-const mapFrontendToBackend = (frontendType: string): BackendQuestionType => {
+const mapFrontendToBackend = (frontendType: string): Question["question_type"] => {
   switch (frontendType) {
-    case "choice": return BackendQuestionType.SINGLE;
-    case "checkbox": return BackendQuestionType.MULTIPLE;
-    case "text": return BackendQuestionType.TEXT;
-    case "rating": return BackendQuestionType.FIX_SINGLE;
-    default: return BackendQuestionType.SINGLE;
+    case "choice": return "Single answer";
+    case "checkbox": return "Multiple answer";
+    case "text": return "Text answer";
+    case "rating": return "Fix Single answer";
+    default: return "Single answer";
   }
 };
 
@@ -53,8 +53,8 @@ const CreateAssessmentTeacher = () => {
             type: "choice",
             question: "คำถามตัวอย่าง",
             options: [
-              { choice_id: 0, choice_text: "ตัวเลือก 1", question_id: 0 },
-              { choice_id: 1, choice_text: "ตัวเลือก 2", question_id: 0 },
+              { choice_id: 0, choice_text: "ตัวเลือก 1" },
+              { choice_id: 1, choice_text: "ตัวเลือก 2" },
             ],
             required: false,
           },

@@ -1,7 +1,7 @@
 // src/mapper/eventCoopMapper.ts
 
 import { ApiEventCoop } from "../api/eventCoop.api";
-import { EventCoop } from "../../types/eventcoop.type";
+import { EventCoop } from "@/types/eventcoop.type";
 
 /**
  * แปลง ApiEventCoop → EventCoop (ใช้ใน React & store)

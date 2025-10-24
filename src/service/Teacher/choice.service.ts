@@ -1,4 +1,4 @@
-import axiosInstance from "../../libs/axios";
+import axiosInstance from "@/libs/axios";
 
 const choiceService = {
   // ดึงทั้งหมด

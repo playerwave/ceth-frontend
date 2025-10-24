@@ -1,6 +1,6 @@
 import React from "react";
 import { Building2, ChevronDown } from "lucide-react";
-import Button from "../../../../../components/Button";
+import Button from "@/components/Button";
 
 interface Props {
   floors: number[];

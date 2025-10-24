@@ -138,7 +138,7 @@ const MainStudent = () => {
       "Start Activity",
       "End Activity"
     ];
-    const shouldShow = allowedStates.includes(act.activity_state);
+    const shouldShow = allowedStates.includes(act.activity_state || "");
     console.log("🔍 [Debug] Activity filtering for enrolled:", {
       activity_id: act.activity_id,
       activity_name: act.activity_name,
@@ -215,7 +215,7 @@ const MainStudent = () => {
       company_lecturer: act.presenter_company_name,
       description: act.description,
       type: act.type as "Soft Skill" | "Hard Skill",
-      start_time: new Date(act.start_activity_date),
+      start_time: new Date(act.start_activity_date || ""),
       seat: act.seat,
       status: act.activity_status as "Public" | "Private",
       activity_state: act.activity_state, // ✅ เพิ่ม activity_state

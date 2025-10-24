@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useActivityStore } from "../../../../stores/Student/activity.store.student";
+import { useActivityStore } from "@/stores/Student/activity.store.student";
 
 // Import components
 import ActivityHeader from "./components/activityHeader";
@@ -8,8 +8,8 @@ import ActivityImage from "./components/activityImage";
 import ActivityDetails from "./components/activityDetails";
 import FoodSelector from "./components/foodSelector";
 import ActivityFooter from "./components/activityFooter";
-import Loading from "../../../../components/Loading";
-import { useAuthStore } from "../../../../stores/Visitor/auth.store";
+import Loading from "@/components/Loading";
+import { useAuthStore } from "@/stores/Visitor/auth.store";
 
 export default function ActivityInfoStudent() {
   const { id: paramId } = useParams();
@@ -32,7 +32,7 @@ export default function ActivityInfoStudent() {
     unenrollActivity,
   } = useActivityStore();
 
-  const { user, fetchMe } = useAuthStore();
+  const { user } = useAuthStore();
   const lastStudentIdRef = useRef<number | null>(null);
   
   // ใช้ students_id จาก auth store เท่านั้น
@@ -89,9 +89,17 @@ export default function ActivityInfoStudent() {
   return (
     <div className="justify-items-center">
       <div className="w-320 h-auto min-h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
-        <ActivityHeader activity={activity} />
+        <ActivityHeader 
+          activity={activity}
+        />
         <ActivityImage imageUrl={typeof activity.image_url === "string" ? activity.image_url : null} />
-        <ActivityDetails activity={activity} />
+        <ActivityDetails activity={{
+          ...activity,
+          presenter_company_name: activity.presenter_company_name || "",
+          type: activity.type || "Soft",
+          event_format: activity.event_format || "Onsite",
+          room_id: activity.room_id || undefined
+        }} />
         <FoodSelector
           activity={activity}
           selectedFood={selectedFood}
@@ -107,7 +115,12 @@ export default function ActivityInfoStudent() {
           unenrollActivity={unenrollActivity}
           setIsEnrolled={setIsEnrolled}
           navigate={navigate}
-          enrolledActivities={enrolledActivities}
+          enrolledActivities={enrolledActivities.map(act => ({
+            ...act,
+            event_format: act.event_format || "Online",
+            start_activity_date: act.start_activity_date || "",
+            end_activity_date: act.end_activity_date || ""
+          }))}
           selectedFood={selectedFood}
           userId={studentId || null}
         />

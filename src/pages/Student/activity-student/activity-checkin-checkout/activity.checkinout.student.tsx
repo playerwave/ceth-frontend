@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import Card from "../../../../components/Card";
-import Button from "../../../../components/Button";
-import { useActivityStore } from "../../../../stores/Student/activity.store.student";
+import Card from "@/components/Card";
+import Button from "@/components/Button";
+import { useActivityStore } from "@/stores/Student/activity.store.student";
 import confetti from "canvas-confetti";
-import Loading from "../../../../components/Loading";
+import Loading from "@/components/Loading";
 
 interface CheckInOutFormData {
   username: string;

@@ -1,6 +1,6 @@
 export interface SetNumber {
   set_number_id: number;
   name?: string;
-  status?: 'Active' | 'Inactive';
-  assessment_id?: number;
+  status: 'Active' | 'Inactive';
+  assessment_id: number;
 }

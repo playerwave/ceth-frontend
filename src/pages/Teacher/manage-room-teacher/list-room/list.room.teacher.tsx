@@ -1,9 +1,9 @@
 import { useEffect, useState} from "react";
-import Searchbar from "../../../../components/Searchbar";
+import Searchbar from "@/components/Searchbar";
 import RoomToolbar from "./components/toolbar";
 import RoomTable from "./components/roomTable";
-import { useRoomStore } from "../../../../stores/Teacher/room.store";
-import Loading from "../../../../components/Loading";
+import { useRoomStore } from "@/stores/Teacher/room.store";
+import Loading from "@/components/Loading";
 
 const ListRoomAdmin = () => {
   const rooms = useRoomStore((state) => state.rooms);
@@ -60,15 +60,14 @@ const ListRoomAdmin = () => {
 
 
   const floors: number[] = Array.from(
-    new Set(rooms.map((r) => parseInt(r.floor)))
+    new Set(rooms.map((r) => parseInt(r.floor || "0")))
   ).sort((a, b) => a - b);
 
   // ✅ Filter ห้องตามชั้นและคำค้นหา
   const filteredRooms = rooms.filter((room) => {
-    const floorNum = parseInt(room.floor);
+    const floorNum = parseInt(room.floor || "0" );
     const matchesFloor = floorFilter === "all" || floorNum === floorFilter;
-    const matchesSearch = room.room_name
-      .toLowerCase()
+    const matchesSearch = room.room_name?.toLowerCase()
       .includes(searchTerm.toLowerCase());
     return matchesFloor && matchesSearch;
   });

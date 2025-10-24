@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert } from '@mui/material';
-import Button from '../../../../../components/Button';
-import { useUserStore } from '../../../../../stores/Teacher/student.store';
-import uploadReviewService from '../../../../../service/Teacher/uploadReview.service';
+import Button from '@/components/Button';
+import { useUserStore } from '@/stores/Teacher/student.store';
+import uploadReviewService from '@/service/Teacher/uploadReview.service';
 import UploadReviewDialog from './uploadReviewDialog';
 
 interface UploadStudentsDialogProps {
@@ -13,8 +13,7 @@ interface UploadStudentsDialogProps {
 
 const UploadStudentsDialog: React.FC<UploadStudentsDialogProps> = ({
   open,
-  onClose,
-  onUpload
+  onClose
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -30,7 +29,7 @@ const UploadStudentsDialog: React.FC<UploadStudentsDialogProps> = ({
   // Upload loading state
   const [uploadLoading, setUploadLoading] = useState(false);
   
-  const { uploadStudents, loading } = useUserStore();
+  const { uploadStudents } = useUserStore();
 
   const handleFileSelect = (file: File) => {
     // ตรวจสอบประเภทไฟล์

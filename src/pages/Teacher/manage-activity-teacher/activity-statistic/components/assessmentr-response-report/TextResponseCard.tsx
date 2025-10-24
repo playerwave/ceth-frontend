@@ -106,7 +106,7 @@ export default function AssessmentDataContainer() {
     const fixSingleQuestions: any[] = [];
     const textQuestions: Question[] = [];
 
-    topic.questions.forEach((question: any, index: number) => {
+    topic.questions.forEach((question: Question) => {
       if (question.questionType === "Text answer") {
         textQuestions.push({
           questionId: question.questionId,

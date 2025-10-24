@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useActivityStore } from "../../../../../stores/Student/activity.store.student";
+import { useActivityStore } from "@/stores/Student/activity.store.student";
 
 const StudentActivityCalendar = () => {
   const { activities } = useActivityStore();
@@ -27,7 +27,7 @@ const StudentActivityCalendar = () => {
         const textColor = isHard ? "#FBBF24" : "#5E35B1";
         return {
           id: String(a.activity_id),
-          title: a.activity_name,
+          title: a.activity_name || "",
           date: baseDate,
           backgroundColor: bgColor,
           textColor,

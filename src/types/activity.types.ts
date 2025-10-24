@@ -1,4 +1,5 @@
 import { CertificateBase } from "./certificate/certificate-base.type";
+import { ActivityFood } from "./activity-food.type";
 
 export interface Activity {
   activity_id: number;
@@ -55,4 +56,6 @@ export interface Activity {
     certificateId?: string;
     issuerName?: string;
   };
+  // ✅ Activity Food relationship
+  activityFood?: ActivityFood[]
 }

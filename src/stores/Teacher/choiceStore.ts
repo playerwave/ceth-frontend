@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import choiceService from "../../service/Teacher/choice.service";
+import choiceService from "@/service/Teacher/choice.service";
 
 interface Choice {
   choice_id: number;

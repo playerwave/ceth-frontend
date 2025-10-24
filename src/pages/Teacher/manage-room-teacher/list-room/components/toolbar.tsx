@@ -2,7 +2,7 @@ import React from "react";
 import { Landmark } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import FloorDropdown from "./floorDropdown";
-import Button from "../../../../../components/Button";
+import Button from "@/components/Button";
 
 interface Props {
   floors: number[];

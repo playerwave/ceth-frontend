@@ -3,11 +3,11 @@ import { Trash2, Copy, GripVertical } from "lucide-react";
 import { TextField, Select, MenuItem, FormControl } from "@mui/material";
 import QuestionRenderer from "./questionRenderer";
 import { Question as QuestionType } from "../type/type.create";
-import { useQuestionStore } from "../../../../../stores/Teacher/questionStore";
+import { useQuestionStore } from "@/stores/Teacher/questionStore";
 import { useAssessmentStoreUi } from "../store/assessmentStore";
-import { QuestionType as BackendQuestionType } from "../../../../../types/assessment/question.type";
-import { createQuestionWithChoices } from "../../../../../service/Teacher/question.service";
-import { useChoiceStore } from "../../../../../stores/Teacher/choiceStore";
+import { Question as BackendQuestion } from "@/types/assessment/question.type";
+import { createQuestionWithChoices } from "@/service/Teacher/question.service";
+import { useChoiceStore } from "@/stores/Teacher/choiceStore";
 
 interface QuestionProps {
   sectionId: number;
@@ -19,18 +19,18 @@ interface QuestionProps {
   dragHandleProps?: any;
 }
 
-const mapFrontendToBackend = (frontendType: string): BackendQuestionType => {
+const mapFrontendToBackend = (frontendType: string): BackendQuestion["question_type"] => {
   switch (frontendType) {
     case "choice":
-      return BackendQuestionType.SINGLE;
+      return "Single answer";
     case "checkbox":
-      return BackendQuestionType.MULTIPLE;
+      return "Multiple answer";
     case "text":
-      return BackendQuestionType.TEXT;
+      return "Text answer";
     case "rating":
-      return BackendQuestionType.FIX_SINGLE;
+      return "Fix Single answer";
     default:
-      return BackendQuestionType.SINGLE;
+      return "Single answer";
   }
 };
 

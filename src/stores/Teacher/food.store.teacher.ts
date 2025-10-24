@@ -1,7 +1,7 @@
 // src/store/food.store.ts
 import { create } from "zustand";
-import { Food } from "../../types/food.type";
-import foodService from "../../service/Teacher/food.service";
+import { Food } from "@/types/food.type";
+import foodService from "@/service/Teacher/food.service";
 import { mapApiToFoods, mapApiToFood } from "../mapper/food.mapper";
 import { FoodState } from "../state/food.state";
 
@@ -190,10 +190,10 @@ export const useFoodStore = create<FoodState>((set, get) => ({
   },
 
   // ✏️ แก้ไขข้อมูลอาหาร
-  updateFood: async (data) => {
+  updateFood: async (food: Food) => {
     set({ foodLoading: true, foodError: null });
     try {
-      await foodService.updateFood(data);
+      await foodService.updateFood(food);
       // ✅ invalidate cache และ refresh ข้อมูลหลังจากอัปเดต
       get().invalidateCache();
       await get().refreshData();

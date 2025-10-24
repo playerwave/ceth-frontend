@@ -241,8 +241,8 @@ export const getActivityColumns = (
           }
           return (
             <span>
-              {formatDateOnly(startActivityDate)} -{" "}
-              {formatDateOnly(endActivityDate)}
+              {formatDateOnly(String(startActivityDate))} -{" "}
+              {formatDateOnly(String(endActivityDate))}
             </span>
           );
         } else {
@@ -250,7 +250,7 @@ export const getActivityColumns = (
           if (!startActivityDate) {
             return <span>ยังไม่ได้กำหนด</span>;
           }
-          return <span>{formatDateOnly(startActivityDate)}</span>;
+          return <span>{formatDateOnly(String(startActivityDate))}</span>;
         }
       },
     },

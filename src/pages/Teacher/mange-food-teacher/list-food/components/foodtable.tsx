@@ -1,7 +1,7 @@
 import * as React from "react";
 import { DataGrid, GridColDef, GridRowParams } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
-import { Food } from "../../../../../types/food.type";
+import { Food } from "@/types/food.type";
 interface Props {
   data: Food[];
 }

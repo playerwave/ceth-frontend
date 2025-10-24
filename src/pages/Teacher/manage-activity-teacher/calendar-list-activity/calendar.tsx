@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -7,39 +7,21 @@ import { useNavigate } from 'react-router-dom';
 import { useSecureLink } from '../../../../routes/secure/SecureRoute';
 import './Calendar.css'; // ✅ เพิ่มโค้ดบรรทัดนี้
 const CalendarPage = () => {
-    const { activities, fetchActivities } = useActivityStore();
+    const { activities } = useActivityStore();
     const { createSecureLink } = useSecureLink();
     const navigate = useNavigate();
-
-    // ✅ ลบ useEffect ออก เพราะข้อมูลถูก fetch แล้วจาก parent component
-    // useEffect(() => {
-    //     fetchActivities(); // โหลดกิจกรรมทั้งหมด
-    // }, []);
-
-    // กรองเฉพาะกิจกรรมที่เป็น Public และมีวันเริ่ม
-    // const publicEvents = activities
-    //     .filter((a) => a.activity_status === 'Public' && a.start_activity_date)
-    //     .map((a) => ({
-    //         id: a.activity_id.toString(),
-    //         title: a.activity_name,
-    //         date: a.start_activity_date.split('T')[0],
-    //         extendedProps: {
-    //             presenter: a.presenter_company_name,
-    //             type: a.type,
-    //             format: a.event_format,
-    //             url: a.url,
-    //         },
-    //     }));
 
     const publicEvents = activities
         .filter((a) =>
             a.activity_status === 'Public' &&
             a.start_activity_date &&
             a.event_format !== 'Course' &&
-            !['End Activity', 'Start Assessment', 'End Assessment'].includes(a.activity_state)
+            !['End Activity', 'Start Assessment', 'End Assessment'].includes(a.activity_state || "")
         )
         .map((a) => {
-            const baseDate = a.start_activity_date.split('T')[0];
+            const baseDate = typeof a.start_activity_date === 'string' 
+                ? a.start_activity_date.split('T')[0] 
+                : a.start_activity_date?.toISOString().split('T')[0] || "";
 
             // กำหนดสีตามประเภทกิจกรรม
             const isHard = a.type === 'Hard';
@@ -48,7 +30,7 @@ const CalendarPage = () => {
 
             return {
                 id: a.activity_id.toString(),
-                title: a.activity_name,
+                title: a.activity_name || "",
                 date: baseDate,
                 backgroundColor: bgColor, // ✅ สีพื้นหลัง
                 textColor: textColor,     // ✅ สีตัวอักษร

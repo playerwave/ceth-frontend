@@ -1,7 +1,7 @@
 import { Box, IconButton } from "@mui/material";
 import useAutocomplete from "@mui/material/useAutocomplete";
 import CheckIcon from "@mui/icons-material/Check";
-import { Food } from "../../../../../types/food.type";
+import { Food } from "@/types/food.type";
 import { Root, InputWrapper, Listbox, Label } from "./StyledAutocomplete"; // นำเข้าจากไฟล์ style เดิม
 import { Delete } from "@mui/icons-material";
 
@@ -35,7 +35,7 @@ const FoodDropdownInput: React.FC<Props> = ({
     multiple: false,
     options: foods,
     value: foods.find((f) => f.food_id === foodId) ?? null,
-    getOptionLabel: (option) => option.food_name,
+    getOptionLabel: (option) => option.food_name || "",
     isOptionEqualToValue: (opt, val) => opt.food_id === val.food_id,
     onChange: (_, newValue) => {
       updateFoodOption(index, newValue?.food_id ?? 0);
@@ -52,8 +52,8 @@ const FoodDropdownInput: React.FC<Props> = ({
         {groupedOptions.length > 0 && !disabled && (
           <Listbox {...getListboxProps()}>
             {groupedOptions.map((option, idx) => (
-              <li {...getOptionProps({ option, index: idx })} key={option.food_id}>
-                <span>{option.food_name}</span>
+              <li {...getOptionProps({ option: option as unknown as Food, index: idx })} key={idx}>
+                <span>{(option as unknown as Food).food_name || ""}</span>
                 <CheckIcon fontSize="small" />
               </li>
             ))}

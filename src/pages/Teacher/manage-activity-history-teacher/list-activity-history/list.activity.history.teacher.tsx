@@ -60,7 +60,7 @@ const ListActivityHistoryTeacher = () => {
     const pickedSingle = norm(filterValues.event_format);
 
     return baseList.filter((activity) => {
-      const actDate = startOfDay(new Date(activity.start_activity_date));
+      const actDate = startOfDay(new Date(activity.start_activity_date || new Date()));
 
       const matchesSearch =
         norm(activity.activity_name).includes(lowerTerm) ||

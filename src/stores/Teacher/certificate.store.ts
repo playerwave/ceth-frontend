@@ -1,10 +1,10 @@
 import { create } from "zustand";
-import { certificateService, CertificateTemplateAnalysis } from "../../service/Teacher/certificate.service";
-import { Certificate } from "../../types/certificate/certificate.type";
-import { CertificateTemplate } from "../../types/certificate/certificate-template.type";
-import { CertificateVerification } from "../../types/certificate/certificate-verofocation.type";
-import { CertificateAudit } from "../../types/certificate/certificate-audit.type";
-import { CertificateBase } from "../../types/certificate/certificate-base.type";
+import { certificateService, CertificateTemplateAnalysis } from "@/service/Teacher/certificate.service";
+import { Certificate } from "@/types/certificate/certificate.type";
+import { CertificateTemplate } from "@/types/certificate/certificate-template.type";
+import { CertificateVerification } from "@/types/certificate/certificate-verofocation.type";
+import { CertificateAudit } from "@/types/certificate/certificate-audit.type";
+import { CertificateBase } from "@/types/certificate/certificate-base.type";
 
 interface CertificateStore {
   // State

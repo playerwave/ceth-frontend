@@ -1,15 +1,15 @@
  import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useActivityVisitorStore } from "../../../stores/Visitor/activity.store.visitor";
+import { useActivityVisitorStore } from "@/stores/Visitor/activity.store.visitor";
 
-// Import components (ใช้ components เดียวกับ Student page)
-import ActivityHeader from "../../Student/activity-student/activity-info/components/activityHeader";
-import ActivityImage from "../../Student/activity-student/activity-info/components/activityImage";
-import ActivityDetails from "../../Student/activity-student/activity-info/components/activityDetails";
-import FoodSelector from "../../Student/activity-student/activity-info/components/foodSelector";
-import ActivityFooter from "../../Student/activity-student/activity-info/components/activityFooter";
-import Loading from "../../../components/Loading";
-import Dialog2 from "../../../components/Dialog/Dialog2";
+import ActivityHeader from "@pages/Student/activity-student/activity-info/components/activityHeader";
+import ActivityImage from "@pages/Student/activity-student/activity-info/components/activityImage";
+import ActivityDetails from "@pages/Student/activity-student/activity-info/components/activityDetails";
+import FoodSelector from "@pages/Student/activity-student/activity-info/components/foodSelector";
+import ActivityFooter from "@pages/Student/activity-student/activity-info/components/activityFooter";
+import Loading from "@/components/Loading";
+import Dialog2 from "@/components/Dialog/Dialog2";
+import { Activity } from "@/types/activity.types";
 
 export default function ActivityInfoVisitor() {
   const { id: paramId } = useParams();
@@ -32,7 +32,7 @@ export default function ActivityInfoVisitor() {
   const [showRegistrationDialog, setShowRegistrationDialog] = useState(false);
 
   // ✅ Find specific activity from activities array หรือใช้ mock data
-  const activity = activities.find(act => Number(act.activity_id) === Number(id)) || {
+  const activity = activities.find((act: Activity) => Number(act.activity_id) === Number(id)) || {
     activity_id: Number(id),
     activity_name: "Mock Activity",
     presenter_company_name: "Mock Company",
@@ -43,12 +43,12 @@ export default function ActivityInfoVisitor() {
     event_format: "Onsite",
     activity_status: "Public",
     activity_state: "Open Register",
-    image_url: null,
-    url: null,
+    image_url: undefined,
+    url: undefined,
     assessment_id: 1,
     room_id: 1,
-    start_assessment: null,
-    end_assessment: null,
+    start_assessment: undefined,
+    end_assessment: undefined,
     activityFood: [],
     registered_count: 0,
     create_activity_date: "2025-01-01",

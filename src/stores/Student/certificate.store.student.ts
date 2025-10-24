@@ -38,7 +38,7 @@ interface CertificateStore {
   clearSelectedCertificate: () => void;
 }
 
-export const useCertificateStore = create<CertificateStore>((set, get) => ({
+export const useCertificateStore = create<CertificateStore>((set) => ({
   selectedCertificate: null,
   certificates: [],
   certificateLoading: false,

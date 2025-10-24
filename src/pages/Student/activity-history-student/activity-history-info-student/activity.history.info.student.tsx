@@ -1,15 +1,16 @@
 // src/pages/Student/activity-history-student/activity-history-info-student/ActivityHistoryInfoStudent.tsx
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useActivityStore } from "../../../../stores/Student/activity.store.student";
-import { useAuthStore } from "../../../../stores/Visitor/auth.store";
+import { useActivityStore } from "@/stores/Student/activity.store.student";
+import { useAuthStore } from "@/stores/Visitor/auth.store";
+import { Activity } from "@/types/activity.types";
 
 // Import components
 import ActivityHeader from "../../activity-student/activity-info/components/activityHeader";
 import ActivityImage from "../../activity-student/activity-info/components/activityImage";
 import ActivityDetails from "../../activity-student/activity-info/components/activityDetails";
-import Loading from "../../../../components/Loading";
-import Button from "../../../../components/Button";
+import Loading from "@/components/Loading";
+import Button from "@/components/Button";
 
 interface AssessmentStatus {
   hasSubmitted: boolean;
@@ -19,7 +20,7 @@ interface AssessmentStatus {
 
 export default function ActivityHistoryInfoStudent() {
   const { id } = useParams<{ id: string }>();
-  const location = useLocation() as { state?: { activity?: any } };
+  const location = useLocation() as { state?: { activity?: Activity } };
   const navigate = useNavigate();
   
   const { 
@@ -33,7 +34,46 @@ export default function ActivityHistoryInfoStudent() {
   const { user } = useAuthStore();
   const [assessmentStatus, setAssessmentStatus] = useState<AssessmentStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activityData, setActivityData] = useState<any>(null); // ✅ เพิ่ม local state
+  const [activityData, setActivityData] = useState<Activity>({
+    activity_id: 0,
+    activity_name: "",
+    presenter_company_name: "",
+    type: "Soft",
+    description: "",
+    seat: 0,
+    recieve_hours: 0,
+    event_format: "Online",
+    create_activity_date: "",
+    special_start_register_date: null,
+    start_register_date: null,
+    end_register_date: null,
+    start_activity_date: "",
+    end_activity_date: "",
+    image_url: "",
+    activity_status: "Private",
+    activity_state: "Not Start",
+    status: "Active",
+    last_update_activity_date: "",
+    url: null,
+    room_id: null,
+    assessment_id: null,
+    assessment_version_id: null,
+    start_assessment: null,
+    end_assessment: null,
+    registered_count: null,
+    upload_certificate_description: null,
+    certificate_base_id: null,
+    certificateBase: null,
+    certificate_template_url: null,
+    certificate_ocr_data: null,
+    certificate_image_analysis: null,
+    certificate_id: undefined,
+    verification_status: undefined,
+    confidence_score: undefined,
+    submitted_date: undefined,
+    ocr_extracted_data: undefined,
+    activityFood: []
+  }); // ✅ เพิ่ม local state พร้อม default values
 
   // ✅ ใช้ users_id จาก auth store แทน students_id
   const studentId = useMemo(() => {
@@ -207,9 +247,9 @@ export default function ActivityHistoryInfoStudent() {
   return (
     <div className="justify-items-center">
       <div className="w-320 h-auto min-h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
-        <ActivityHeader activity={activityData as any} />
+        <ActivityHeader activity={activityData} />
         <ActivityImage imageUrl={typeof activityData.image_url === "string" ? activityData.image_url : null} />
-        <ActivityDetails activity={activityData as any} />
+        <ActivityDetails activity={activityData} />
         
         {/* ✅ แสดงสถานะการทำแบบประเมิน (เฉพาะกิจกรรมที่ไม่ใช่ Certificate) */}
         {assessmentStatus && !activityData?.certificate_id && (

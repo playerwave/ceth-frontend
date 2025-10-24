@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import CustomCard from "@/components/Card";
 import {
   LineChart,
@@ -15,8 +14,6 @@ import { FormControl, Select, MenuItem, SelectChangeEvent } from "@mui/material"
 import { getActiveActivityYears, getActivitySummary, ActivitySummaryItem } from "@/service/Teacher/activity.service";
 import { useSecureLink } from "@/routes/secure/SecureRoute";
 import Loading from "@/components/Loading";
-
-type EventFormat = "Online" | "Onsite" | "Course" | string;
 
 interface SummaryActivityCardProps {
   // ไม่ต้องส่ง fetchSummary แล้ว เพราะจะใช้ service โดยตรง
@@ -54,11 +51,9 @@ const formatDateKey = (iso: string) => {
 };
 
 const SummaryActivityCard: React.FC<SummaryActivityCardProps> = () => {
-  const navigate = useNavigate();
   const { createSecureLink } = useSecureLink();
   const now = new Date();
   const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1; // 1-12
 
   const [availableYears, setAvailableYears] = React.useState<number[]>([]);
   const [year, setYear] = React.useState<number>(currentYear);

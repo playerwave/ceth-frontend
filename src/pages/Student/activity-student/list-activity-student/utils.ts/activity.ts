@@ -13,5 +13,5 @@ export const isSameSearchTerm = (prev: string, next: string) => {
 
 export function isRecommended(activity: Activity): boolean {
   // ใส่เงื่อนไขจริงของคุณตรงนี้
-  return activity.recieve_hours >= 2 && activity.activity_status === "Public";
+  return (activity.recieve_hours || 0) >= 2 && activity.activity_status === "Public";
 }

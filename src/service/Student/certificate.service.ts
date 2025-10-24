@@ -1,8 +1,7 @@
-// service/Student/certificate.service.student.ts
-import axiosInstance from "../../libs/axios";
-import { Certificate } from "../../types/certificate/certificate.type";
-import { mapApiToCertificate } from "../../stores/mapper/certificate.mapper";
-import { CertificateVerificationResult } from "../../stores/Student/certificate.store.student";
+import axiosInstance from "@/libs/axios";
+import { Certificate } from "@/types/certificate/certificate.type";
+import { mapApiToCertificate } from "@/stores/mapper/certificate.mapper";
+import { CertificateVerificationResult } from "@/stores/Student/certificate.store.student";
 
 // Base path
 const STUDENT_CERTIFICATE_PATH = "/student/certificate";

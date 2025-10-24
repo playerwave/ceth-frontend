@@ -1,5 +1,5 @@
 import { ApiFood } from "../api/food.api";
-import { Food } from "../../types/food.type";
+import { Food } from "@/types/food.type";
 
 export function mapApiToFood(api: ApiFood): Food {
   return {

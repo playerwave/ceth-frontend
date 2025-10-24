@@ -56,13 +56,13 @@ export const useAuthStore = create<AuthState>()(
         const state = get();
         
         // ป้องกันการเรียก fetchMe ซ้ำ
-        if (state._isFetching || state.authLoading) {
+        if (state.authLoading) {
           console.log("⏳ [Auth Store] Already fetching, skipping...");
           return;
         }
         
         console.log("🔄 [Auth Store] Starting fetchMe...");
-        set({ authLoading: true, authError: null, _isFetching: true });
+        set({ authLoading: true, authError: null });
         
         try {
           const user = await authService.fetchMe();
@@ -83,7 +83,7 @@ export const useAuthStore = create<AuthState>()(
             set({ authError: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้" });
           }
         } finally {
-          set({ authLoading: false, _isFetching: false });
+          set({ authLoading: false });
         }
       },
     }),

@@ -1,11 +1,8 @@
-// src/pages/ListActivityHistoryStudent.tsx
 import { useMemo, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-import Searchbar from "../../../../components/Searchbar";
+import Searchbar from "@/components/Searchbar";
 import ActivityHistoryTableStudent from "./activity.history.table.student";
-import { useActivityStore } from "../../../../stores/Student/activity.store.student";
-import { useAuthStore } from "../../../../stores/Visitor/auth.store";
-// import Button from "../../../../components/Button";
+import { useActivityStore } from "@/stores/Student/activity.store.student";
+import { useAuthStore } from "@/stores/Visitor/auth.store";
 
 const ListActivityHistoryStudent = () => {
   // const navigate = useNavigate();

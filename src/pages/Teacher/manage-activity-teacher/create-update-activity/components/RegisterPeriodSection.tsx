@@ -112,9 +112,9 @@ const RegisterPeriodSection: React.FC<Props> = ({
   const isCourse = formData.event_format === "Course";
 
   // 👉 ใช้ค่าที่แปลงเป็น local แล้วเสมอ
-  const start = d(formData.start_register_date);
-  const end = d(formData.end_register_date);
-  const special = d(formData.special_start_register_date);
+  const start = d(String(formData.start_register_date));
+  const end = d(String(formData.end_register_date));
+  const special = d(String(formData.special_start_register_date));
 
   const startVal = validateStartRegister({
     disabled,

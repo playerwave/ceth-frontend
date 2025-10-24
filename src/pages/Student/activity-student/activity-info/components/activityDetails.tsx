@@ -1,4 +1,3 @@
-// import { Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import {
   Album,
@@ -8,22 +7,11 @@ import {
   MapPin,
   School,
 } from "lucide-react";
-// import type { Activity } from "../../../../../types/model";
-import { useRoomStore } from "../../../../../stores/Teacher/room.store";
+import {Activity} from "@/types/activity.types";
+import { useRoomStore } from "@/stores/Teacher/room.store";
 
 interface Props {
-  activity: {
-    presenter_company_name: string;
-    type: string;
-    event_format: string;
-    room_id?: number;
-    start_register_date?: string;
-    end_register_date?: string;
-    start_activity_date?: string;
-    end_activity_date?: string;
-    description?: string;
-    recieve_hours?: number;
-  };
+  activity: Activity,
   isVisitor?: boolean; // ✅ เพิ่ม prop สำหรับ visitor mode
 }
 
@@ -47,7 +35,7 @@ function LocationTypeDisplay({ locationType }: { locationType: string }) {
   );
 }
 
-function formatRoomDisplay(room?: { room_name?: string; floor?: string }) {
+function formatRoomDisplay(room: { room_name: string; floor: string }) {
   if (!room || !room.room_name) return "ไม่ระบุห้อง";
   return `ชั้น ${room.floor ?? "-"} ห้อง ${room.room_name}`;
 }
@@ -126,7 +114,7 @@ export default function ActivityDetails({ activity, isVisitor = false }: Props) 
 
         <div className="flex items-center gap-1 font-[Sarabun] w-full lg:w-auto justify-start lg:justify-end text-xs sm:text-sm md:text-base">
           {/* ประเภทกิจกรรม */}
-          <LocationTypeDisplay locationType={activity.event_format} />
+          <LocationTypeDisplay locationType={activity.event_format || "Online"} />
 
           {/* วันที่เริ่มกิจกรรม */}
           {/* <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
@@ -145,7 +133,7 @@ export default function ActivityDetails({ activity, isVisitor = false }: Props) 
           {/* สถานที่ */}
           <MapPin className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
           {activity.event_format === "Onsite"
-            ? (activity.room_id ? formatRoomDisplay(room) : "ไม่ระบุห้อง")
+            ? (activity.room_id ? formatRoomDisplay(room as { room_name: string; floor: string }) : "ไม่ระบุห้อง")
             : "ไม่มีห้องสำหรับกิจกรรมนี้"}
         </div>
       </div>

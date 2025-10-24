@@ -16,7 +16,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 }) => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [hasNewImage, setHasNewImage] = useState<boolean>(false); // ✅ Track ว่ามีไฟล์ใหม่หรือไม่
+  const [ , setHasNewImage] = useState<boolean>(false); // ✅ Track ว่ามีไฟล์ใหม่หรือไม่
   const { isAnalyzing } = useCertificateStore();
 
   // ✅ ตรวจสอบว่ามีรูปภาพจาก formData หรือไม่ (สำหรับหน้าแก้ไข)

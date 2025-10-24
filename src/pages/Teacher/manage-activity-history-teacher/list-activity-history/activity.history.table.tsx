@@ -29,7 +29,7 @@ const ActivityHistoryTable = ({ rows1 }: Props) => {
   // ✅ กรอง rows ตามประเภทที่เลือก
   const filteredRows = useMemo(() => {
     if (selectedTypes.length === 0) return rows1;
-    return rows1.filter((row) => selectedTypes.includes(row.type));
+    return rows1.filter((row) => selectedTypes.includes(row.type || ""));
   }, [rows1, selectedTypes]);
 
   // ✅ สร้าง columns พร้อม options

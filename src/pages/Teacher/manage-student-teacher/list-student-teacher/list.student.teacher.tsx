@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import CustomCard from "../../../../components/Card";
-import Searchbar from "../../../../components/Searchbar";
-import Button from "../../../../components/Button";
-import TableRedesign from "../../../../components/Table_re";
-import DonutChart from "../../../../components/Charts/DonutChart";
-import GroupBarChart from "../../../../components/Charts/GroupBarChart";
+import CustomCard from "@/components/Card";
+import Searchbar from "@/components/Searchbar";
+import Button from "@/components/Button";
+import TableRedesign from "@/components/Table_re";
+import DonutChart from "@/components/Charts/DonutChart";
+import GroupBarChart from "@/components/Charts/GroupBarChart";
 import { GridColDef } from "@mui/x-data-grid";
 import { Chip, Checkbox, FormControlLabel, Box } from "@mui/material";
-import { useUserStore } from "../../../../stores/Teacher/student.store";
+import { useUserStore } from "@/stores/Teacher/student.store";
 
 const ListUserTeacher: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -25,14 +25,12 @@ const ListUserTeacher: React.FC = () => {
   
   // User store
   const {
-    students,
     filteredStudents,
     selectedYears,
     selectedStatuses,
     loading,
     error,
     fetchStudentsByDepartment,
-    searchStudents,
     filterStudentsByYear,
     filterStudentsByStatus
   } = useUserStore();
@@ -110,94 +108,6 @@ const ListUserTeacher: React.FC = () => {
       ),
     },
   ];
-
-  // Calculate chart data from real students data
-  const donutChartData = React.useMemo(() => {
-    if (!filteredStudents || filteredStudents.length === 0) {
-      return [
-        {
-          name: "คนที่มีสถานะ Normal",
-          value: 0,
-          color: "bg-green-400"
-        },
-        {
-          name: "คนที่มีสถานะ Risk",
-          value: 0,
-          color: "bg-red-600"
-        }
-      ];
-    }
-    
-    const normalCount = filteredStudents.filter(student => student && student.risk_status === 'Normal').length;
-    const riskCount = filteredStudents.filter(student => student && student.risk_status === 'Risk').length;
-    const totalCount = filteredStudents.length;
-    
-    // ✅ Calculate percentages
-    const normalPercentage = totalCount > 0 ? Math.round((normalCount / totalCount) * 100) : 0;
-    const riskPercentage = totalCount > 0 ? Math.round((riskCount / totalCount) * 100) : 0;
-    
-    return [
-      {
-        name: "คนที่มีสถานะ Normal",
-        value: normalPercentage,
-        color: "bg-green-400"
-      },
-      {
-        name: "คนที่มีสถานะ Risk",
-        value: riskPercentage,
-        color: "bg-red-600"
-      }
-    ];
-  }, [filteredStudents]);
-
-  // Calculate bar chart data from real students data
-  const barChartData = React.useMemo(() => {
-    if (!filteredStudents || filteredStudents.length === 0) {
-      return [];
-    }
-    
-    const yearData: { [key: string]: { normal: number; risk: number } } = {};
-    
-    // ✅ Filter out invalid students first
-    const validStudents = filteredStudents.filter(student => {
-      if (!student) {
-        console.warn("⚠️ Null/undefined student found");
-        return false;
-      }
-      
-      if (!student.year || typeof student.year !== 'number') {
-        console.warn("⚠️ Student with invalid year:", {
-          student_id: student.student_id,
-          year: student.year,
-          email: student.email
-        });
-        return false;
-      }
-      
-      return true;
-    });
-    
-    console.log(`🔍 Processing ${validStudents.length} valid students out of ${filteredStudents.length} total`);
-    
-    validStudents.forEach(student => {
-      const year = student.year.toString();
-      if (!yearData[year]) {
-        yearData[year] = { normal: 0, risk: 0 };
-      }
-      
-      if (student.risk_status === 'Normal') {
-        yearData[year].normal++;
-      } else if (student.risk_status === 'Risk') {
-        yearData[year].risk++;
-      }
-    });
-    
-    return Object.entries(yearData).map(([year, data]) => ({
-      name: year,
-      "คนที่มีสถานะ Normal": data.normal,
-      "คนที่มีสถานะ Risk": data.risk
-    }));
-  }, [filteredStudents]);
 
   // ✅ Realtime search function
   const handleSearch = useCallback((searchValue: string) => {

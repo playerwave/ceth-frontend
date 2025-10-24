@@ -17,7 +17,7 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
-import Button from '../../../../../components/Button';
+import Button from '@/components/Button';
 
 interface UploadReviewDialogProps {
   open: boolean;

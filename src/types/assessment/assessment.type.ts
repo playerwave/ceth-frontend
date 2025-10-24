@@ -5,7 +5,7 @@ export interface Assessment {
   create_date?: Date;
   last_update?: Date;
   assessment_status?: "Not finished" | "Finished" | "Unsuccessful";
-  status?: "Active" | "Inactive";
+  status: "Active" | "Inactive";
 }
 
 export interface AssessmentQuestion {

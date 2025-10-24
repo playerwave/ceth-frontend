@@ -1,5 +1,5 @@
-import axiosInstance from "../../libs/axios";
-import { AuthResponse, ApiLoginRequest } from "../../stores/api/auth.api";
+import axiosInstance from "@/libs/axios";
+import { AuthResponse, ApiLoginRequest } from "@/stores/api/auth.api";
 
 export const login = async (
   payload: ApiLoginRequest

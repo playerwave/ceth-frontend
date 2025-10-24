@@ -61,7 +61,7 @@ function App() {
     console.log("🔍 App: Processing secure routes for role:", role);
     console.log("🔍 App: Available routes:", routes.map(r => ({ path: r.path, roles: r.roles, protectionLevel: r.protectionLevel })));
     
-    const filteredRoutes = routes.filter(route => !route.roles || route.roles.includes(role));
+    const filteredRoutes = routes.filter(route => !route.roles || route.roles.filter(r => r !== undefined).includes(role));
     console.log("🔍 App: Filtered routes:", filteredRoutes.map(r => r.path));
     
     return filteredRoutes.map((route, index) => {
@@ -173,7 +173,10 @@ function App() {
         />
 
         {/* 📌 เส้นทางที่เข้ารหัส */}
-        {renderSecureRoutesByRole(activityRoutes, role)}
+        {renderSecureRoutesByRole(activityRoutes.map(route => ({
+          ...route,
+          roles: route.roles?.filter(r => r !== undefined)
+        })), role)}
         
         {/* 📌 เส้นทางปกติ (ยังไม่เข้ารหัส) */}
         {renderRoutesByRole(assessmentRoutes, role)}

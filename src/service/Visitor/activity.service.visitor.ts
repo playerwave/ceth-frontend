@@ -1,7 +1,7 @@
 // src/service/Visitor/activity.service.visitor.ts
 
-import axiosInstance from "../../libs/axios";
-import { Activity } from "../../types/activity.types";
+import axiosInstance from "@/libs/axios";
+import { Activity } from "@/types/activity.types";
 
 const API_URL_FOR_VISITOR = "/visitor"; // ✅ ใช้ relative path เพราะ axios instance มี baseURL แล้ว
 

@@ -1,10 +1,10 @@
 import { Box, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import Button from "../../../../components/Button";
+import Button from "@/components/Button";
 import { useState } from "react";
-import { createFood } from "../../../../service/Teacher/food.service";
+import { createFood } from "@/service/Teacher/food.service";
 import { toast } from "sonner";
-import Loading from "../../../../components/Loading";
+import Loading from "@/components/Loading";
 
 const CreateFoodAdmin = () => {
   const navigate = useNavigate();

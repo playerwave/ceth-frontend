@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { CopyPlus } from "lucide-react";
-import Button from "../../../../../components/Button";
+import Button from "@/components/Button";
 
 
 const AddFoodButton = () => {

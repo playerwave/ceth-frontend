@@ -1,8 +1,7 @@
 import * as React from "react";
 import { DataGrid, GridColDef, GridRowParams, } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
-import { Room } from "../../../../../types/room.type";
-import { } from "@mui/x-data-grid";
+import { Room } from "@/types/room.type";
 
 
 interface RoomTableProps {

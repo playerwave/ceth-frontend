@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Activity } from "../../../../types/activity.types";
-import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
+import { Activity } from "@/types/activity.types";
+import { useFoodStore } from "@/stores/Teacher/food.store.teacher";
 import ActivityHeader from "../../manage-activity-teacher/activity-info/components/activityHeader";
 import ActivityImage from "../../manage-activity-teacher/activity-info/components/activityImage";
 import ActivityDetails from "../../manage-activity-teacher/activity-info/components/activityDetails";
@@ -41,9 +41,9 @@ const ActivityHistoryInfoTeacher = () => {
   }
 
   const relatedFoods =
-    Array.isArray(activity.activityFood) && activity.activityFood.length > 0
+    Array.isArray((activity as any).activityFood) && (activity as any).activityFood.length > 0
       ? foods.filter((food) =>
-          activity.activityFood.some((af) => af.food_id === food.food_id)
+          (activity as any).activityFood.some((af: any) => af.food_id === food.food_id)
         )
       : Array.isArray((activity as any).foods) &&
           (activity as any).foods.length > 0
@@ -58,9 +58,9 @@ const ActivityHistoryInfoTeacher = () => {
     <div className="justify-items-center">
       <div className="w-320 h-auto min-h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
         <ActivityHeader
-          name={activity.activity_name}
-          seat={activity.seat}
-          registeredCount={activity.registered_count}
+          name={activity.activity_name || ""}
+          seat={activity.seat || 0}
+          registeredCount={activity.registered_count || 0}
           onClickRegistered={() =>
             navigate(`/enrolled_list_admin/${activity.activity_id}`)
           }

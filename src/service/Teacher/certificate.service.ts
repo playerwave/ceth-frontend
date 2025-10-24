@@ -1,9 +1,8 @@
-import axiosInstance from "../../libs/axios";
-import { Certificate } from "../../types/certificate/certificate.type";
-import { CertificateTemplate } from "../../types/certificate/certificate-template.type";
-import { CertificateVerification } from "../../types/certificate/certificate-verofocation.type";
-import { CertificateAudit } from "../../types/certificate/certificate-audit.type";
-import { CertificateBase } from "../../types/certificate/certificate-base.type";
+import axiosInstance from "@/libs/axios";
+import { Certificate } from "@/types/certificate/certificate.type";
+import { CertificateVerification } from "@/types/certificate/certificate-verofocation.type";
+import { CertificateAudit } from "@/types/certificate/certificate-audit.type";
+import { CertificateBase } from "@/types/certificate/certificate-base.type";
 
 export interface CertificateTemplateAnalysis {
   success: boolean;

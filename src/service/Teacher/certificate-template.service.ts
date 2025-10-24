@@ -1,4 +1,4 @@
-import axiosInstance from "../../libs/axios";
+import axiosInstance from "@/libs/axios";
 
 const CERTIFICATE_TEMPLATE_PATH = "/teacher/certificate";
 

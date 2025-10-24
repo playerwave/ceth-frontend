@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   DragDropContext,
   Droppable,
@@ -10,14 +10,12 @@ import { Plus } from "lucide-react";
 import { TextField } from "@mui/material";
 import Section from "../create-assessment/components/section";
 import { useAssessmentStoreUi } from "../create-assessment/store/assessmentStore";
-import Button from "../../../../components/Button";
-import assessmentService from "../../../../service/Teacher/assessment.service";
-import { useSetNumberStore } from "../../../../stores/Teacher/setNumberStore";
-import Loading from "../../../../components/Loading";
+import assessmentService from "@/service/Teacher/assessment.service";
+import { useSetNumberStore } from "@/stores/Teacher/setNumberStore";
+import Loading from "@/components/Loading";
 
 const EditAssessmentTeacher = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { createSetNumber } = useSetNumberStore();
   const {
     formTitle,
@@ -29,7 +27,7 @@ const EditAssessmentTeacher = () => {
 
   } = useAssessmentStoreUi();
 
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState<boolean>(false);
   const { setNumbers, fetchSetNumbersByAssessment } = useSetNumberStore();
   const handleAddSection = async () => {
     if (!id) return;
@@ -45,7 +43,7 @@ const EditAssessmentTeacher = () => {
         ...sections,
         {
           id: newSec.set_number_id,
-          title: newSec.name,
+          title: newSec.name || "",
           questions: [],
         },
       ]);
@@ -83,7 +81,7 @@ const EditAssessmentTeacher = () => {
         description: formDescription,
         status: "Active" as const,
         assessment_status: "Not finished" as const,
-        last_update: new Date().toISOString(),
+        last_update: new Date(),
       };
 
       await assessmentService.updateAssessment(payload);
@@ -100,7 +98,7 @@ const EditAssessmentTeacher = () => {
     if (setNumbers.length > 0) {
       const newSections = setNumbers.map((sn) => ({
         id: sn.set_number_id,
-        title: sn.name,
+        title: sn.name || "",
         questions: [],
       }));
       console.log("📋 New sections to set:", newSections.map(s => ({ id: s.id, title: s.title })));
@@ -121,32 +119,6 @@ const EditAssessmentTeacher = () => {
     const [moved] = newSections.splice(source.index, 1);
     newSections.splice(destination.index, 0, moved);
     setSections(newSections);
-  };
-
-  // ✅ บันทึกการแก้ไข Assessment
-  const saveForm = async () => {
-    if (!id) return;
-    setLoading(true);
-    try {
-      const payload = {
-        assessment_id: Number(id),
-        assessment_name: formTitle,
-        description: formDescription,
-        status: "Active" as const,
-        assessment_status: "Not finished" as const,
-        last_update: new Date().toISOString(),
-      };
-
-      await assessmentService.updateAssessment(payload);
-
-      alert("✅ แก้ไขแบบประเมินสำเร็จ!");
-      navigate("/list-assessment-teacher");
-    } catch (err) {
-      console.error("❌ Error updating assessment:", err);
-      alert("❌ แก้ไขไม่สำเร็จ");
-    } finally {
-      setLoading(false);
-    }
   };
 
   if (loading) return <Loading />;
