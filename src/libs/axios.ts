@@ -2,34 +2,24 @@
 import axios, { AxiosInstance } from "axios";
 
 const getApiUrl = () => {
-  
-  // Preview mode: ใช้ VPS backend โดยตรง
-  // if (import.meta.env.MODE === "preview") {
-  //   return "http://vps.theapds.org:8069/api/";
-  // }
-  
-  // // Development mode: ใช้ localhost
-  // if (import.meta.env.DEV) {
-  //   return "http://localhost:5090/api/";
-  // }
-  
-  // // Production mode: ใช้ custom domain
-  // return "https://ceth-api.theapds.org/api/";
-
   const developmentMode = import.meta.env.VITE_DEV_API_URL;
   const productionMode = import.meta.env.VITE_PROD_API_URL;
 
-    if (import.meta.env.MODE === "preview") {
-    return String(productionMode);
+  // ✅ Fallback values
+  const defaultDev = "http://localhost:5090/api/";
+  const defaultProd = "https://ceth-api.theapds.org/api/";
+
+  if (import.meta.env.MODE === "preview") {
+    return productionMode || defaultProd;
   }
   
-  // Development mode: ใช้ localhost
+  // Development mode
   if (import.meta.env.MODE === "development") {
-    return String(developmentMode);
+    return developmentMode || defaultDev;
   }
   
-  // Production mode: ใช้ custom domain
-  return String(productionMode);
+  // Production mode
+  return productionMode || defaultProd;
 };
 
 const getCredentials = () => {

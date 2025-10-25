@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Upload, X, FileText, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useCertificateStore } from "../../../../../stores/Teacher/certificate.store";
+import { useCertificateStore } from "@/stores/Teacher/certificate.store";
+import axiosInstance from "@/libs/axios";
 
 interface CertificateTemplateProps {
   formData: any;
@@ -70,18 +71,28 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         uploadFormData.append('certificate_file', file); // ✅ เปลี่ยนเป็น certificate_file ให้ตรงกับ backend
         uploadFormData.append('description', formData.upload_certificate_description || '');
 
-        const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5090';
+        // ✅ ใช้ axiosInstance แทน fetch เพื่อให้ใช้ environment configuration ที่ถูกต้อง
         const activityId = formData.activity_id || 'new'; // ใช้ 'new' สำหรับ create mode
-        const response = await fetch(`${baseURL}/api/teacher/certificate-template/activity/${activityId}/template`, {
-          method: 'POST',
-          body: uploadFormData
-        });
+        
+        // สร้าง FormData สำหรับ axios
+        const axiosFormData = new FormData();
+        axiosFormData.append('certificate_file', file);
+        axiosFormData.append('description', formData.upload_certificate_description || '');
+        
+        const response = await axiosInstance.post(
+          `/teacher/certificate-template/activity/${activityId}/template`,
+          axiosFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+            // ✅ กำหนด timeout สำหรับ file upload
+            timeout: 300000, // 5 นาที
+          }
+        );
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
+        // ✅ axios จะ throw error อัตโนมัติถ้า status code ไม่ใช่ 2xx
+        const result = response.data;
         console.log("📁 [CertificateTemplate] Backend processing result:", result);
 
         // ✅ Step 3: เก็บข้อมูลที่ได้จาก Backend
