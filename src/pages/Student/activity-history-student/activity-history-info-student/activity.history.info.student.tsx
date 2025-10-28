@@ -75,10 +75,10 @@ export default function ActivityHistoryInfoStudent() {
     activityFood: []
   }); // ✅ เพิ่ม local state พร้อม default values
 
-  // ✅ ใช้ users_id จาก auth store แทน students_id
+  // ✅ ใช้ students_id จาก auth store
   const studentId = useMemo(() => {
-    return user?.student?.users_id;
-  }, [user?.student?.users_id]);
+    return user?.student?.students_id;
+  }, [user?.student?.students_id]);
 
   useEffect(() => {
     const fetchData = async () => {
