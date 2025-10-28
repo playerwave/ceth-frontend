@@ -176,6 +176,22 @@ export default function ActivityFooter({
         <div className="flex justify-end gap-3">
           <Button onClick={() => navigate(-1)}>← กลับ</Button>
 
+          {/* แสดงปุ่มยื่นเกียรติบัตรสำหรับ Course Activities เสมอ */}
+          {activity.event_format === "Course" && (
+            <Button 
+              onClick={() => navigate(`/send-certificate-student/${activity.activity_id}`, {
+                state: { 
+                  activity: activity,
+                  mode: "course" 
+                }
+              })}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <FileText size={20} />
+              ยื่นเกียรติบัตร
+            </Button>
+          )}
+
           {/* แสดงปุ่มอื่นๆ เฉพาะเมื่อไม่ใช่ Start Activity หรือ End Activity */}
           {activity.activity_state !== "Start Activity" && activity.activity_state !== "End Activity" && (
             <>
@@ -197,11 +213,7 @@ export default function ActivityFooter({
                 )
               ) : (
                 <>
-                  {activity.event_format === "Course" ? (
-                    <Button onClick={() => navigate("/send-certificate-student")}>
-                      ยื่นเกียรติบัตร
-                    </Button>
-                  ) : isEnrolled ? (
+                  {isEnrolled ? (
                     <Button bgColor="red" onClick={() => setIsUnEnrollModalOpen(true)}>
                       ยกเลิกลงทะเบียน
                     </Button>

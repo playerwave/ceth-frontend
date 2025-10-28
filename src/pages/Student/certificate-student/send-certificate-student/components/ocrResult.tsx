@@ -13,11 +13,75 @@ interface OcrResultProps {
     confidenceScore?: number; // ✅ เพิ่ม confidence score
     verified?: boolean; // ✅ เพิ่ม: ผ่านการตรวจสอบหรือไม่ (จาก backend)
     warning?: boolean; // ✅ เพิ่ม: เตือนถ้ามีข้อมูลไม่ครบ
+    nameVerification?: { // ✅ เพิ่มข้อมูลการตรวจสอบชื่อ
+      isValid: boolean;
+      certificateName: string;
+      studentName: string;
+    };
+    // ✅ เพิ่มข้อมูลสำหรับลิ้งก์
+    isLinkValidation?: boolean; // ✅ ระบุว่าเป็นผลจากลิ้งก์หรือไม่
+    linkValidationData?: { // ✅ ข้อมูลการตรวจสอบลิ้งก์
+      studentName: string;
+      courseName: string;
+      completionDate: string;
+      certificateId: string;
+      isValid: boolean;
+    };
     [key: string]: unknown;
   } | null;
 }
 
 export default function OcrResult({ result }: OcrResultProps) {
+  // ✅ ถ้าเป็นลิ้งก์ ให้แสดงแค่กรอบสีเขียว
+  if (result?.isLinkValidation && result?.linkValidationData) {
+    return (
+      <div className="w-full">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center mb-3">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-green-800 ml-2">
+              ผลการตรวจสอบลิ้งก์
+            </h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm font-medium text-green-700 mb-1">ชื่อนิสิต:</p>
+              <p className="text-sm text-green-600">{result.linkValidationData.studentName}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-green-700 mb-1">ชื่อหลักสูตร:</p>
+              <p className="text-sm text-green-600">{result.linkValidationData.courseName}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-green-700 mb-1">วันที่สำเร็จ:</p>
+              <p className="text-sm text-green-600">{result.linkValidationData.completionDate}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-green-700 mb-1">ประเภท:</p>
+              <p className="text-sm text-green-600">BUU MOOC</p>
+            </div>
+          </div>
+          
+          <div className="mt-3 flex items-center">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              result.linkValidationData.isValid 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-red-100 text-red-800'
+            }`}>
+              {result.linkValidationData.isValid ? '✅ ข้อมูลถูกต้อง' : '❌ ข้อมูลไม่ถูกต้อง'}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ ถ้าไม่ใช่ลิ้งก์ ให้แสดงผล OCR ปกติ
   return (
     <div className="flex flex-col lg:flex-row">
       <div className="flex-1 p-0 lg:p-4">
@@ -67,6 +131,29 @@ export default function OcrResult({ result }: OcrResultProps) {
             </span>
           </p>
         </div>
+
+        {/* ✅ แสดงข้อความแจ้งเตือนเมื่อชื่อไม่ตรง */}
+        {result?.nameVerification && !result.nameVerification.isValid && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  ⚠️ ชื่อในใบรับรองไม่ตรงกับข้อมูลในระบบ
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p><strong>ชื่อในใบรับรอง:</strong> {result.nameVerification.certificateName}</p>
+                  <p><strong>ชื่อในระบบ:</strong> {result.nameVerification.studentName}</p>
+                  <p className="mt-2">กรุณาตรวจสอบชื่อในใบรับรองให้ตรงกับข้อมูลในระบบ หรือติดต่อเจ้าหน้าที่เพื่อขอความช่วยเหลือ</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {!result && <p className="text-gray-500">ยังไม่มีผลลัพธ์ การประมวลผล</p>}
 

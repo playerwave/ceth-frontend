@@ -27,6 +27,24 @@ export default function ActivityDialogs({
   onConfirmEnroll,
   onConfirmUnenroll,
 }: ActivityDialogsProps) {
+  // ✅ ฟังก์ชันสำหรับจัดการวันที่ที่ปลอดภัย
+  const formatDateSafely = (dateValue: string | Date | null | undefined): string => {
+    if (!dateValue) return "ไม่ระบุ";
+    
+    // ✅ แปลงเป็น string ก่อนถ้าเป็น Date object
+    const dateString = typeof dateValue === 'string' ? dateValue : dateValue.toISOString();
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "ไม่ระบุ";
+    
+    return new Intl.DateTimeFormat("th-TH", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }).format(date);
+  };
+
+  // ✅ ตรวจสอบว่าเป็น Course activity หรือไม่
+  const isCourseActivity = activity.event_format === "Course";
   return (
     <>
       {/* dialog เวลา conflict */}
@@ -46,17 +64,15 @@ export default function ActivityDialogs({
             <p className="text-gray-600">
               คุณแน่ใจหรือไม่ว่าต้องการยกเลิกกิจกรรม{" "}
               <span className="font-medium">
-                “{activity.presenter_company_name}”
+                "{activity.presenter_company_name}"
               </span>{" "}
-              ที่ลงทะเบียนไว้{" "}
-              <span className="text-red-500">
-                กรุณายกเลิกลงทะเบียนก่อน{" "}
-                {new Intl.DateTimeFormat("th-TH", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                }).format(new Date(activity.end_register_date || ""))}
-              </span>
+              ที่ลงทะเบียนไว้
+              {!isCourseActivity && (
+                <span className="text-red-500">
+                  {" "}กรุณายกเลิกลงทะเบียนก่อน{" "}
+                  {formatDateSafely(activity.end_register_date)}
+                </span>
+              )}
             </p>
           }
           onClose={onCloseUnenroll}
@@ -70,16 +86,14 @@ export default function ActivityDialogs({
             <p className="text-gray-600">
               คุณแน่ใจหรือไม่ว่าต้องการลงทะเบียนกิจกรรม{" "}
               <span className="font-medium">
-                “{activity.presenter_company_name}”
-              </span>{" "}
-              <span className="text-red-500">
-                คุณสามารถยกเลิกได้ถึงวันที่{" "}
-                {new Intl.DateTimeFormat("th-TH", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                }).format(new Date(activity.end_register_date || ""))}
+                "{activity.presenter_company_name}"
               </span>
+              {!isCourseActivity && (
+                <span className="text-red-500">
+                  {" "}คุณสามารถยกเลิกได้ถึงวันที่{" "}
+                  {formatDateSafely(activity.end_register_date)}
+                </span>
+              )}
             </p>
           }
           onClose={onCloseEnroll}

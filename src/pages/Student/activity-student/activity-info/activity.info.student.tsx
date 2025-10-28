@@ -43,6 +43,7 @@ export default function ActivityInfoStudent() {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [selectedFood, setSelectedFood] = useState<string>("");
 
+
   // Fetch user data on mount only if user is not authenticated
   // ลบการเรียก fetchMe ออก เพราะ main.student.tsx เรียกแล้ว
   // useEffect(() => {

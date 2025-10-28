@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import CustomCard from "@/components/Card";
-import { Check, ChevronLeft, Award, Clock } from "lucide-react";
+import { Check, ChevronLeft, Award, Clock, Link, Upload, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UploadCertificate from "./components/uploadCertificate";
 import OcrResult from "./components/ocrResult";
@@ -20,9 +20,17 @@ import {
   DialogActions,
   Typography,
   Box,
-  Chip
+  Chip,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Alert
 } from "@mui/material";
 import { AvailableCourseActivity } from "@/stores/api/activity.api";
+import { 
+  quickValidateCertificateLink, 
+  CertificateLinkData 
+} from "./utils/certificateLinkValidator";
 
 function makeFileSig(f: File | null) {
   return f ? `${f.name}:${f.size}:${f.lastModified}` : null;
@@ -39,6 +47,13 @@ export default function SendCertificateStudent() {
     type: 'Soft' | 'Hard';
     hours: number;
   } | null>(null);
+
+  // ✅ เพิ่ม state สำหรับการส่งลิ้งก์
+  const [submissionType, setSubmissionType] = useState<'file' | 'link'>('file');
+  const [certificateLink, setCertificateLink] = useState<string>('');
+  const [linkError, setLinkError] = useState<string>('');
+  const [linkValidationResult, setLinkValidationResult] = useState<CertificateLinkData | null>(null);
+  const [isValidatingLink, setIsValidatingLink] = useState<boolean>(false);
 
   const [disabled] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -82,9 +97,94 @@ export default function SendCertificateStudent() {
     setSelectedActivity(activity || null);
   };
 
+  // ✅ ฟังก์ชันจัดการการเปลี่ยนประเภทการส่ง
+  const handleSubmissionTypeChange = (_event: React.MouseEvent<HTMLElement>, newType: 'file' | 'link' | null) => {
+    if (newType !== null) {
+      setSubmissionType(newType);
+      // ✅ รีเซ็ตข้อมูลเมื่อเปลี่ยนประเภท
+      setFile(null);
+      setPreviewImage(null);
+      setCertificateLink('');
+      setLinkError('');
+      setLinkValidationResult(null);
+      setIsValidatingLink(false);
+      setOcrResult(null); // ✅ รีเซ็ต OCR result
+      setLastSubmittedSig(null);
+    }
+  };
+
+  // ✅ ฟังก์ชันตรวจสอบลิ้งก์
+  const validateLink = (link: string): boolean => {
+    try {
+      const url = new URL(link);
+      // ✅ ตรวจสอบว่าเป็นลิ้งก์ที่ถูกต้อง
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        setLinkError('');
+        return true;
+      }
+    } catch {
+      setLinkError('กรุณาใส่ลิ้งก์ที่ถูกต้อง');
+      return false;
+    }
+    setLinkError('กรุณาใส่ลิ้งก์ที่ถูกต้อง');
+    return false;
+  };
+
+  // ✅ ฟังก์ชันจัดการการเปลี่ยนลิ้งก์
+  const handleLinkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const link = event.target.value;
+    setCertificateLink(link);
+    setLinkValidationResult(null);
+    setOcrResult(null); // ✅ รีเซ็ต OCR result เมื่อเปลี่ยนลิ้งก์
+    
+    if (link) {
+      validateLink(link);
+      // ✅ ตรวจสอบลิ้งก์แบบอัตโนมัติ
+      validateCertificateLinkAsync(link);
+    } else {
+      setLinkError('');
+    }
+  };
+
+  // ✅ ฟังก์ชันตรวจสอบลิ้งก์ใบรับรองแบบ async
+  const validateCertificateLinkAsync = async (link: string) => {
+    if (!link || !validateLink(link)) return;
+    
+    setIsValidatingLink(true);
+    setLinkError('');
+    
+    try {
+      console.log("🔍 [CertificateLinkValidator] Starting link validation...");
+      
+      // ✅ ใช้ quick validation ก่อน (ไม่ต้องเปรียบเทียบชื่อ)
+      const result = await quickValidateCertificateLink(link);
+      
+      if (result.success && result.data) {
+        setLinkValidationResult(result.data);
+        console.log("✅ [CertificateLinkValidator] Link validation successful:", result.data);
+      } else {
+        setLinkError(result.error || 'ไม่สามารถตรวจสอบลิ้งก์ได้');
+        console.error("❌ [CertificateLinkValidator] Link validation failed:", result.error);
+      }
+    } catch (error) {
+      console.error("❌ [CertificateLinkValidator] Validation error:", error);
+      setLinkError('เกิดข้อผิดพลาดในการตรวจสอบลิ้งก์');
+    } finally {
+      setIsValidatingLink(false);
+    }
+  };
+
   async function handleSendToOcr() {
-    if (!file) {
+    if (submissionType === 'file' && !file) {
       alert("กรุณาเลือกไฟล์ก่อน");
+      return;
+    }
+    if (submissionType === 'link' && !certificateLink) {
+      alert("กรุณาใส่ลิ้งก์ใบรับรองก่อน");
+      return;
+    }
+    if (submissionType === 'link' && !validateLink(certificateLink)) {
+      alert("กรุณาใส่ลิ้งก์ที่ถูกต้อง");
       return;
     }
     if (!selectedActivity) {
@@ -96,7 +196,50 @@ export default function SendCertificateStudent() {
     setLoading(true);
     try {
       // ✅ ใช้ store แทน direct API call พร้อม activityId
-      const result = await uploadCertificate(file, selectedActivity.activity_id);
+      let result;
+      if (submissionType === 'file' && file) {
+        result = await uploadCertificate(file, selectedActivity.activity_id);
+      } else if (submissionType === 'link' && certificateLink && linkValidationResult?.isValid) {
+        // ✅ สำหรับลิ้งก์ ส่งไป Backend เพื่อตรวจสอบกับ certificate_base และเพิ่มชั่วโมง
+        console.log("🔗 [CertificateLinkValidator] Sending link data to backend for verification:", linkValidationResult);
+        
+        // ✅ สร้างข้อมูลสำหรับส่งไป Backend (ไม่ใช้ certificate_id)
+        const linkData = {
+          fullName: linkValidationResult.studentName,
+          courseName: linkValidationResult.courseName,
+          teacher: "-", // ไม่มีข้อมูลจากลิ้งก์
+          certificateId: null, // ✅ ไม่ใช้ certificate_id
+          date: linkValidationResult.completionDate,
+          rawText: `Certificate Link: ${certificateLink}`,
+          certificateType: 'BUU_MOOC',
+          organize_name: "สำนักคอมพิวเตอร์ มหาวิทยาลัยบูรพา",
+          confidenceScore: 100,
+          // ✅ เพิ่มข้อมูลสำหรับแสดงผลการตรวจสอบลิ้งก์
+          isLinkValidation: true,
+          linkValidationData: {
+            studentName: linkValidationResult.studentName,
+            courseName: linkValidationResult.courseName,
+            completionDate: linkValidationResult.completionDate,
+            certificateId: linkValidationResult.certificateId, // ✅ เก็บไว้สำหรับแสดงผลเท่านั้น
+            isValid: linkValidationResult.isValid
+          }
+        };
+        
+        // ✅ ส่งไป Backend ผ่าน uploadCertificate (ใช้ file = null สำหรับลิ้งก์)
+        // ✅ ส่ง studentId แทน userId
+        const studentId = user?.student?.students_id;
+        if (!studentId) {
+          alert("ไม่พบข้อมูลนิสิต");
+          setLoading(false);
+          return;
+        }
+        
+        result = await uploadCertificate(null, selectedActivity.activity_id, linkData, studentId);
+      } else {
+        alert("กรุณาตรวจสอบลิ้งก์ให้ถูกต้องก่อนส่ง");
+        setLoading(false);
+        return;
+      }
       console.log("🔍 OCR Result from API:", result);
       console.log("🔍 OCR Result keys:", Object.keys(result));
       console.log("🔍 OCR Result structure:", JSON.stringify(result, null, 2));
@@ -109,21 +252,47 @@ export default function SendCertificateStudent() {
       const hoursAdded = (result as any).hoursAdded;
       console.log("🔍 Hours Added:", hoursAdded);
       
+      // ✅ ใช้ข้อมูลจาก response ใหม่
+      const responseData = (result as any).data;
+      const nameVerification = responseData?.nameVerification;
+      const verificationResult = responseData?.verificationResult;
+      const ocrResult = responseData?.ocrResult;
+      
+      console.log("🔍 Response Data:", responseData);
+      console.log("🔍 OCR Result:", ocrResult);
+      console.log("🔍 Name Verification:", nameVerification);
+      console.log("🔍 Verification Result:", verificationResult);
+      
       const ocrData = {
-        fullName: result.ocrData.fullName || "-",
-        courseName: result.ocrData.courseName || "-", 
-        teacher: result.ocrData.teacher || "-",
-        certificateId: result.ocrData.certificateId || "-",
-        date: result.ocrData.date || "-",
-        score: result.confidenceScore.toString(),
-        score_float: result.confidenceScore,
-        rawText: result.ocrData.rawText || "",
-        certificateType: certificateType, // ✅ เพิ่ม certificate type
-        organize_name: (result.ocrData as any).organize_name || "-", // ✅ เพิ่ม organize_name
-        confidenceScore: result.confidenceScore, // ✅ เพิ่ม confidence score
-        hoursAdded: hoursAdded, // ✅ เพิ่ม hours ที่ได้รับ
-        verified: (result as any).verified ?? false, // ✅ เพิ่ม: ผ่านการตรวจสอบหรือไม่
-        warning: (result as any).warning ?? false // ✅ เพิ่ม: เตือนถ้ามีข้อมูลไม่ครบ
+        fullName: ocrResult?.fullName || "-",
+        courseName: ocrResult?.courseName || "-", 
+        teacher: ocrResult?.teacher || "-",
+        certificateId: ocrResult?.certificateId || "-",
+        date: ocrResult?.date || "-",
+        score: verificationResult?.confidenceScore?.toString() || "0",
+        score_float: verificationResult?.confidenceScore || 0,
+        rawText: ocrResult?.rawText || "",
+        certificateType: responseData?.certificateType || "",
+        organize_name: verificationResult?.organize_name || "",
+        confidenceScore: verificationResult?.confidenceScore || 0,
+        hoursAdded: hoursAdded,
+        verified: responseData?.passedVerification ?? true, // ✅ ลิ้งก์ผ่านแล้ว
+        warning: false, // ✅ ไม่มี warning
+        // ✅ เพิ่มข้อมูลการตรวจสอบชื่อ
+        nameVerification: {
+          isValid: nameVerification?.isValid ?? true,
+          certificateName: nameVerification?.certificateName || ocrResult?.fullName || "-",
+          studentName: nameVerification?.studentName || ocrResult?.fullName || "-"
+        },
+        // ✅ เพิ่มข้อมูลสำหรับลิ้งก์
+        isLinkValidation: true,
+        linkValidationData: {
+          studentName: ocrResult?.fullName || "-",
+          courseName: ocrResult?.courseName || "-",
+          completionDate: ocrResult?.date || "-",
+          certificateId: ocrResult?.certificateId || "-",
+          isValid: true
+        }
       } as any;
       
       console.log("🔍 Processed OCR Data:", ocrData);
@@ -137,7 +306,7 @@ export default function SendCertificateStudent() {
       setOcrResult(ocrData);
       setLastSubmittedSig(makeFileSig(file)); // ทำเครื่องหมายว่าไฟล์นี้ "ส่งแล้ว"
       
-      // ✅ แสดง dialog ถ้าได้รับ hours
+      // ✅ แสดง dialog ถ้าได้รับ hours หรือเป็นลิ้งก์ที่สำเร็จ
       if (hoursAdded && hoursAdded.type && hoursAdded.hours) {
         setHoursData(hoursAdded);
         setHoursDialogOpen(true);
@@ -146,6 +315,40 @@ export default function SendCertificateStudent() {
         // ✅ เพิ่ม: Refresh activity history หลังจาก claim certificate สำเร็จ
         try {
           const studentId = user?.student?.students_id; // ✅ ใช้ students_id แทน users_id
+          if (studentId) {
+            console.log("🔄 [Certificate] Refreshing activity history for student:", studentId);
+            await fetchEndedActivities(studentId);
+            console.log("✅ [Certificate] Activity history refreshed successfully");
+          }
+        } catch (refreshError) {
+          console.error("❌ [Certificate] Error refreshing activity history:", refreshError);
+        }
+      } else if (submissionType === 'link' && responseData?.passedVerification) {
+        // ✅ สำหรับลิ้งก์ที่สำเร็จ แสดง dialog เพิ่มชั่วโมง
+        console.log("🎉 Link validation successful, showing hours dialog");
+        
+        // ✅ ใช้ชั่วโมงจาก Backend response หรือ activity ที่เลือก
+        const activityData = responseData?.activityData;
+        const activityHours = activityData?.receive_hours || selectedActivity?.recieve_hours || 0;
+        const activityType = activityData?.activity_type || selectedActivity?.type || 'Soft';
+        
+        console.log("🔍 Response Data:", responseData);
+        console.log("🔍 Activity data from backend:", activityData);
+        console.log("🔍 Selected Activity:", selectedActivity);
+        console.log("🔍 Selected Activity receive_hours:", selectedActivity?.recieve_hours);
+        console.log("🔍 Selected Activity activity_type:", selectedActivity?.type);
+        console.log("🔍 Final activity hours:", activityHours);
+        console.log("🔍 Final activity type:", activityType);
+        
+        setHoursData({
+          type: activityType as 'Soft' | 'Hard',
+          hours: activityHours
+        });
+        setHoursDialogOpen(true);
+        
+        // ✅ Refresh activity history
+        try {
+          const studentId = user?.student?.students_id;
           if (studentId) {
             console.log("🔄 [Certificate] Refreshing activity history for student:", studentId);
             await fetchEndedActivities(studentId);
@@ -179,8 +382,46 @@ export default function SendCertificateStudent() {
           >
             <ChevronLeft className="w-5 h-5 mr-1" /> กลับ
           </Button>
-          <h2 className="font-bold text-2xl leading-snug">อัปโหลด Certificate</h2>
+          <h2 className="font-bold text-2xl leading-snug">
+            {submissionType === 'file' ? 'อัปโหลด Certificate' : 'ส่งลิ้งก์ Certificate'}
+          </h2>
         </div>
+
+        {/* ✅ เลือกประเภทการส่ง */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            เลือกวิธีการส่งใบรับรอง
+          </Typography>
+          <ToggleButtonGroup
+            value={submissionType}
+            exclusive
+            onChange={handleSubmissionTypeChange}
+            aria-label="submission type"
+            sx={{ mb: 2 }}
+          >
+            <ToggleButton value="file" aria-label="upload file">
+              <Upload className="w-4 h-4 mr-2" />
+              อัปโหลดไฟล์
+            </ToggleButton>
+            <ToggleButton value="link" aria-label="submit link">
+              <Link className="w-4 h-4 mr-2" />
+              ส่งลิ้งก์
+            </ToggleButton>
+          </ToggleButtonGroup>
+          
+          {submissionType === 'link' && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              <Typography variant="body2">
+                <strong>สำหรับ BUU MOOC:</strong> คุณสามารถส่งลิ้งก์ใบรับรองได้ 
+                โดยระบบจะดาวน์โหลดและตรวจสอบใบรับรองจากลิ้งก์ที่คุณให้มา
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 1, fontSize: '0.875rem' }}>
+                <strong>หมายเหตุ:</strong> ระบบใช้ Backend API สำหรับดึงข้อมูล 
+                ไม่มีปัญหา CORS และทำงานได้เสถียรกว่า
+              </Typography>
+            </Alert>
+          )}
+        </Box>
 
         <FormControl sx={{ m: 1, minWidth: 300 }}>
           <InputLabel id="activity-select-label">เลือกกิจกรรม</InputLabel>
@@ -229,21 +470,101 @@ export default function SendCertificateStudent() {
           )}
         </FormControl>
 
-        <UploadCertificate
-          previewImage={previewImage}
-          setPreviewImage={setPreviewImage}
-          setFile={setFile}
-          file={file}
-          disabled={disabled}
-        />
+        {/* ✅ แสดง UI ตามประเภทการส่ง */}
+        {submissionType === 'file' ? (
+          <UploadCertificate
+            previewImage={previewImage}
+            setPreviewImage={setPreviewImage}
+            setFile={setFile}
+            file={file}
+            disabled={disabled}
+          />
+        ) : (
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              <FileText className="w-5 h-5 inline mr-2" />
+              ส่งลิ้งก์ใบรับรอง
+            </Typography>
+            
+            <TextField
+              fullWidth
+              label="ลิ้งก์ใบรับรอง"
+              placeholder="https://mooc.buu.ac.th/certificates/..."
+              value={certificateLink}
+              onChange={handleLinkChange}
+              error={!!linkError}
+              helperText={linkError || "กรุณาใส่ลิ้งก์ใบรับรองที่ถูกต้อง"}
+              disabled={disabled}
+              sx={{ mb: 2 }}
+            />
+      
+
+            {/* ✅ แสดงสถานะการตรวจสอบลิ้งก์ */}
+            {isValidatingLink && (
+              <Box 
+                sx={{ 
+                  p: 2, 
+                  bgcolor: '#fef3c7', 
+                  borderRadius: 1,
+                  border: '1px solid #f59e0b',
+                  mb: 2
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  🔍 กำลังตรวจสอบลิ้งก์...
+                </Typography>
+              </Box>
+            )}
+
+            {linkValidationResult && (
+              <Box 
+                sx={{ 
+                  p: 2, 
+                  bgcolor: linkValidationResult.isValid ? '#f0fdf4' : '#fef2f2', 
+                  borderRadius: 1,
+                  border: `1px solid ${linkValidationResult.isValid ? '#22c55e' : '#ef4444'}`,
+                  mb: 2
+                }}
+              >
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  <strong>สถานะการตรวจสอบลิ้งก์:</strong>
+                </Typography>
+                
+                <Box sx={{ mt: 2 }}>
+                  <Chip
+                    label={linkValidationResult.isValid ? "✅ พร้อมส่ง" : "❌ ข้อมูลไม่ถูกต้อง"}
+                    color={linkValidationResult.isValid ? "success" : "error"}
+                    size="small"
+                  />
+                </Box>
+              </Box>
+            )}
+          </Box>
+        )}
 
         <div className="flex justify-end mt-4 gap-3">
           <Button
             onClick={handleSendToOcr}
-            disabled={loading || certificateLoading || submittedForCurrentFile || !selectedActivity}             // ✅ เพิ่มเงื่อนไข !selectedActivity
-            bgColor={submittedForCurrentFile ? "#22C55E" : undefined} // ✅ ไฟล์ใหม่กลับเป็น default
+            disabled={
+              loading || 
+              certificateLoading || 
+              submittedForCurrentFile || 
+              !selectedActivity ||
+              (submissionType === 'file' && !file) ||
+              (submissionType === 'link' && (!certificateLink || !!linkError || !linkValidationResult?.isValid))
+            }
+            bgColor={submittedForCurrentFile ? "#22C55E" : undefined}
             textColor="#FFFFFF"
-            className={`${loading || certificateLoading || submittedForCurrentFile || !selectedActivity ? "cursor-not-allowed" : "hover:bg-blue-700"} mt-4 flex items-center gap-2`}
+            className={`${
+              loading || 
+              certificateLoading || 
+              submittedForCurrentFile || 
+              !selectedActivity ||
+              (submissionType === 'file' && !file) ||
+              (submissionType === 'link' && (!certificateLink || !!linkError || !linkValidationResult?.isValid))
+                ? "cursor-not-allowed" 
+                : "hover:bg-blue-700"
+            } mt-4 flex items-center gap-2`}
           >
             {loading || certificateLoading
               ? "กำลังตรวจสอบ..."
@@ -251,7 +572,17 @@ export default function SendCertificateStudent() {
               ? (<><Check className="w-4 h-4" /> ส่งแล้ว</>)
               : !selectedActivity
               ? "กรุณาเลือกกิจกรรม"
-              : "ส่งตรวจ OCR"}
+              : submissionType === 'file' && !file
+              ? "กรุณาเลือกไฟล์"
+              : submissionType === 'link' && !certificateLink
+              ? "กรุณาใส่ลิ้งก์"
+              : submissionType === 'link' && linkError
+              ? "ลิ้งก์ไม่ถูกต้อง"
+              : submissionType === 'link' && !linkValidationResult?.isValid
+              ? "กรุณารอการตรวจสอบลิ้งก์"
+              : submissionType === 'file'
+              ? "ส่งตรวจ OCR"
+              : "ส่งตรวจลิ้งก์"}
           </Button>
 
           {/* (ทางเลือก) ปุ่มล้างค่า เพื่ออัปโหลด/ส่งไฟล์อื่นเร็ว ๆ */}
@@ -274,7 +605,21 @@ export default function SendCertificateStudent() {
       <CustomCard className="w-full max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[100%] p-4 sm:p-6 relative mx-0 self-start mb-10">
         <h2 className="font-bold text-2xl leading-snug">ผลลัพธ์</h2>
         <br />
-        <OcrResult result={ocrResult} />
+        {/* ✅ แสดงผลการตรวจสอบลิ้งก์ถ้ายังไม่ได้ส่ง */}
+        {submissionType === 'link' && linkValidationResult && !ocrResult && (
+          <OcrResult result={{
+            isLinkValidation: true,
+            linkValidationData: {
+              studentName: linkValidationResult.studentName,
+              courseName: linkValidationResult.courseName,
+              completionDate: linkValidationResult.completionDate,
+              certificateId: linkValidationResult.certificateId,
+              isValid: linkValidationResult.isValid
+            }
+          }} />
+        )}
+        {/* ✅ แสดงผล OCR ปกติ (เฉพาะเมื่อไม่ใช่ลิ้งก์) */}
+        {submissionType !== 'link' && <OcrResult result={ocrResult} />}
       </CustomCard>
 
       {/* ✅ Dialog แสดงผลการได้รับ Hours */}

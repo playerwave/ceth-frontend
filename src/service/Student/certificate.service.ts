@@ -79,29 +79,57 @@ export const uploadCertificateForOCR = async (file: File): Promise<any> => {
 //------------------------------------------------------------------
 
 //--------------------- Upload Certificate with Activity ID -------------------------
-export const uploadCertificate = async (file: File, activityId: number): Promise<CertificateVerificationResult> => {
-  console.log("📤 [Certificate Service] Uploading certificate with activity ID:", activityId);
+export const uploadCertificate = async (file: File | null, activityId: number, linkData?: any, studentId?: number): Promise<CertificateVerificationResult> => {
+  console.log("📤 [Certificate Service] Uploading certificate with activity ID:", activityId, "studentId:", studentId);
   
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('activityId', activityId.toString());
-  
-  try {
-    const response = await axiosInstance.post<CertificateVerificationResult>(
-      `${STUDENT_CERTIFICATE_PATH}/upload-with-verification`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
+  if (file) {
+    // ✅ อัปโหลดไฟล์
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('activityId', activityId.toString());
     
-    console.log("✅ [Certificate Service] Upload with verification successful:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("❌ [Certificate Service] Error uploading certificate:", error);
-    throw error;
+    try {
+      const response = await axiosInstance.post<CertificateVerificationResult>(
+        `${STUDENT_CERTIFICATE_PATH}/upload-with-verification`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      console.log("✅ [Certificate Service] Upload with verification successful:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ [Certificate Service] Error uploading certificate:", error);
+      throw error;
+    }
+  } else if (linkData) {
+    // ✅ ส่งข้อมูลลิ้งก์
+    try {
+      const response = await axiosInstance.post<CertificateVerificationResult>(
+        `${STUDENT_CERTIFICATE_PATH}/upload-link-with-verification`,
+        {
+          activityId: activityId,
+          linkData: linkData,
+          studentId: studentId // ✅ ส่ง studentId ไป Backend
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      console.log("✅ [Certificate Service] Link upload with verification successful:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ [Certificate Service] Error uploading link data:", error);
+      throw error;
+    }
+  } else {
+    throw new Error("ต้องมีไฟล์หรือข้อมูลลิ้งก์");
   }
 };
 //------------------------------------------------------------------

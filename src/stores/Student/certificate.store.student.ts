@@ -34,7 +34,7 @@ interface CertificateStore {
   
   fetchCertificateById: (id: number) => Promise<Certificate | null>;
   fetchCertificatesByStudentId: () => Promise<Certificate[]>;
-  uploadCertificate: (file: File, activityId: number) => Promise<CertificateVerificationResult>;
+  uploadCertificate: (file: File | null, activityId: number, linkData?: any, studentId?: number) => Promise<CertificateVerificationResult>;
   clearSelectedCertificate: () => void;
 }
 
@@ -87,11 +87,15 @@ export const useCertificateStore = create<CertificateStore>((set) => ({
   //----------------------------------------------------------------
 
   //--------------------- Upload Certificate (OCR) -------------------------
-  uploadCertificate: async (file: File, activityId: number) => {
-    console.log("📤 Uploading certificate file:", file.name, "for activity:", activityId);
+  uploadCertificate: async (file: File | null, activityId: number, linkData?: any, studentId?: number) => {
+    if (file) {
+      console.log("📤 Uploading certificate file:", file.name, "for activity:", activityId);
+    } else if (linkData) {
+      console.log("🔗 Uploading certificate link data for activity:", activityId, linkData, "studentId:", studentId);
+    }
     set({ certificateLoading: true, certificateError: null });
     try {
-      const result = await certificateService.uploadCertificate(file, activityId);
+      const result = await certificateService.uploadCertificate(file, activityId, linkData, studentId);
       console.log("✅ Upload successful:", result);
       return result;
     } catch (err) {
