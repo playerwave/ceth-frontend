@@ -5,16 +5,6 @@ export interface ApiLoginRequest {
   password: string;
 }
 
-// export interface AuthResponse {
-//   user: {
-//     user_id: number;
-//     username: string;
-//     roles_id: number;
-//     role_name: "Student" | "Teacher" | "Admin";
-//   };
-//   access_token: string;
-// }
-
 // auth.api.ts
 export interface AuthResponse {
   message: string;
