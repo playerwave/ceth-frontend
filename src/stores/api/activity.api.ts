@@ -1,4 +1,3 @@
-// src/types/api/activity.api.ts
 import { ActivityFood } from "@/types/activity-food.type";
 /**
  * ปรับ interface ให้ตรงกับ shape ของ model.Activity
@@ -57,4 +56,5 @@ export interface AvailableCourseActivity {
   url: string | null;
   create_activity_date: string;
   last_update_activity_date: string;
+  template_description?: string; // ✅ เพิ่ม template_description
 }
