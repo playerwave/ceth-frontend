@@ -1,11 +1,11 @@
-import ListCertificateTeacher from "../pages/Teacher/manage-certificate-teacher/list-certificate/list.certificate.teacher";
-import PreviewCertificateTeacher from "../pages/Teacher/manage-certificate-teacher/preview-certificate/preview.certificate.teacher";
-import ListCertificateStudent from "../pages/Student/certificate-student/list-certificate-student/list.certificate.student";
-import SendCertificateStudent from "../pages/Student/certificate-student/send-certificate-student/send.certificate.student";
+import ListCertificateTeacher from "@/pages/Teacher/manage-certificate-teacher/list-certificate/list.certificate.teacher";
+import PreviewCertificateTeacher from "@/pages/Teacher/manage-certificate-teacher/preview-certificate/preview.certificate.teacher";
+import ListCertificateStudent from "@/pages/Student/certificate-student/list-certificate-student/list.certificate.student";
+import SendCertificateStudent from "@/pages/Student/certificate-student/send-certificate-student/send.certificate.student";
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
-import type { Roles } from "../types/roles.type";
+import type { Roles } from "@/types/roles.type";
 type RoleName = Roles["roles_name"];
 
 export const certificateRoutes = [

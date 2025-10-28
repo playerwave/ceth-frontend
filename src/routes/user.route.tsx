@@ -1,12 +1,12 @@
-import UserDepartmentTeacher from "../pages/Teacher/manage-student-teacher/student-department/student.department";
-import ListUserTeacher from "../pages/Teacher/manage-student-teacher/list-student-teacher/list.student.teacher";
-import CreateUserTeacher from "../pages/Teacher/manage-student-teacher/create-student-teacher/create.student.teacher";
-import UserInfoTeacher from "../pages/Teacher/manage-student-teacher/student-info-teacher/student.info.teacher";
-import ManageStudentTeacher from "../pages/Teacher/manage-student-teacher/manage.student.teacher";
+import UserDepartmentTeacher from "@/pages/Teacher/manage-student-teacher/student-department/student.department";
+import ListUserTeacher from "@/pages/Teacher/manage-student-teacher/list-student-teacher/list.student.teacher";
+import CreateUserTeacher from "@/pages/Teacher/manage-student-teacher/create-student-teacher/create.student.teacher";
+import UserInfoTeacher from "@/pages/Teacher/manage-student-teacher/student-info-teacher/student.info.teacher";
+import ManageStudentTeacher from "@/pages/Teacher/manage-student-teacher/manage.student.teacher";
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
-import type { Roles } from "../types/roles.type";
+import type { Roles } from "@/types/roles.type";
 type RoleName = Roles["roles_name"];
 
 export const userRoutes = [

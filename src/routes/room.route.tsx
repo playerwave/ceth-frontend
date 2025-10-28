@@ -1,10 +1,10 @@
-import ListRoomAdmin from "../pages/Teacher/manage-room-teacher/list-room/list.room.teacher";
-import CreateRoomAdmin from "../pages/Teacher/manage-room-teacher/create-room/create.room.teacher";
-import EditRoomAdmin from "../pages/Teacher/manage-room-teacher/edit-room/edit.room.teacher";
+import ListRoomAdmin from "@/pages/Teacher/manage-room-teacher/list-room/list.room.teacher";
+import CreateRoomAdmin from "@/pages/Teacher/manage-room-teacher/create-room/create.room.teacher";
+import EditRoomAdmin from "@/pages/Teacher/manage-room-teacher/edit-room/edit.room.teacher";
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
-import type { Roles } from "../types/roles.type";
+import type { Roles } from "@/types/roles.type";
 type RoleName = Roles["roles_name"];
 
 export const roomRoutes = [

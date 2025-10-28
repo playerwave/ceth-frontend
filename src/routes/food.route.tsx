@@ -1,6 +1,6 @@
-import ListFoodAdmin from "../pages/Teacher/mange-food-teacher/list-food/list.food.teacher";
-import CreateFoodAdmin from "../pages/Teacher/mange-food-teacher/create-food/create.food.teacher";
-import EditFoodAdmin from "../pages/Teacher/mange-food-teacher/edit-food/edit.food";
+import ListFoodAdmin from "@/pages/Teacher/mange-food-teacher/list-food/list.food.teacher";
+import CreateFoodAdmin from "@/pages/Teacher/mange-food-teacher/create-food/create.food.teacher";
+import EditFoodAdmin from "@/pages/Teacher/mange-food-teacher/edit-food/edit.food";
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 

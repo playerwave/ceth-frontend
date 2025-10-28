@@ -1,4 +1,4 @@
-import EmailTemplatePreview from "../pages/Test/email_template_preview";
+import EmailTemplatePreview from "@/pages/Test/email_template_preview";
 
 export const emailRoutes = [
   {
