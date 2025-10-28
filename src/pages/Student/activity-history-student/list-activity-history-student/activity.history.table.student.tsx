@@ -67,7 +67,7 @@ const ActivityHistoryTableStudent = ({
 
   return (
     <div style={{ padding: 24 }}>
-      <CustomCard height={730} width="1312px">
+      <CustomCard height={760} width="1312px">
         <h2 className="text-2xl font-semibold mb-4">ประวัติกิจกรรมของฉัน</h2>
         <div className="inner-scroll" style={{ height: 650 }}>
           <TableRedesign

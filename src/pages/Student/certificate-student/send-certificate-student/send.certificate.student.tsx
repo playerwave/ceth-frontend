@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
-import CustomCard from "../../../../components/Card";
+import CustomCard from "@/components/Card";
 import { Check, ChevronLeft, Award, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UploadCertificate from "./components/uploadCertificate";
 import OcrResult from "./components/ocrResult";
-import Button from "../../../../components/Button";
-import { useCertificateStore } from "../../../../stores/Student/certificate.store.student";
-import { useActivityStore } from "../../../../stores/Student/activity.store.student";
-import { useAuthStore } from "../../../../stores/Visitor/auth.store";
+import Button from "@/components/Button";
+import { useCertificateStore } from "@/stores/Student/certificate.store.student";
+import { useActivityStore } from "@/stores/Student/activity.store.student";
+import { useAuthStore } from "@/stores/Visitor/auth.store";
 import { 
   FormControl, 
   InputLabel, 
@@ -22,7 +22,7 @@ import {
   Box,
   Chip
 } from "@mui/material";
-import { AvailableCourseActivity } from "../../../../stores/api/activity.api";
+import { AvailableCourseActivity } from "@/stores/api/activity.api";
 
 function makeFileSig(f: File | null) {
   return f ? `${f.name}:${f.size}:${f.lastModified}` : null;
@@ -57,6 +57,9 @@ export default function SendCertificateStudent() {
     activityLoading,
     fetchEndedActivities
   } = useActivityStore();
+
+  // ✅ ใช้ Auth Store
+  const { user } = useAuthStore();
 
   // เก็บ “ไฟล์ที่ส่งล่าสุด” เป็น signature
   const [lastSubmittedSig, setLastSubmittedSig] = useState<string | null>(null);
@@ -116,7 +119,11 @@ export default function SendCertificateStudent() {
         score_float: result.confidenceScore,
         rawText: result.ocrData.rawText || "",
         certificateType: certificateType, // ✅ เพิ่ม certificate type
-        hoursAdded: hoursAdded // ✅ เพิ่ม hours ที่ได้รับ
+        organize_name: (result.ocrData as any).organize_name || "-", // ✅ เพิ่ม organize_name
+        confidenceScore: result.confidenceScore, // ✅ เพิ่ม confidence score
+        hoursAdded: hoursAdded, // ✅ เพิ่ม hours ที่ได้รับ
+        verified: (result as any).verified ?? false, // ✅ เพิ่ม: ผ่านการตรวจสอบหรือไม่
+        warning: (result as any).warning ?? false // ✅ เพิ่ม: เตือนถ้ามีข้อมูลไม่ครบ
       } as any;
       
       console.log("🔍 Processed OCR Data:", ocrData);
@@ -138,8 +145,7 @@ export default function SendCertificateStudent() {
         
         // ✅ เพิ่ม: Refresh activity history หลังจาก claim certificate สำเร็จ
         try {
-          const { user } = useAuthStore();
-          const studentId = user?.student?.users_id; // ✅ เปลี่ยนจาก students_id เป็น users_id
+          const studentId = user?.student?.students_id; // ✅ ใช้ students_id แทน users_id
           if (studentId) {
             console.log("🔄 [Certificate] Refreshing activity history for student:", studentId);
             await fetchEndedActivities(studentId);
@@ -157,21 +163,22 @@ export default function SendCertificateStudent() {
     }
   }
 
-  // (ถ้าอยากรีเซ็ตผลลัพธ์ด้วยเมื่อเลือกไฟล์ใหม่ ให้ปลดคอมเมนต์ 2 บรรทัดนี้)
-  // useEffect(() => {
-  //   setOcrResult(null);
-  // }, [currentSig]);
-
   return (
     <div className="ml-5 md:ml-25 mr-5">
       <CustomCard className="w-full max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[100%] p-4 sm:p-6 relative mx-0 self-start">
-        <div className="flex items-center justify-center relative mb-4">
-          <button
+        <div className="flex items-center justify-center relative mb-10 mt-10">
+          {/* <button
             className="absolute left-0 items-center cursor-pointer text-black hover:text-[#1E3A8A] transition-colors duration-200 hidden sm:flex"
             onClick={() => navigate("/list-certificate-student")}
           >
             <ChevronLeft className="w-5 h-5 mr-1" /> กลับ
-          </button>
+          </button> */}
+          <Button
+            onClick={() => navigate("/list-certificate-student")}
+            className="absolute left-0 items-center cursor-pointer text-black hover:text-[#1E3A8A] transition-colors duration-200 hidden sm:flex"
+          >
+            <ChevronLeft className="w-5 h-5 mr-1" /> กลับ
+          </Button>
           <h2 className="font-bold text-2xl leading-snug">อัปโหลด Certificate</h2>
         </div>
 
@@ -200,6 +207,26 @@ export default function SendCertificateStudent() {
               : `กรุณาเลือกกิจกรรมที่ต้องการส่งใบรับรอง`
             }
           </FormHelperText>
+          
+          {/* ✅ แสดง template_description เมื่อเลือกกิจกรรม */}
+          {selectedActivity?.template_description && (
+            <Box 
+              sx={{ 
+                mt: 2, 
+                p: 2, 
+                bgcolor: '#f5f5f5', 
+                borderRadius: 1,
+                border: '1px solid #e0e0e0'
+              }}
+            >
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                <strong>คำแนะนำการส่งใบรับรอง:</strong>
+              </Typography>
+              <Typography variant="body2" color="text.primary">
+                {selectedActivity.template_description}
+              </Typography>
+            </Box>
+          )}
         </FormControl>
 
         <UploadCertificate
@@ -244,8 +271,8 @@ export default function SendCertificateStudent() {
 
       <br />
 
-      <CustomCard className="w-full max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[100%] p-4 sm:p-6 relative mx-0 self-start">
-        <h2 className="font-bold text-2xl leading-snug">ผลลัพธ์ OCR</h2>
+      <CustomCard className="w-full max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[100%] p-4 sm:p-6 relative mx-0 self-start mb-10">
+        <h2 className="font-bold text-2xl leading-snug">ผลลัพธ์</h2>
         <br />
         <OcrResult result={ocrResult} />
       </CustomCard>

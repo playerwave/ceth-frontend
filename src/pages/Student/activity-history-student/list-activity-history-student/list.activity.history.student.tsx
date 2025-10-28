@@ -11,11 +11,11 @@ const ListActivityHistoryStudent = () => {
   const fetchEndedActivities = useActivityStore((s) => s.fetchEndedActivities);
   const { user } = useAuthStore();
 
-  // ✅ ใช้ users_id จาก auth store แทน students_id
+  // ✅ ใช้ students_id จาก auth store
   const studentId = useMemo(() => {
-    const id = user?.student?.users_id; // ✅ เปลี่ยนจาก students_id เป็น users_id
+    const id = user?.student?.students_id; // ✅ เปลี่ยนกลับเป็น students_id
     return typeof id === "number" && id > 0 ? id : null;
-  }, [user?.student?.users_id]);
+  }, [user?.student?.students_id]);
 
   function handleSearch(term: string) {
     if (!studentId) return; // ไม่มี id ก็ไม่ค้นหา

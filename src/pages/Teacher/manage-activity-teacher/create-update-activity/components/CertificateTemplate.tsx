@@ -96,13 +96,20 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         console.log("📁 [CertificateTemplate] Backend processing result:", result);
 
         // ✅ Step 3: เก็บข้อมูลที่ได้จาก Backend
-        setFormData((prev: any) => ({
-          ...prev,
-          certificate_template_url: result.data?.certificate_template_url || result.data?.template_url,
-          certificate_ocr_data: result.data?.certificate_ocr_data || result.data?.ocr_data,
-          certificate_image_analysis: result.data?.certificate_image_analysis || result.data?.image_analysis,
-          upload_certificate_description: result.data?.upload_certificate_description || prev.upload_certificate_description || ""
-        }));
+        if (result.success && result.data) {
+          setFormData((prev: any) => ({
+            ...prev,
+            certificate_template_url: result.data.certificate_template_url,
+            certificate_ocr_data: result.data.certificate_ocr_data,
+            certificate_image_analysis: result.data.certificate_image_analysis,
+            upload_certificate_description: result.data.upload_certificate_description || prev.upload_certificate_description || ""
+          }));
+          
+          console.log("✅ [CertificateTemplate] Form data updated with certificate template data");
+        } else {
+          console.warn("⚠️ [CertificateTemplate] Unexpected response format:", result);
+          toast.error("รูปแบบข้อมูลที่ได้รับไม่ถูกต้อง");
+        }
 
         toast.success("📸 อัปโหลดและวิเคราะห์ตัวอย่างใบรับรองสำเร็จ!");
       } catch (error) {
@@ -281,4 +288,3 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 };
 
 export default CertificateTemplate;
-

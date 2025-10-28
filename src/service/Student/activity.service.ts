@@ -164,6 +164,7 @@ export const fetchEndActivities = async (studentId: number): Promise<Activity[]>
   console.log("🌐 [SERVICE] Making request to:", `${STUDENT_ACTIVITY_PATH}/history/${studentId}`);
   
   try {
+    // ✅ ไม่ส่ง student_id ใน URL เพราะ backend จะใช้ user_id จาก JWT token
     const response = await axiosInstance.get<Activity[]>(
       `${STUDENT_ACTIVITY_PATH}/history/${studentId}`
     );
