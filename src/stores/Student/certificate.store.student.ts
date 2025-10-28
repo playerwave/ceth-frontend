@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { Certificate } from "../../types/certificate/certificate.type";
-import certificateService from "../../service/Student/certificate.service";
+import { Certificate } from "@/types/certificate/certificate.type";
+import certificateService from "@/service/Student/certificate.service";
 
 // ✅ Interface สำหรับผลการตรวจสอบ Certificate
 export interface CertificateVerificationResult {
