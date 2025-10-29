@@ -22,9 +22,6 @@ const Navbar = ({ children }: NavbarProps) => {
     () => localStorage.getItem("sidebarCollapsed") === "true",
   );
 
-  // เก็บ role ใน state ธรรมดา (ไม่ใช้ localStorage)
-  // const [role, setRole] = useState<"student" | "admin">("student");
-
 const role: "Student" | "Teacher" =
   user?.role === "Student" ? "Student" : "Teacher";
 
@@ -89,48 +86,17 @@ const role: "Student" | "Teacher" =
           )}
           <h1 className="text-2xl font-bold ml-10">Burapha University</h1>
         </div>
-        {/* <div className="flex flex-col items-start gap-1 p-2 border rounded-md bg-white shadow-sm">
-      <div className="text-sm text-gray-700 font-semibold">
-        {user?.username}
-      </div>
-      <div className="text-xs text-gray-500">
-         {user?.role || "ไม่ระบุ"}
-      </div>
-    </div> */}
-        {/* {isAuthenticated && user ? (
-  <div className="flex flex-col items-start gap-1 p-2 border rounded-md  shadow-sm">
-    <div className="text-sm text-white-700 font-semibold">
-      {user.username}
-    </div>
-    <div className="text-xs text-white-500">
-      {user.role || "ไม่ระบุ"}
-    </div>
-  </div>
-) : (
-  <button
-    onClick={() => navigate("/login")}
-    className="px-4 py-1 text-sm rounded-md bg-white text-blue-700 hover:bg-blue-100 transition"
-  >
-    เข้าสู่ระบบ
-  </button>
-)} */}
 
 {isAuthenticated && user ? (
   <div className="flex flex-col items-start gap-1 mr-15">
     <div className="text-base text-white font-semibold">
-      {user.username}
+      {user.role_id === 2 ? `${user.teacher?.first_name} ${user.teacher?.last_name}` : `${user.student?.first_name_tha} ${user.student?.last_name_tha}`}
     </div>
     <div className="text-sm text-white">
-      {user.role || "ไม่ระบุ"}
+      {user.username}
     </div>
   </div>
 ) : (
-  // <button
-  //   onClick={() => navigate("/login")}
-  //   className="px-4 py-1 text-sm rounded-md bg-white text-blue-700 hover:bg-blue-100 transition"
-  // >
-  //   เข้าสู่ระบบ
-  // </button>
   <Button
       data-cy="login-button"
       bgColor="#FFFFFF" // พื้นหลังขาว
@@ -178,26 +144,6 @@ const role: "Student" | "Teacher" =
   </>
 )}
 
-
-      {/* Sidebar และ Backdrop สำหรับ Mobile */}
-      {/* {isMobile && mobileMenuOpen && (
-        <>
-          <div
-            onClick={() => setMobileMenuOpen(false)}
-            className="fixed top-[80px] left-0 w-full h-[calc(100vh-80px)] bg-black/40 z-40"
-          />
-
-
-          <div className="fixed top-[80px] left-0 w-[75vw] max-w-[280px] h-[calc(100vh-80px)] z-50 bg-white shadow-lg">
-            <Sidebar
-              isCollapsed={false}
-              toggleSidebar={() => setMobileMenuOpen(false)}
-              role={role}
-            />
-          </div>
-        </>
-      )} */}
-
       {isMobile && mobileMenuOpen && !isVisitorPath && (
   <>
     <div
@@ -221,16 +167,6 @@ const role: "Student" | "Teacher" =
       >
         {children}
       </div>
-
-      {/* <div
-  className={`flex-grow transition-all duration-300 min-h-screen pt-[88px] ${
-    !isMobile ? (showSidebarCollapsed ? "pl-[80px]" : "pl-[280px]") : "pl-0"
-  }`}
->
-        {children}
-      </div> */}
-
-
     </> 
     
   );
