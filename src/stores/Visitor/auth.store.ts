@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { AuthState } from "../state/auth.state";
+import { AuthState, UpdatePasswordPayload } from "../state/auth.state";
 import authService from "../../service/Visitor/auth.service";
 import { mapApiToAuthUser, mapUserToAuthUser } from "../mapper/auth.mapper";
 
@@ -82,6 +82,23 @@ export const useAuthStore = create<AuthState>()(
             console.log("🔍 [Auth Store] Other error:", error);
             set({ authError: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้" });
           }
+        } finally {
+          set({ authLoading: false });
+        }
+      },
+
+      updatePassword: async ({ newPassword }: UpdatePasswordPayload) => {
+        set({ authLoading: true, authError: null });
+        
+        try {
+          const result = await authService.updatePassword({ newPassword });
+          console.log("✅ [Auth Store] Password updated successfully");
+          return result;
+        } catch (error) {
+          console.error("❌ [Auth Store] Update password error:", error);
+          const errorMessage = error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการอัปเดตรหัสผ่าน";
+          set({ authError: errorMessage });
+          return { success: false, message: errorMessage };
         } finally {
           set({ authLoading: false });
         }

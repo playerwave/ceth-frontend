@@ -1,5 +1,5 @@
 import axiosInstance from "@/libs/axios";
-import { AuthResponse, ApiLoginRequest } from "@/stores/api/auth.api";
+import { AuthResponse, ApiLoginRequest, ApiUpdatePasswordRequest, ApiUpdatePasswordResponse } from "@/stores/api/auth.api";
 
 export const login = async (
   payload: ApiLoginRequest
@@ -67,10 +67,27 @@ export const fetchMe = async (): Promise<AuthResponse["user"]> => {
   }
 };
 
+export const updatePassword = async (
+  payload: ApiUpdatePasswordRequest
+): Promise<ApiUpdatePasswordResponse> => {
+  try {
+    const response = await axiosInstance.put<ApiUpdatePasswordResponse>(
+      "/auth/update-password",
+      payload
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error("❌ Update password error:", error);
+    throw error;
+  }
+};
+
 const authService = {
   login,
   logout,
   fetchMe,
+  updatePassword,
 };
 
 export default authService;

@@ -38,6 +38,16 @@ const Login = () => {
   console.log(user?.role_id);
   
   if (!error && user) {
+    // ✅ ตรวจสอบว่านิสิตยังใช้รหัสผ่าน default อยู่หรือไม่
+    const isDefaultPassword = password.startsWith('std_') && password === `std_${username}`;
+    
+    if (user.role_id === 3 && isDefaultPassword) {
+      // ✅ นิสิตที่ใช้รหัสผ่าน default ให้ไปสร้างรหัสผ่านใหม่
+      console.log("Student using default password, redirecting to create password");
+      navigate("/new-password-student");
+      return;
+    }
+    
     switch (user.role_id) {
       case 1:
       case 2:
@@ -46,7 +56,6 @@ const Login = () => {
       case 3:
         navigate("/main-student");
         console.log("navigate to main-student");
-        
         break;
       default:
         navigate("/activity-info-visitor");

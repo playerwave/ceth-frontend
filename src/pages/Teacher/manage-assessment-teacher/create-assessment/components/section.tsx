@@ -115,6 +115,7 @@ const Section: React.FC<SectionProps> = ({
       });
     } else {
       try {
+        console.log('คำถามใหม่: ',section.id );
         const newQ = await createQuestion({
           question_text: "คำถามใหม่",
           question_number: questions.filter((q) => q.set_number_id === section.id).length + 1,

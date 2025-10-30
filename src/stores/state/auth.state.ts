@@ -5,6 +5,10 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface UpdatePasswordPayload {
+  newPassword: string;
+}
+
 export interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
@@ -14,4 +18,5 @@ export interface AuthState {
   login: (payload: LoginPayload) => Promise<void>;
   logout: () => void;
   fetchMe: () => Promise<void>;
+  updatePassword: (payload: UpdatePasswordPayload) => Promise<{ success: boolean; message: string }>;
 }

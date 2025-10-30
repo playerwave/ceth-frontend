@@ -5,6 +5,15 @@ export interface ApiLoginRequest {
   password: string;
 }
 
+export interface ApiUpdatePasswordRequest {
+  newPassword: string;
+}
+
+export interface ApiUpdatePasswordResponse {
+  success: boolean;
+  message: string;
+}
+
 // auth.api.ts
 export interface AuthResponse {
   message: string;

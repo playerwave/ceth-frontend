@@ -11,6 +11,7 @@ import { SecureRoute } from "./routes/secure/SecureRoute";
 
 // auth
 import Login from "./pages/visitor/login/login";
+import CreatePasswordStudent from "./pages/Student/new-password-student/create.password.student";
 
 // main pages
 import Main from "./pages/Teacher/dashboard-teacher/main.teacher";
@@ -124,6 +125,7 @@ function App() {
 
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/new-password-student" element={<CreatePasswordStudent />} />
 
         {/* 🔓 QR Code Check-in/out route - ไม่ต้อง login */}
         <Route
