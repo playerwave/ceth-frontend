@@ -31,6 +31,10 @@ export interface AuthResponse {
       users_id: number;
       first_name: string;
       last_name: string;
+      first_name_tha: string;
+      last_name_tha: string;
+      first_name_eng: string;
+      last_name_eng: string;
       email: string;
       soft_hours: number;
       hard_hours: number;

@@ -79,6 +79,7 @@ export function mapUserToAuthUser(user: AuthResponse["user"]): AuthUser {
     teacher: user.teacher,
   };
 
+  // Ensure the returned object matches the AuthUser type, especially for the student field
   console.log("✅✅✅ [Auth Mapper] Mapped result:", mapped);
   
   return mapped;
