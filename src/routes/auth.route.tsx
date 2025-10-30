@@ -1,6 +1,6 @@
 import Login from "@/pages/visitor/login/login";
 import ForgotPassword from "@/pages/visitor/forgot-passsword/forgot.password";
-import CreatePasswordStudent from "@/pages/visitor/new-password/create.password";
+import CreatePasswordStudent from "@/pages/visitor/new-password/update.password";
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 

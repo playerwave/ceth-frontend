@@ -1,4 +1,4 @@
-import BubbleBackground from "../../visitor/login/components/BubbleBackground";
+import BubbleBackground from "../login/components/BubbleBackground";
 import React, { useState } from "react";
 import { useAuthStore } from "@/stores/Visitor/auth.store";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -25,12 +25,18 @@ const CreatePasswordStudent = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  const email = searchParams.get('email');
+  const code = searchParams.get('code');
   const { user, updatePassword } = useAuthStore();
+  
+  // ✅ ตรวจสอบว่ามาจาก forgot password หรือไม่
+  const isForgotPassword = email && code;
 
   const validatePassword = (password: string) => {
     const minLength = 8;
@@ -60,42 +66,88 @@ const CreatePasswordStudent = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
-    // ✅ ตรวจสอบว่ามี user หรือ token
-    if (!user && !token) {
-      setError("ไม่พบข้อมูลผู้ใช้สำหรับการสร้างรหัสผ่าน");
-      return;
-    }
-
-    // Validate password
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("รหัสผ่านไม่ตรงกัน");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // ✅ เรียก API อัปเดตรหัสผ่าน
-      const result = await updatePassword({ newPassword: password });
-      
-      if (result.success) {
-        // Navigate to main student page after successful password creation
-        navigate("/main-student?message=password-created");
-      } else {
-        setError(result.message);
+    // ✅ ตรวจสอบว่ามาจาก forgot password หรือไม่
+    if (isForgotPassword) {
+      // Validate password
+      const passwordError = validatePassword(password);
+      if (passwordError) {
+        setError(passwordError);
+        return;
       }
-    } catch (err) {
-      console.error("Password update error:", err);
-      setError("เกิดข้อผิดพลาดในการสร้างรหัสผ่าน");
-    } finally {
-      setLoading(false);
+
+      if (password !== confirmPassword) {
+        setError("รหัสผ่านไม่ตรงกัน");
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        // ✅ เรียก API รีเซตรหัสผ่านด้วย email และ code
+        const response = await fetch('http://localhost:5090/api/auth/forgot-password/verify-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, code, newPassword: password }),
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          setSuccess('รีเซตรหัสผ่านสำเร็จ! กำลังนำไปหน้าเข้าสู่ระบบ...');
+          // Navigate to login page after 2 seconds
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        } else {
+          setError(result.message || 'เกิดข้อผิดพลาดในการรีเซตรหัสผ่าน');
+        }
+      } catch (err) {
+        console.error("Password reset error:", err);
+        setError("เกิดข้อผิดพลาดในการสร้างรหัสผ่าน");
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // ✅ กรณีสร้างรหัสผ่านครั้งแรก (ไม่ใช่ forgot password)
+      if (!user && !token) {
+        setError("ไม่พบข้อมูลผู้ใช้สำหรับการสร้างรหัสผ่าน");
+        return;
+      }
+
+      // Validate password
+      const passwordError = validatePassword(password);
+      if (passwordError) {
+        setError(passwordError);
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError("รหัสผ่านไม่ตรงกัน");
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        // ✅ เรียก API อัปเดตรหัสผ่าน
+        const result = await updatePassword({ newPassword: password });
+        
+        if (result.success) {
+          // Navigate to main student page after successful password creation
+          navigate("/main-student?message=password-created");
+        } else {
+          setError(result.message);
+        }
+      } catch (err) {
+        console.error("Password update error:", err);
+        setError("เกิดข้อผิดพลาดในการสร้างรหัสผ่าน");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -114,10 +166,13 @@ const CreatePasswordStudent = () => {
           Burapha University
         </h1>
         <h2 className="text-black mt-10 text-3xl font-semibold mb-6 px-10 text-center"> 
-          สร้างรหัสผ่านใหม่
+          {isForgotPassword ? 'รีเซตรหัสผ่าน' : 'สร้างรหัสผ่านใหม่'}
         </h2>
         <p className="text-black text-sm text-center mb-8 px-10">
-          กรุณาสร้างรหัสผ่านใหม่สำหรับบัญชีของคุณ
+          {isForgotPassword 
+            ? 'กรุณาตั้งรหัสผ่านใหม่สำหรับบัญชีของคุณ' 
+            : 'กรุณาสร้างรหัสผ่านใหม่สำหรับบัญชีของคุณ'
+          }
         </p>
 
         <form className="px-10" onSubmit={handleSubmit}>
@@ -196,6 +251,9 @@ const CreatePasswordStudent = () => {
           {error && (
             <p className="text-red-600 text-sm mt-2 text-left">{error}</p>
           )}
+          {success && (
+            <p className="text-green-600 text-sm mt-2 text-left">{success}</p>
+          )}
 
           <div className="flex flex-col gap-4 mt-6">
             <StyledButtonWrapper>
@@ -222,16 +280,30 @@ const CreatePasswordStudent = () => {
                 </span>
               </button>
             </StyledButtonWrapper>
-
-            <div className="text-black text-center">
+            
+            <StyledSecondaryButtonWrapper>
               <button
                 type="button"
+                className="secondary-button secondary-button-item"
                 onClick={() => navigate("/login")}
-                className="underline hover:text-blue-600"
               >
-                กลับไปหน้าเข้าสู่ระบบ
+                <span className="secondary-button-bg">
+                  <span className="secondary-button-bg-layers">
+                    <span className="secondary-button-bg-layer secondary-button-bg-layer-1 -white" />
+                    <span className="secondary-button-bg-layer secondary-button-bg-layer-2 -light-blue" />
+                    <span className="secondary-button-bg-layer secondary-button-bg-layer-3 -blue" />
+                  </span>
+                </span>
+                <span className="secondary-button-inner">
+                  <span className="secondary-button-inner-static">
+                    กลับไปหน้าเข้าสู่ระบบ
+                  </span>
+                  <span className="secondary-button-inner-hover">
+                    กลับไปหน้าเข้าสู่ระบบ
+                  </span>
+                </span>
               </button>
-            </div>
+            </StyledSecondaryButtonWrapper>
           </div>
         </form>
       </div>
@@ -395,6 +467,153 @@ const StyledButtonWrapper = styled.div`
   .button:disabled:hover .button-bg-layer {
     transform: none;
     opacity: 1;
+  }
+`;
+
+const StyledSecondaryButtonWrapper = styled.div`
+  width: 100%;
+  
+  button {
+    all: unset;
+  }
+
+  .secondary-button {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    padding: 0.75rem 1rem;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1E3A8A;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+
+  .secondary-button-item {
+    background-color: transparent;
+    color: #1E3A8A;
+  }
+
+  .secondary-button-item .secondary-button-bg {
+    border-color: #1E3A8A;
+    background-color: #ffffff;
+  }
+
+  .secondary-button-inner,
+  .secondary-button-inner-hover,
+  .secondary-button-inner-static {
+    pointer-events: none;
+    display: block;
+  }
+
+  .secondary-button-inner {
+    position: relative;
+  }
+
+  .secondary-button-inner-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transform: translateY(70%);
+  }
+
+  .secondary-button-bg {
+    overflow: hidden;
+    border-radius: 0.375rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: scale(1);
+    transition: transform 1.8s cubic-bezier(0.19, 1, 0.22, 1);
+    border: 2px solid #1E3A8A;
+  }
+
+  .secondary-button:hover .secondary-button-bg {
+    border-color: #1E3A8A;
+  }
+
+  .secondary-button-bg,
+  .secondary-button-bg-layer,
+  .secondary-button-bg-layers {
+    display: block;
+  }
+
+  .secondary-button-bg-layers {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
+    top: -60%;
+    aspect-ratio: 1 / 1;
+    width: max(200%, 10rem);
+  }
+
+  .secondary-button-bg-layer {
+    border-radius: 0.375rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: scale(0);
+  }
+
+  .secondary-button-bg-layer.-white {
+    background-color: #ffffff;
+  }
+
+  .secondary-button-bg-layer.-light-blue {
+    background-color: #eff6ff;
+  }
+
+  .secondary-button-bg-layer.-blue {
+    background-color: #dbeafe;
+  }
+
+  .secondary-button:hover .secondary-button-inner-static {
+    opacity: 0;
+    transform: translateY(-70%);
+    transition:
+      transform 1.4s cubic-bezier(0.19, 1, 0.22, 1),
+      opacity 0.3s linear;
+  }
+
+  .secondary-button:hover .secondary-button-inner-hover {
+    opacity: 1;
+    transform: translateY(0);
+    color: #1E3A8A;
+    transition:
+      transform 1.4s cubic-bezier(0.19, 1, 0.22, 1),
+      opacity 1.4s cubic-bezier(0.19, 1, 0.22, 1),
+      color 0.3s linear;
+  }
+
+  .secondary-button:hover .secondary-button-bg-layer {
+    transition:
+      transform 1.3s cubic-bezier(0.19, 1, 0.22, 1),
+      opacity 0.3s linear;
+  }
+
+  .secondary-button:hover .secondary-button-bg-layer-1 {
+    transform: scale(1);
+  }
+
+  .secondary-button:hover .secondary-button-bg-layer-2 {
+    transition-delay: 0.1s;
+    transform: scale(1);
+  }
+
+  .secondary-button:hover .secondary-button-bg-layer-3 {
+    transition-delay: 0.2s;
+    transform: scale(1);
   }
 `;
 
