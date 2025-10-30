@@ -3,6 +3,17 @@
 import { AuthResponse } from "../api/auth.api";
 import { AuthUser } from "@/types/auth-user.type";
 
+function normalizeStudent(s?: AuthResponse["user"]["student"]) {
+  if (!s) return undefined;
+  return {
+    ...s,
+    first_name_tha: (s as any).first_name_tha ?? s.first_name,
+    last_name_tha: (s as any).last_name_tha ?? s.last_name,
+    first_name_eng: (s as any).first_name_eng ?? s.first_name,
+    last_name_eng: (s as any).last_name_eng ?? s.last_name,
+  } as any;
+}
+
 // export function mapApiToAuthUser(api: AuthResponse): AuthUser {
 //   return {
 //     userId: api.user.users_id,
@@ -33,7 +44,7 @@ export function mapApiToAuthUser(api: AuthResponse): AuthUser {
     role: roleName || "Student", // ✅ ใช้ roles_name จาก roles object
     role_id: roleId, // ✅ ใช้ roles_id จาก user object
     token: api.token,
-    student: api.user.student,
+    student: normalizeStudent(api.user.student),
     teacher: api.user.teacher,
   };
 
@@ -75,7 +86,7 @@ export function mapUserToAuthUser(user: AuthResponse["user"]): AuthUser {
     role: user.roles?.roles_name || "Student", // ✅ ใช้ roles_name จาก roles object
     role_id: user.roles_id,
     token: localStorage.getItem("token") ?? "",
-    student: user.student,
+    student: normalizeStudent(user.student),
     teacher: user.teacher,
   };
 
