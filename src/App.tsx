@@ -9,9 +9,8 @@ import QRCodeLayout from "./components/QRCodeLayout";
 import ProtectedRoute from "./components/Wrapper/ProtectedRoute";
 import { SecureRoute } from "./routes/secure/SecureRoute";
 
-// auth
-import Login from "./pages/visitor/login/login";
-import CreatePasswordStudent from "./pages/Student/new-password-student/create.password.student";
+// route configs
+import { authRoutes } from "./routes/auth.route";
 
 // main pages
 import Main from "./pages/Teacher/dashboard-teacher/main.teacher";
@@ -124,8 +123,10 @@ function App() {
       <Toaster position="bottom-right" richColors />
 
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/new-password-student" element={<CreatePasswordStudent />} />
+        {/* 🔐 Auth routes */}
+        {authRoutes.map((route, index) => (
+          <Route key={`auth-route-${index}`} path={route.path} element={route.element} />
+        ))}
 
         {/* 🔓 QR Code Check-in/out route - ไม่ต้อง login */}
         <Route

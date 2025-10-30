@@ -1,5 +1,14 @@
 import axiosInstance from "@/libs/axios";
-import { AuthResponse, ApiLoginRequest, ApiUpdatePasswordRequest, ApiUpdatePasswordResponse } from "@/stores/api/auth.api";
+import { 
+  AuthResponse, 
+  ApiLoginRequest, 
+  ApiUpdatePasswordRequest, 
+  ApiUpdatePasswordResponse,
+  ApiSendForgotPasswordCodeRequest,
+  ApiSendForgotPasswordCodeResponse,
+  ApiVerifyForgotPasswordCodeRequest,
+  ApiVerifyForgotPasswordCodeResponse
+} from "@/stores/api/auth.api";
 
 export const login = async (
   payload: ApiLoginRequest
@@ -83,11 +92,45 @@ export const updatePassword = async (
   }
 };
 
+export const sendForgotPasswordCode = async (
+  payload: ApiSendForgotPasswordCodeRequest
+): Promise<ApiSendForgotPasswordCodeResponse> => {
+  try {
+    const response = await axiosInstance.post<ApiSendForgotPasswordCodeResponse>(
+      "/auth/forgot-password/send-code",
+      payload
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error("❌ Send forgot password code error:", error);
+    throw error;
+  }
+};
+
+export const verifyForgotPasswordCode = async (
+  payload: ApiVerifyForgotPasswordCodeRequest
+): Promise<ApiVerifyForgotPasswordCodeResponse> => {
+  try {
+    const response = await axiosInstance.post<ApiVerifyForgotPasswordCodeResponse>(
+      "/auth/forgot-password/verify-code",
+      payload
+    );
+    
+    return response.data;
+  } catch (error) {
+    console.error("❌ Verify forgot password code error:", error);
+    throw error;
+  }
+};
+
 const authService = {
   login,
   logout,
   fetchMe,
   updatePassword,
+  sendForgotPasswordCode,
+  verifyForgotPasswordCode,
 };
 
 export default authService;

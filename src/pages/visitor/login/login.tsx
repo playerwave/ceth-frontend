@@ -121,7 +121,10 @@ const Login = () => {
             <p className="text-red-600 text-sm mt-2 text-left">{authError}</p>
           )}
 
-          <div className="text-black text-sm mb-2 mt-2 underline cursor-pointer text-left">
+          <div 
+            className="text-black text-sm mb-2 mt-2 underline cursor-pointer text-left hover:text-blue-600 transition-colors"
+            onClick={() => navigate('/forgot-password')}
+          >
             Forgot Password?
           </div>
 

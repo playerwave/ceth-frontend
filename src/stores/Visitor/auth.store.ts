@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { AuthState, UpdatePasswordPayload } from "../state/auth.state";
+import { AuthState, UpdatePasswordPayload, SendForgotPasswordCodePayload, VerifyForgotPasswordCodePayload } from "../state/auth.state";
 import authService from "../../service/Visitor/auth.service";
 import { mapApiToAuthUser, mapUserToAuthUser } from "../mapper/auth.mapper";
 
@@ -97,6 +97,40 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           console.error("❌ [Auth Store] Update password error:", error);
           const errorMessage = error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการอัปเดตรหัสผ่าน";
+          set({ authError: errorMessage });
+          return { success: false, message: errorMessage };
+        } finally {
+          set({ authLoading: false });
+        }
+      },
+
+      sendForgotPasswordCode: async ({ email }: SendForgotPasswordCodePayload) => {
+        set({ authLoading: true, authError: null });
+        
+        try {
+          const result = await authService.sendForgotPasswordCode({ email });
+          console.log("✅ [Auth Store] Forgot password code sent successfully");
+          return result;
+        } catch (error) {
+          console.error("❌ [Auth Store] Send forgot password code error:", error);
+          const errorMessage = error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการส่งรหัสยืนยัน";
+          set({ authError: errorMessage });
+          return { success: false, message: errorMessage };
+        } finally {
+          set({ authLoading: false });
+        }
+      },
+
+      verifyForgotPasswordCode: async ({ email, code, newPassword }: VerifyForgotPasswordCodePayload) => {
+        set({ authLoading: true, authError: null });
+        
+        try {
+          const result = await authService.verifyForgotPasswordCode({ email, code, newPassword });
+          console.log("✅ [Auth Store] Forgot password code verified successfully");
+          return result;
+        } catch (error) {
+          console.error("❌ [Auth Store] Verify forgot password code error:", error);
+          const errorMessage = error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการยืนยันรหัส";
           set({ authError: errorMessage });
           return { success: false, message: errorMessage };
         } finally {

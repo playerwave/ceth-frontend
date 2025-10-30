@@ -14,6 +14,26 @@ export interface ApiUpdatePasswordResponse {
   message: string;
 }
 
+export interface ApiSendForgotPasswordCodeRequest {
+  email: string;
+}
+
+export interface ApiSendForgotPasswordCodeResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ApiVerifyForgotPasswordCodeRequest {
+  email: string;
+  code: string;
+  newPassword: string;
+}
+
+export interface ApiVerifyForgotPasswordCodeResponse {
+  success: boolean;
+  message: string;
+}
+
 // auth.api.ts
 export interface AuthResponse {
   message: string;
