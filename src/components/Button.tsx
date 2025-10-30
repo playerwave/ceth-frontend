@@ -8,6 +8,7 @@ interface ButtonProps
   width?: string;       // "200px" | "100%" ฯลฯ
   startIcon?: React.ReactNode;
   variant?: "contained" | "text" | "outlined";
+  borderColor?: string;   // สีเส้นขอบ (สำหรับ outlined variant)
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -20,6 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   className,
   startIcon,
   disabled,            // ✅ มาจาก ButtonHTMLAttributes แล้ว
+  borderColor,         // สีเส้นขอบ
   ...rest              // รับ prop อื่น ๆ (aria-*, id, etc.)
 }) => {
   return (
@@ -40,6 +42,7 @@ const Button: React.FC<ButtonProps> = ({
         width,
         backgroundColor: bgColor,  // ใช้คู่กับเงื่อนไขภายนอกได้ เช่น submitted ? เขียว : undefined
         color: textColor,
+        border: borderColor ? `2px solid ${borderColor}` : undefined,
       }}
       {...rest}
     >
