@@ -907,7 +907,7 @@ export default function AssessmentListCard() {
           </div>
 
           {/* Debug: แสดงลำดับคำถามในกลุ่มนี้ */}
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+          {/* <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm">
             <p className="font-medium text-blue-800 mb-2">🔍 Debug - ลำดับคำถามในกลุ่มนี้:</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {group.questions.map((q, qIndex) => (
@@ -926,7 +926,7 @@ export default function AssessmentListCard() {
                 ลำดับ: 1, 2, 3, 4, 5... (ไม่ใช่ ID จาก API)
               </p>
             </div>
-          </div>
+          </div> */}
 
           {/* แสดงคำถามตามลำดับที่กำหนดไว้ในแบบประเมิน */}
           <div className="space-y-8">
