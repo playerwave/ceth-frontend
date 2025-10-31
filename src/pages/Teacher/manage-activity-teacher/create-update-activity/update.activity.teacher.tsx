@@ -101,14 +101,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
   // 🔐 ดึง ID จาก URL ที่เข้ารหัส
   const finalActivityId = extractSecureParam(params, 'id', 0);
 
-  // ✅ ฟังก์ชันตรวจสอบว่าเวลาปัจจุบันเลย start_activity_date แล้วหรือยัง
-  // const isActivityStarted = () => {
-  //   if (!formData.start_activity_date) return false;
-  //   const now = dayjs();
-  //   const startTime = dayjs(formData.start_activity_date);
-  //   return now.isAfter(startTime) || now.isSame(startTime);
-  // };
-
   // ✅ ฟังก์ชันตรวจสอบว่าแก้ไขได้หรือไม่ตาม activity_state และ event_format
   const isFieldEditable = (fieldName: string) => {
     const activityState = activity?.activity_state || "Not Start";
@@ -242,11 +234,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         urlShowValidationErrors
       });
 
-      // เซ็ตค่า state สำหรับ validation
-      // setValidationError(urlValidationError);
-      // setTargetStatus(urlTargetStatus);
-      // setShowValidationErrors(urlShowValidationErrors);
-
       // เก็บ activity_status จาก Backend
       setBackendActivityStatus(activity.activity_status || "Private");
 
@@ -324,30 +311,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     }
   }, [activity?.activity_id, rooms.length, params, savedFoods.length]); // ✅ ใช้ specific properties แทน object ทั้งหมด
 
-
-  // const IfBuildingRoom: Record<string, { name: string; capacity: number }[]> = {
-  //   "3": [
-  //     { name: "IF-3M210", capacity: 210 }, // ห้องบรรยาย
-  //     { name: "IF-3C01", capacity: 55 }, // ห้องปฏิบัติการ
-  //     { name: "IF-3C02", capacity: 55 },
-  //     { name: "IF-3C03", capacity: 55 },
-  //     { name: "IF-3C04", capacity: 55 },
-  //   ],
-  //   "4": [
-  //     { name: "IF-4M210", capacity: 210 }, // ห้องบรรยาย
-  //     { name: "IF-4C01", capacity: 55 }, // ห้องปฏิบัติการ
-  //     { name: "IF-4C02", capacity: 55 },
-  //     { name: "IF-4C03", capacity: 55 },
-  //     { name: "IF-4C04", capacity: 55 },
-  //   ],
-  //   "5": [
-  //     { name: "IF-5M210", capacity: 210 }, // ห้องบรรยาย
-  //   ],
-  //   "11": [
-  //     { name: "IF-11M280", capacity: 280 }, // ห้องบรรยาย
-  //   ],
-  // };
-
   useEffect(() => {
     fetchRooms(); // ✅ โหลดข้อมูลห้องเมื่อ component mount
   }, []); // ✅ ลบ dependency ที่ทำให้ infinite loop
@@ -381,33 +344,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
   // const uniqueFloors = Array.from(new Set(rooms.map((r) => r.floor))).sort();
 
   const filteredRooms = rooms.filter((r) => r.floor === selectedFloor);
-
-
-  // const handleFloorChange = (event: SelectChangeEvent) => {
-  //   setSelectedFloor(event.target.value);
-  //   setSelectedRoom(""); // ✅ รีเซ็ตห้องเมื่อเปลี่ยนชั้น
-  //   setSeatCapacity(""); // ✅ รีเซ็ตที่นั่งเมื่อเปลี่ยนชั้น
-  // };
-
-  // const handleRoomChange = (event: SelectChangeEvent) => {
-  //   setSelectedRoom(event.target.value);
-
-  //   // ✅ ค้นหา `capacity` ของห้องที่เลือก
-  //   const selectedRoomObj = IfBuildingRoom[selectedFloor]?.find(
-  //     (room) => room.name === event.target.value,
-  //   );
-
-  //   const newSeatCapacity = selectedRoomObj ? selectedRoomObj.capacity : "";
-
-  //   setSeatCapacity(newSeatCapacity === "" ? "" : String(newSeatCapacity));
-  //   // ✅ อัปเดตจำนวนที่นั่ง
-
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     ac_room: event.target.value, // ✅ บันทึกห้องที่เลือก
-  //     ac_seat: newSeatCapacity.toString(), // ✅ บันทึกจำนวนที่นั่ง
-  //   }));
-  // };
 
   const handleFloorChange = (event: SelectChangeEvent) => {
     setSelectedFloor(event.target.value);
@@ -443,8 +379,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     }
   };
 
-
-
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [hasNewImage, setHasNewImage] = useState<boolean>(false); // ✅ เพิ่ม state สำหรับติดตามรูปภาพใหม่
 
@@ -474,9 +408,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     console.log("Upload image success!", data.secure_url);
     return data.secure_url;
   };
-
-  // const convertToDate = (value: string | null | undefined) =>
-  //   value && value.trim() !== "" ? new Date(value) : undefined;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -511,10 +442,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       }
     }
 
-    // if (imageFile) {
-    //   await uploadImageToCloudinary(imageFile);
-    // }
-
     let acRecieveHours = formData.recieve_hours
       ? Number(formData.recieve_hours)
       : 0;
@@ -547,12 +474,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       toast.error("กรุณาเลือกวันเวลาเริ่มลงทะเบียน");
       return;
     }
-
-    // let startRegister = dayjs(formData.start_register_date ?? "").toDate();
-    // if (formData.activity_status == "Public") {
-    //   startRegister = new Date(); // ไม่ต้องใช้ dayjs ก็ได้
-    // }
-
         console.log("🚀 Data ที่ส่งไป store:", formData);
         console.log("🔍 Certificate fields ที่ส่งไป:", {
           certificate_template_url: formData.certificate_template_url,
@@ -728,17 +649,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     }
   };
 
-  // const addFoodOption = () => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     ac_food: [
-  //       ...(prev.selectedFoods ?? []),
-  //       `เมนู ${prev.selectedFoods?.length ?? 0 + 1}`,
-  //     ],
-  //   }));
-  // };
-
-
   function addFoodOption() {
     setFormData((prev) => ({
       ...prev,
@@ -766,27 +676,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       localStorage.setItem("selectedFoods", JSON.stringify(formData.selectedFoods));
     }
   }, [formData.selectedFoods]);
-
-
-
-
-  // ฟังก์ชันแก้ไขเมนูอาหาร
-
-  // const updateFoodOption = (index: number, newFoodId: number) => {
-  //   const updated = [...formData.selectedFoods];
-  //   updated[index] = newFoodId;
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     selectedFoods: updated,
-  //   }));
-  // };
-
-
-  // ฟังก์ชันลบเมนูอาหาร
-  // const removeFoodOption = (index: number) => {
-  //   const updatedFoodOptions = formData.selectedFoods?.filter((_, i) => i !== index);
-  //   setFormData((prev) => ({ ...prev, selectedFoods: updatedFoodOptions }));
-  // };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -836,15 +725,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // useEffect(() => {
-  //   console.log("Fetching assessments..."); // ✅ ตรวจสอบว่า useEffect ทำงาน
-  //   fetchAssessments();
-  // }, []);
-
-  // useEffect(() => {
-  //   console.log("Assessments:", assessments); // ✅ ตรวจสอบว่า assessments มีค่าหรือไม่
-  // }, [assessments]);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
     handleChange(e, setFormData);
@@ -1090,25 +970,6 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                 </div>
               </div>
             )}
-
-            {/* ✅ แสดงข้อความแจ้งเตือนเมื่อมี validation error */}
-            {/* {showValidationErrors && validationError && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-red-800 font-medium">
-                    ❌ กรุณาแก้ไขข้อมูลให้ถูกต้องเพื่อเปลี่ยนสถานะเป็น Public
-                  </span>
-                </div>
-                <div className="mt-2 text-red-700 text-sm">
-                  <p>• ตรวจสอบข้อมูลที่จำเป็นให้ครบถ้วน</p>
-                  <p>• ตรวจสอบวันที่ให้ถูกต้อง</p>
-                  <p>• ตรวจสอบรูปภาพและข้อมูลอื่นๆ</p>
-                </div>
-              </div>
-            )} */}
 
             {/* ✅ แสดงข้อความแจ้งเตือนเมื่อ Backend เป็น Private แต่ select เป็น Public */}
             {backendActivityStatus === "Private" && formData.activity_status === "Public" && Object.keys(validationErrors).length > 0 && (

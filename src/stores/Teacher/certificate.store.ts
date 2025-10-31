@@ -34,6 +34,7 @@ interface CertificateStore {
   getCertificateBaseByActivityId: (activityId: number) => Promise<CertificateBase>;
   getCertificateVerificationStats: () => Promise<any>;
   getPendingCertificates: () => Promise<Certificate[]>;
+  getPassedCertificatesByActivity: (activityId: number) => Promise<any[]>;
   clearAnalysis: () => void;
   setError: (error: string | null) => void;
   setSelectedCertificate: (certificate: Certificate | null) => void;
@@ -387,6 +388,28 @@ export const useCertificateStore = create<CertificateStore>((set, get) => ({
       return result;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to get pending certificates";
+      
+      set({ certificateLoading: false, error: errorMessage });
+      throw error;
+    }
+  },
+
+  getPassedCertificatesByActivity: async (activityId: number) => {
+    console.log("📥 [Certificate Store] Getting passed certificates for activity:", activityId);
+    
+    set({ certificateLoading: true, error: null });
+
+    try {
+      const result = await certificateService.getPassedCertificatesByActivity(activityId);
+      
+      set({ 
+        certificateLoading: false, 
+        error: null
+      });
+
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to get passed certificates by activity";
       
       set({ certificateLoading: false, error: errorMessage });
       throw error;

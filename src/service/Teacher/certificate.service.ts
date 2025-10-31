@@ -310,6 +310,24 @@ export class CertificateService {
       throw error;
     }
   }
+
+  /**
+   * ดึง Certificate ที่ผ่านการตรวจสอบตาม activity_id
+   */
+  async getPassedCertificatesByActivity(activityId: number): Promise<any[]> {
+    try {
+      console.log("📥 [CertificateService] Getting passed certificates for activity:", activityId);
+      
+      const response = await axiosInstance.get(
+        `/teacher/certificate/activity/${activityId}/passed-certificates`
+      );
+      
+      return response.data?.data || [];
+    } catch (error) {
+      console.error("❌ [CertificateService] Error getting passed certificates by activity:", error);
+      throw error;
+    }
+  }
 }
 
 export const certificateService = new CertificateService();

@@ -149,7 +149,14 @@ export default function ActivityFooter({
   const handleReportClick = () => {
     if (activityId) {
       try {
-        // สร้าง URL ที่เข้ารหัสแบบเต็ม (ENCRYPTED)
+        // ถ้าเป็น Course ให้ไปที่หน้า list pass certificate
+        if (isCourse) {
+          console.log("🔍 [ActivityFooter] Navigating to Certificate List for Course activity");
+          navigate(`/list-pass-certificate-teacher/${activityId}`);
+          return;
+        }
+        
+        // สร้าง URL ที่เข้ารหัสแบบเต็ม (ENCRYPTED) สำหรับกิจกรรมอื่นๆ
         const secureUrl = RouteHelpers.generateSecurePath(
           "/qr-activity-teacher",
           { id: activityId },
@@ -161,7 +168,11 @@ export default function ActivityFooter({
       } catch (error) {
         console.error("❌ [ActivityFooter] Error generating secure URL:", error);
         // Fallback to normal URL if encryption fails
-        navigate(`/qr-activity-teacher/${activityId}`);
+        if (isCourse) {
+          navigate(`/list-pass-certificate-teacher/${activityId}`);
+        } else {
+          navigate(`/qr-activity-teacher/${activityId}`);
+        }
       }
     }
   };

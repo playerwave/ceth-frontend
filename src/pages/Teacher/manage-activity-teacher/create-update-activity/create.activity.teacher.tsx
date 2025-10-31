@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useAssessmentStore } from "../../../../stores/Teacher/assessment.store";
-import Loading from "../../../../components/Loading";
+import { useAssessmentStore } from "@/stores/Teacher/assessment.store";
+import Loading from "@/components/Loading";
 import { toast } from "sonner";
 import { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import { Box } from "@mui/material";
 // import { Delete, Add } from "@mui/icons-material";
 import { SelectChangeEvent } from "@mui/material"; // ✅ นำเข้า SelectChangeEvent
-import { useActivityStore } from "../../../../stores/Teacher/activity.store.teacher";
-import { useSecureLink } from "../../../../routes/secure/SecureRoute";
-import { Activity } from "../../../../types/activity.types";
-import { useFoodStore } from "../../../../stores/Teacher/food.store.teacher";
-import { useRoomStore } from "../../../../stores/Teacher/room.store";
-import roomService from "../../../../service/Teacher/room.service";
+import { useActivityStore } from "@/stores/Teacher/activity.store.teacher";
+import { useSecureLink } from "@/routes/secure/SecureRoute";
+import { Activity } from "@/types/activity.types";
+import { useFoodStore } from "@/stores/Teacher/food.store.teacher";
+import { useRoomStore } from "@/stores/Teacher/room.store";
+import roomService from "@/service/Teacher/room.service";
 import { useLocation } from 'react-router-dom';
 
 

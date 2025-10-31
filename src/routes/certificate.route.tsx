@@ -2,6 +2,7 @@ import ListCertificateTeacher from "@/pages/Teacher/manage-certificate-teacher/l
 import PreviewCertificateTeacher from "@/pages/Teacher/manage-certificate-teacher/preview-certificate/preview.certificate.teacher";
 import ListCertificateStudent from "@/pages/Student/certificate-student/list-certificate-student/list.certificate.student";
 import SendCertificateStudent from "@/pages/Student/certificate-student/send-certificate-student/send.certificate.student";
+import ListPassCertificateTeacher from "@/pages/Teacher/manage-activity-teacher/list-pass-certificate/list.pass.certificate.teacher";
 
 import { ProtectionLevel } from "./secure/urlEnCryption";
 
@@ -21,6 +22,15 @@ export const certificateRoutes = [
    {
     path: "/preview-certificate-teacher",
     element: <PreviewCertificateTeacher />,
+    label: "",
+    icon: "ClipboardList",
+    roles: ["Teacher", "Admin"] as RoleName[],
+    visibleInSidebar: false,
+    protectionLevel: ProtectionLevel.ENCODED
+  },
+  {
+    path: "/list-pass-certificate-teacher/:activityId",
+    element: <ListPassCertificateTeacher />,
     label: "",
     icon: "ClipboardList",
     roles: ["Teacher", "Admin"] as RoleName[],
