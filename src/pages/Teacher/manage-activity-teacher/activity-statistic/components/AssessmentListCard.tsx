@@ -115,7 +115,7 @@ export default function AssessmentListCard() {
     enrollmentLoading,
     enrollmentError,
     fetchEnrollmentByDepartment,
-    debugAnswers
+    // debugAnswers
   } = useActivityReportStore();
 
   // State สำหรับเก็บข้อมูลแบบประเมินเต็ม (รวมคำถาม) - ไม่ใช้แล้ว
@@ -126,28 +126,28 @@ export default function AssessmentListCard() {
   // ลบฟังก์ชัน fetchFullAssessmentData ออกเพื่อป้องกัน infinite loop
 
   // Debug function
-  const handleDebugAnswers = async () => {
-    if (!activityId) return;
+  // const handleDebugAnswers = async () => {
+  //   if (!activityId) return;
     
-    try {
-      console.log("🔍 [AssessmentListCard] Starting debug...");
-      const result = await debugAnswers(activityId);
-      console.log("✅ [AssessmentListCard] Debug result:", result);
+  //   try {
+  //     console.log("🔍 [AssessmentListCard] Starting debug...");
+  //     const result = await debugAnswers(activityId);
+  //     console.log("✅ [AssessmentListCard] Debug result:", result);
       
-      // แสดงข้อมูลแบบเต็ม
-      if (result.fixSingleAnswers) {
-        console.log("🔍 [AssessmentListCard] Fix Single Answers Details:", JSON.stringify(result.fixSingleAnswers, null, 2));
-      }
-      if (result.fixSingleQuestions) {
-        console.log("🔍 [AssessmentListCard] Fix Single Questions Details:", JSON.stringify(result.fixSingleQuestions, null, 2));
-      }
+  //     // แสดงข้อมูลแบบเต็ม
+  //     if (result.fixSingleAnswers) {
+  //       console.log("🔍 [AssessmentListCard] Fix Single Answers Details:", JSON.stringify(result.fixSingleAnswers, null, 2));
+  //     }
+  //     if (result.fixSingleQuestions) {
+  //       console.log("🔍 [AssessmentListCard] Fix Single Questions Details:", JSON.stringify(result.fixSingleQuestions, null, 2));
+  //     }
       
-      // เปรียบเทียบกับข้อมูลที่ใช้ในการแสดงผล
-      console.log("🔍 [AssessmentListCard] Current assessment data:", JSON.stringify(assessmentData, null, 2));
-    } catch (error) {
-      console.error("❌ [AssessmentListCard] Debug error:", error);
-    }
-  };
+  //     // เปรียบเทียบกับข้อมูลที่ใช้ในการแสดงผล
+  //     console.log("🔍 [AssessmentListCard] Current assessment data:", JSON.stringify(assessmentData, null, 2));
+  //   } catch (error) {
+  //     console.error("❌ [AssessmentListCard] Debug error:", error);
+  //   }
+  // };
 
   // ฟังก์ชันประมวลผลข้อมูลแบบประเมินเต็ม - ไม่ใช้แล้ว
   /*
