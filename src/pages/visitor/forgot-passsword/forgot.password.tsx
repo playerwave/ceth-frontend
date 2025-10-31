@@ -4,6 +4,7 @@ import { TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/Button";
 import { useAuthStore } from "@/stores/Visitor/auth.store";
+import axiosInstance from "@/libs/axios";
 
 const ForgotPassword = () => {
   const [step, setStep] = useState<'email' | 'code'>('email');
@@ -71,16 +72,13 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      // ✅ ตรวจสอบรหัส 6 หลัก เมื่อถูกต้องให้ไปหน้า create password
-      const response = await fetch('http://localhost:5090/api/auth/forgot-password/verify-code-only', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, code }),
+      // ✅ ใช้ axiosInstance แทน fetch เพื่อรองรับทั้ง dev และ production
+      const response = await axiosInstance.post('/auth/forgot-password/verify-code-only', {
+        email,
+        code
       });
 
-      const result = await response.json();
+      const result = response.data;
       
       if (result.success) {
         setSuccess('รหัสถูกต้อง กำลังนำไปหน้าสร้างรหัสผ่านใหม่...');
