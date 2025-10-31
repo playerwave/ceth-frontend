@@ -32,7 +32,8 @@ const ListUserTeacher: React.FC = () => {
     error,
     fetchStudentsByDepartment,
     filterStudentsByYear,
-    filterStudentsByStatus
+    filterStudentsByStatus,
+    exportStudentsToExcel
   } = useUserStore();
 
 
@@ -250,6 +251,24 @@ const ListUserTeacher: React.FC = () => {
     filterStudentsByStatus(newStatuses);
   };
 
+  // Handle export button click
+  const handleExport = async () => {
+    try {
+      console.log("📤 Export button clicked");
+      const result = await exportStudentsToExcel();
+      
+      if (result.success) {
+        console.log("✅ Export successful:", result.message);
+      } else {
+        console.error("❌ Export failed:", result.message);
+        alert(result.message);
+      }
+    } catch (error) {
+      console.error("❌ Export error:", error);
+      alert("เกิดข้อผิดพลาดในการส่งออกข้อมูล");
+    }
+  };
+
   useEffect(() => {
     const department = searchParams.get("department");
     if (department) {
@@ -337,8 +356,13 @@ const ListUserTeacher: React.FC = () => {
         {/* Action Buttons */}
         <div className="flex justify-end items-center mb-4">
           <div className="flex space-x-3">
-            <Button bgColor="green" textColor="#FFFFFF">
-              Export
+            <Button 
+              bgColor="green" 
+              textColor="#FFFFFF"
+              onClick={handleExport}
+              disabled={loading}
+            >
+              {loading ? "กำลังส่งออก..." : "Export"}
             </Button>
           </div>
         </div>

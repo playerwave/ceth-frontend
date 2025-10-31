@@ -336,6 +336,38 @@ export const rollbackGradeYear = async (): Promise<{ success: boolean; message: 
 };
 //----------------------------------------------------------------
 
+//--------------------- Export Students to Excel -------------------------
+export const exportStudentsToExcel = async (): Promise<{ blob: Blob; filename: string }> => {
+  try {
+    console.log("📤 [SERVICE] Exporting students to Excel...");
+    
+    const response = await axiosInstance.get(
+      '/teacher/export-students',
+      {
+        responseType: 'blob'
+      }
+    );
+    
+    // ✅ Extract filename from Content-Disposition header
+    const contentDisposition = response.headers['content-disposition'];
+    let filename = 'IF-STUDENT-BUU.xlsx';
+    
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      if (filenameMatch) {
+        filename = filenameMatch[1];
+      }
+    }
+    
+    console.log("✅ [SERVICE] Export completed successfully, filename:", filename);
+    return { blob: response.data, filename };
+  } catch (error) {
+    console.error("❌ [SERVICE] Export error:", error);
+    throw error;
+  }
+};
+//----------------------------------------------------------------
+
 //--------------------- Export Service -----------------------------
 // เป็นการทำ Object literal เพื่อรวมฟังก์ชันทั้งหมดที่เกี่ยวข้องกับ user management
 const userService = {
@@ -346,6 +378,7 @@ const userService = {
   uploadStudents,
   updateGradeYear,
   rollbackGradeYear,
+  exportStudentsToExcel,
 };
 //----------------------------------------------------------------
 

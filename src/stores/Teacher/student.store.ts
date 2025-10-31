@@ -24,6 +24,7 @@ interface UserStore {
   uploadStudents: (file: File) => Promise<{ success: boolean; message: string }>;
   updateGradeYear: () => Promise<{ success: boolean; message: string; data?: any }>;
   rollbackGradeYear: () => Promise<{ success: boolean; message: string; data?: any }>;
+  exportStudentsToExcel: () => Promise<{ success: boolean; message: string }>;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -408,6 +409,41 @@ export const useUserStore = create<UserStore>((set, get) => ({
         success: false, 
         message: errorMessage 
       };
+    }
+  },
+  //----------------------------------------------------------------
+
+  //--------------------- Export Students to Excel -------------------------
+  exportStudentsToExcel: async () => {
+    console.log("📤 [STORE] Exporting students to Excel...");
+    set({ loading: true, error: null });
+    
+    try {
+      const { blob, filename } = await userService.exportStudentsToExcel();
+      
+      // ✅ Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      // ✅ Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      console.log("✅ [STORE] Export completed successfully, filename:", filename);
+      set({ loading: false, error: null });
+      
+      return { success: true, message: "ส่งออกข้อมูลสำเร็จ" };
+    } catch (error) {
+      console.error("❌ [STORE] Export error:", error);
+      const errorMessage = error instanceof Error ? error.message : "ไม่สามารถส่งออกข้อมูลได้";
+      set({ loading: false, error: errorMessage });
+      
+      return { success: false, message: errorMessage };
     }
   },
   //----------------------------------------------------------------
