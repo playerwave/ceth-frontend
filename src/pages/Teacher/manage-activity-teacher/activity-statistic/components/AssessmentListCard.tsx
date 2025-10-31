@@ -745,22 +745,22 @@ export default function AssessmentListCard() {
   }
 
   // Debug Button Component
-  const DebugButton = () => (
-    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-sm font-medium text-yellow-800">Debug Tools</h3>
-          <p className="text-sm text-yellow-700">ใช้สำหรับตรวจสอบข้อมูลคำตอบในฐานข้อมูล</p>
-        </div>
-        <button
-          onClick={handleDebugAnswers}
-          className="bg-yellow-100 px-4 py-2 rounded-md text-sm font-medium text-yellow-800 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-        >
-          🔍 Debug Answers
-        </button>
-      </div>
-    </div>
-  );
+  // const DebugButton = () => (
+  //   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+  //     <div className="flex justify-between items-center">
+  //       <div>
+  //         <h3 className="text-sm font-medium text-yellow-800">Debug Tools</h3>
+  //         <p className="text-sm text-yellow-700">ใช้สำหรับตรวจสอบข้อมูลคำตอบในฐานข้อมูล</p>
+  //       </div>
+  //       <button
+  //         onClick={handleDebugAnswers}
+  //         className="bg-yellow-100 px-4 py-2 rounded-md text-sm font-medium text-yellow-800 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+  //       >
+  //         🔍 Debug Answers
+  //       </button>
+  //     </div>
+  //   </div>
+  // );
 
   // แสดง error state
   if (assessmentError) {
@@ -861,7 +861,7 @@ export default function AssessmentListCard() {
   return (
     <div className="space-y-8">
       {/* Debug Button */}
-      <DebugButton />
+      {/* <DebugButton /> */}
 
       {/* Debug Information - แสดงข้อมูล debug เพื่อตรวจสอบ */}
       {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
