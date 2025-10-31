@@ -33,7 +33,7 @@ const CreatePasswordStudent = () => {
   const token = searchParams.get('token');
   const email = searchParams.get('email');
   const code = searchParams.get('code');
-  const { user, updatePassword } = useAuthStore();
+  const { user, updatePassword, verifyForgotPasswordCode } = useAuthStore();
   
   // ✅ ตรวจสอบว่ามาจาก forgot password หรือไม่
   const isForgotPassword = email && code;
@@ -85,16 +85,12 @@ const CreatePasswordStudent = () => {
       setLoading(true);
 
       try {
-        // ✅ เรียก API รีเซตรหัสผ่านด้วย email และ code
-        const response = await fetch('http://localhost:5090/api/auth/forgot-password/verify-code', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, code, newPassword: password }),
+        // ✅ ใช้ store function แทน fetch เพื่อรองรับทั้ง dev และ production
+        const result = await verifyForgotPasswordCode({ 
+          email, 
+          code, 
+          newPassword: password 
         });
-
-        const result = await response.json();
         
         if (result.success) {
           setSuccess('รีเซตรหัสผ่านสำเร็จ! กำลังนำไปหน้าเข้าสู่ระบบ...');
