@@ -4,6 +4,11 @@ import { AuthState, UpdatePasswordPayload, SendForgotPasswordCodePayload, Verify
 import authService from "../../service/Visitor/auth.service";
 import { mapApiToAuthUser, mapUserToAuthUser } from "../mapper/auth.mapper";
 
+// ✅ Global flag เพื่อป้องกันการเรียก fetchMe ซ้ำ (ใช้ร่วมกันทุก component)
+let _isFetchingMe = false;
+let _lastFetchTime = 0;
+const FETCH_ME_DEBOUNCE_MS = 2000; // ✅ หน่วงเวลา 2 วินาทีระหว่างการเรียก
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -11,7 +16,6 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       authLoading: false,
       authError: null,
-      _isFetching: false, // เพิ่ม flag เพื่อป้องกันการเรียก fetchMe ซ้ำ
 
       login: async ({ username, password }) => {
         set({ authLoading: true, authError: null });
@@ -20,7 +24,9 @@ export const useAuthStore = create<AuthState>()(
           const apiUser = await authService.login({ username, password });
           const authUser = mapApiToAuthUser(apiUser);
           set({ user: authUser, isAuthenticated: true });
-          // ลบ fetchMe ออกเพราะ login response มีข้อมูลครบแล้ว
+          // ✅ Reset flag หลัง login สำเร็จ
+          _isFetchingMe = false;
+          _lastFetchTime = Date.now();
         } catch (error) {
           console.error("Login error:", error);
           set({ authError: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" });
@@ -36,32 +42,30 @@ export const useAuthStore = create<AuthState>()(
           console.error("Logout failed:", err);
         }
         set({ user: null, isAuthenticated: false }); // ✅ frontend: เคลียร์ state
+        // ✅ Reset flag หลัง logout
+        _isFetchingMe = false;
+        _lastFetchTime = 0;
       },
-
-      // fetchMe: async () => {
-      //   set({ authLoading: true, authError: null });
-      //   try {
-      //     const user = await authService.fetchMe();
-      //     const authUser = mapUserToAuthUser(user);
-      //     set({ user: authUser, isAuthenticated: true });
-      //   } catch (error) {
-      //     console.error("FetchMe error:", error);
-      //     set({ user: null, isAuthenticated: false });
-      //   } finally {
-      //     set({ authLoading: false });
-      //   }
-      // },
 
       fetchMe: async () => {
         const state = get();
+        const now = Date.now();
         
-        // ป้องกันการเรียก fetchMe ซ้ำ
-        if (state.authLoading) {
+        // ✅ ป้องกันการเรียก fetchMe ซ้ำ (รวมถึงตอน error)
+        if (state.authLoading || _isFetchingMe) {
           console.log("⏳ [Auth Store] Already fetching, skipping...");
           return;
         }
         
+        // ✅ Debounce: ป้องกันการเรียกซ้ำเร็วเกินไป (ภายใน 2 วินาที)
+        if (now - _lastFetchTime < FETCH_ME_DEBOUNCE_MS) {
+          console.log(`⏳ [Auth Store] Debounce: Too soon since last fetch (${now - _lastFetchTime}ms), skipping...`);
+          return;
+        }
+        
         console.log("🔄 [Auth Store] Starting fetchMe...");
+        _isFetchingMe = true;
+        _lastFetchTime = now;
         set({ authLoading: true, authError: null });
         
         try {
@@ -69,21 +73,32 @@ export const useAuthStore = create<AuthState>()(
           const authUser = mapUserToAuthUser(user);
           set({ user: authUser, isAuthenticated: true, authError: null });
           console.log("✅ [Auth Store] fetchMe completed successfully");
-        } catch (error) {
+        } catch (error: any) {
           console.error("❌ [Auth Store] FetchMe error:", error);
           
           // ✅ ตรวจสอบประเภทของ error
-          if (error instanceof Error && error.message === "No token found in localStorage") {
-            // Token ไม่มีใน localStorage → ไม่ redirect ไป login
-            console.log("🔍 [Auth Store] No token found - not redirecting to login");
+          const errorMessage = error?.response?.data?.error || error?.message || "Unknown error";
+          const statusCode = error?.response?.status;
+          
+          if (errorMessage === "No token found in localStorage" || statusCode === 401) {
+            // Token ไม่มีหรือหมดอายุ → ไม่ redirect ไป login (เพราะอาจเป็น error ชั่วคราว)
+            console.log("🔍 [Auth Store] Authentication error - clearing user but not redirecting");
             set({ user: null, isAuthenticated: false, authError: null });
+          } else if (statusCode === 404) {
+            // User not found → ไม่ retry (ป้องกัน infinite loop)
+            console.log("🔍 [Auth Store] User not found (404) - stopping retry");
+            set({ user: null, isAuthenticated: false, authError: "ไม่พบข้อมูลผู้ใช้" });
           } else {
-            // Error อื่นๆ → แสดง error message
-            console.log("🔍 [Auth Store] Other error:", error);
+            // Error อื่นๆ → แสดง error message แต่ไม่ retry
+            console.log("🔍 [Auth Store] Other error:", errorMessage);
             set({ authError: "ไม่สามารถโหลดข้อมูลผู้ใช้ได้" });
           }
         } finally {
           set({ authLoading: false });
+          // ✅ Reset flag หลังเสร็จ (หน่วงเวลาเล็กน้อยเพื่อป้องกันการเรียกซ้ำทันที)
+          setTimeout(() => {
+            _isFetchingMe = false;
+          }, 500);
         }
       },
 

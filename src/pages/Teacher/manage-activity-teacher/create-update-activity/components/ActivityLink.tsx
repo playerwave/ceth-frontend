@@ -20,10 +20,17 @@ const ActivityLink: React.FC<Props> = ({
 }) => {
   // ✅ ใช้ validateField function ใหม่
   const urlValidation = validateField('url', formData, validationMode, originalActivityStatus);
+  
+  // ✅ ตรวจสอบว่าเป็น Onsite หรือไม่ (Onsite ไม่ต้องบังคับใส่ URL)
+  const isOnsite = formData.event_format === "Onsite";
+  const isRequired = !isOnsite && (formData.event_format === "Online" || formData.event_format === "Course");
+  
+  // ✅ แสดง label ตามความจำเป็น
+  const labelText = isRequired ? "ลิ้งกิจกรรม *" : "ลิ้งกิจกรรม";
 
   return (
     <div className="w-140 mb-2 mt-5">
-      <label className="block font-semibold">ลิ้งกิจกรรม *</label>
+      <label className="block font-semibold">{labelText}</label>
       <TextField
         name="url"
         placeholder="กรอกลิ้งกิจกรรมที่นี่"

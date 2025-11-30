@@ -38,7 +38,7 @@ export const certificateRoutes = [
     protectionLevel: ProtectionLevel.ENCODED
   },
   {
-    path: "/send-certificate-student",
+    path: "/send-certificate-student/:id?",
     element: <SendCertificateStudent />,
     label: "",
     icon: "ClipboardList",

@@ -1,7 +1,7 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import CustomCard from "@/components/Card";
 import { Check, ChevronLeft, Award, Clock, Link, Upload, FileText } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import UploadCertificate from "./components/uploadCertificate";
 import OcrResult from "./components/ocrResult";
 import Button from "@/components/Button";
@@ -38,6 +38,13 @@ function makeFileSig(f: File | null) {
 
 export default function SendCertificateStudent() {
   const navigate = useNavigate();
+  const { id: paramId } = useParams();
+  const location = useLocation();
+  
+  // ✅ รับ activity_id จาก URL parameter หรือ location.state
+  const activityIdFromUrl = paramId ? parseInt(paramId, 10) : null;
+  const activityFromState = (location.state as any)?.activity;
+  
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [ocrResult, setOcrResult] = useState<{ score: string; score_float: number; [key: string]: unknown } | null>(null);
@@ -47,6 +54,10 @@ export default function SendCertificateStudent() {
     type: 'Soft' | 'Hard';
     hours: number;
   } | null>(null);
+  
+  // ✅ ใช้ useRef เพื่อเก็บ state ของ dialog เพื่อป้องกันการ reset เมื่อ component re-render
+  const hoursDialogOpenRef = useRef(false);
+  const hoursDataRef = useRef<{ type: 'Soft' | 'Hard'; hours: number } | null>(null);
 
   // ✅ เพิ่ม state สำหรับการส่งลิ้งก์
   const [submissionType, setSubmissionType] = useState<'file' | 'link'>('file');
@@ -74,7 +85,7 @@ export default function SendCertificateStudent() {
   } = useActivityStore();
 
   // ✅ ใช้ Auth Store
-  const { user } = useAuthStore();
+  const { user, fetchMe } = useAuthStore();
 
   // เก็บ “ไฟล์ที่ส่งล่าสุด” เป็น signature
   const [lastSubmittedSig, setLastSubmittedSig] = useState<string | null>(null);
@@ -89,6 +100,60 @@ export default function SendCertificateStudent() {
   useEffect(() => {
     fetchAvailableCourseActivities();
   }, [fetchAvailableCourseActivities]);
+
+  // ✅ Auto-select activity จาก URL parameter หรือ location.state
+  useEffect(() => {
+    if (availableCourseActivities.length > 0) {
+      // ถ้ามี activity จาก state ให้ใช้ก่อน
+      if (activityFromState) {
+        const matchedActivity = availableCourseActivities.find(
+          a => a.activity_id === activityFromState.activity_id
+        );
+        if (matchedActivity) {
+          setSelectedActivity(matchedActivity);
+          return;
+        }
+      }
+      
+      // ถ้ามี activityId จาก URL ให้ค้นหาและเลือก
+      if (activityIdFromUrl) {
+        const matchedActivity = availableCourseActivities.find(
+          a => a.activity_id === activityIdFromUrl
+        );
+        if (matchedActivity) {
+          setSelectedActivity(matchedActivity);
+        }
+      }
+    }
+  }, [availableCourseActivities, activityIdFromUrl, activityFromState]);
+  
+  // ✅ Restore dialog state จาก sessionStorage เมื่อ component mount
+  useEffect(() => {
+    try {
+      const savedDialogState = sessionStorage.getItem('certificate_hours_dialog');
+      if (savedDialogState) {
+        const parsed = JSON.parse(savedDialogState);
+        if (parsed.open && parsed.data) {
+          console.log("🔄 [Certificate] Restoring dialog state from sessionStorage:", parsed);
+          hoursDialogOpenRef.current = true;
+          hoursDataRef.current = parsed.data;
+          setHoursDialogOpen(true);
+          setHoursData(parsed.data);
+        }
+      }
+    } catch (storageError) {
+      console.warn("⚠️ [Certificate] Failed to restore dialog state from sessionStorage:", storageError);
+    }
+  }, []); // ✅ Run only once on mount
+  
+  // ✅ ใช้ useEffect เพื่อ restore dialog state เมื่อ component re-render
+  useEffect(() => {
+    if (hoursDialogOpenRef.current && hoursDataRef.current && !hoursDialogOpen) {
+      console.log("🔄 [Certificate] Restoring dialog state after re-render");
+      setHoursDialogOpen(true);
+      setHoursData(hoursDataRef.current);
+    }
+  }, [hoursDialogOpen, user, availableCourseActivities]);
 
   // ✅ ฟังก์ชันจัดการการเลือกกิจกรรม
   const handleActivityChange = (event: any) => {
@@ -244,13 +309,47 @@ export default function SendCertificateStudent() {
       console.log("🔍 OCR Result keys:", Object.keys(result));
       console.log("🔍 OCR Result structure:", JSON.stringify(result, null, 2));
       
+      // ✅ ตรวจสอบว่า certificate ถูก reject หรือไม่ (confidence score < 60)
+      if ((result as any).success === false && (result as any).data?.rejected === true) {
+        console.log("❌ [Certificate] Certificate rejected (confidence score < 60%)");
+        const responseData = (result as any).data;
+        const nameVerification = responseData?.nameVerification;
+        const verificationResult = responseData?.verificationResult;
+        const ocrResult = responseData?.ocrResult;
+        
+        // ✅ แสดงผลการ reject
+        const ocrData = {
+          fullName: ocrResult?.fullName || "-",
+          courseName: ocrResult?.courseName || "-",
+          teacher: ocrResult?.teacher || "-",
+          certificateId: ocrResult?.certificateId || "-",
+          date: ocrResult?.date || "-",
+          score: verificationResult?.confidenceScore?.toString() || "0",
+          score_float: verificationResult?.confidenceScore || 0,
+          rawText: ocrResult?.rawText || "",
+          certificateType: responseData?.certificateType || "",
+          organize_name: verificationResult?.organize_name || "",
+          confidenceScore: verificationResult?.confidenceScore || 0,
+          verified: false,
+          rejected: true, // ✅ ระบุว่า certificate ถูก reject
+          warning: false,
+          nameVerification: {
+            isValid: nameVerification?.isValid ?? false,
+            certificateName: nameVerification?.certificateName || ocrResult?.fullName || "-",
+            studentName: nameVerification?.studentName || ""
+          },
+          isLinkValidation: false,
+          rejectionMessage: (result as any).message || "ใบรับรองไม่ผ่านเกณฑ์การตรวจสอบ"
+        } as any;
+        
+        setOcrResult(ocrData);
+        setLoading(false);
+        return; // ✅ หยุดการประมวลผลต่อ
+      }
+      
       // ✅ ใช้ข้อมูลที่ backend process แล้ว (ตอนนี้เป็น CertificateVerificationResult)
       const certificateType = (result as any).certificateType || (result as any).ocrData?.certificateType || 'UNKNOWN';
       console.log("🔍 Certificate Type:", certificateType);
-      
-      // ✅ ตรวจสอบ hours ที่ได้รับ
-      const hoursAdded = (result as any).hoursAdded;
-      console.log("🔍 Hours Added:", hoursAdded);
       
       // ✅ ใช้ข้อมูลจาก response ใหม่
       const responseData = (result as any).data;
@@ -258,10 +357,21 @@ export default function SendCertificateStudent() {
       const verificationResult = responseData?.verificationResult;
       const ocrResult = responseData?.ocrResult;
       
-      console.log("🔍 Response Data:", responseData);
-      console.log("🔍 OCR Result:", ocrResult);
-      console.log("🔍 Name Verification:", nameVerification);
-      console.log("🔍 Verification Result:", verificationResult);
+      // ✅ ตรวจสอบ hours ที่ได้รับ (จาก top level ของ response)
+      const hoursAdded = (result as any).hoursAdded;
+      console.log("🔍 [Certificate] Full result structure:", {
+        success: (result as any).success,
+        hoursAdded: hoursAdded,
+        hoursAddedType: typeof hoursAdded,
+        hoursAddedKeys: hoursAdded ? Object.keys(hoursAdded) : null,
+        responseData: responseData ? Object.keys(responseData) : null
+      });
+      console.log("🔍 [Certificate] Hours Added:", hoursAdded);
+      console.log("🔍 [Certificate] Response Data:", responseData);
+      console.log("🔍 [Certificate] OCR Result:", ocrResult);
+      console.log("🔍 [Certificate] Name Verification:", nameVerification);
+      console.log("🔍 [Certificate] Verification Result:", verificationResult);
+      console.log("🔍 [Certificate] Passed Verification:", responseData?.passedVerification);
       
       const ocrData = {
         fullName: ocrResult?.fullName || "-",
@@ -276,52 +386,77 @@ export default function SendCertificateStudent() {
         organize_name: verificationResult?.organize_name || "",
         confidenceScore: verificationResult?.confidenceScore || 0,
         hoursAdded: hoursAdded,
-        verified: responseData?.passedVerification ?? true, // ✅ ลิ้งก์ผ่านแล้ว
-        warning: false, // ✅ ไม่มี warning
+        verified: responseData?.passedVerification ?? true,
+        warning: false,
         // ✅ เพิ่มข้อมูลการตรวจสอบชื่อ
         nameVerification: {
           isValid: nameVerification?.isValid ?? true,
           certificateName: nameVerification?.certificateName || ocrResult?.fullName || "-",
           studentName: nameVerification?.studentName || ocrResult?.fullName || "-"
         },
-        // ✅ เพิ่มข้อมูลสำหรับลิ้งก์
-        isLinkValidation: true,
-        linkValidationData: {
-          studentName: ocrResult?.fullName || "-",
-          courseName: ocrResult?.courseName || "-",
-          completionDate: ocrResult?.date || "-",
-          certificateId: ocrResult?.certificateId || "-",
-          isValid: true
-        }
+        // ✅ สำหรับไฟล์ PDF/รูปภาพ ไม่ใช่ link validation
+        isLinkValidation: false
       } as any;
       
-      console.log("🔍 Processed OCR Data:", ocrData);
-      console.log("🔍 Missing fields check:", {
+      console.log("🔍 [Certificate] Processed OCR Data:", ocrData);
+      console.log("🔍 [Certificate] Missing fields check:", {
         fullName: ocrData.fullName === "-",
         courseName: ocrData.courseName === "-",
         teacher: ocrData.teacher === "-",
         certificateId: ocrData.certificateId === "-",
         date: ocrData.date === "-"
       });
+      
+      // ✅ ตั้งค่า OCR result ก่อน (เพื่อให้แสดงผลลัพธ์ทันที)
       setOcrResult(ocrData);
       setLastSubmittedSig(makeFileSig(file)); // ทำเครื่องหมายว่าไฟล์นี้ "ส่งแล้ว"
       
-      // ✅ แสดง dialog ถ้าได้รับ hours หรือเป็นลิ้งก์ที่สำเร็จ
-      if (hoursAdded && hoursAdded.type && hoursAdded.hours) {
-        setHoursData(hoursAdded);
-        setHoursDialogOpen(true);
-        console.log("🎉 Hours added:", hoursAdded);
+      // ✅ ตรวจสอบ hoursAdded และแสดง dialog
+      console.log("🔍 [Certificate] Checking hoursAdded for dialog:", {
+        hoursAdded: hoursAdded,
+        hasType: hoursAdded?.type,
+        hasHours: hoursAdded?.hours,
+        hoursValue: hoursAdded?.hours,
+        typeValue: hoursAdded?.type,
+        condition: hoursAdded && hoursAdded.type && hoursAdded.hours
+      });
+      
+      if (hoursAdded && hoursAdded.type && hoursAdded.hours > 0) {
+        console.log("🎉 [Certificate] Hours added detected, opening dialog:", hoursAdded);
         
-        // ✅ เพิ่ม: Refresh activity history หลังจาก claim certificate สำเร็จ
+        // ✅ เก็บ state ใน ref และ sessionStorage เพื่อป้องกันการ reset
+        const dialogData = {
+          type: hoursAdded.type as 'Soft' | 'Hard',
+          hours: hoursAdded.hours
+        };
+        hoursDataRef.current = dialogData;
+        hoursDialogOpenRef.current = true;
+        
+        // ✅ เก็บ state ใน sessionStorage เพื่อให้ restore ได้หลัง refresh
         try {
-          const studentId = user?.student?.students_id; // ✅ ใช้ students_id แทน users_id
-          if (studentId) {
-            console.log("🔄 [Certificate] Refreshing activity history for student:", studentId);
-            await fetchEndedActivities(studentId);
-            console.log("✅ [Certificate] Activity history refreshed successfully");
-          }
-        } catch (refreshError) {
-          console.error("❌ [Certificate] Error refreshing activity history:", refreshError);
+          sessionStorage.setItem('certificate_hours_dialog', JSON.stringify({
+            open: true,
+            data: dialogData
+          }));
+          console.log("💾 [Certificate] Dialog state saved to sessionStorage");
+        } catch (storageError) {
+          console.warn("⚠️ [Certificate] Failed to save dialog state to sessionStorage:", storageError);
+        }
+        
+        // ✅ ตั้งค่า state
+        setHoursData(dialogData);
+        setHoursDialogOpen(true);
+        console.log("✅ [Certificate] Dialog state set:", {
+          hoursDialogOpen: true,
+          hoursData: dialogData
+        });
+        
+        // ✅ ไม่ refresh ทันที แต่จะ refresh หลังจากปิด dialog
+        // ✅ ตั้ง flag เพื่อบอกว่าต้อง refresh หลังจากปิด dialog
+        try {
+          sessionStorage.setItem('certificate_needs_refresh', 'true');
+        } catch (storageError) {
+          console.warn("⚠️ [Certificate] Failed to save refresh flag:", storageError);
         }
       } else if (submissionType === 'link' && responseData?.passedVerification) {
         // ✅ สำหรับลิ้งก์ที่สำเร็จ แสดง dialog เพิ่มชั่วโมง
@@ -340,27 +475,35 @@ export default function SendCertificateStudent() {
         console.log("🔍 Final activity hours:", activityHours);
         console.log("🔍 Final activity type:", activityType);
         
-        setHoursData({
+        const dialogData = {
           type: activityType as 'Soft' | 'Hard',
           hours: activityHours
-        });
+        };
+        
+        // ✅ เก็บ state ใน ref และ sessionStorage
+        hoursDataRef.current = dialogData;
+        hoursDialogOpenRef.current = true;
+        
+        try {
+          sessionStorage.setItem('certificate_hours_dialog', JSON.stringify({
+            open: true,
+            data: dialogData
+          }));
+          sessionStorage.setItem('certificate_needs_refresh', 'true');
+          console.log("💾 [Certificate] Dialog state saved to sessionStorage");
+        } catch (storageError) {
+          console.warn("⚠️ [Certificate] Failed to save dialog state:", storageError);
+        }
+        
+        setHoursData(dialogData);
         setHoursDialogOpen(true);
         
-        // ✅ Refresh activity history
-        try {
-          const studentId = user?.student?.students_id;
-          if (studentId) {
-            console.log("🔄 [Certificate] Refreshing activity history for student:", studentId);
-            await fetchEndedActivities(studentId);
-            console.log("✅ [Certificate] Activity history refreshed successfully");
-          }
-        } catch (refreshError) {
-          console.error("❌ [Certificate] Error refreshing activity history:", refreshError);
-        }
+        // ✅ ไม่ refresh ทันที แต่จะ refresh หลังจากปิด dialog
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Error uploading certificate:", error);
-      alert("เกิดข้อผิดพลาดในการอัปโหลด: " + (certificateError || "ไม่ทราบสาเหตุ"));
+      const errorMessage = error?.response?.data?.error || error?.message || certificateError || "ไม่ทราบสาเหตุ กรุณาลองใหม่อีกครั้ง";
+      alert("เกิดข้อผิดพลาดในการอัปโหลด: " + errorMessage);
     } finally {
       setLoading(false);
     }
@@ -605,29 +748,56 @@ export default function SendCertificateStudent() {
       <CustomCard className="w-full max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[100%] p-4 sm:p-6 relative mx-0 self-start mb-10">
         <h2 className="font-bold text-2xl leading-snug">ผลลัพธ์</h2>
         <br />
-        {/* ✅ แสดงผลการตรวจสอบลิ้งก์ถ้ายังไม่ได้ส่ง */}
-        {submissionType === 'link' && linkValidationResult && !ocrResult && (
-          <OcrResult result={{
-            isLinkValidation: true,
-            linkValidationData: {
-              studentName: linkValidationResult.studentName,
-              courseName: linkValidationResult.courseName,
-              completionDate: linkValidationResult.completionDate,
-              certificateId: linkValidationResult.certificateId,
-              isValid: linkValidationResult.isValid
-            }
-          }} />
-        )}
-        {/* ✅ แสดงผล OCR ปกติ (เฉพาะเมื่อไม่ใช่ลิ้งก์) */}
-        {submissionType !== 'link' && <OcrResult result={ocrResult} />}
+        {/* ✅ แสดงผล OCR result (สำหรับทั้ง file และ link) */}
+        <OcrResult result={ocrResult} />
       </CustomCard>
 
       {/* ✅ Dialog แสดงผลการได้รับ Hours */}
       <Dialog 
         open={hoursDialogOpen} 
-        onClose={() => setHoursDialogOpen(false)}
+        onClose={async () => {
+          console.log("🔒 [Certificate] Closing hours dialog");
+          hoursDialogOpenRef.current = false;
+          hoursDataRef.current = null;
+          setHoursDialogOpen(false);
+          setHoursData(null);
+          
+          // ✅ ลบ state จาก sessionStorage
+          try {
+            sessionStorage.removeItem('certificate_hours_dialog');
+          } catch (storageError) {
+            console.warn("⚠️ [Certificate] Failed to remove dialog state from sessionStorage:", storageError);
+          }
+          
+          // ✅ Refresh user data และ activity history หลังจากปิด dialog
+          const needsRefresh = sessionStorage.getItem('certificate_needs_refresh') === 'true';
+          if (needsRefresh) {
+            try {
+              console.log("🔄 [Certificate] Refreshing user data after dialog closed...");
+              await fetchMe();
+              console.log("✅ [Certificate] User data refreshed successfully");
+              
+              const studentId = user?.student?.students_id;
+              if (studentId) {
+                console.log("🔄 [Certificate] Refreshing activity history for student:", studentId);
+                await fetchEndedActivities(studentId);
+                console.log("✅ [Certificate] Activity history refreshed successfully");
+              }
+              
+              // ✅ ลบ refresh flag
+              sessionStorage.removeItem('certificate_needs_refresh');
+            } catch (refreshError) {
+              console.error("❌ [Certificate] Error refreshing data:", refreshError);
+            }
+          }
+          
+          // ✅ Navigate ไปที่หน้า list certificate
+          console.log("🔀 [Certificate] Navigating to certificate list page");
+          navigate("/list-certificate-student");
+        }}
         maxWidth="sm"
         fullWidth
+        disableEscapeKeyDown={false}
       >
         <DialogTitle>
           <Box display="flex" alignItems="center" gap={2}>
@@ -666,7 +836,46 @@ export default function SendCertificateStudent() {
         
         <DialogActions sx={{ justifyContent: 'center' }}>
           <Button
-            onClick={() => setHoursDialogOpen(false)}
+            onClick={async () => {
+              console.log("🔒 [Certificate] Closing hours dialog via button");
+              hoursDialogOpenRef.current = false;
+              hoursDataRef.current = null;
+              setHoursDialogOpen(false);
+              setHoursData(null);
+              
+              // ✅ ลบ state จาก sessionStorage
+              try {
+                sessionStorage.removeItem('certificate_hours_dialog');
+              } catch (storageError) {
+                console.warn("⚠️ [Certificate] Failed to remove dialog state from sessionStorage:", storageError);
+              }
+              
+              // ✅ Refresh user data และ activity history หลังจากปิด dialog
+              const needsRefresh = sessionStorage.getItem('certificate_needs_refresh') === 'true';
+              if (needsRefresh) {
+                try {
+                  console.log("🔄 [Certificate] Refreshing user data after dialog closed...");
+                  await fetchMe();
+                  console.log("✅ [Certificate] User data refreshed successfully");
+                  
+                  const studentId = user?.student?.students_id;
+                  if (studentId) {
+                    console.log("🔄 [Certificate] Refreshing activity history for student:", studentId);
+                    await fetchEndedActivities(studentId);
+                    console.log("✅ [Certificate] Activity history refreshed successfully");
+                  }
+                  
+                  // ✅ ลบ refresh flag
+                  sessionStorage.removeItem('certificate_needs_refresh');
+                } catch (refreshError) {
+                  console.error("❌ [Certificate] Error refreshing data:", refreshError);
+                }
+              }
+              
+              // ✅ Navigate ไปที่หน้า list certificate
+              console.log("🔀 [Certificate] Navigating to certificate list page");
+              navigate("/list-certificate-student");
+            }}
             bgColor="#22C55E"
             textColor="#FFFFFF"
             className="hover:bg-green-700"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAssessmentStore } from "../../../../stores/Teacher/assessment.store.ts";
 import Loading from "../../../../components/Loading.tsx";
 import { useNavigate } from "react-router-dom";
@@ -274,7 +274,10 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
             ? convertUTCToLocal(activity.end_assessment)
             : ""),
         status: activity.status || "Active",
-        url: activity.url || "",
+        // ✅ ถ้าเป็น Onsite และ url เป็น "ไม่ระบุ" ให้เป็น empty string
+        url: activity.event_format === "Onsite" && activity.url === "ไม่ระบุ" 
+          ? "" 
+          : (activity.url || ""),
         selectedFoods: (activity as { foods?: Array<{ food_id: number }> }).foods?.map((food) => food.food_id) || savedFoods,
         // ✅ เพิ่ม certificate fields สำหรับ Course
         certificate_base_id: activity.certificateBase?.certificate_base_id || null,
@@ -457,6 +460,14 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       acRecieveHours = duration > 0 ? duration : 0; // ✅ ป้องกันค่าติดลบ
     }
 
+    // ✅ แปลงเป็น integer ก่อนส่งไป backend
+    acRecieveHours = Math.round(Number(acRecieveHours)) || 0;
+    console.log("🔢 [UpdateActivity] recieve_hours converted to integer:", {
+      original: formData.recieve_hours,
+      converted: acRecieveHours,
+      type: typeof acRecieveHours
+    });
+
     // ✅ ตรวจสอบว่าวันที่และเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง
     if (formData.start_activity_date && formData.end_activity_date) {
       const start = dayjs(formData.start_activity_date);
@@ -475,6 +486,12 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       return;
     }
         console.log("🚀 Data ที่ส่งไป store:", formData);
+        console.log("🍽️ [UpdateActivity] Selected Foods:", {
+          selectedFoods: formData.selectedFoods,
+          event_format: formData.event_format,
+          isOnsite: formData.event_format === "Onsite",
+          foodsCount: formData.selectedFoods?.length || 0
+        });
         console.log("🔍 Certificate fields ที่ส่งไป:", {
           certificate_template_url: formData.certificate_template_url,
           upload_certificate_description: formData.upload_certificate_description,
@@ -486,6 +503,17 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
       if (finalActivityId) {
         // ✅ อัปเดตกิจกรรมที่มีอยู่
         console.log("🔄 Updating existing activity:", finalActivityId);
+
+        // ✅ กรอง foodIds ที่ถูกต้อง (ไม่ใช่ -1, 0, หรือ undefined)
+        const validFoodIds = formData.event_format === "Onsite" && Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0
+          ? formData.selectedFoods.filter(foodId => foodId && foodId > 0 && Number.isInteger(foodId))
+          : [];
+
+        console.log("🍽️ [UpdateActivity] Valid Food IDs after filtering:", {
+          original: formData.selectedFoods,
+          filtered: validFoodIds,
+          removed: formData.selectedFoods?.filter(id => !validFoodIds.includes(id)) || []
+        });
 
         // ✅ เตรียมข้อมูลให้ตรงกับ backend requirements
         const updateData = {
@@ -499,9 +527,7 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
           // แก้ไข seat ให้เป็น integer และไม่เป็น null
           seat: formData.seat ? Number(formData.seat) : 0,
           // ✅ ส่ง foodIds เฉพาะเมื่อ event_format เป็น Onsite และกรอง foodIds ที่ถูกต้อง
-          foodIds: formData.event_format === "Onsite" ?
-            (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ?
-              formData.selectedFoods.filter(foodId => foodId > 0) : []) : [],
+          foodIds: validFoodIds,
           // ✅ Course ไม่ต้องมี registration dates และ assessment
           ...(formData.event_format === "Course" ? {
             special_start_register_date: null,
@@ -522,6 +548,13 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
 
         // ✅ Clean up undefined values และ circular references
         const cleanUpdateData: any = { ...updateData };
+        
+        // ✅ ถ้าเป็น Onsite และไม่มี url หรือ url เป็น empty string ให้เป็น null
+        if (cleanUpdateData.event_format === "Onsite") {
+          if (!cleanUpdateData.url || cleanUpdateData.url.trim() === "" || cleanUpdateData.url === "ไม่ระบุ") {
+            cleanUpdateData.url = null;
+          }
+        }
         
         console.log("🔍 updateData certificate fields:", {
           certificate_template_url: updateData.certificate_template_url,
@@ -624,6 +657,12 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
         }
 
         console.log("🚀 Data ที่ส่งไป store:", cleanUpdateData);
+        console.log("🍽️ [UpdateActivity] Final updateData with foods:", {
+          foodIds: cleanUpdateData.foodIds,
+          selectedFoods: cleanUpdateData.selectedFoods,
+          event_format: cleanUpdateData.event_format,
+          foodsCount: cleanUpdateData.foodIds?.length || 0
+        });
         console.log("🔍 cleanUpdateData type:", typeof cleanUpdateData);
         console.log("🔍 cleanUpdateData is object:", typeof cleanUpdateData === 'object' && cleanUpdateData !== null);
         console.log("🔍 cleanUpdateData keys:", Object.keys(cleanUpdateData));
@@ -649,31 +688,38 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     }
   };
 
-  function addFoodOption() {
-    setFormData((prev) => ({
-      ...prev,
-      selectedFoods: [...prev.selectedFoods, -1], // ✅ ใช้ -1 เป็น placeholder สำหรับ food ที่ยังไม่ได้เลือก
-    }));
-  }
+  // ❌ ไม่ต้องใช้ addFoodOption แล้ว เพราะ FoodMultiSelect ไม่ต้องมี placeholder
+  // function addFoodOption() {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     selectedFoods: [...prev.selectedFoods, -1], // ✅ ใช้ -1 เป็น placeholder สำหรับ food ที่ยังไม่ได้เลือก
+  //   }));
+  // }
 
-  const hasAdded = useRef(false);
+  // ✅ ไม่ต้อง auto-add food option เพราะ FoodMultiSelect สามารถเลือกได้เลย
+  // const hasAdded = useRef(false);
+
+  // useEffect(() => {
+  //   if (
+  //     formData.event_format === "Onsite" &&
+  //     foods.length > 0 &&
+  //     formData.selectedFoods.length === 0 &&
+  //     savedFoods.length === 0 && // ✅ ต้องมี check แบบนี้
+  //     !hasAdded.current
+  //   ) {
+  //     hasAdded.current = true;
+  //     addFoodOption();
+  //   }
+  // }, [formData.event_format, foods, formData.selectedFoods, savedFoods.length]);
 
   useEffect(() => {
-    if (
-      formData.event_format === "Onsite" &&
-      foods.length > 0 &&
-      formData.selectedFoods.length === 0 &&
-      savedFoods.length === 0 && // ✅ ต้องมี check แบบนี้
-      !hasAdded.current
-    ) {
-      hasAdded.current = true;
-      addFoodOption();
-    }
-  }, [formData.event_format, foods, formData.selectedFoods, savedFoods.length]);
-
-  useEffect(() => {
-    if (formData.selectedFoods.length > 0) {
-      localStorage.setItem("selectedFoods", JSON.stringify(formData.selectedFoods));
+    // ✅ บันทึกเฉพาะ valid food IDs (ไม่ใช่ -1, 0, หรือ undefined)
+    const validFoods = (formData.selectedFoods || []).filter(id => id && id > 0 && Number.isInteger(id));
+    if (validFoods.length > 0) {
+      localStorage.setItem("selectedFoods", JSON.stringify(validFoods));
+    } else {
+      // ✅ ลบ localStorage ถ้าไม่มีอาหารที่ถูกต้อง
+      localStorage.removeItem("selectedFoods");
     }
   }, [formData.selectedFoods]);
 
@@ -883,26 +929,52 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
     }
   }, [JSON.stringify(errors)]); // ✅ ใช้ JSON.stringify เพื่อป้องกัน infinite loop
 
-  // ✅ ฟังก์ชันแปลง UTC เป็น local time (ลด 7 ชั่วโมง)
-  const convertUTCToLocal = (utcString: string): string => {
-    if (!utcString) return "";
+  // ✅ ฟังก์ชันแปลงวันที่จาก backend เป็น local time format
+  // ✅ Backend ส่ง local time มาแล้ว (เช่น "2025-11-20 07:45:00" หรือ "2025-11-20T07:45:00.000Z")
+  // ✅ ถ้าเป็น UTC format ให้แปลงเป็น local time, ถ้าเป็น local time format ให้ใช้ตรงๆ
+  const convertUTCToLocal = (dateString: string): string => {
+    if (!dateString) return "";
     try {
-      const date = new Date(utcString);
-      // ✅ ลดเวลา 7 ชั่วโมงจาก backend
-      date.setHours(date.getHours() - 7);
+      // ✅ ตรวจสอบว่าเป็น UTC format (มี Z) หรือ local time format (ไม่มี Z)
+      if (dateString.includes("Z") || dateString.includes("+") || dateString.includes("T")) {
+        // ✅ เป็น UTC format ให้แปลงเป็น local time
+        const date = new Date(dateString);
+        
+        if (isNaN(date.getTime())) {
+          console.error("❌ Invalid date string:", dateString);
+          return dateString;
+        }
 
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
+        // ✅ ใช้ Date object ที่แปลงเป็น local time แล้ว
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
 
-      const result = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-      return result;
+        const result = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        
+        console.log("🕐 [convertUTCToLocal] UTC format:", {
+          input: dateString,
+          output: result,
+          dateObject: date.toISOString(),
+          localHours: date.getHours()
+        });
+        
+        return result;
+      } else {
+        // ✅ เป็น local time format อยู่แล้ว (เช่น "2025-11-20 07:45:00")
+        // ✅ ใช้ตรงๆ โดยไม่ต้องแปลง
+        console.log("🕐 [convertUTCToLocal] Local format (no conversion):", {
+          input: dateString,
+          output: dateString
+        });
+        return dateString;
+      }
     } catch (error) {
-      console.error("❌ Error converting UTC to local:", error);
-      return utcString;
+      console.error("❌ Error converting date:", error);
+      return dateString;
     }
   };
 
@@ -1128,11 +1200,18 @@ const fromPage = secureParams?.from === 'calendar' ? 'calendar' : 'list';
                     <label className="block font-semibold">อาหาร *</label>
                     <FoodMultiSelect
                       foods={foods}
-                      selectedFoodIds={formData.selectedFoods}
+                      selectedFoodIds={formData.selectedFoods || []}
                       setSelectedFoodIds={(newIds) => {
-                        console.log("🍽️ Food selection changed:", { old: formData.selectedFoods, new: newIds });
-                        localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
-                        setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
+                        console.log("🍽️ [UpdateActivity] Food selection changed:", {
+                          old: formData.selectedFoods,
+                          new: newIds,
+                          count: newIds.length
+                        });
+                        // ✅ กรองเฉพาะ food_id ที่ถูกต้อง (ไม่ใช่ -1, 0, หรือ undefined)
+                        const validIds = newIds.filter(id => id && id > 0 && Number.isInteger(id));
+                        console.log("🍽️ [UpdateActivity] Valid Food IDs:", validIds);
+                        localStorage.setItem("selectedFoods", JSON.stringify(validIds)); // ✅ sync ทันที
+                        setFormData((prev) => ({ ...prev, selectedFoods: validIds }));
                       }}
                       disabled={false}
                     />

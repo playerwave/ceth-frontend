@@ -68,8 +68,11 @@ export default function ActivityInfoAdmin() {
   // Debug: Log activity data to see the structure
   console.log("🔍 Activity data:", activity);
   console.log("🔍 Foods data:", foods);
-  console.log("🔍 Activity foods:", activity.activityFood);
-  console.log("🔍 Activity foods (alternative):", (activity as any).foods);
+  console.log("🍽️ Activity foods:", activity.activityFood);
+  console.log("🍽️ Activity foods (alternative):", (activity as any).foods);
+  console.log("🍽️ Activity foods type:", typeof activity.activityFood);
+  console.log("🍽️ Activity foods is array:", Array.isArray(activity.activityFood));
+  console.log("🍽️ Activity foods length:", activity.activityFood?.length || 0);
   console.log("🔍 Image URL:", activity.image_url);
   console.log("🔍 Image URL type:", typeof activity.image_url);
 
@@ -79,10 +82,11 @@ export default function ActivityInfoAdmin() {
   console.log("🕐 Start time type:", typeof activity.start_activity_date);
   console.log("🕐 End time type:", typeof activity.end_activity_date);
 
+  // ✅ หาอาหารที่เกี่ยวข้องกับกิจกรรม
   const relatedFoods =
     Array.isArray(activity.activityFood) && activity.activityFood.length > 0
       ? foods.filter((food) =>
-          activity.activityFood?.some((af) => af.food_id === food.food_id)
+          activity.activityFood?.some((af: any) => af.food_id === food.food_id)
         )
       : Array.isArray((activity as any).foods) &&
           (activity as any).foods.length > 0
@@ -93,6 +97,13 @@ export default function ActivityInfoAdmin() {
           )
         : [];
 
+  console.log("🍽️ Related foods:", {
+    activityFoods: activity.activityFood,
+    allFoodsCount: foods.length,
+    relatedFoodsCount: relatedFoods.length,
+    relatedFoods: relatedFoods.map(f => ({ id: f.food_id, name: f.food_name }))
+  });
+
   return (
     <div className="justify-items-center">
       <div className="w-320 h-auto min-h-230 mx-auto ml-2xl mt-5 mb-5 bg-white p-8 border border-gray-200 rounded-lg shadow-sm">
@@ -100,9 +111,6 @@ export default function ActivityInfoAdmin() {
           name={activity.activity_name || ""}
           seat={activity.seat || 0}
           registeredCount={activity.registered_count || 0}
-          onClickRegistered={() =>
-            navigate(`/enrolled_list_admin/${activity.activity_id}`)
-          }
         />
 
         <ActivityImage imageUrl={activity.image_url} />

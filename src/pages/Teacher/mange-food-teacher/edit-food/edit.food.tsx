@@ -20,7 +20,7 @@ const EditFoodAdmin = () => {
   const [searchParams] = useSearchParams();
   const id = Number(searchParams.get("id"));
   const [foodName, setFoodName] = useState(food?.food_name ?? "");
-  const { fetchFoodById } = useFoodStore();
+  const { fetchFoodById, invalidateCache } = useFoodStore();
   const [foodData, setFoodData] = useState<Food | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -53,7 +53,13 @@ const EditFoodAdmin = () => {
         faculty_id: foodData.faculty_id,
       });
 
+      // ✅ Clear cache
+      invalidateCache();
+
       toast.success("อัปเดตอาหารสำเร็จ");
+      
+      // ✅ Navigate พร้อม query parameter เพื่อบังคับให้ refresh
+      navigate("/list-food-teacher?refresh=" + Date.now());
       
     } catch (error) {
       console.error("❌ อัปเดตไม่สำเร็จ:", error);
@@ -69,8 +75,14 @@ const EditFoodAdmin = () => {
     setLoading(true);
     try {
       await deleteFood(foodData.food_id);
+      
+      // ✅ Clear cache
+      invalidateCache();
+
       toast.success("ลบอาหารสำเร็จ");
-      navigate("/list-food-teacher");
+      
+      // ✅ Navigate พร้อม query parameter เพื่อบังคับให้ refresh
+      navigate("/list-food-teacher?refresh=" + Date.now());
     } catch (error) {
       console.error("❌ ลบอาหารไม่สำเร็จ:", error);
       toast.error("ไม่สามารถลบอาหารได้");

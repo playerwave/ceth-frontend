@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useAssessmentStore } from "@/stores/Teacher/assessment.store";
 import Loading from "@/components/Loading";
 import { toast } from "sonner";
@@ -294,6 +294,14 @@ const CreateActivityAdmin: React.FC = () => {
       acRecieveHours = duration > 0 ? duration : 0; // ✅ ป้องกันค่าติดลบ
     }
 
+    // ✅ แปลงเป็น integer ก่อนส่งไป backend
+    acRecieveHours = Math.round(Number(acRecieveHours)) || 0;
+    console.log("🔢 [CreateActivity] recieve_hours converted to integer:", {
+      original: formData.recieve_hours,
+      converted: acRecieveHours,
+      type: typeof acRecieveHours
+    });
+
     // ✅ ตรวจสอบว่าวันที่และเวลาการดำเนินกิจกรรมต้องห่างกันอย่างน้อย 1 ชั่วโมง
     if (formData.start_activity_date && formData.end_activity_date) {
       const start = dayjs(formData.start_activity_date);
@@ -365,6 +373,12 @@ const CreateActivityAdmin: React.FC = () => {
     }
 
     console.log("🚀 Data ที่ส่งไป store:", formData);
+    console.log("🍽️ [CreateActivity] Selected Foods:", {
+      selectedFoods: formData.selectedFoods,
+      event_format: formData.event_format,
+      isOnsite: formData.event_format === "Onsite",
+      foodsCount: formData.selectedFoods?.length || 0
+    });
     console.log("🔍 Certificate fields in create_activity_admin:", {
       event_format: formData.event_format,
       certificate_template_url: formData.certificate_template_url,
@@ -375,17 +389,26 @@ const CreateActivityAdmin: React.FC = () => {
 
     try {
       // ✅ สร้างข้อมูลใหม่ที่มี recieve_hours ที่คำนวณแล้ว
-      const createData = {
+      // ✅ กรอง foodIds ที่ถูกต้อง (ไม่ใช่ -1, 0, หรือ undefined)
+      const validFoodIds = formData.event_format === "Onsite" && Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0
+        ? formData.selectedFoods.filter(foodId => foodId && foodId > 0 && Number.isInteger(foodId))
+        : [];
+
+      console.log("🍽️ [CreateActivity] Valid Food IDs after filtering:", {
+        original: formData.selectedFoods,
+        filtered: validFoodIds,
+        removed: formData.selectedFoods?.filter(id => !validFoodIds.includes(id)) || []
+      });
+
+      const createData: any = {
         ...formData,
         recieve_hours: acRecieveHours,
         start_activity_date: formattedStart,
         end_activity_date: formattedEnd,
         // ✅ ส่ง foodIds เฉพาะเมื่อ event_format เป็น Onsite และกรอง foodIds ที่ถูกต้อง
-        foodIds: formData.event_format === "Onsite" ?
-          (Array.isArray(formData.selectedFoods) && formData.selectedFoods.length > 0 ?
-            formData.selectedFoods.filter(foodId => foodId > 0) : []) : [],
+        foodIds: validFoodIds,
         // ✅ ลบ selectedFoods ออกจาก request เมื่อไม่ใช่ Onsite
-        selectedFoods: formData.event_format === "Onsite" ? formData.selectedFoods : [],
+        selectedFoods: formData.event_format === "Onsite" ? validFoodIds : [],
         // ✅ Course ไม่ต้องมี registration dates และ assessment
         ...(formData.event_format === "Course" ? {
           special_start_register_date: null,
@@ -402,12 +425,26 @@ const CreateActivityAdmin: React.FC = () => {
           certificate_image_analysis: formData.certificate_image_analysis
         } : {})
       };
+      
+      // ✅ ถ้าเป็น Onsite และไม่มี url หรือ url เป็น empty string ให้เป็น null
+      if (createData.event_format === "Onsite") {
+        if (!createData.url || createData.url.trim() === "" || createData.url === "ไม่ระบุ") {
+          createData.url = null;
+        }
+      }
 
       console.log("🔍 Certificate fields in createData:", {
         certificate_template_url: createData.certificate_template_url,
         certificate_ocr_data: createData.certificate_ocr_data,
         certificate_image_analysis: createData.certificate_image_analysis,
         upload_certificate_description: createData.upload_certificate_description
+      });
+
+      console.log("🍽️ [CreateActivity] Final createData with foods:", {
+        foodIds: createData.foodIds,
+        selectedFoods: createData.selectedFoods,
+        event_format: createData.event_format,
+        foodsCount: createData.foodIds?.length || 0
       });
 
       const result = await createActivity(createData);
@@ -435,36 +472,43 @@ const CreateActivityAdmin: React.FC = () => {
   // };
 
 
-  function addFoodOption() {
-    setFormData((prev) => ({
-      ...prev,
-      selectedFoods: [...prev.selectedFoods, -1], // ✅ ใช้ -1 เป็น placeholder สำหรับ food ที่ยังไม่ได้เลือก
-    }));
-  }
+  // ❌ ไม่ต้องใช้ addFoodOption แล้ว เพราะ FoodMultiSelect ไม่ต้องมี placeholder
+  // function addFoodOption() {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     selectedFoods: [...prev.selectedFoods, -1], // ✅ ใช้ -1 เป็น placeholder สำหรับ food ที่ยังไม่ได้เลือก
+  //   }));
+  // }
 
-  const hasAdded = useRef(false);
+  // ✅ ไม่ต้อง auto-add food option เพราะ FoodMultiSelect สามารถเลือกได้เลย
+  // const hasAdded = useRef(false);
+
+  // useEffect(() => {
+  //   if (
+  //     formData.event_format === "Onsite" &&
+  //     foods.length > 0 &&
+  //     formData.selectedFoods.length === 0 &&
+  //     savedFoods.length === 0 && // ✅ ต้องมี check แบบนี้
+  //     !hasAdded.current
+  //   ) {
+  //     hasAdded.current = true;
+  //     addFoodOption();
+  //   }
+
+  //   // ✅ รีเซ็ต hasAdded เมื่อเปลี่ยน event_format
+  //   if (formData.event_format !== "Onsite") {
+  //     hasAdded.current = false;
+  //   }
+  // }, [formData.event_format, foods, formData.selectedFoods]);
 
   useEffect(() => {
-    if (
-      formData.event_format === "Onsite" &&
-      foods.length > 0 &&
-      formData.selectedFoods.length === 0 &&
-      savedFoods.length === 0 && // ✅ ต้องมี check แบบนี้
-      !hasAdded.current
-    ) {
-      hasAdded.current = true;
-      addFoodOption();
-    }
-
-    // ✅ รีเซ็ต hasAdded เมื่อเปลี่ยน event_format
-    if (formData.event_format !== "Onsite") {
-      hasAdded.current = false;
-    }
-  }, [formData.event_format, foods, formData.selectedFoods]);
-
-  useEffect(() => {
-    if (formData.selectedFoods.length > 0) {
-      localStorage.setItem("selectedFoods", JSON.stringify(formData.selectedFoods));
+    // ✅ บันทึกเฉพาะ valid food IDs (ไม่ใช่ -1, 0, หรือ undefined)
+    const validFoods = (formData.selectedFoods || []).filter(id => id && id > 0 && Number.isInteger(id));
+    if (validFoods.length > 0) {
+      localStorage.setItem("selectedFoods", JSON.stringify(validFoods));
+    } else {
+      // ✅ ลบ localStorage ถ้าไม่มีอาหารที่ถูกต้อง
+      localStorage.removeItem("selectedFoods");
     }
   }, [formData.selectedFoods]);
 
@@ -753,10 +797,18 @@ const CreateActivityAdmin: React.FC = () => {
                     <label className="block font-semibold">อาหาร *</label>
                     <FoodMultiSelect
                       foods={foods}
-                      selectedFoodIds={formData.selectedFoods}
+                      selectedFoodIds={formData.selectedFoods || []}
                       setSelectedFoodIds={(newIds) => {
-                        localStorage.setItem("selectedFoods", JSON.stringify(newIds)); // ✅ sync ทันที
-                        setFormData((prev) => ({ ...prev, selectedFoods: newIds }));
+                        console.log("🍽️ [CreateActivity] Food selection changed:", {
+                          old: formData.selectedFoods,
+                          new: newIds,
+                          count: newIds.length
+                        });
+                        // ✅ กรองเฉพาะ food_id ที่ถูกต้อง (ไม่ใช่ -1, 0, หรือ undefined)
+                        const validIds = newIds.filter(id => id && id > 0 && Number.isInteger(id));
+                        console.log("🍽️ [CreateActivity] Valid Food IDs:", validIds);
+                        localStorage.setItem("selectedFoods", JSON.stringify(validIds)); // ✅ sync ทันที
+                        setFormData((prev) => ({ ...prev, selectedFoods: validIds }));
                       }}
                       disabled={false}
                     />

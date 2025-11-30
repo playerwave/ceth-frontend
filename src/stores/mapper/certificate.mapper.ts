@@ -13,7 +13,7 @@ export interface ApiCertificate {
   date?: string;
   hours?: number;
   img?: string | null;
-  status?: "Pending" | "Pass" | "Fail";
+  status?: "Pending" | "Pass";
   original_filename?: string;
   file_type?: string;
   file_size?: number;

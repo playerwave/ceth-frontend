@@ -5,11 +5,14 @@ import { CertificateTemplate } from "@/types/certificate/certificate-template.ty
 import { CertificateVerification } from "@/types/certificate/certificate-verofocation.type";
 import { CertificateAudit } from "@/types/certificate/certificate-audit.type";
 import { CertificateBase } from "@/types/certificate/certificate-base.type";
+import { readPdfDocument } from "@/service/Teacher/certificate-template.service";
+import { PDFDocumentInfo } from "@/utils/pdfReader";
 
 interface CertificateStore {
   // State
   isAnalyzing: boolean;
   analysisResult: CertificateTemplateAnalysis | null;
+  pdfAnalysisResult: PDFDocumentInfo | null; // ✅ เพิ่ม state สำหรับ PDF analysis
   error: string | null;
   certificates: Certificate[];
   selectedCertificate: Certificate | null;
@@ -21,6 +24,7 @@ interface CertificateStore {
 
   // Actions
   analyzeCertificateTemplate: (file: File) => Promise<CertificateTemplateAnalysis>;
+  readPdfFile: (file: File) => Promise<PDFDocumentInfo>; // ✅ เพิ่ม action สำหรับอ่าน PDF
   createActivityCertificateTemplate: (activityId: number, file: File, description?: string) => Promise<any>;
   getActivityCertificateTemplate: (activityId: number) => Promise<any>;
   createCertificate: (data: Partial<Certificate>) => Promise<Certificate>;
@@ -44,6 +48,7 @@ export const useCertificateStore = create<CertificateStore>((set, get) => ({
   // Initial state
   isAnalyzing: false,
   analysisResult: null,
+  pdfAnalysisResult: null, // ✅ เพิ่ม initial state
   error: null,
   certificates: [],
   selectedCertificate: null,
@@ -416,10 +421,67 @@ export const useCertificateStore = create<CertificateStore>((set, get) => ({
     }
   },
 
+  // ✅ เพิ่ม action สำหรับอ่าน PDF
+  readPdfFile: async (file: File) => {
+    console.log("📄 [Certificate Store] Starting PDF reading...");
+    
+    set({ 
+      isAnalyzing: true, 
+      error: null,
+      pdfAnalysisResult: null 
+    });
+
+    try {
+      const result = await readPdfDocument(file);
+      
+      console.log("✅ [Certificate Store] PDF reading completed successfully");
+      console.log("📊 [Certificate Store] PDF Analysis Summary:", {
+        totalPages: result.totalPages,
+        hasText: result.metadata.hasText,
+        isScanned: result.metadata.isScanned,
+        textLength: result.metadata.estimatedTextLength,
+        fonts: result.metadata.fonts,
+        totalTextItems: result.metadata.totalTextItems
+      });
+
+      // ✅ Debug: แสดงรายละเอียดแต่ละหน้า
+      console.log("📑 [Certificate Store] Pages breakdown:");
+      result.pages.forEach((page, index) => {
+        console.log(`  📄 Page ${index + 1}/${result.totalPages}:`, {
+          textLength: page.text.length,
+          textItems: page.textItems.length,
+          dimensions: `${page.width.toFixed(2)} x ${page.height.toFixed(2)}`,
+          preview: page.text.substring(0, 200) + (page.text.length > 200 ? '...' : '')
+        });
+      });
+
+      set({ 
+        isAnalyzing: false, 
+        pdfAnalysisResult: result,
+        error: null 
+      });
+
+      return result;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to read PDF file";
+      
+      console.error("❌ [Certificate Store] PDF reading failed:", error);
+      
+      set({ 
+        isAnalyzing: false, 
+        pdfAnalysisResult: null,
+        error: errorMessage 
+      });
+
+      throw error;
+    }
+  },
+
   clearAnalysis: () => {
     set({ 
       isAnalyzing: false, 
-      analysisResult: null, 
+      analysisResult: null,
+      pdfAnalysisResult: null, // ✅ ล้าง PDF analysis result ด้วย
       error: null 
     });
   },

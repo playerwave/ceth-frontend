@@ -86,7 +86,7 @@ export const uploadCertificate = async (file: File | null, activityId: number, l
     // ✅ อัปโหลดไฟล์
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('activityId', activityId.toString());
+    formData.append('activity_id', activityId.toString()); // ✅ เปลี่ยนเป็น snake_case ให้ตรงกับ backend
     
     try {
       const response = await axiosInstance.post<CertificateVerificationResult>(
@@ -111,7 +111,7 @@ export const uploadCertificate = async (file: File | null, activityId: number, l
       const response = await axiosInstance.post<CertificateVerificationResult>(
         `${STUDENT_CERTIFICATE_PATH}/upload-link-with-verification`,
         {
-          activityId: activityId,
+          activity_id: activityId, // ✅ เปลี่ยนเป็น snake_case
           linkData: linkData,
           studentId: studentId // ✅ ส่ง studentId ไป Backend
         },

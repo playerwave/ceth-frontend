@@ -35,8 +35,9 @@ const MainStudent = () => {
   const [, setEnrolledError] = useState<string | null>(null);
   const [ongoingError, setOngoingError] = useState<string | null>(null);
 
-  const { user, fetchMe } = useAuthStore();
+  const { user, fetchMe } = useAuthStore(); // ✅ เพิ่ม fetchMe เพื่อ refresh user data
   const lastStudentIdRef = useRef<number | null>(null);
+  const hasFetchedUserRef = useRef<boolean>(false); // ✅ เพิ่ม ref เพื่อป้องกันการเรียก fetchMe ซ้ำ
   
   // ใช้ students_id จาก auth store เท่านั้น
   // const studentId = useMemo(() => {
@@ -44,15 +45,28 @@ const MainStudent = () => {
   //   return user?.student?.students_id;
   // }, [user?.student?.students_id]);
 
-  // Fetch user data on mount เพื่อให้ได้ข้อมูลล่าสุดเสมอ (เฉพาะครั้งแรก)
+  // ✅ Fetch user data ทุกครั้งที่มาหน้านี้ เพื่อให้ได้ข้อมูล soft/hard hours ล่าสุด (ไม่ใช้ cache)
   useEffect(() => {
-    console.log("🔄 [MainStudent] Fetching user data on mount...");
-    if (user && user.role !== "Visitor") {
-      console.log("✅ [MainStudent] User already exists, skipping initial fetch");
+    // ✅ ป้องกันการเรียกซ้ำ (ใช้ ref + global flag ใน store)
+    if (hasFetchedUserRef.current) {
+      console.log("⏭️ [MainStudent] Already fetched user data, skipping...");
       return;
     }
-    fetchMe();
-  }, []); // เรียก fetchMe เฉพาะเมื่อไม่มี user หรือเป็น Visitor
+    
+    console.log("🔄 [MainStudent] Fetching user data on mount (always fetch to get latest soft/hard hours)...");
+    hasFetchedUserRef.current = true;
+    
+    // ✅ เรียก fetchMe (store มี global flag ป้องกันการเรียกซ้ำ)
+    fetchMe().catch((error) => {
+      console.error("❌ [MainStudent] Error fetching user data:", error);
+      // ✅ ไม่ reset ref เพราะ store จัดการ global flag เอง
+    });
+    
+    // ✅ Cleanup: Reset ref เมื่อ component unmount (แต่ไม่ reset global flag ใน store)
+    return () => {
+      hasFetchedUserRef.current = false;
+    };
+  }, []); // ✅ เรียกแค่ครั้งเดียวตอน mount
 
   // เพิ่มการฟัง events สำหรับอัพเดทข้อมูลหลังจากส่งแบบประเมิน
   useEffect(() => {
@@ -127,28 +141,21 @@ const MainStudent = () => {
       
       fetchData();
     }
-  }, [user?.student?.students_id, fetchEnrolledActivities, fetchOngoingActivities]);
+  }, [user?.student?.students_id]); // ✅ ลบ fetchEnrolledActivities และ fetchOngoingActivities ออกจาก dependency
 
   // ✅ กรองกิจกรรมที่ลงทะเบียนไว้ตาม activity_state ที่กำหนด - ต้องไม่รวม "Start Assessment"
   const filteredEnrolledActivities = enrolledActivities.filter((act) => {
     const allowedStates = [
       "Special Open Register",
-      "Open Register", 
+      "Open Register",
       "Close Register",
-      "Start Activity",
-      "End Activity"
     ];
-    const shouldShow = allowedStates.includes(act.activity_state || "");
-    console.log("🔍 [Debug] Activity filtering for enrolled:", {
-      activity_id: act.activity_id,
-      activity_name: act.activity_name,
-      activity_state: act.activity_state,
-      has_submitted_assessment: (act as StudentEnrolledActivity).has_submitted_assessment,
-      shouldShow,
-      allowedStates
-    });
-    return shouldShow;
+    return allowedStates.includes(act.activity_state || "");
   });
+
+  const filteredOngoingActivities = ongoingActivities.filter((act) =>
+    ["Start Activity", "End Activity"].includes(act.activity_state || "")
+  );
 
   // แปลง Activity[] เป็น MainActivity[] สำหรับ TableListSection (ไม่ใช้แล้ว ใช้ filteredEnrolledActivities แทน)
   // const mainActivities = filteredEnrolledActivities.map((act) => ({
@@ -171,15 +178,23 @@ const MainStudent = () => {
   //   activity_state: act.activity_state, // ✅ เพิ่ม activity_state เพื่อให้ TablePendingEvaluation ใช้งานได้
   // }));
 
-  // ✅ สร้าง mainActivities สำหรับ pending evaluation จาก ongoingActivities (ที่เราแก้ไขแล้ว)
-  const allActivitiesForPending = ongoingActivities.map((act) => ({
+  // ✅ สร้างข้อมูลสำหรับตาราง "กิจกรรมที่ยังไม่ได้ทำแบบประเมิน" จากกิจกรรมที่อยู่ในสถานะ Start Assessment
+  const pendingAssessmentActivities = enrolledActivities.filter(
+    (act) => act.activity_state === "Start Assessment"
+  );
+
+  const allActivitiesForPending = pendingAssessmentActivities.map((act) => ({
     ac_id: act.activity_id,
     ac_name: act.activity_name || "",
     ac_company_lecturer: act.presenter_company_name || "",
     ac_description: act.description || "",
     ac_type: (act.type === "Soft" ? "Soft Skill" : "Hard Skill") as "Soft Skill" | "Hard Skill",
-    ac_start_time: act.start_activity_date ? new Date(act.start_activity_date).toISOString() : new Date().toISOString(),
-    ac_end_time: act.end_activity_date ? new Date(act.end_activity_date).toISOString() : new Date().toISOString(),
+    ac_start_time: act.start_activity_date
+      ? new Date(act.start_activity_date).toISOString()
+      : new Date().toISOString(),
+    ac_end_time: act.end_activity_date
+      ? new Date(act.end_activity_date).toISOString()
+      : new Date().toISOString(),
     ac_seat: act.seat || 0,
     ac_registered_count: 0,
     ac_status: act.activity_status || "Private",
@@ -189,38 +204,12 @@ const MainStudent = () => {
     ac_hard_hours: act.type === "Hard" ? (act.recieve_hours || 0) : 0,
     ac_start_assessment: act.start_assessment ? new Date(act.start_assessment) : null,
     ac_end_assessment: act.end_assessment ? new Date(act.end_assessment) : null,
-    activity_state: act.activity_state, // ✅ สำคัญมาก!
-    has_submitted_assessment: false, // ✅ เนื่องจากเป็น ongoingActivities ที่ join_status = 'Pending'
+    activity_state: act.activity_state,
+    has_submitted_assessment:
+      (act as StudentEnrolledActivity).has_submitted_assessment ?? false,
   }));
 
-  // ✅ Debug: Log ข้อมูลที่ส่งไปยัง TablePendingEvaluation
-  console.log("🔍 [Debug] allActivitiesForPending:", allActivitiesForPending);
-  console.log("🔍 [Debug] Activities with Start Assessment:", allActivitiesForPending.filter(a => a.activity_state === "Start Assessment"));
-
-  // ✅ กรองกิจกรรมสำหรับตาราง "กิจกรรมที่ยังไม่ได้ทำแบบประเมิน" - ใช้ ongoingActivities แทน enrolledActivities
-  const transformedActivities = ongoingActivities
-    .filter((act) => {
-      console.log("🔍 [Debug] Activity filtering for assessment:", {
-        activity_id: act.activity_id,
-        activity_name: act.activity_name,
-        activity_status: act.activity_status,
-        activity_state: act.activity_state,
-        shouldShow: act.activity_status === "Public" && act.activity_state === "Start Assessment"
-      });
-      return act.activity_status === "Public" && act.activity_state === "Start Assessment";
-    })
-    .map((act) => ({
-      id: act.activity_id.toString(),
-      name: act.activity_name,
-      company_lecturer: act.presenter_company_name,
-      description: act.description,
-      type: act.type as "Soft Skill" | "Hard Skill",
-      start_time: new Date(act.start_activity_date || ""),
-      seat: act.seat,
-      status: act.activity_status as "Public" | "Private",
-      activity_state: act.activity_state, // ✅ เพิ่ม activity_state
-      // registered_count: act.ac_registered_count,
-    }));
+  const transformedActivities = allActivitiesForPending;
 
   return (
     <Box className="justify-items-center">
@@ -250,7 +239,7 @@ const MainStudent = () => {
             <>
               <TableActivitySection filteredActivities={filteredEnrolledActivities} />
               <TableOngoingSection
-                ongoingActivities={ongoingActivities}
+                ongoingActivities={filteredOngoingActivities}
                 loading={ongoingLoading}
                 error={ongoingError}
               />

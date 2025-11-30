@@ -86,6 +86,13 @@ export default function EnrolledByDepartmentCard() {
   const barData = enrollmentData?.departments || [];
   const barLegend = enrollmentData?.legend || [];
   const totalText = enrollmentData?.totalText || "ไม่มีข้อมูล";
+
+  // ✅ จัดเตรียมสีสำหรับกราฟ (ใช้จาก legend เพื่อให้ตรงกับวงกลม)
+  const defaultColors = ["#6659FF", "#404CCC", "#89AFFF", "#D9D9D9"];
+  const chartColors = barLegend.length > 0
+    ? barLegend.map((item, idx) => item.color || defaultColors[idx] || "#9CA3AF")
+    : defaultColors;
+  
   return (
     <CustomCard
       className="w-full
@@ -105,17 +112,23 @@ export default function EnrolledByDepartmentCard() {
         </h2>
       </div>
 
-      <BarChartY 
-        data={barData}
-        legend={barLegend}
-        stackKeys={["year1", "year2", "year3", "year4"]}
-        colors={["bg-purple-700", "bg-blue-600", "bg-sky-300", "bg-gray-300"]}
-        height={400}
-        barSize={40}
-        showLegend={true}
-        legendPosition="right"
-        totalText={totalText}
-      />
+      {barData.length > 0 ? (
+        <BarChartY 
+          data={barData}
+          legend={barLegend}
+          stackKeys={["year1", "year2", "year3", "year4"]}
+          colors={chartColors}
+          height={400}
+          barSize={40}
+          showLegend={true}
+          legendPosition="right"
+          totalText={totalText}
+        />
+      ) : (
+        <div className="flex items-center justify-center h-64">
+          <p className="text-gray-500">ไม่มีข้อมูลการลงทะเบียน</p>
+        </div>
+      )}
     </CustomCard>
   );
 }

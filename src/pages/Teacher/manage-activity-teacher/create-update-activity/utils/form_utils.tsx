@@ -595,6 +595,15 @@ export const validateField = (
 
   // ✅ URL Validation
   if (fieldName === 'url') {
+    // ✅ Onsite ไม่ต้องบังคับใส่ URL (ไม่ validate)
+    if (context.isOnsite) {
+      return {
+        hasError: false,
+        errorMessage: "",
+        helperText: ""
+      };
+    }
+    
     // ตรวจสอบว่าต้องเป็น Public และ (Online หรือ Course)
     if (!context.isPublic || (!context.isOnline && !context.isCourse)) {
       return {
@@ -604,7 +613,7 @@ export const validateField = (
       };
     }
     
-    // บังคับใส่ URL สำหรับ Online และ Course
+    // บังคับใส่ URL สำหรับ Online และ Course เท่านั้น
     if ((context.isOnline || context.isCourse) && (!formData.url || formData.url.trim() === "")) {
       const eventType = context.isCourse ? "Course" : "Online";
       return {

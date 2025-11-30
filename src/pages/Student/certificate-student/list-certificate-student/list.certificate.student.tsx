@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Searchbar from "@src/components/Searchbar";
-import Button from "../../../../components/Button";
+import Button from "@/components/Button";
 import { FolderUp } from "lucide-react";
-import CustomCard from "../../../../components/Card";
+import CustomCard from "@/components/Card";
 import { GridColDef } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
-import TableRedesign from "../../../../components/Table_re";
-import { useCertificateStore } from "../../../../stores/Student/certificate.store.student";
-import { Certificate } from "../../../../types/certificate/certificate.type";
+import TableRedesign from "@/components/Table_re";
+import { useCertificateStore } from "@/stores/Student/certificate.store.student";
+import { Certificate } from "@/types/certificate/certificate.type";
 
 type Row = { id: number; name: string; sentAt: string; status: string };
 
@@ -34,9 +34,30 @@ export default function ListCertificateStudent() {
       headerName: "สถานะ",
       flex: 0.5,
       minWidth: 120,
-      renderCell: (params) => (
-        <span style={{ color: "red", fontWeight: 500 }}>{params.value}</span>
-      ),
+      renderCell: (params) => {
+        // ✅ เปลี่ยนสีตามสถานะ
+        const getStatusColor = (status: string) => {
+          switch (status) {
+            case "ผ่าน":
+              return "#10B981"; // สีเขียว (green-500)
+            case "รอตรวจสอบ":
+              return "#F59E0B"; // สีส้ม (yellow-500)
+            default:
+              return "#6B7280"; // สีเทา (gray-500)
+          }
+        };
+
+        return (
+          <span 
+            style={{ 
+              color: getStatusColor(params.value), 
+              fontWeight: 600 
+            }}
+          >
+            {params.value}
+          </span>
+        );
+      },
     },
   ];
 
@@ -58,8 +79,7 @@ export default function ListCertificateStudent() {
         hour12: true
       }) : "ไม่ระบุวันที่",
       status: cert.status === "Pending" ? "รอตรวจสอบ" : 
-              cert.status === "Pass" ? "ผ่าน" : 
-              cert.status === "Fail" ? "ไม่ผ่าน" : "ไม่ระบุ"
+              cert.status === "Pass" ? "ผ่าน" : "ไม่ระบุ"
     }));
   }, [certificates]);
 

@@ -44,7 +44,7 @@ export default function OcrResult({ result }: OcrResultProps) {
               </svg>
             </div>
             <h3 className="text-lg font-medium text-green-800 ml-2">
-              ผลการตรวจสอบลิ้งก์
+              ผลการตรวจสอบใบรับรอง
             </h3>
           </div>
           
@@ -73,7 +73,7 @@ export default function OcrResult({ result }: OcrResultProps) {
                 ? 'bg-green-100 text-green-800' 
                 : 'bg-red-100 text-red-800'
             }`}>
-              {result.linkValidationData.isValid ? '✅ ข้อมูลถูกต้อง' : '❌ ข้อมูลไม่ถูกต้อง'}
+              {result.linkValidationData.isValid ? '✅ ตรวจสอบแล้ว ข้อมูลถูกต้อง' : '❌ ข้อมูลไม่ตรงกับเทมเพลต'}
             </span>
           </div>
         </div>
@@ -161,18 +161,46 @@ export default function OcrResult({ result }: OcrResultProps) {
           const certificateType = result.certificateType || 'UNKNOWN';
           console.log("🔍 OcrResult - Certificate Type:", certificateType);
           
+          // ✅ ตรวจสอบว่า certificate ถูก reject หรือไม่ (confidence score < 60)
+          const isRejected = (result as any).rejected === true;
+          
+          // ✅ ถ้าถูก reject แสดงข้อความ reject
+          if (isRejected) {
+            return (
+              <div className="mt-3">
+                <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 mb-4">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
+                    <div className="ml-3 flex-1">
+                      <h3 className="text-lg font-bold text-red-800 mb-2">
+                        ❌ ใบรับรองไม่ผ่านเกณฑ์การตรวจสอบ
+                      </h3>
+                      <p className="text-sm text-red-700 mb-2">
+                        {(result as any).rejectionMessage || "คะแนนความเชื่อมั่นต่ำกว่า 60%"}
+                      </p>
+                      <p className="text-sm text-red-600">
+                        ใบรับรองนี้จะไม่ถูกบันทึกลงระบบ กรุณาตรวจสอบความถูกต้องของไฟล์หรือติดต่อเจ้าหน้าที่เพื่อขอความช่วยเหลือ
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          
           // ✅ ตรวจสอบข้อมูลที่ขาดหายไป - ปรับตาม certificate type
           const missingFields = [];
           if (result.fullName === "-") missingFields.push("ชื่อ-นามสกุล");
           if (result.courseName === "-") missingFields.push("ชื่อหลักสูตร");
-          if (result.teacher === "-") missingFields.push("ชื่ออาจารย์");
+          // ✅ สำหรับ PDF: ไม่บังคับชื่ออาจารย์ (อาจสกัดไม่ได้)
+          // if (result.teacher === "-") missingFields.push("ชื่ออาจารย์");
           if (result.date === "-") missingFields.push("วันที่");
           
-          // ✅ Certificate ID - ตรวจสอบตาม certificate type
-          if (certificateType === 'BUU_MOOC' && result.certificateId === "-") {
-            missingFields.push("Certificate ID");
-          }
-          // ✅ Thai MOOC ไม่บังคับ Certificate ID
+          // ✅ ไม่บังคับ Certificate ID สำหรับ BUU MOOC PDF แล้ว
           
           // ✅ ใช้ verified จาก backend เป็นหลัก (ถ้ามี)
           const isVerified = result.verified ?? false;

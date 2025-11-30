@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "@/components/Button";
 import { useState } from "react";
 import { createFood } from "@/service/Teacher/food.service";
+import { useFoodStore } from "@/stores/Teacher/food.store.teacher";
 import { toast } from "sonner";
 import Loading from "@/components/Loading";
 
@@ -10,6 +11,7 @@ const CreateFoodAdmin = () => {
   const navigate = useNavigate();
   const [foodName, setFoodName] = useState("");
   const [loading, setLoading] = useState(false);
+  const { invalidateCache } = useFoodStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,15 +23,21 @@ const CreateFoodAdmin = () => {
 
     setLoading(true);
     try {
-      const res = await createFood({
+      await createFood({
         food_name: foodName,
         status: "Active",
         faculty_id: 1,
       });
 
-      console.log("✅ Food created:", res);
+      console.log("✅ Food created successfully");
+      
+      // ✅ Clear cache
+      invalidateCache();
+
       toast.success("สร้างอาหารสำเร็จ");
-      navigate("/list-food-teacher");
+      
+      // ✅ Navigate พร้อม query parameter เพื่อบังคับให้ refresh
+      navigate("/list-food-teacher?refresh=" + Date.now());
     } catch (error) {
       console.error("❌ เกิดข้อผิดพลาดในการสร้างอาหาร:", error);
       toast.error("ไม่สามารถสร้างอาหารได้");

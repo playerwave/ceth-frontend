@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../stores/Visitor/auth.store";
 
@@ -6,6 +6,7 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
   const { isAuthenticated, authLoading, user, fetchMe, authError } = useAuthStore();
   const location = useLocation();
   const path = location.pathname;
+  const hasFetchedRef = useRef<boolean>(false); // ✅ เพิ่ม ref เพื่อป้องกันการเรียกซ้ำ
 
   console.log("🔍 [ProtectedRoute] Component rendered:", {
     path,
@@ -30,12 +31,29 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
     // ✅ ตรวจสอบ token ใน localStorage ก่อน
     const token = localStorage.getItem('auth-token');
     
+    // ✅ ป้องกันการเรียกซ้ำ (ใช้ ref เพื่อ track ว่าเคยเรียกไปแล้วสำหรับ path นี้)
+    if (hasFetchedRef.current || authLoading) {
+      return;
+    }
+    
     // ✅ เรียก fetchMe เฉพาะเมื่อยังไม่มี user และไม่ใช่ public path และมี token
     if (!user && !isPublicPath && token) {
       console.log("🔁 [ProtectedRoute] Fetching user from /me");
-      fetchMe();
+      hasFetchedRef.current = true;
+      fetchMe().catch((error) => {
+        console.error("❌ [ProtectedRoute] Error fetching user:", error);
+        // ✅ Reset ref เฉพาะเมื่อ error (เพื่อให้ลองใหม่ได้)
+        hasFetchedRef.current = false;
+      });
     }
-  }, [fetchMe, user, path, isPublicPath]);
+    
+    // ✅ Reset ref เมื่อ path เปลี่ยน (เพื่อให้เรียก fetchMe ใหม่ได้เมื่อเปลี่ยนหน้า)
+    return () => {
+      if (hasFetchedRef.current) {
+        hasFetchedRef.current = false;
+      }
+    };
+  }, [path]); // ✅ เหลือแค่ path ใน dependency (ไม่ต้องมี user, authLoading เพราะมี global flag ใน store)
 
   // ⏳ กำลังโหลด
   if (authLoading) {
