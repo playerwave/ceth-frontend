@@ -7,7 +7,7 @@ const getApiUrl = () => {
 
   // ✅ Fallback values
   const defaultDev = "http://localhost:5090/api/";
-  const defaultProd = "https://ceth-api.theapds.org/api/";
+  const defaultProd = "https://ceth-backend.unizalgroup.workers.dev/api/";
 
   if (import.meta.env.MODE === "preview") {
     return productionMode || defaultProd;
