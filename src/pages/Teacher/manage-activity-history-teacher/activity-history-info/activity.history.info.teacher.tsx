@@ -61,9 +61,6 @@ const ActivityHistoryInfoTeacher = () => {
           name={activity.activity_name || ""}
           seat={activity.seat || 0}
           registeredCount={activity.registered_count || 0}
-          onClickRegistered={() =>
-            navigate(`/enrolled_list_admin/${activity.activity_id}`)
-          }
         />
 
         <ActivityImage imageUrl={activity.image_url} />
